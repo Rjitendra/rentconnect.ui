@@ -1,0 +1,15 @@
+<div class="moments-container">
+  <h2>📸 My Travel & Activity Moments</h2>
+
+  <!-- Display Static Images -->
+  <div class="moments-grid">
+    @for (moment of moments; track moment) {
+      <div class="moment-card">
+        <div class="image-container">
+          <img alt="Moment Image" [src]="moment.imageUrl" />
+        </div>
+        <span class="caption-label">{{ moment.caption }}</span>
+      </div>
+    }
+  </div>
+</div>

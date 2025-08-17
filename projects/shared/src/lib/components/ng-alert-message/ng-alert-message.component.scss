@@ -1,0 +1,71 @@
+.alert-card {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 40px;
+  z-index: 1100;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  padding-right: 40px; /* space for close button */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+}
+
+.alert-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+
+.message-text {
+  font-size: 16px;
+  font-weight: 500;
+  display: block;
+  padding-left: 10px;
+}
+
+.alert-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.alert-btn {
+  height: 32px;
+  min-width: auto;
+  padding: 0 10px;
+}
+
+.close-button {
+  position: absolute;
+  top: -4px;
+  right: 8px;
+}
+/* Alert type color styles */
+.success {
+  background-color: #e6f4ea;
+  border-left: 4px solid #28a745;
+}
+
+.error {
+  background-color: #f8d7da;
+  border-left: 4px solid #dc3545;
+}
+
+.info {
+  background-color: #e2f0fb;
+  border-left: 4px solid #17a2b8;
+}
+
+.warning {
+  background-color: #fff3cd;
+  border-left: 4px solid #ffc107;
+}
+.mat-mdc-card-content:first-child {
+  padding: 0 !important;
+}
+.mat-mdc-card-content:first-child {
+  padding: 0 !important;
+}

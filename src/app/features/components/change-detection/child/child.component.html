@@ -1,0 +1,17 @@
+<h2>Child Component (OnPush)</h2>
+<table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Course Name</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (course of courses(); track $index; let i = $index) {
+      <tr>
+        <td>{{ i }}</td>
+        <td>{{ course.name }}</td>
+      </tr>
+    }
+  </tbody>
+</table>

@@ -1,0 +1,10 @@
+<h1>Parent Component</h1>
+<ul>
+  @for (course of courses; track $index; let i = $index) {
+    <li>{{ i }}-{{ course.name }}</li>
+  }
+</ul>
+<button type="button" (click)="updateWithoutMarkForCheck()">Update without markForCheck</button>
+<button type="button" (click)="updateWithMarkForCheck()">Update with markForCheck</button>
+<button type="button" (click)="updateWithDetectChanges()">Update with detectChanges</button>
+<ng-child [courses]="courses" />

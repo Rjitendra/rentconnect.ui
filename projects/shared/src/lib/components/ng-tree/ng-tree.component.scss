@@ -1,0 +1,14 @@
+/* flat-tree-example.component.css */
+.mat-tree-node {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+}
+
+.mat-tree-node.is-expandable {
+  font-weight: bold;
+}
+
+.mat-tree-node button {
+  margin-right: 8px;
+}
