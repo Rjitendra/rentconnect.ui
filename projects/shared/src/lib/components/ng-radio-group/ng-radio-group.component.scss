@@ -1,0 +1,53 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.ng-radio-group {
+  width: 100%;
+}
+
+.group-label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.group-label ng-clarify-text {
+  margin-left: 4px;
+}
+
+mat-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.radio-option.horizontal {
+  margin-right: 16px;
+}
+
+.radio-option.vertical {
+  margin-bottom: 8px;
+}
+
+mat-radio-group.horizontal {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.hint-text {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+  margin-top: 4px;
+}
+
+mat-radio-button.mat-mdc-radio-button {
+  margin-bottom: 8px;
+}
+
+mat-radio-group.horizontal mat-radio-button.mat-mdc-radio-button {
+  margin-right: 16px;
+  margin-bottom: 0;
+}

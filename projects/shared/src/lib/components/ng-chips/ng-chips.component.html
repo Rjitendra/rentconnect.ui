@@ -1,0 +1,54 @@
+<div class="ng-chips">
+  @if (label) {
+    <div class="chips-label">
+      <ng-label [label]="label" [required]="required" [toolTip]="toolTip" />
+      @if (clarifyText) {
+        <ng-clarify-text 
+          [clarifyText]="clarifyText" 
+          [isIconDisabled]="disabled" />
+      }
+    </div>
+  }
+  
+  <mat-form-field [appearance]="appearance" class="chips-form-field">
+    <mat-chip-grid #chipGrid [disabled]="disabled" [required]="required">
+      @for (chip of selectedChips; track chip.value) {
+        <mat-chip-row
+          [removable]="chip.removable !== false"
+          [color]="chip.color || 'primary'"
+          [disabled]="disabled"
+          (removed)="removeChip(chip)">
+          {{ chip.label }}
+          @if (chip.removable !== false && !disabled) {
+            <mat-icon matChipRemove>cancel</mat-icon>
+          }
+        </mat-chip-row>
+      }
+      
+      @if (allowInput && !disabled) {
+        <input
+          #chipInput
+          [formControl]="inputControl"
+          [placeholder]="placeholder"
+          [matChipInputFor]="chipGrid"
+          [matAutocomplete]="chipAuto"
+          [matChipInputSeparatorKeyCodes]="separatorKeyCodes"
+          (matChipInputTokenEnd)="addChipFromInput($event)">
+      }
+    </mat-chip-grid>
+    
+    <mat-autocomplete 
+      #chipAuto="matAutocomplete"
+      (optionSelected)="addChipFromAutocomplete($event)">
+      @if (allowInput && availableOptions.length > 0) {
+        @for (option of filteredOptions | async; track option.value) {
+          <mat-option [value]="option">{{ option.label }}</mat-option>
+        }
+      }
+    </mat-autocomplete>
+    
+    @if (hint) {
+      <mat-hint>{{ hint }}</mat-hint>
+    }
+  </mat-form-field>
+</div>

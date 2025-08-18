@@ -1,0 +1,49 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.ng-progress-bar {
+  width: 100%;
+}
+
+.progress-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.progress-label ng-clarify-text {
+  margin-left: 4px;
+  margin-right: auto;
+}
+
+.progress-value {
+  font-size: 14px;
+  color: var(--mat-primary-color, #1976d2);
+  font-weight: 600;
+}
+
+mat-progress-bar {
+  width: 100%;
+}
+
+.progress-small {
+  height: 4px;
+}
+
+.progress-medium {
+  height: 6px;
+}
+
+.progress-large {
+  height: 8px;
+}
+
+.hint-text {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+  margin-top: 4px;
+}

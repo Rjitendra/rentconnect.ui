@@ -1,0 +1,36 @@
+<mat-form-field [appearance]="appearance" class="ng-select-field">
+  @if (label) {
+    <mat-label>
+      <ng-label [label]="label" [required]="required" [toolTip]="toolTip" />
+    </mat-label>
+  }
+  
+  <mat-select
+    [value]="value"
+    [placeholder]="placeholder"
+    [multiple]="multiple"
+    [disabled]="disabled"
+    [required]="required"
+    [id]="uniqueId"
+    (selectionChange)="onSelectionChange($event)"
+    (openedChange)="onOpenedChange($event)">
+    
+    @for (option of options; track option.value) {
+      <mat-option [value]="option.value" [disabled]="option.disabled">
+        {{ option.label }}
+      </mat-option>
+    }
+  </mat-select>
+  
+  @if (clarifyText) {
+    <div matTextSuffix>
+      <ng-clarify-text 
+        [clarifyText]="clarifyText" 
+        [isIconDisabled]="disabled" />
+    </div>
+  }
+  
+  @if (hint) {
+    <mat-hint>{{ hint }}</mat-hint>
+  }
+</mat-form-field>

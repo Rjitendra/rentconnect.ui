@@ -29,7 +29,7 @@
                 "input": "public"
               }
             ],
-           "styles": ["@angular/material/prebuilt-themes/indigo-pink.css", "src/styles.scss"]
+           "styles": ["@angular/material/prebuilt-themes/azure-blue.css", "src/styles.scss"]
           },
           "configurations": {
             "production": {
@@ -100,9 +100,14 @@
     },
     "shared": {
       "projectType": "library",
+       "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
       "root": "projects/shared",
       "sourceRoot": "projects/shared/src",
-      "prefix": "lib",
+      "prefix": "",
       "architect": {
         "build": {
           "builder": "@angular/build:ng-packagr",

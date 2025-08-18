@@ -1,0 +1,46 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+mat-stepper {
+  width: 100%;
+}
+
+.step-navigation {
+  display: flex;
+  align-items: center;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.step-navigation button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.step-navigation button mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+mat-step {
+  min-height: 200px;
+}
+
+::ng-deep .mat-stepper-vertical .mat-step-content {
+  margin-left: 36px;
+  border-left: none;
+  padding-left: 16px;
+}
+
+::ng-deep .mat-stepper-horizontal .mat-step-header {
+  padding: 24px 16px;
+}

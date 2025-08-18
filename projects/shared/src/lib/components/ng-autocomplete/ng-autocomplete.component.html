@@ -1,0 +1,42 @@
+<mat-form-field [appearance]="appearance" class="ng-autocomplete-field">
+  @if (label) {
+    <mat-label>
+      <ng-label [label]="label" [required]="required" [toolTip]="toolTip" />
+    </mat-label>
+  }
+  
+  <input
+    matInput
+    [formControl]="inputControl"
+    [placeholder]="placeholder"
+    [disabled]="disabled"
+    [required]="required"
+    [id]="uniqueId"
+    [matAutocomplete]="auto"
+    (blur)="onBlur()"
+    (input)="onInputChange($event)">
+  
+  <mat-autocomplete 
+    #auto="matAutocomplete"
+    [displayWith]="displayWith"
+    (optionSelected)="onOptionSelected($event)">
+    
+    @for (option of filteredOptions | async; track option.value) {
+      <mat-option [value]="option" [disabled]="option.disabled">
+        {{ option.label }}
+      </mat-option>
+    }
+  </mat-autocomplete>
+  
+  @if (clarifyText) {
+    <div matTextSuffix>
+      <ng-clarify-text 
+        [clarifyText]="clarifyText" 
+        [isIconDisabled]="disabled" />
+    </div>
+  }
+  
+  @if (hint) {
+    <mat-hint>{{ hint }}</mat-hint>
+  }
+</mat-form-field>

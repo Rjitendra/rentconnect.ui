@@ -1,40 +1,13 @@
-<section class="container-section">
-  <div class="content">
-    <div class="text-content">
-      <h1>Welcome to <span class="highlight">My Portfolio</span></h1>
-      <p class="subtitle">
-        Explore interview questions, advanced programming concepts, and insights from my experience.
-      </p>
-      <p>
-        This platform is designed to help developers prepare for interviews, stay updated with new
-        technologies, and enhance their coding skills.
-      </p>
-      <button mat-button color="primary" class="cta-btn" type="button">Get Started</button>
-    </div>
-    <div class="image-content">
-      <img alt="Your Name" class="profile-image" src="icons/jitendra_1.png" />
-      <p class="image-caption">Passionate Developer & Interview Coach</p>
-    </div>
-  </div>
-</section>
+<ng-mat-table
+      [columns]="columns"
+      [data]="users"
+      [options]="tableOptions"
+      [headerCheckbox]="true"
+      [rowCheckbox]="true"
+      (rowClick)="onRowClick($event)"
+      (selectionChange)="onSelectionChange($event)">
+    </ng-mat-table>
 
-<section class="highlights">
-  <h2>What You Will Find Here</h2>
-  <div class="highlight-list">
-    <mat-card class="highlight-card">
-      <mat-icon class="highlight-icon">help_outline</mat-icon>
-      <h3>Interview Questions</h3>
-      <p>Top interview questions for Angular, TypeScript, and more.</p>
-    </mat-card>
-    <mat-card class="highlight-card">
-      <mat-icon class="highlight-icon">code</mat-icon>
-      <h3>Advanced Concepts</h3>
-      <p>Learn cutting-edge techniques and best practices.</p>
-    </mat-card>
-    <mat-card class="highlight-card">
-      <mat-icon class="highlight-icon">school</mat-icon>
-      <h3>Learning Resources</h3>
-      <p>Articles, guides, and resources to boost your skills.</p>
-    </mat-card>
-  </div>
-</section>
+    <ng-template #emailTemplate let-row>
+      <a href="mailto:{{ row.email }}">{{ row.email }}</a>
+    </ng-template>

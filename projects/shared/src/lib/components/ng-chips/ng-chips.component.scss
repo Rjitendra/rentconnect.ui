@@ -1,0 +1,31 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.ng-chips {
+  width: 100%;
+}
+
+.chips-label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.chips-label ng-clarify-text {
+  margin-left: 4px;
+}
+
+.chips-form-field {
+  width: 100%;
+}
+
+mat-chip-grid {
+  min-height: 48px;
+}
+
+mat-chip-row {
+  margin: 2px;
+}

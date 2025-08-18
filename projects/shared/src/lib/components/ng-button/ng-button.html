@@ -1,0 +1,112 @@
+<!-- Text Button -->
+@if (type === 'text') {
+<button
+  mat-button
+  [matTooltip]="tooltip"
+  [disabled]="disabled"
+  (click)="onClick()"
+>
+  {{ label }}
+</button>
+}
+
+<!-- Elevated Button -->
+@if (type === 'elevated') {
+<button
+  mat-button="elevated"
+  [matTooltip]="tooltip"
+  [disabled]="disabled"
+  (click)="onClick()"
+>
+  {{ label }}
+</button>
+}
+
+<!-- Outlined Button -->
+@if (type === 'outlined') {
+<button
+  mat-button="outlined"
+  [matTooltip]="tooltip"
+  [disabled]="disabled"
+  (click)="onClick()"
+>
+  {{ label }}
+</button>
+}
+
+<!-- Filled Button -->
+@if (type === 'filled') {
+<button
+  mat-button="filled"
+  [matTooltip]="tooltip"
+  [disabled]="disabled"
+  (click)="onClick()"
+>
+  {{ label }}
+</button>
+}
+
+<!-- Tonal Button -->
+@if (type === 'tonal') {
+<button
+  mat-button="tonal"
+  [matTooltip]="tooltip"
+  [disabled]="disabled"
+  (click)="onClick()"
+>
+  {{ label }}
+</button>
+}
+
+<!-- Icon Button -->
+@if (type === 'icon') {
+<button
+  mat-icon-button
+  [matTooltip]="tooltip"
+  [disabled]="disabled"
+  (click)="onClick()"
+  [attr.aria-label]="label"
+>
+  <mat-icon>{{ icon }}</mat-icon>
+</button>
+}
+
+<!-- FAB Button -->
+@if (type === 'fab') {
+<button
+  mat-fab
+  [matTooltip]="tooltip"
+  [disabled]="disabled"
+  (click)="onClick()"
+  [attr.aria-label]="label"
+>
+  <mat-icon>{{ icon }}</mat-icon>
+</button>
+}
+
+<!-- Mini FAB Button -->
+@if (type === 'mini-fab') {
+<button
+  mat-mini-fab
+  [matTooltip]="tooltip"
+  [disabled]="disabled"
+  (click)="onClick()"
+  [attr.aria-label]="label"
+>
+  <mat-icon>{{ icon }}</mat-icon>
+</button>
+}
+
+<!-- Extended FAB Button -->
+@if (type === 'extended') {
+<button
+  mat-fab
+  extended
+  [matTooltip]="tooltip"
+  [disabled]="disabled"
+  (click)="onClick()"
+>
+  <mat-icon>{{ icon }}</mat-icon>
+  {{ label }}
+</button>
+}

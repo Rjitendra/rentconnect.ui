@@ -1,0 +1,40 @@
+/* Make the entire mat-table fill width */
+table.mat-mdc-table {
+  width: 100%;
+  border-spacing: 0;
+}
+
+/* Checkbox column */
+th.mat-mdc-header-cell.checkbox-col,
+td.mat-mdc-cell.checkbox-col {
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+  text-align: center;
+  padding: 0 8px;
+}
+
+/* Align checkbox vertically centered */
+.mat-mdc-checkbox {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Header cells */
+th.mat-mdc-header-cell {
+  font-weight: 600;
+  background-color: #f5f5f5;
+}
+
+/* Row hover effect */
+tr.mat-mdc-row:hover {
+  background-color: #f9f9f9;
+  cursor: pointer;
+}
+
+/* Optional: add borders */
+td.mat-mdc-cell,
+th.mat-mdc-header-cell {
+  border-bottom: 1px solid #e0e0e0;
+}
