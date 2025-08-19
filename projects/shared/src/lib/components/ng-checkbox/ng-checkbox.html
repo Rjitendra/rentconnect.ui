@@ -1,54 +1,48 @@
-@if (formGroup) {
-<ng-container [formGroup]="formGroup">
-  @if (!isToggle) {
-  <mat-checkbox
-    [name]="uniqueId || checkboxName || 'inputCheck'"
-    [aria-label]="label || toolTip"
-    [checked]="checked"
-    [color]="color"
-    [formControl]="formCtrl"
-    [id]="uniqueId"
-    [labelPosition]="labelPosition || 'after'"
-    [required]="isRequired"
-    [indeterminate]="indeterminate"
-    (change)="onChange($event.checked)"
-  >
-    @if (!hideLabel) {
-      <ng-label [label]="label" [required]="isRequired" [toolTip]="toolTip" />
-    } @if (clarifyText){
-    <ng-clarify-text
-      matSuffix
-      [clarifyText]="clarifyText"
-      [isIconDisabled]="formCtrl.disabled"
-    />
-    }
-  </mat-checkbox>
-  } @else {
-  <mat-slide-toggle
-    [name]="uniqueId || checkboxName || 'inputCheck'"
-    [aria-label]="label"
-    [checked]="checked"
-    [color]="color"
-    [formControl]="formCtrl"
-    [id]="uniqueId"
-    [labelPosition]="labelPosition || 'after'"
-    [required]="isRequired"
-    (change)="onChange($event.checked)"
-  >
-    @if (!hideLabel) {
-      <cl-label
-        [label]="label"
-        [required]="isRequired"
-        [toolTip]="toolTip"
-      />
-    } @if (clarifyText) {
-    <cl-clarify-text
-      matSuffix
-      [clarifyText]="clarifyText"
-      [isIconDisabled]="formCtrl.disabled"
-    />
-    }
-  </mat-slide-toggle>
+@if (!isToggle) {
+<mat-checkbox
+  [name]="uniqueId || checkboxName || 'inputCheck'"
+  [aria-label]="label || toolTip || ''"
+  [checked]="value"
+  [color]="color"
+  [disabled]="disabled"
+  [id]="uniqueId || ''"
+  [labelPosition]="labelPosition || 'after'"
+  [required]="isRequired"
+  [indeterminate]="indeterminate"
+  (change)="onCheckboxChange($event)"
+  (blur)="onBlur()"
+>
+  @if (!hideLabel) {
+  <ng-label [label]="label" [required]="isRequired" [toolTip]="toolTip || ''" />
+  } @if (clarifyText){
+  <ng-clarify-text
+    matSuffix
+    [clarifyText]="clarifyText"
+    [isIconDisabled]="disabled"
+  />
   }
-</ng-container>
+</mat-checkbox>
+} @else {
+<mat-slide-toggle
+  [name]="uniqueId || checkboxName || 'inputCheck'"
+  [aria-label]="label"
+  [checked]="value"
+  [color]="color"
+  [disabled]="disabled"
+  [id]="uniqueId || ''"
+  [labelPosition]="labelPosition || 'after'"
+  [required]="isRequired"
+  (change)="onCheckboxChange($event)"
+  (blur)="onBlur()"
+>
+  @if (!hideLabel) {
+  <cl-label [label]="label" [required]="isRequired" [toolTip]="toolTip || ''" />
+  } @if (clarifyText) {
+  <cl-clarify-text
+    matSuffix
+    [clarifyText]="clarifyText"
+    [isIconDisabled]="disabled"
+  />
+  }
+</mat-slide-toggle>
 }

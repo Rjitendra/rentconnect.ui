@@ -1,22 +1,18 @@
 :host {
   display: block;
-  
   .mat-mdc-checkbox,
   .mat-mdc-slide-toggle {
     width: 100%;
   }
-  
   .mat-mdc-checkbox .mdc-form-field,
   .mat-mdc-slide-toggle .mdc-form-field {
     align-items: flex-start;
   }
-  
   ng-label,
   cl-label {
     display: inline-block;
     margin-right: 8px;
   }
-  
   ng-clarify-text,
   cl-clarify-text {
     display: inline-block;
