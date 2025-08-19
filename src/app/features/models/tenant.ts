@@ -1,3 +1,4 @@
+import { IDocument } from "./document";
 import { ILandlord } from "./landlord";
 import { IProperty } from "./property";
 import { ITicket } from "./tickets";
@@ -59,7 +60,7 @@ export interface ITenant {
 
   // Navigation collections
   tickets?: ITicket[];
-  documents?: Document[];
+  documents?: IDocument[];
 }
 
 export interface TenantChildren {

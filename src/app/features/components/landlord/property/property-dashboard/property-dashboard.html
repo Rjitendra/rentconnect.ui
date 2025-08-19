@@ -1,1 +1,242 @@
-<p>property-dashboard works!</p>
+<div class="property-dashboard">
+  <!-- Page Header -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <h1>Property Management</h1>
+      <p>Manage your property portfolio with advanced features</p>
+    </div>
+    <div class="header-actions" *ngIf="currentView === 'table'">
+      <button
+        mat-raised-button
+        color="primary"
+        class="create-btn"
+        (click)="onCreateProperty()"
+      >
+        <mat-icon>add</mat-icon> Add New Property
+      </button>
+    </div>
+  </div>
+  <!-- Breadcrumb Navigation -->
+  <div class="breadcrumb" *ngIf="currentView !== 'table'">
+    <button mat-button (click)="showTable()">
+      <mat-icon>arrow_back</mat-icon> Back to Properties
+    </button>
+    <span class="divider">/</span>
+    <span class="current-view">
+      {{
+        currentView === "detail"
+          ? "Property Details"
+          : currentView === "create"
+            ? "Create Property"
+            : "Edit Property"
+      }}
+    </span>
+  </div>
+  <!-- Table View -->
+  <div *ngIf="currentView === 'table'" class="table-view">
+    <!-- Table Statistics -->
+    <div class="stats-cards">
+      <div class="stat-card">
+        <mat-icon class="stat-icon">home</mat-icon>
+        <div class="stat-content">
+          <span class="stat-number">{{ properties.length }}</span>
+          <span class="stat-label">Total Properties</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <mat-icon class="stat-icon available">check_circle</mat-icon>
+        <div class="stat-content">
+          <span class="stat-number">{{ getAvailablePropertiesCount() }}</span>
+          <span class="stat-label">Available</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <mat-icon class="stat-icon occupied">people</mat-icon>
+        <div class="stat-content">
+          <span class="stat-number">{{ getOccupiedPropertiesCount() }}</span>
+          <span class="stat-label">Occupied</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <mat-icon class="stat-icon revenue">attach_money</mat-icon>
+        <div class="stat-content">
+          <span class="stat-number"
+            >₹{{ getTotalRevenue() | number: "1.0-0" }}</span
+          >
+          <span class="stat-label">Monthly Revenue</span>
+        </div>
+      </div>
+    </div>
+    <!-- Property Table -->
+    <div class="table-section">
+      <div class="table-container">
+        <table mat-table [dataSource]="properties" class="mat-elevation-z8">
+          <!-- ID Column -->
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef>ID</th>
+            <td mat-cell *matCellDef="let property">{{ property.id }}</td>
+          </ng-container>
+          <!-- Title Column -->
+          <ng-container matColumnDef="title">
+            <th mat-header-cell *matHeaderCellDef>Property Name</th>
+            <td mat-cell *matCellDef="let property">{{ property.title }}</td>
+          </ng-container>
+          <!-- Address Column -->
+          <ng-container matColumnDef="fullAddress">
+            <th mat-header-cell *matHeaderCellDef>Address</th>
+            <td mat-cell *matCellDef="let property">
+              {{ property.fullAddress }}
+            </td>
+          </ng-container>
+          <!-- Tenants Column -->
+          <ng-container matColumnDef="mappedTenants">
+            <th mat-header-cell *matHeaderCellDef>Tenants</th>
+            <td mat-cell *matCellDef="let property">
+              {{ property.mappedTenants }}
+            </td>
+          </ng-container>
+          <!-- Rent Column -->
+          <ng-container matColumnDef="monthlyRent">
+            <th mat-header-cell *matHeaderCellDef>Monthly Rent</th>
+            <td mat-cell *matCellDef="let property">
+              {{ property.monthlyRent }}
+            </td>
+          </ng-container>
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let property">
+              <span
+                class="status-badge"
+                [ngClass]="'status-' + property.status?.toLowerCase()"
+              >
+                {{ property.status }}
+              </span>
+            </td>
+          </ng-container>
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let property">
+              <button
+                mat-icon-button
+                (click)="onRowClick(property)"
+                matTooltip="View Details"
+              >
+                <mat-icon>visibility</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                (click)="onEditProperty(property)"
+                matTooltip="Edit"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                (click)="onDeleteProperty(property)"
+                matTooltip="Delete"
+                color="warn"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: displayedColumns"
+            (click)="onRowClick(row)"
+            class="table-row"
+          ></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <!-- Simple Property Detail View -->
+  <div *ngIf="currentView === 'detail'" class="detail-view">
+    <div class="property-detail-card" *ngIf="selectedProperty">
+      <div class="detail-header">
+        <h2>{{ selectedProperty.title }}</h2>
+        <button mat-button (click)="showTable()">
+          <mat-icon>arrow_back</mat-icon> Back to List
+        </button>
+      </div>
+      <div class="detail-content">
+        <div class="detail-section">
+          <h3>Basic Information</h3>
+          <p>
+            <strong>Property Type:</strong> {{ selectedProperty.propertyType }}
+          </p>
+          <p><strong>BHK:</strong> {{ selectedProperty.bhkConfiguration }}</p>
+          <p>
+            <strong>Description:</strong>
+            {{ selectedProperty.description || "N/A" }}
+          </p>
+        </div>
+        <div class="detail-section">
+          <h3>Location</h3>
+          <!-- <p><strong>Address:</strong> {{ selectedProperty.fullAddress }}</p> -->
+          <p><strong>City:</strong> {{ selectedProperty.city }}</p>
+          <p><strong>State:</strong> {{ selectedProperty.state }}</p>
+          <p><strong>PIN Code:</strong> {{ selectedProperty.pinCode }}</p>
+        </div>
+        <div class="detail-section">
+          <h3>Rent Details</h3>
+          <p>
+            <strong>Monthly Rent:</strong> {{ selectedProperty.monthlyRent }}
+          </p>
+          <p>
+            <strong>Security Deposit:</strong> ₹{{
+              selectedProperty.securityDeposit | number
+            }}
+          </p>
+          <p><strong>Status:</strong> {{ selectedProperty.status }}</p>
+          <p>
+            <strong>Negotiable:</strong>
+            {{ selectedProperty.isNegotiable ? "Yes" : "No" }}
+          </p>
+        </div>
+        <div class="detail-section">
+          <h3>Tenancy Information</h3>
+          <!-- <p><strong>Mapped Tenants:</strong> {{ selectedProperty.mappedTenants }}</p> <p><strong>Documents:</strong> {{ selectedProperty.documentsCount }}</p> -->
+          <p>
+            <strong>Available From:</strong>
+            {{ selectedProperty.availableFrom | date }}
+          </p>
+        </div>
+      </div>
+      <div class="detail-actions">
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="onEditProperty(selectedProperty)"
+        >
+          <mat-icon>edit</mat-icon> Edit Property
+        </button>
+        <button
+          mat-raised-button
+          color="warn"
+          (click)="onDeleteProperty(selectedProperty)"
+        >
+          <mat-icon>delete</mat-icon> Delete Property
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- Create/Edit Form Placeholder -->
+  <div
+    *ngIf="currentView === 'create' || currentView === 'edit'"
+    class="form-view"
+  >
+    <div class="form-placeholder">
+      <h2>
+        {{ currentView === "edit" ? "Edit Property" : "Create New Property" }}
+      </h2>
+      <p>Form components will be implemented here.</p>
+      <button mat-button (click)="showTable()">
+        <mat-icon>arrow_back</mat-icon> Back to Properties
+      </button>
+    </div>
+  </div>
+</div>

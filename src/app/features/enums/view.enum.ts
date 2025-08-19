@@ -25,7 +25,7 @@ export enum PropertyStatus {
   Archived = 'Archived',
 }
 
-export enum DocumentType {
+export enum DocumentCategory {
   Aadhaar = 'Aadhaar',
   PAN = 'PAN',
   OwnershipProof = 'OwnershipProof',
@@ -39,4 +39,16 @@ export enum DocumentType {
   ProfilePhoto = 'ProfilePhoto',
   EmploymentProof = 'EmploymentProof',
   PersonPhoto = 'PersonPhoto',
+  Legal = 'Legal',
+  Agreement = 'Agreement',
+  Financial = 'Financial'
 }
+export enum TenantStatus {
+  Active = 'Active',
+  Inactive = 'Inactive',
+  Pending = 'Pending',
+  Rejected = 'Rejected',
+  Blacklisted = 'Blacklisted',
+}
+
+
