@@ -149,7 +149,7 @@ export class PropertyAdd implements OnInit {
   }
 
   onSubmit() {
-    this.propertyForm.markAsDirty()
+
     if (this.isSaving) return; // Prevent double submission
 
     console.log('Form submission triggered');
@@ -269,26 +269,29 @@ export class PropertyAdd implements OnInit {
     this.backToList.emit();
   }
 
-  showValidationErrors() {
-    if (this.validationErrors.length > 0) {
-      // Use alert service to show errors
-      this.alertService.error({
-        errors: [{
-          message: 'Please fix the following validation errors:',
-          errorType: 'error'
-        }, ...this.validationErrors.map(error => ({
-          message: `• ${error.message}`,
-          errorType: 'error' as const
-        }))],
-        timeout: 8000 // Show for 8 seconds
-      });
+showValidationErrors() {
+  if (this.validationErrors.length > 0) {
+    // Log all validation errors to the console for debugging
+    console.error('Validation Errors:', this.validationErrors);
 
-      // Mark form controls as touched to show validation errors
-      Object.keys(this.propertyForm.controls).forEach(key => {
-        this.propertyForm.get(key)?.markAsTouched();
-      });
-    }
+    // Use alert service to show errors
+    this.alertService.error({
+      errors: [{
+        message: 'Please fix the following validation errors:',
+        errorType: 'error'
+      }, ...this.validationErrors.map(error => ({
+        message: `• ${error.message}`,
+        errorType: 'error' as const
+      }))],
+      timeout: 8000 // Show for 8 seconds
+    });
+
+    // Mark form controls as touched to show validation errors
+    Object.keys(this.propertyForm.controls).forEach(key => {
+      this.propertyForm.get(key)?.markAsTouched();
+    });
   }
+}
 
   // Helper method to check if a field is invalid
   isFieldInvalid(fieldName: string): boolean {

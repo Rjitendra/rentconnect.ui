@@ -87,9 +87,8 @@ export class NgInputComponent implements ControlValueAccessor, OnInit, OnDestroy
 
   ngOnInit() {
     // Use setTimeout to avoid circular dependency during initialization
-    setTimeout(() => {
-      this.tryGetNgControl();
-    });
+   this.tryGetNgControl();
+    
     
     this.setupValidations();
     this.setupControlMonitoring();
