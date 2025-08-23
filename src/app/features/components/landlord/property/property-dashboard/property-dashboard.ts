@@ -8,6 +8,13 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 import { IProperty } from '../../../../models/property';
 import { ITenant } from '../../../../models/tenant';
@@ -20,6 +27,8 @@ import {
   DocumentCategory,
 } from '../../../../enums/view.enum';
 import { ITicket, TicketStatus } from '../../../../models/tickets';
+import { PropertyAdd } from '../property-add/property-add';
+import { PropertyDetail } from '../property-detail/property-detail';
 
 @Component({
   selector: 'app-property-dashboard',
@@ -33,6 +42,15 @@ import { ITicket, TicketStatus } from '../../../../models/tickets';
     MatSortModule,
     MatCheckboxModule,
     MatToolbarModule,
+    MatMenuModule,
+    MatDialogModule,
+    MatTooltipModule,
+    MatChipsModule,
+    MatDividerModule,
+    MatSelectModule,
+    MatFormFieldModule,
+    PropertyAdd,
+    PropertyDetail,
   ],
   templateUrl: './property-dashboard.html',
   styleUrl: './property-dashboard.scss',
@@ -48,6 +66,7 @@ export class PropertyDashboard implements OnInit {
     'title',
     'fullAddress',
     'mappedTenants',
+    'documentsActions',
     'monthlyRent',
     'status',
     'actions',
@@ -55,6 +74,163 @@ export class PropertyDashboard implements OnInit {
 
   // Mock Property Data
   properties: IProperty[] = [];
+  
+  // Mock tenant data for testing
+  private mockTenants: ITenant[] = [
+    {
+      id: 1,
+      landlordId: 1,
+      propertyId: 1,
+      name: 'Alice Johnson',
+      email: 'alice.johnson@example.com',
+      phoneNumber: '9876543212',
+      dob: '1988-05-12',
+      age: 36,
+      occupation: 'Designer',
+      tenancyStartDate: '2024-01-01',
+      tenancyEndDate: '2025-01-01',
+      rentDueDate: '2024-01-05',
+      rentAmount: 45000,
+      securityDeposit: 135000,
+      isAcknowledge: true,
+      acknowledgeDate: '2024-01-01',
+      isVerified: true,
+      isNewTenant: false,
+      isPrimary: true,
+      isActive: true,
+      tenantGroup: 1,
+      documents: [],
+      tickets: [],
+    },
+    {
+      id: 2,
+      landlordId: 1,
+      propertyId: 1,
+      name: 'Michael Johnson',
+      email: 'michael.johnson@example.com',
+      phoneNumber: '9876543213',
+      dob: '1985-08-22',
+      age: 39,
+      occupation: 'Software Engineer',
+      tenancyStartDate: '2024-01-01',
+      tenancyEndDate: '2025-01-01',
+      rentDueDate: '2024-01-05',
+      rentAmount: 45000,
+      securityDeposit: 135000,
+      isAcknowledge: true,
+      acknowledgeDate: '2024-01-01',
+      isVerified: true,
+      isNewTenant: false,
+      isPrimary: false,
+      isActive: true,
+      tenantGroup: 1,
+      documents: [],
+      tickets: [],
+    },
+    {
+      id: 3,
+      landlordId: 1,
+      propertyId: 1,
+      name: 'Sarah Johnson',
+      email: '',
+      phoneNumber: '',
+      dob: '2010-03-15',
+      age: 14,
+      occupation: 'Student',
+      tenancyStartDate: '2024-01-01',
+      tenancyEndDate: '2025-01-01',
+      rentDueDate: '2024-01-05',
+      rentAmount: 0,
+      securityDeposit: 0,
+      isAcknowledge: false,
+      isVerified: false,
+      isNewTenant: false,
+      isPrimary: false,
+      isActive: true,
+      tenantGroup: 1,
+      documents: [],
+      tickets: [],
+    },
+    {
+      id: 4,
+      landlordId: 1,
+      propertyId: 1,
+      name: 'James Johnson',
+      email: '',
+      phoneNumber: '',
+      dob: '2012-07-08',
+      age: 12,
+      occupation: 'Student',
+      tenancyStartDate: '2024-01-01',
+      tenancyEndDate: '2025-01-01',
+      rentDueDate: '2024-01-05',
+      rentAmount: 0,
+      securityDeposit: 0,
+      isAcknowledge: false,
+      isVerified: false,
+      isNewTenant: false,
+      isPrimary: false,
+      isActive: true,
+      tenantGroup: 1,
+      documents: [],
+      tickets: [],
+    },
+    {
+      id: 5,
+      landlordId: 1,
+      propertyId: 2,
+      name: 'Emma Wilson',
+      email: 'emma.wilson@example.com',
+      phoneNumber: '9876543215',
+      dob: '1992-11-18',
+      age: 32,
+      occupation: 'Teacher',
+      tenancyStartDate: '2024-02-01',
+      tenancyEndDate: '2025-02-01',
+      rentDueDate: '2024-02-05',
+      rentAmount: 30000,
+      securityDeposit: 90000,
+      isAcknowledge: true,
+      acknowledgeDate: '2024-02-01',
+      isVerified: true,
+      isNewTenant: false,
+      isPrimary: true,
+      isActive: true,
+      tenantGroup: 2,
+      documents: [],
+      tickets: [],
+    },
+  ];
+
+  // Dialog and menu state
+  showUploadModal = false;
+  showDownloadModal = false;
+  selectedPropertyForUpload: IProperty | null = null;
+  selectedPropertyForDownload: IProperty | null = null;
+  selectedDocumentCategory: DocumentCategory = DocumentCategory.Legal;
+  selectedDownloadCategory: DocumentCategory | 'all' = 'all';
+  
+  // Document categories for dropdown
+  documentCategories = [
+    { value: DocumentCategory.Legal, label: 'Legal Documents', description: 'Property deeds, ownership documents' },
+    { value: DocumentCategory.Agreement, label: 'Agreements', description: 'Rental agreements, contracts' },
+    { value: DocumentCategory.Financial, label: 'Financial Documents', description: 'Rent receipts, payment records' },
+    { value: DocumentCategory.OwnershipProof, label: 'Ownership Proof', description: 'Property ownership certificates' },
+    { value: DocumentCategory.UtilityBill, label: 'Utility Bills', description: 'Electricity, water, gas bills' },
+    { value: DocumentCategory.PropertyPhoto, label: 'Property Photos', description: 'Property images and videos' },
+  ];
+
+  downloadCategories = [
+    { value: 'all', label: 'All Documents', count: 0, description: 'Download all available documents' },
+    { value: DocumentCategory.Legal, label: 'Legal Documents', count: 0, description: 'Property deeds, ownership documents' },
+    { value: DocumentCategory.Agreement, label: 'Agreements', count: 0, description: 'Rental agreements, contracts' },
+    { value: DocumentCategory.Financial, label: 'Financial Documents', count: 0, description: 'Rent receipts, payment records' },
+    { value: DocumentCategory.OwnershipProof, label: 'Ownership Proof', count: 0, description: 'Property ownership certificates' },
+    { value: DocumentCategory.UtilityBill, label: 'Utility Bills', count: 0, description: 'Electricity, water, gas bills' },
+    { value: DocumentCategory.PropertyPhoto, label: 'Property Photos', count: 0, description: 'Property images and videos' },
+  ];
+
+  constructor(private dialog: MatDialog) {}
 
   ngOnInit() {
     this.loadMockData();
@@ -67,21 +243,20 @@ const mockDocuments: IDocument[] = [
     ownerId: 1,
     ownerType: 'Landlord',
     category: DocumentCategory.Legal,
-    fileUrl: '/files/property_deed.pdf',
+    fileUrl: 'data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVGl0bGUgKFByb3BlcnR5IERlZWQpCi9Qcm9kdWNlciAoU2FtcGxlIFBERikKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL0xlbmd0aCAzMyAKPj4Kc3RyZWFtCkJUCi9GMSAxMiBUZgoxMCA1NjYgVGQKKFByb3BlcnR5IERlZWQpIFRqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDMKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNzQgMDAwMDAgbiAKdHJhaWxlcgo8PAovUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKMTI4CiUlRU9G',
     fileName: 'property_deed.pdf',
     fileType: 'application/pdf',
     fileSize: 102400,
     documentIdentifier: 'DOC-001',
     uploadedOn: '2024-01-10T10:00:00Z',
     isVerified: true,
-    verifiedBy: 'Admin',
     description: 'Property deed document',
   },
   {
-    ownerId: 2,
-    ownerType: 'Tenant',
+    ownerId: 1,
+    ownerType: 'Landlord',
     category: DocumentCategory.Agreement,
-    fileUrl: '/files/rental_agreement.pdf',
+    fileUrl: 'data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVGl0bGUgKFJlbnRhbCBBZ3JlZW1lbnQpCi9Qcm9kdWNlciAoU2FtcGxlIFBERikKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL0xlbmd0aCAzNyAKPj4Kc3RyZWFtCkJUCi9GMSAxMiBUZgoxMCA1NjYgVGQKKFJlbnRhbCBBZ3JlZW1lbnQpIFRqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDMKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwODIgMDAwMDAgbiAKdHJhaWxlcgo8PAovUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKMTM2CiUlRU9G',
     fileName: 'rental_agreement.pdf',
     fileType: 'application/pdf',
     fileSize: 204800,
@@ -89,6 +264,58 @@ const mockDocuments: IDocument[] = [
     uploadedOn: '2024-02-05T12:00:00Z',
     isVerified: false,
     description: 'Rental agreement for tenant',
+  },
+  {
+    ownerId: 1,
+    ownerType: 'Landlord',
+    category: DocumentCategory.Financial,
+    fileUrl: 'data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVGl0bGUgKFJlbnQgUmVjZWlwdCkKL1Byb2R1Y2VyIChTYW1wbGUgUERGKQo+PgplbmRvYmoKMiAwIG9iago8PAovTGVuZ3RoIDMxIAo+PgpzdHJlYW0KQlQKL0YxIDEyIFRmCjEwIDU2NiBUZAooUmVudCBSZWNlaXB0KSBUagpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCAzCjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAwOSAwMDAwMCBuIAowMDAwMDAwMDc2IDAwMDAwIG4gCnRyYWlsZXIKPDwKL1Jvb3QgMSAwIFIKPj4Kc3RhcnR4cmVmCjEyOAolJUVPRg==',
+    fileName: 'rent_receipt_jan2024.pdf',
+    fileType: 'application/pdf',
+    fileSize: 89600,
+    documentIdentifier: 'DOC-003',
+    uploadedOn: '2024-01-31T15:30:00Z',
+    isVerified: true,
+    description: 'Rent receipt for January 2024',
+  },
+  {
+    ownerId: 1,
+    ownerType: 'Landlord',
+    category: DocumentCategory.OwnershipProof,
+    fileUrl: 'data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVGl0bGUgKE93bmVyc2hpcCBDZXJ0aWZpY2F0ZSkKL1Byb2R1Y2VyIChTYW1wbGUgUERGKQo+PgplbmRvYmoKMiAwIG9iago8PAovTGVuZ3RoIDM5IAo+PgpzdHJlYW0KQlQKL0YxIDEyIFRmCjEwIDU2NiBUZAooT3duZXJzaGlwIENlcnRpZmljYXRlKSBUagpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCAzCjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAwOSAwMDAwMCBuIAowMDAwMDAwMDg0IDAwMDAwIG4gCnRyYWlsZXIKPDwKL1Jvb3QgMSAwIFIKPj4Kc3RhcnR4cmVmCjE0MgolJUVPRg==',
+    fileName: 'ownership_certificate.pdf',
+    fileType: 'application/pdf',
+    fileSize: 156200,
+    documentIdentifier: 'DOC-004',
+    uploadedOn: '2024-01-05T09:15:00Z',
+    isVerified: true,
+    description: 'Property ownership certificate',
+  },
+  {
+    ownerId: 1,
+    ownerType: 'Landlord',
+    category: DocumentCategory.UtilityBill,
+    fileUrl: 'data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVGl0bGUgKEVsZWN0cmljaXR5IEJpbGwpCi9Qcm9kdWNlciAoU2FtcGxlIFBERikKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL0xlbmd0aCAzNCAKPj4Kc3RyZWFtCkJUCi9GMSAxMiBUZgoxMCA1NjYgVGQKKEVsZWN0cmljaXR5IEJpbGwpIFRqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDMKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNzkgMDAwMDAgbiAKdHJhaWxlcgo8PAovUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKMTMxCiUlRU9G',
+    fileName: 'electricity_bill_feb2024.pdf',
+    fileType: 'application/pdf',
+    fileSize: 67800,
+    documentIdentifier: 'DOC-005',
+    uploadedOn: '2024-02-15T11:45:00Z',
+    isVerified: false,
+    description: 'Electricity bill for February 2024',
+  },
+  {
+    ownerId: 1,
+    ownerType: 'Landlord',
+    category: DocumentCategory.PropertyPhoto,
+    fileUrl: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
+    fileName: 'property_exterior.jpg',
+    fileType: 'image/jpeg',
+    fileSize: 245600,
+    documentIdentifier: 'DOC-006',
+    uploadedOn: '2024-01-20T14:20:00Z',
+    isVerified: true,
+    description: 'Property exterior photograph',
   },
 ];
 
@@ -180,7 +407,7 @@ const mockProperties: IProperty[] = [
     createdOn: '2023-12-01',
     updatedOn: '2024-01-10',
     tenants: [mockTenants[0]],
-    documents: [mockDocuments[0]],
+    documents: [mockDocuments[0], mockDocuments[1], mockDocuments[2], mockDocuments[3], mockDocuments[5]],
   },
   {
     id: 2,
@@ -215,7 +442,7 @@ const mockProperties: IProperty[] = [
     createdOn: '2023-11-15',
     updatedOn: '2024-02-05',
     tenants: [mockTenants[1]],
-    documents: [mockDocuments[1]],
+    documents: [mockDocuments[1], mockDocuments[4]],
   },
 ];
 
@@ -325,12 +552,6 @@ const mockTickets: ITicket[] = [
     return `${documents.length} document${documents.length === 1 ? '' : 's'}`;
   }
 
-  // Simple row click handler
-  onRowClick(property: IProperty): void {
-    this.selectedProperty = property;
-    this.currentView = 'detail';
-  }
-
   // CRUD Operations
   onCreateProperty(): void {
     this.selectedProperty = null;
@@ -386,6 +607,311 @@ const mockTickets: ITicket[] = [
     return this.properties
       .filter((p) => p.status === PropertyStatus.Rented)
       .reduce((total, p) => total + (p.monthlyRent || 0), 0);
+  }
+
+  // Tenant Management Methods
+  getTenantsList(property: IProperty): ITenant[] {
+    return property.tenants || [];
+  }
+
+  getTenantChildren(tenant: ITenant): any[] {
+    // Return family members (non-primary tenants) from the same tenant group
+    const familyMembers = this.mockTenants.filter((t: ITenant) => 
+      t.tenantGroup === tenant.tenantGroup && 
+      t.id !== tenant.id && 
+      !t.isPrimary
+    );
+    
+    return familyMembers.map((member: ITenant) => ({
+      id: member.id,
+      name: member.name,
+      age: member.age,
+      relation: member.age && member.age < 18 ? 
+        (member.name.includes('Sarah') ? 'Daughter' : 'Son') : 
+        'Spouse'
+    }));
+  }
+
+  onViewTenants(property: IProperty): void {
+    console.log('Viewing tenants for property:', property.title);
+    // This will be handled by the menu in the template
+  }
+
+  // Document and Upload Methods
+  getPropertyDocuments(property: IProperty): IDocument[] {
+    return property.documents || [];
+  }
+
+  onUploadDocument(property: IProperty): void {
+    this.selectedPropertyForUpload = property;
+    this.showUploadModal = true;
+  }
+
+  onOpenDownloadModal(property: IProperty): void {
+    this.selectedPropertyForDownload = property;
+    this.updateDownloadCategoryCounts(property);
+    this.showDownloadModal = true;
+  }
+
+  private updateDownloadCategoryCounts(property: IProperty): void {
+    const documents = property.documents || [];
+    
+    // Update download categories with actual document counts
+    this.downloadCategories = this.downloadCategories.map(category => {
+      if (category.value === 'all') {
+        return { ...category, count: documents.length };
+      } else {
+        const count = documents.filter(doc => doc.category === category.value).length;
+        return { ...category, count: count };
+      }
+    });
+  }
+
+  onCloseUploadModal(): void {
+    this.showUploadModal = false;
+    this.selectedPropertyForUpload = null;
+  }
+
+  onCloseDownloadModal(): void {
+    this.showDownloadModal = false;
+    this.selectedPropertyForDownload = null;
+  }
+
+  onFileSelected(event: any): void {
+    const file = event.target.files?.[0];
+    if (file && this.selectedPropertyForUpload) {
+      // Validate file size (10MB limit)
+      const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+      if (file.size > maxSize) {
+        alert('File size exceeds 10MB limit. Please choose a smaller file.');
+        return;
+      }
+
+      // Validate file type
+      const allowedTypes = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'image/jpeg',
+        'image/jpg',
+        'image/png'
+      ];
+      
+      if (!allowedTypes.includes(file.type)) {
+        alert('Invalid file type. Please upload PDF, DOC, DOCX, JPG, or PNG files only.');
+        return;
+      }
+
+      this.uploadFile(file, this.selectedPropertyForUpload);
+    }
+  }
+
+  triggerFileInput(): void {
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    fileInput?.click();
+  }
+
+  private uploadFile(file: File, property: IProperty): void {
+    console.log('Uploading file:', file.name, 'for property:', property.title);
+    
+    // Mock upload process with progress indication
+    const uploadProgress = document.createElement('div');
+    uploadProgress.innerHTML = `
+      <div style="margin: 20px 0; text-align: center;">
+        <p>Uploading ${file.name}...</p>
+        <div style="width: 100%; background-color: #f0f0f0; border-radius: 5px; overflow: hidden;">
+          <div id="progress-bar" style="width: 0%; height: 20px; background-color: #4CAF50; transition: width 0.3s;"></div>
+        </div>
+        <span id="progress-text">0%</span>
+      </div>
+    `;
+    
+    // Insert progress indicator in modal
+    const modalContent = document.querySelector('.upload-modal .modal-content');
+    if (modalContent) {
+      modalContent.appendChild(uploadProgress);
+    }
+
+    // Simulate upload progress
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+      progress += Math.random() * 20;
+      if (progress > 100) progress = 100;
+      
+      const progressBar = document.getElementById('progress-bar');
+      const progressText = document.getElementById('progress-text');
+      if (progressBar && progressText) {
+        progressBar.style.width = `${progress}%`;
+        progressText.textContent = `${Math.round(progress)}%`;
+      }
+      
+      if (progress >= 100) {
+        clearInterval(progressInterval);
+        
+        // Create document object
+        const newDocument: IDocument = {
+          ownerId: property.landlordId || 1,
+          ownerType: 'Landlord',
+          category: this.selectedDocumentCategory,
+          fileUrl: URL.createObjectURL(file), // In real app, this would be the server URL
+          fileName: file.name,
+          fileType: file.type,
+          fileSize: file.size,
+          documentIdentifier: `DOC-${Date.now()}`,
+          uploadedOn: new Date().toISOString(),
+          isVerified: false,
+          description: `${this.getSelectedCategoryName()} document for ${property.title}`,
+        };
+
+        // Add the document to the property
+        if (!property.documents) {
+          property.documents = [];
+        }
+        property.documents.push(newDocument);
+
+        // Update the properties list to reflect changes
+        this.updatePropertyInList(property);
+
+        console.log('File uploaded successfully:', newDocument);
+        
+        // Show success message
+        setTimeout(() => {
+          alert(`File "${file.name}" uploaded successfully as ${this.getSelectedCategoryName()}`);
+          this.onCloseUploadModal();
+          
+          // Reset file input
+          const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+          if (fileInput) {
+            fileInput.value = '';
+          }
+        }, 500);
+      }
+    }, 200);
+  }
+
+  private getSelectedCategoryName(): string {
+    const category = this.documentCategories.find(cat => cat.value === this.selectedDocumentCategory);
+    return category?.label || 'Document';
+  }
+
+  private updatePropertyInList(updatedProperty: IProperty): void {
+    const index = this.properties.findIndex(p => p.id === updatedProperty.id);
+    if (index !== -1) {
+      this.properties[index] = this.transformPropertyForTable(updatedProperty);
+    }
+  }
+
+  onDownloadDocument(doc: IDocument): void {
+    console.log('Downloading document:', doc.fileName);
+    
+    // Create a temporary link element for download
+    if (doc.fileUrl) {
+      const link = document.createElement('a');
+      link.href = doc.fileUrl;
+      link.download = doc.fileName || 'document';
+      link.target = '_blank';
+      
+      // Append to body, click, and remove
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      console.log(`Downloaded: ${doc.fileName}`);
+    } else {
+      alert('Document file not available for download.');
+    }
+  }
+
+  getAllDocumentsCount(): number {
+    return this.selectedPropertyForDownload?.documents?.length || 0;
+  }
+
+  getSelectedCategoryCount(): number {
+    if (!this.selectedPropertyForDownload?.documents) return 0;
+    return this.selectedPropertyForDownload.documents.filter(
+      doc => doc.category === this.selectedDownloadCategory
+    ).length;
+  }
+
+  getSelectedCategoryLabel(): string {
+    const category = this.documentCategories.find(
+      cat => cat.value === this.selectedDownloadCategory
+    );
+    return category?.label || '';
+  }
+
+  isDownloadDisabled(): boolean {
+    return this.selectedDownloadCategory === 'all' 
+      ? this.getAllDocumentsCount() === 0
+      : this.getSelectedCategoryCount() === 0;
+  }
+
+  onDownloadSelectedCategory(): void {
+    if (!this.selectedPropertyForDownload?.documents) {
+      alert('No documents available for download.');
+      return;
+    }
+
+    let documentsToDownload: IDocument[] = [];
+    
+    if (this.selectedDownloadCategory === 'all') {
+      documentsToDownload = this.selectedPropertyForDownload.documents;
+    } else {
+      documentsToDownload = this.selectedPropertyForDownload.documents.filter(
+        doc => doc.category === this.selectedDownloadCategory
+      );
+    }
+
+    if (documentsToDownload.length === 0) {
+      alert('No documents found for the selected category.');
+      return;
+    }
+
+    console.log('Downloading documents for category:', this.selectedDownloadCategory);
+    
+    // If only one document, download directly
+    if (documentsToDownload.length === 1) {
+      this.onDownloadDocument(documentsToDownload[0]);
+      this.onCloseDownloadModal();
+      return;
+    }
+
+    // Multiple documents - create a zip-like download experience
+    const confirmDownload = confirm(
+      `This will download ${documentsToDownload.length} documents. Continue?`
+    );
+    
+    if (confirmDownload) {
+      // Download each document with a small delay
+      documentsToDownload.forEach((doc, index) => {
+        setTimeout(() => {
+          this.onDownloadDocument(doc);
+        }, index * 500); // 500ms delay between downloads
+      });
+
+      // Show success message
+      setTimeout(() => {
+        const categoryName = this.selectedDownloadCategory === 'all' 
+          ? 'All Documents' 
+          : this.getSelectedCategoryLabel();
+        alert(`${documentsToDownload.length} documents from "${categoryName}" category have been downloaded.`);
+        this.onCloseDownloadModal();
+      }, documentsToDownload.length * 500);
+    }
+  }
+
+  onTenantSelect(tenant: ITenant): void {
+    console.log('Selected tenant:', tenant.name);
+    // Handle tenant selection logic here
+  }
+
+  // Updated row click handler
+  onRowClick(property: IProperty, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.selectedProperty = property;
+    this.currentView = 'detail';
   }
 
   private exportPropertiesToCSV(properties: any[]): void {

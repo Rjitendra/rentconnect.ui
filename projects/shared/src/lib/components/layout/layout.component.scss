@@ -6,38 +6,52 @@
 .custom-menu-list-item {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   flex-direction: row;
+  gap: 2px !important;
   font-size: 14px !important;
-  color: rgb(8, 4, 75) !important;
-  font-weight: 500 !important;
+  color: #1a202c !important;
+  font-weight: 600 !important;
+  text-shadow: 0 1px 2px rgba(26, 32, 44, 0.1) !important;
 
   .small-icon {
     font-size: 16px;
-    color: rgb(8, 4, 75);
+    color: #2d3748;
     height: fit-content;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-shadow: 0 1px 2px rgba(45, 55, 72, 0.2);
   }
 }
 
 .toolbar-list-item {
   display: flex;
   align-items: center;
+  gap: 2px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  color: rgb(8, 4, 75);
+  color: #1a202c;
+  text-shadow: 0 1px 2px rgba(26, 32, 44, 0.1);
 
   .small-icon {
     font-size: 16px;
-    color: rgb(8, 4, 75);
+    color: #2d3748;
     height: fit-content;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-shadow: 0 1px 2px rgba(45, 55, 72, 0.2);
   }
 }
 /* --- Header (Toolbar) --- */
 .header {
   height: 5vh;
-  background: linear-gradient(90deg, #1e3c72, #2a5298);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
   .header-container {
     display: flex;
     align-items: center;
@@ -86,6 +100,19 @@
       display: flex;
       align-items: center;
       gap: 16px; /* Adjust spacing between right-side elements */
+      
+      .profile-menu-button {
+        color: white;
+        
+        mat-icon {
+          font-size: 24px;
+          color: white;
+        }
+        
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.1);
+        }
+      }
     }
   }
 }
@@ -98,77 +125,324 @@
   right: 0;
   left: 0;
   .sidenav {
-    background-color: #dbdbcd;
+    background: linear-gradient(180deg, #f8f9ff 0%, #e8ebf7 100%);
+    width: 240px;
+    transition: width 0.3s ease-in-out;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 2px 0 8px rgba(102, 126, 234, 0.1);
+    border-right: 1px solid #d6dcef;
+    
     &.collapsed {
-      width: 50px;
+      width: 60px;
+      
+      .list-item {
+        justify-content: center;
+        padding: 4px 2px;
+        margin: 1px 2px;
+        min-height: 36px;
+        
+        .small-icon {
+          margin: 0 auto;
+        }
+        
+        span {
+          display: none;
+        }
+      }
+      
+      .mat-list-item {
+        padding: 0 !important;
+        height: 40px !important;
+        min-height: 40px !important;
+        
+        .list-item {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+      
+      button[mat-icon-button] {
+        width: 44px;
+        height: 40px;
+        margin: 1px auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
     }
+    
     .list-item {
       display: flex;
       flex-direction: row;
       align-items: center;
-      gap: 10px;
-      font-size: 13px;
-      color: rgb(8, 4, 75);
-      font-weight: 500;
+      gap: 8px;
+      font-size: 14px;
+      color: #1a202c;
+      font-weight: 600;
       cursor: pointer;
+      padding: 12px 16px;
+      border-radius: 0;
+      transition: all 0.2s ease-in-out;
+      margin: 0;
+      min-height: 48px;
+      position: relative;
+      border-left: 3px solid transparent;
+      text-shadow: 0 1px 2px rgba(26, 32, 44, 0.1);
+      
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.8);
+        color: #000000;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      }
+      
+      &:active, &.active {
+        background-color: rgba(102, 126, 234, 0.15);
+        color: #2b6cb0;
+        border-left: 3px solid #2b6cb0;
+        text-shadow: 0 1px 3px rgba(43, 108, 176, 0.2);
+      }
+      
       .small-icon {
-        font-size: 15px;
-        color: rgb(8, 4, 75);
+        font-size: 18px;
+        color: #2d3748;
         height: fit-content;
+        min-width: 18px;
+        margin: 0 !important;
+        padding: 0 !important;
+        transition: color 0.2s ease-in-out;
+        text-shadow: 0 1px 2px rgba(45, 55, 72, 0.2);
+      }
+      
+      span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-weight: 500;
+        color: inherit;
+      }
+      
+      &:hover .small-icon {
+        color: #1a202c;
+        text-shadow: 0 2px 4px rgba(26, 32, 44, 0.3);
+      }
+      
+      &:active .small-icon,
+      &.active .small-icon {
+        color: #2b6cb0;
+        text-shadow: 0 2px 4px rgba(43, 108, 176, 0.3);
       }
     }
+    
+    .mat-list-item {
+      height: 48px !important;
+      min-height: 48px !important;
+    }
     .mat-nav-list {
-      padding-bottom: 4vh;
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 8px 0 0 0;
+      margin-bottom: 48px;
+      
+      // Custom scrollbar styling
+      &::-webkit-scrollbar {
+        width: 4px;
+      }
+      
+      &::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      
+      &::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 2px;
+      }
+      
+      &::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 0, 0, 0.3);
+      }
+    }
+    
+    .mat-nav-list .mat-list {
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
     }
     .toggle-button-container {
-      position: fixed;
-      bottom: 4vh; /* Ensure it stays above the footer */
-      width: 50px;
-
-      height: 3vh;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 48px;
       display: flex;
-      justify-content: end;
+      justify-content: center;
       align-items: center;
-      font-weight: bold;
-      font-size: 15px;
-      color: rgb(8, 4, 75);
+      font-weight: 500;
+      font-size: 14px;
+      color: #4a5568;
       cursor: pointer;
-      background-color: rgb(255, 255, 255);
+      background: linear-gradient(180deg, #e8ebf7 0%, #d6dcef 100%);
+      border-top: 1px solid #d6dcef;
+      transition: all 0.2s ease-in-out;
+      
+      &:hover {
+        background: rgba(255, 255, 255, 0.7);
+        color: #2d3748;
+      }
+      
+      &:active {
+        transform: translateY(0);
+      }
+      
+      span {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        
+        &::before {
+          content: '';
+          width: 20px;
+          height: 20px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.3s ease-in-out;
+        }
+        
+        &::after {
+          content: '>>'; 
+          position: absolute;
+          left: 2px;
+          color: white;
+          font-size: 14px;
+          font-weight: bold;
+          transition: all 0.3s ease-in-out;
+        }
+      }
+      
+      // When collapsed, show expand arrows (>>)
+      &.collapsed {
+        span::after {
+          content: '>>';
+          left: 2px;
+          font-size: 14px;
+        }
+      }
+      
+      // When expanded, show collapse arrows (<<)
+      &.expanded {
+        span::after {
+          content: '<<';
+          left: 3px;
+          font-size: 14px;
+        }
+      }
+      
+      &:hover span::before {
+        transform: scale(1.15);
+        box-shadow: 0 3px 12px rgba(102, 126, 234, 0.4);
+      }
+      
+      &:hover span::after {
+        transform: scale(1.1);
+      }
     }
   }
   .content {
     width: 100%;
+    transition: margin-left 0.3s ease-in-out;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    
     &.content-expanded {
-      margin-left: 192px !important;
+      margin-left: 240px !important;
     }
 
     &.content-collapsed {
-      margin-left: 50px !important;
+      margin-left: 60px !important;
     }
   }
   .content-body {
+    flex: 1;
     padding: 10px;
-    font-size: 0.95rem; /* clean readable text */
+    font-size: 0.95rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+    
+    // Custom scrollbar for content
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.05);
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: rgba(102, 126, 234, 0.3);
+      border-radius: 3px;
+    }
+    
+    &::-webkit-scrollbar-thumb:hover {
+      background: rgba(102, 126, 234, 0.5);
+    }
   }
 }
 
 .footer {
   position: fixed;
   bottom: 0;
+  left: 0;
+  right: 0;
   height: 4vh;
   z-index: 1000;
   display: flex;
   justify-content: center;
-  background: linear-gradient(90deg, #1e3c72, #2a5298);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   font-size: 0.85rem;
   font-weight: 500;
   font-family: "Roboto", sans-serif;
   align-items: center;
-  width: 100%;
   p {
     height: 100%;
     margin: 0;
     line-height: 4vh;
+  }
+}
+
+// Responsive design improvements
+@media (max-width: 768px) {
+  .container .content {
+    &.content-expanded {
+      margin-left: 240px !important;
+    }
+    
+    &.content-collapsed {
+      margin-left: 0 !important;
+    }
+  }
+  
+  .container .sidenav {
+    &.collapsed {
+      width: 0px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .header .header-container {
+    .brand-name {
+      font-size: 16px !important;
+    }
+    
+    .center-content {
+      font-size: 14px !important;
+    }
   }
 }
 
@@ -180,4 +454,156 @@
   min-width: auto !important; /* Prevents unnecessary width */
   width: fit-content; /* Makes menu width match content */
   transform: translateY(5px) !important; /* Adjust menu positioning */
+}
+
+::ng-deep .profile-menu .mat-menu-panel {
+  min-width: 160px !important;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  
+  .mat-menu-content {
+    padding: 8px 0;
+  }
+  
+  .mat-menu-item {
+    height: 44px;
+    line-height: 44px;
+    
+    &:hover {
+      background-color: rgba(102, 126, 234, 0.1);
+    }
+    
+    .toolbar-list-item {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      
+      .small-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+      
+      span {
+        font-size: 14px;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+// Collapsed sidenav icon centering
+::ng-deep .sidenav.collapsed {
+  .mat-list-item {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    
+    .mat-list-item-content {
+      display: flex !important;
+      justify-content: center !important;
+      align-items: center !important;
+      padding: 0 !important;
+      height: 40px !important;
+    }
+  }
+  
+  .mat-icon-button {
+    margin: 0 auto !important;
+    display: block !important;
+  }
+}
+
+// General spacing improvements
+::ng-deep .sidenav {
+  .mat-list-item {
+    height: 46px !important;
+    min-height: 46px !important;
+    
+    .mat-list-item-content {
+      padding: 0 !important;
+      height: 46px !important;
+      gap: 2px !important;
+      
+      .list-item {
+        gap: 2px !important;
+        
+        .small-icon {
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+      }
+    }
+  }
+  
+  .mat-nav-list {
+    .mat-list {
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+    }
+    
+    .mat-list-item:first-child {
+      margin-top: 0 !important;
+    }
+    
+    .mat-list-item:last-child {
+      margin-bottom: 0 !important;
+    }
+  }
+  
+  // Prevent nested content from creating additional scrollbars
+  .mat-nav-list,
+  .mat-list {
+    overflow: visible !important;
+  }
+  
+  // Ensure tight spacing between icon and text
+  .mat-icon {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  // Remove any default spacing from mat-icon elements
+  mat-icon {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
+
+// Ensure main content container doesn't have conflicting overflow
+::ng-deep mat-sidenav-content {
+  overflow: hidden !important;
+}
+
+// Fix for nested menu items overflow
+::ng-deep .mat-list-item.expanded {
+  overflow: visible !important;
+}
+
+// Global icon spacing override
+::ng-deep {
+  .mat-icon {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  .mat-list-item-content {
+    gap: 2px !important;
+  }
+  
+  .list-item {
+    gap: 2px !important;
+    
+    * {
+      margin: 0 !important;
+    }
+    
+    .small-icon,
+    .mat-icon {
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+  }
 }

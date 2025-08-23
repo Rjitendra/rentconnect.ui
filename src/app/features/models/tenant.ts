@@ -19,6 +19,7 @@ export interface ITenant {
   email?: string;
   phoneNumber: string;
   dob: Date | string;
+  age?: number; // Age in years
   occupation: string;
 
   // Govt. IDs
@@ -69,6 +70,8 @@ export interface TenantChildren {
   name: string;
   email?: string;
   dob: Date | string;
+  age?: number; // Age in years
   occupation: string;
+  relation?: string; // Relationship to main tenant (e.g., Son, Daughter, etc.)
 }
 

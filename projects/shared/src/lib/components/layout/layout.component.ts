@@ -42,33 +42,19 @@ export class LibLayoutComponent implements AfterViewInit {
   currentYear: number = new Date().getFullYear();
   isExpanded = false; // Default state is collapsed
   isRotated = false;
+  
+  private readonly EXPANDED_WIDTH = 240;
+  private readonly COLLAPSED_WIDTH = 60;
 
   ngAfterViewInit() {
-    setTimeout(() => {
-      this.setWidthToToggle();
-      // if (
-      //   (window.innerWidth <= 768 && window.innerHeight > window.innerWidth) ||
-      //   (window.innerWidth <= 1024 && window.innerWidth > window.innerHeight)
-      // ) {
-      //   this.setWidthToToggle();
-      // }
-    }, 100);
+    // Initialize the sidenav state
+    this.updateSidenavState();
   }
 
   toggleSidenav() {
     this.isExpanded = !this.isExpanded;
     this.isRotated = !this.isRotated;
-
-    setTimeout(() => {
-      this.setWidthToToggle();
-      // if (
-      //   (window.innerWidth <= 768 && window.innerHeight > window.innerWidth) ||
-      //   (window.innerWidth <= 1024 && window.innerWidth > window.innerHeight)
-      // ) {
-      //   this.setWidthToToggle();
-      // }
-    }, 100);
-    // requestAnimationFrame(() => {
+    this.updateSidenavState();
   }
 
   toggleSubMenu(item: INav) {
@@ -86,9 +72,26 @@ export class LibLayoutComponent implements AfterViewInit {
       });
     }
   }
-  private setWidthToToggle() {
-    const sidenavWidth = this.sidenav()._content.nativeElement.offsetWidth;
-    const offsetHeight = this.sidenav()._content.nativeElement.offsetHeight;
-    this.toggleButton().nativeElement.style.width = `${sidenavWidth}px`;
+  private updateSidenavState() {
+    // The width is now controlled by CSS classes, no need to manually set width
+    // This method can be used for any additional state updates if needed
+  }
+
+  onLogin() {
+    // Implement login logic here
+    console.log('Login clicked');
+    // You can emit an event or call a service to handle login
+  }
+
+  onLogout() {
+    // Implement logout logic here
+    console.log('Logout clicked');
+    // You can emit an event or call a service to handle logout
+  }
+
+  onProfile() {
+    // Implement profile navigation here
+    console.log('Profile clicked');
+    // You can navigate to profile page or open profile dialog
   }
 }

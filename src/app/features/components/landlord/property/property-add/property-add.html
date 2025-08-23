@@ -1,1 +1,307 @@
-<p>property-add works!</p>
+<div class="property-add-container">
+  <div class="header-section">
+    <div class="header-content">
+      <button mat-icon-button class="back-button" (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="header-text">
+        <h1>Add New Property</h1>
+        <p>Create a detailed listing for your property</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-container">
+    <form [formGroup]="propertyForm" (ngSubmit)="onSubmit()">
+      <!-- Basic Information Card -->
+      <mat-card class="form-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="section-icon">home</mat-icon>
+            Basic Information
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Property Title</mat-label>
+              <input matInput formControlName="title" placeholder="e.g., Beautiful 2BHK Apartment in Prime Location">
+              <mat-icon matSuffix>title</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Description</mat-label>
+              <textarea matInput formControlName="description" rows="4" 
+                placeholder="Describe your property features, amenities, and what makes it special..."></textarea>
+              <mat-icon matSuffix>description</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Property Type</mat-label>
+              <mat-select formControlName="propertyType">
+                <mat-option value="Apartment">Apartment</mat-option>
+                <mat-option value="Villa">Villa</mat-option>
+                <mat-option value="IndependentHouse">Independent House</mat-option>
+                <mat-option value="RowHouse">Row House</mat-option>
+                <mat-option value="Studio">Studio</mat-option>
+                <mat-option value="Plot">Plot</mat-option>
+              </mat-select>
+              <mat-icon matSuffix>apartment</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>BHK Configuration</mat-label>
+              <mat-select formControlName="bhkConfiguration">
+                <mat-option value="1RK">1 RK</mat-option>
+                <mat-option value="1BHK">1 BHK</mat-option>
+                <mat-option value="2BHK">2 BHK</mat-option>
+                <mat-option value="3BHK">3 BHK</mat-option>
+                <mat-option value="4BHK">4 BHK</mat-option>
+                <mat-option value="5BHK+">5+ BHK</mat-option>
+              </mat-select>
+              <mat-icon matSuffix>bed</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="third-width">
+              <mat-label>Floor Number</mat-label>
+              <input matInput type="number" formControlName="floorNumber" placeholder="e.g., 3">
+              <mat-icon matSuffix>layers</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="third-width">
+              <mat-label>Total Floors</mat-label>
+              <input matInput type="number" formControlName="totalFloors" placeholder="e.g., 10">
+              <mat-icon matSuffix>business</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="third-width">
+              <mat-label>Bathrooms</mat-label>
+              <input matInput type="number" formControlName="numberOfBathrooms" placeholder="e.g., 2">
+              <mat-icon matSuffix>bathtub</mat-icon>
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Area & Furnishing Card -->
+      <mat-card class="form-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="section-icon">square_foot</mat-icon>
+            Area & Furnishing
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Carpet Area (sq ft)</mat-label>
+              <input matInput type="number" formControlName="carpetAreaSqFt" placeholder="e.g., 850">
+              <span matSuffix>sq ft</span>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Built-up Area (sq ft)</mat-label>
+              <input matInput type="number" formControlName="builtUpAreaSqFt" placeholder="e.g., 1200">
+              <span matSuffix>sq ft</span>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Furnishing Type</mat-label>
+              <mat-select formControlName="furnishingType">
+                <mat-option value="Unfurnished">Unfurnished</mat-option>
+                <mat-option value="SemiFurnished">Semi Furnished</mat-option>
+                <mat-option value="FullyFurnished">Fully Furnished</mat-option>
+              </mat-select>
+              <mat-icon matSuffix>chair</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Balconies</mat-label>
+              <input matInput type="number" formControlName="numberOfBalconies" placeholder="e.g., 2">
+              <mat-icon matSuffix>deck</mat-icon>
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Location Card -->
+      <mat-card class="form-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="section-icon">place</mat-icon>
+            Location Details
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Address Line 1</mat-label>
+              <input matInput formControlName="addressLine1" placeholder="House/Flat number, Building name">
+              <mat-icon matSuffix>home</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Address Line 2</mat-label>
+              <input matInput formControlName="addressLine2" placeholder="Street, Area (Optional)">
+              <mat-icon matSuffix>location_on</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Landmark</mat-label>
+              <input matInput formControlName="landmark" placeholder="Near Metro, Mall, etc.">
+              <mat-icon matSuffix>map</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Locality</mat-label>
+              <input matInput formControlName="locality" placeholder="Sector, Area name">
+              <mat-icon matSuffix>location_city</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="third-width">
+              <mat-label>City</mat-label>
+              <input matInput formControlName="city" placeholder="e.g., Mumbai">
+              <mat-icon matSuffix>location_city</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="third-width">
+              <mat-label>State</mat-label>
+              <input matInput formControlName="state" placeholder="e.g., Maharashtra">
+              <mat-icon matSuffix>public</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="third-width">
+              <mat-label>PIN Code</mat-label>
+              <input matInput formControlName="pinCode" placeholder="e.g., 400001">
+              <mat-icon matSuffix>markunread_mailbox</mat-icon>
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Rent Details Card -->
+      <mat-card class="form-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="section-icon">payments</mat-icon>
+            Rent Details
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Monthly Rent</mat-label>
+              <input matInput type="number" formControlName="monthlyRent" placeholder="e.g., 25000">
+              <span matPrefix>₹ </span>
+              <span matSuffix>/month</span>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Security Deposit</mat-label>
+              <input matInput type="number" formControlName="securityDeposit" placeholder="e.g., 50000">
+              <span matPrefix>₹ </span>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Available From</mat-label>
+              <input matInput [matDatepicker]="picker" formControlName="availableFrom">
+              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Lease Type</mat-label>
+              <mat-select formControlName="leaseType">
+                <mat-option value="ShortTerm">Short Term (< 11 months)</mat-option>
+                <mat-option value="LongTerm">Long Term (11+ months)</mat-option>
+              </mat-select>
+              <mat-icon matSuffix>schedule</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-checkbox formControlName="isNegotiable" class="negotiable-checkbox">
+              Rent is negotiable
+            </mat-checkbox>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Amenities Card -->
+      <mat-card class="form-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="section-icon">apartment</mat-icon>
+            Amenities & Features
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="amenities-grid">
+            <mat-checkbox formControlName="hasLift" class="amenity-checkbox">
+              <mat-icon>elevator</mat-icon>
+              Lift Available
+            </mat-checkbox>
+
+            <mat-checkbox formControlName="hasParking" class="amenity-checkbox">
+              <mat-icon>local_parking</mat-icon>
+              Parking
+            </mat-checkbox>
+
+            <mat-checkbox formControlName="hasPowerBackup" class="amenity-checkbox">
+              <mat-icon>battery_charging_full</mat-icon>
+              Power Backup
+            </mat-checkbox>
+
+            <mat-checkbox formControlName="hasWaterSupply" class="amenity-checkbox">
+              <mat-icon>water_drop</mat-icon>
+              24/7 Water Supply
+            </mat-checkbox>
+
+            <mat-checkbox formControlName="hasGasPipeline" class="amenity-checkbox">
+              <mat-icon>local_fire_department</mat-icon>
+              Gas Pipeline
+            </mat-checkbox>
+
+            <mat-checkbox formControlName="hasSecurity" class="amenity-checkbox">
+              <mat-icon>security</mat-icon>
+              Security
+            </mat-checkbox>
+
+            <mat-checkbox formControlName="hasInternet" class="amenity-checkbox">
+              <mat-icon>wifi</mat-icon>
+              Internet/WiFi Ready
+            </mat-checkbox>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button mat-button type="button" class="secondary-button" (click)="saveDraft()">
+          <mat-icon>save</mat-icon>
+          Save as Draft
+        </button>
+        <button mat-raised-button type="submit" class="primary-button" [disabled]="propertyForm.invalid">
+          <mat-icon>publish</mat-icon>
+          List Property
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

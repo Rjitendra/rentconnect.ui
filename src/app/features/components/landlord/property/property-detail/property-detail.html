@@ -1,1 +1,319 @@
-<p>property-detail works!</p>
+<div class="property-detail-container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="header-content">
+      <button mat-icon-button class="back-button" (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="header-info">
+        <h1>{{ property?.title || 'Property Details' }}</h1>
+        <div class="header-meta">
+          <span class="property-id">ID: #{{ property?.id }}</span>
+          <mat-chip [ngClass]="getStatusClass()">
+            <mat-icon>{{ getStatusIcon() }}</mat-icon>
+            {{ property?.status }}
+          </mat-chip>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button mat-icon-button class="action-btn" (click)="editProperty()" matTooltip="Edit Property">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button class="action-btn" (click)="shareProperty()" matTooltip="Share Property">
+          <mat-icon>share</mat-icon>
+        </button>
+        <button mat-icon-button [matMenuTriggerFor]="moreMenu" class="action-btn" matTooltip="More Options">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-grid">
+    <!-- Property Images Section -->
+    <mat-card class="images-card">
+      <div class="image-gallery">
+        <div class="main-image">
+          <img [src]="selectedImage || defaultImage" alt="Property Image" />
+          <div class="image-overlay">
+            <button mat-fab class="gallery-btn" (click)="openGallery()">
+              <mat-icon>photo_library</mat-icon>
+            </button>
+          </div>
+        </div>
+        <div class="thumbnail-strip" *ngIf="propertyImages.length > 1">
+          <div class="thumbnail" 
+               *ngFor="let image of propertyImages" 
+               [class.active]="image === selectedImage"
+               (click)="selectImage(image)">
+            <img [src]="image" alt="Property thumbnail" />
+          </div>
+        </div>
+      </div>
+    </mat-card>
+
+    <!-- Property Overview -->
+    <mat-card class="overview-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="section-icon">visibility</mat-icon>
+          Property Overview
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="overview-grid">
+          <div class="overview-item">
+            <mat-icon>home</mat-icon>
+            <div>
+              <span class="label">Type</span>
+              <span class="value">{{ property?.propertyType }}</span>
+            </div>
+          </div>
+          <div class="overview-item">
+            <mat-icon>bed</mat-icon>
+            <div>
+              <span class="label">Configuration</span>
+              <span class="value">{{ property?.bhkConfiguration }}</span>
+            </div>
+          </div>
+          <div class="overview-item">
+            <mat-icon>square_foot</mat-icon>
+            <div>
+              <span class="label">Carpet Area</span>
+              <span class="value">{{ property?.carpetAreaSqFt }} sq ft</span>
+            </div>
+          </div>
+          <div class="overview-item">
+            <mat-icon>layers</mat-icon>
+            <div>
+              <span class="label">Floor</span>
+              <span class="value">{{ property?.floorNumber }} of {{ property?.totalFloors }}</span>
+            </div>
+          </div>
+          <div class="overview-item">
+            <mat-icon>chair</mat-icon>
+            <div>
+              <span class="label">Furnishing</span>
+              <span class="value">{{ property?.furnishingType }}</span>
+            </div>
+          </div>
+          <div class="overview-item">
+            <mat-icon>schedule</mat-icon>
+            <div>
+              <span class="label">Available From</span>
+              <span class="value">{{ formatDate(property?.availableFrom) }}</span>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Rent Details -->
+    <mat-card class="rent-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="section-icon">payments</mat-icon>
+          Rent Details
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="rent-info">
+          <div class="rent-main">
+            <div class="rent-amount">
+              <span class="currency">₹</span>
+              <span class="amount">{{ formatCurrency(property?.monthlyRent) }}</span>
+              <span class="period">/month</span>
+            </div>
+            <div class="negotiable" *ngIf="property?.isNegotiable">
+              <mat-chip color="accent">Negotiable</mat-chip>
+            </div>
+          </div>
+          <div class="rent-details">
+            <div class="detail-item">
+              <span class="label">Security Deposit</span>
+              <span class="value">₹{{ formatCurrency(property?.securityDeposit) }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Lease Type</span>
+              <span class="value">{{ property?.leaseType }}</span>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Location Details -->
+    <mat-card class="location-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="section-icon">place</mat-icon>
+          Location
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="location-info">
+          <div class="address">
+            <p class="address-line">{{ property?.addressLine1 }}</p>
+            <p class="address-line" *ngIf="property?.addressLine2">{{ property?.addressLine2 }}</p>
+            <p class="address-line">{{ property?.locality }}, {{ property?.city }}</p>
+            <p class="address-line">{{ property?.state }} - {{ property?.pinCode }}</p>
+          </div>
+          <div class="landmark" *ngIf="property?.landmark">
+            <mat-icon>map</mat-icon>
+            <span>Near {{ property?.landmark }}</span>
+          </div>
+          <button mat-stroked-button class="map-button" (click)="showOnMap()">
+            <mat-icon>location_on</mat-icon>
+            View on Map
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Property Details -->
+    <mat-card class="details-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="section-icon">info</mat-icon>
+          Property Details
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="details-grid">
+          <div class="detail-group">
+            <h4>Room Details</h4>
+            <div class="detail-item">
+              <span class="label">Bathrooms</span>
+              <span class="value">{{ property?.numberOfBathrooms }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Balconies</span>
+              <span class="value">{{ property?.numberOfBalconies || 0 }}</span>
+            </div>
+          </div>
+          
+          <div class="detail-group">
+            <h4>Area Details</h4>
+            <div class="detail-item">
+              <span class="label">Carpet Area</span>
+              <span class="value">{{ property?.carpetAreaSqFt }} sq ft</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Built-up Area</span>
+              <span class="value">{{ property?.builtUpAreaSqFt }} sq ft</span>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Amenities -->
+    <mat-card class="amenities-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="section-icon">apartment</mat-icon>
+          Amenities & Features
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="amenities-grid">
+          <div class="amenity-item" [class.available]="property?.hasLift">
+            <mat-icon>elevator</mat-icon>
+            <span>Lift</span>
+            <mat-icon class="status-icon">{{ property?.hasLift ? 'check_circle' : 'cancel' }}</mat-icon>
+          </div>
+          <div class="amenity-item" [class.available]="property?.hasParking">
+            <mat-icon>local_parking</mat-icon>
+            <span>Parking</span>
+            <mat-icon class="status-icon">{{ property?.hasParking ? 'check_circle' : 'cancel' }}</mat-icon>
+          </div>
+          <div class="amenity-item" [class.available]="property?.hasPowerBackup">
+            <mat-icon>battery_charging_full</mat-icon>
+            <span>Power Backup</span>
+            <mat-icon class="status-icon">{{ property?.hasPowerBackup ? 'check_circle' : 'cancel' }}</mat-icon>
+          </div>
+          <div class="amenity-item" [class.available]="property?.hasWaterSupply">
+            <mat-icon>water_drop</mat-icon>
+            <span>24/7 Water</span>
+            <mat-icon class="status-icon">{{ property?.hasWaterSupply ? 'check_circle' : 'cancel' }}</mat-icon>
+          </div>
+          <div class="amenity-item" [class.available]="property?.hasGasPipeline">
+            <mat-icon>local_fire_department</mat-icon>
+            <span>Gas Pipeline</span>
+            <mat-icon class="status-icon">{{ property?.hasGasPipeline ? 'check_circle' : 'cancel' }}</mat-icon>
+          </div>
+          <div class="amenity-item" [class.available]="property?.hasSecurity">
+            <mat-icon>security</mat-icon>
+            <span>Security</span>
+            <mat-icon class="status-icon">{{ property?.hasSecurity ? 'check_circle' : 'cancel' }}</mat-icon>
+          </div>
+          <div class="amenity-item" [class.available]="property?.hasInternet">
+            <mat-icon>wifi</mat-icon>
+            <span>Internet Ready</span>
+            <mat-icon class="status-icon">{{ property?.hasInternet ? 'check_circle' : 'cancel' }}</mat-icon>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Description -->
+    <mat-card class="description-card" *ngIf="property?.description">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="section-icon">description</mat-icon>
+          Description
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="description-text">{{ property?.description }}</p>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Contact & Actions -->
+    <mat-card class="contact-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="section-icon">contact_phone</mat-icon>
+          Contact Owner
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="contact-actions">
+          <button mat-raised-button class="contact-btn primary">
+            <mat-icon>phone</mat-icon>
+            Call Owner
+          </button>
+          <button mat-raised-button class="contact-btn secondary">
+            <mat-icon>message</mat-icon>
+            Send Message
+          </button>
+          <button mat-raised-button class="contact-btn secondary">
+            <mat-icon>schedule</mat-icon>
+            Schedule Visit
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
+
+<!-- More Options Menu -->
+<mat-menu #moreMenu="matMenu">
+  <button mat-menu-item (click)="markAsFavorite()">
+    <mat-icon>favorite_border</mat-icon>
+    <span>Add to Favorites</span>
+  </button>
+  <button mat-menu-item (click)="reportProperty()">
+    <mat-icon>report</mat-icon>
+    <span>Report Property</span>
+  </button>
+  <button mat-menu-item (click)="downloadDetails()">
+    <mat-icon>download</mat-icon>
+    <span>Download Details</span>
+  </button>
+  <mat-divider></mat-divider>
+  <button mat-menu-item (click)="deleteProperty()" class="danger-item">
+    <mat-icon>delete</mat-icon>
+    <span>Delete Property</span>
+  </button>
+</mat-menu>

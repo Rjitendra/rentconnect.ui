@@ -17,25 +17,30 @@
     <!-- Right Side: Additional Content -->
     <div class="right-content">
       <span class="brand-name">v1</span>
-      <!-- <button mat-icon-button [matMenuTriggerFor]="profileMenu">
-      <mat-icon>account_circle</mat-icon>
-    </button>
-    <mat-menu #profileMenu="matMenu">
-
-      <button mat-menu-item>
-        <div class="toolbar-list-item">
-          <mat-icon class="small-icon">info</mat-icon>
-          <span>About</span>
-        </div>
+      <button mat-icon-button [matMenuTriggerFor]="profileMenu" class="profile-menu-button">
+        <mat-icon>account_circle</mat-icon>
       </button>
-      <button mat-menu-item>
-        <div class="toolbar-list-item">
-          <mat-icon class="small-icon">contact_phone</mat-icon>
-          <span>Contact</span>
-        </div>
-      </button>
-    </mat-menu> -->
-  </div>
+      <mat-menu #profileMenu="matMenu" class="profile-menu">
+        <button mat-menu-item (click)="onLogin()">
+          <div class="toolbar-list-item">
+            <mat-icon class="small-icon">login</mat-icon>
+            <span>Login</span>
+          </div>
+        </button>
+        <button mat-menu-item (click)="onLogout()">
+          <div class="toolbar-list-item">
+            <mat-icon class="small-icon">logout</mat-icon>
+            <span>Logout</span>
+          </div>
+        </button>
+        <button mat-menu-item (click)="onProfile()">
+          <div class="toolbar-list-item">
+            <mat-icon class="small-icon">person</mat-icon>
+            <span>Profile</span>
+          </div>
+        </button>
+      </mat-menu>
+    </div>
 </div>
 </mat-toolbar>
 
@@ -48,8 +53,8 @@
         }
       </mat-nav-list>
     </div>
-    <div #toggleButton class="toggle-button-container">
-      <span (click)="toggleSidenav()"> {{ isExpanded ? '>>' : '<<' }} </span>
+    <div #toggleButton class="toggle-button-container" [class.expanded]="isExpanded" [class.collapsed]="!isExpanded" (click)="toggleSidenav()">
+      <span></span>
     </div>
   </mat-sidenav>
   <mat-sidenav-content
