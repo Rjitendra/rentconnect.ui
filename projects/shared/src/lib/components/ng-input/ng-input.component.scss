@@ -19,3 +19,8 @@
 ::ng-deep .mat-form-field-invalid .mat-form-field-appearance-outline .mat-form-field-outline-thick {
   color: var(--mat-form-field-error-outline-color) !important;
 }
+
+// Your custom border class
+::ng-deep .ng-input-error {
+   border: 1px solid red; /* This line is crucial to remove any duplicate borders */ 
+}

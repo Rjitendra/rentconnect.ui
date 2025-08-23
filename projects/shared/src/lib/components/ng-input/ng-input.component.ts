@@ -1,19 +1,37 @@
-// ng-input.component.ts
-import { Component, forwardRef, Input, input } from '@angular/core';
-import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { 
+  Component, 
+  forwardRef, 
+  OnDestroy, 
+  Input, 
+  Optional, 
+  Self,
+  signal,
+  OnInit,
+  Injector,
+  inject,
+  AfterViewInit,
+  input
+} from '@angular/core';
+import { 
+  ControlValueAccessor, 
+  NG_VALUE_ACCESSOR, 
+  NgControl, 
+  FormControl, 
+  Validators,
+  ReactiveFormsModule 
+} from '@angular/forms';
+import { 
+  MatFormFieldModule, 
+  FloatLabelType 
+} from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
-import { ErrorStateMatcher } from '@angular/material/core';
-
-// Note: Ensure this path is correct for your project
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { InputType } from '../../enums/input-type';
 
-/**
- * A custom input component that acts as a ControlValueAccessor.
- * It's designed to work with both Angular Reactive and Template-Driven forms.
- */
+
 @Component({
   selector: 'ng-input',
   standalone: true,
@@ -21,7 +39,8 @@ import { InputType } from '../../enums/input-type';
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
-    CommonModule
+    CommonModule,
+    ReactiveFormsModule
   ],
   templateUrl: './ng-input.component.html',
   styleUrl: './ng-input.component.scss',
@@ -33,8 +52,12 @@ import { InputType } from '../../enums/input-type';
     },
   ],
 })
-export class NgInputComponent implements ControlValueAccessor {
-  // Inputs using the new input() decorator
+export class NgInputComponent implements ControlValueAccessor, OnInit, OnDestroy {
+  private injector = inject(Injector);
+
+  // Input signals with default values
+ 
+
   readonly label = input('');
   readonly placeholder = input('');
   readonly type = input<InputType>(InputType.Text);
@@ -42,28 +65,105 @@ export class NgInputComponent implements ControlValueAccessor {
   readonly prefixIcon = input('');
   readonly suffixText = input('');
   readonly prefixText = input('');
-  readonly hasError = input(false);
-  readonly errorMessage = input('');
-  readonly isInvalid = input(false);
-  readonly validationMessage = input('');
+  readonly required = input(false);
+  readonly minlength = input<number | null>(null);
+  readonly maxlength = input<number | null>(null);
+  readonly readonly = input(false);
+  floatLabel = input<FloatLabelType>('auto');
 
-  // Optional FormControl for reactive forms
-  @Input() formControl: FormControl | null = null;
+  // Manual validation signals
+  hasError = signal(false);
+  errorMessage = signal('');
+  isInvalid = signal(false);
+  validationMessage = signal('');
 
+  // Internal form control for validation
+  internalControl = new FormControl();
+  
   value: any = null;
-  private _disabled = false; // Internal property to manage the disabled state
+  disabled = false;
+  private destroyed$ = new Subject<void>();
+  private ngControl: NgControl | null = null;
 
-  // Error state matcher for better control over when errors are shown
-  readonly customErrorStateMatcher: ErrorStateMatcher = {
-    isErrorState: () => this.hasValidationError
-  };
-
-  // --- ControlValueAccessor methods ---
-  writeValue(value: any): void {
-    this.value = value;
+  ngOnInit() {
+    // Use setTimeout to avoid circular dependency during initialization
+    setTimeout(() => {
+      this.tryGetNgControl();
+    });
+    
+    this.setupValidations();
+    this.setupControlMonitoring();
   }
 
-  onChange = (_: any) => {};
+  private tryGetNgControl() {
+    try {
+      // Try to get NgControl from injector without causing circular dependency
+      this.ngControl = this.injector.get(NgControl, null);
+      
+      if (this.ngControl && this.ngControl.valueAccessor === this) {
+        // We are the value accessor, this is expected
+      }
+    } catch (error) {
+      // Silently catch circular dependency errors
+      this.ngControl = null;
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.destroyed$.next();
+    this.destroyed$.complete();
+  }
+
+  private setupValidations() {
+    const validators = [];
+
+    if (this.required()) {
+      validators.push(Validators.required);
+    }
+
+    if (this.minlength() !== null) {
+      validators.push(Validators.minLength(this.minlength()!));
+    }
+
+    if (this.maxlength() !== null) {
+      validators.push(Validators.maxLength(this.maxlength()!));
+    }
+
+    if (this.type() === InputType.Email) {
+      validators.push(Validators.email);
+    }
+
+    this.internalControl.setValidators(validators);
+  }
+
+  private setupControlMonitoring() {
+    // Monitor internal control changes
+    this.internalControl.valueChanges
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe(value => {
+        this.value = value;
+        this.onChange(value);
+      });
+
+    this.internalControl.statusChanges
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe(() => {
+        this.onTouched();
+      });
+  }
+
+  // --- ControlValueAccessor Implementation ---
+  writeValue(value: any): void {
+    this.value = value;
+    this.internalControl.setValue(value, { emitEvent: false });
+    
+    // Also update external control if it exists
+    if (this.ngControl?.control && value !== this.ngControl.control.value) {
+      this.ngControl.control.setValue(value, { emitEvent: false });
+    }
+  }
+
+  onChange = (value: any) => {};
   registerOnChange(fn: any): void {
     this.onChange = fn;
   }
@@ -73,55 +173,69 @@ export class NgInputComponent implements ControlValueAccessor {
     this.onTouched = fn;
   }
 
-  /**
-   * Correctly handles the disabled state for the component.
-   * Angular's forms system calls this method, and we store the state
-   * in a private property.
-   */
   setDisabledState(isDisabled: boolean): void {
-    this._disabled = isDisabled;
+    this.disabled = isDisabled;
+    isDisabled ? this.internalControl.disable() : this.internalControl.enable();
   }
 
-  /**
-   * A public getter to provide the disabled state to the template.
-   * This is the correct way to bind to the `[disabled]` attribute in the template.
-   */
-  get disabled(): boolean {
-    return this._disabled;
-  }
-
-  // --- Component logic ---
+  // --- Input handling ---
   handleInput(event: Event) {
-    const val = (event.target as HTMLInputElement).value;
-    this.value = val;
-    this.onChange(val);
+    const value = (event.target as HTMLInputElement).value;
+    this.internalControl.setValue(value, { emitEvent: true });
+    this.internalControl.markAsTouched();
   }
 
-  /**
-   * A getter that returns true if a validation error should be displayed.
-   * It checks for reactive form errors first, then falls back to the
-   * template-driven inputs.
-   */
+  handleBlur() {
+    this.internalControl.markAsTouched();
+    this.onTouched();
+  }
+
+  // --- Validation logic ---
   get hasValidationError(): boolean {
-    if (this.formControl) {
-      return this.formControl.invalid && (this.formControl.touched || this.formControl.dirty);
+    // Check internal control first
+    if (this.internalControl.invalid && this.internalControl.touched) {
+      return true;
     }
+
+    // Check external ngControl if available (safe check)
+    if (this.ngControl?.control) {
+      const isInvalid = this.ngControl.invalid === true;
+      const isTouchedOrDirty = (this.ngControl.touched === true) || (this.ngControl.dirty === true);
+      return isInvalid && isTouchedOrDirty;
+    }
+
+    // Fallback to manual template-driven signals
     return this.hasError() || this.isInvalid();
   }
 
-  /**
-   * Provides the appropriate error message based on the form state.
-   */
   get displayErrorMessage(): string {
-    if (this.formControl && this.formControl.errors) {
-      const errors = this.formControl.errors;
-      if (errors['required']) return 'This field is required.';
-      if (errors['minlength']) return `Minimum ${errors['minlength'].requiredLength} characters.`;
-      if (errors['maxlength']) return `Maximum ${errors['maxlength'].requiredLength} characters.`;
-      if (errors['email']) return 'Invalid email address.';
+    // Check internal control errors first
+    if (this.internalControl.errors) {
+      return this.getErrorMessageFromControl(this.internalControl);
     }
+
+    // Check external ngControl errors (safe check)
+    if (this.ngControl?.control?.errors) {
+      return this.getErrorMessageFromControl(this.ngControl.control as FormControl);
+    }
+
+    // Fallback to manual error messages
     return this.errorMessage() || this.validationMessage() || 'Invalid input.';
   }
 
+  private getErrorMessageFromControl(control: FormControl): string {
+    const errors = control.errors;
+    if (!errors) return '';
+
+    if (errors['required']) return 'This field is required.';
+    if (errors['minlength']) return `Minimum ${errors['minlength'].requiredLength} characters.`;
+    if (errors['maxlength']) return `Maximum ${errors['maxlength'].requiredLength} characters.`;
+    if (errors['email']) return 'Invalid email address.';
+    if (errors['pattern']) return 'Invalid format.';
+    
+    return 'Invalid input.';
+  }
+
+  // Expose InputType enum for template
   InputType = InputType;
 }

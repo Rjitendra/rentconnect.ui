@@ -149,7 +149,7 @@ export class PropertyAdd implements OnInit {
   }
 
   onSubmit() {
-    this.propertyForm.markAllAsTouched()
+    this.propertyForm.markAsDirty()
     if (this.isSaving) return; // Prevent double submission
 
     console.log('Form submission triggered');

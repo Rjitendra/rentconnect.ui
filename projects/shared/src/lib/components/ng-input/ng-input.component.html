@@ -1,8 +1,9 @@
 <mat-form-field
-  appearance="outline"
-  [floatLabel]="'auto'"
+  appearance="fill"
+  [floatLabel]="floatLabel()"
   class="full-width-input"
-  [class.ng-input-error]="hasValidationError">
+  [class.ng-input-error]="hasValidationError"
+>
   @if (label()) {
     <mat-label>{{ label() }}</mat-label>
   }
@@ -18,11 +19,11 @@
     matInput
     [type]="type()"
     [placeholder]="placeholder()"
-    [value]="value"
+    [formControl]="internalControl"
     [disabled]="disabled"
     (input)="handleInput($event)"
-    (blur)="onTouched()"
-    [errorStateMatcher]="customErrorStateMatcher"
+    (blur)="handleBlur()"
+    [readonly]="readonly()"
   />
 
   @if (suffixText()) {

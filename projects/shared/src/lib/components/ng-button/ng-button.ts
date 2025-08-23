@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
+  input,
   Input,
   Output,
 } from '@angular/core';
@@ -39,11 +40,13 @@ export class NgButton {
   /** Additional CSS classes */
   @Input() cssClass?: string;
 
+    @Input()  buttonType: 'button' | 'submit' | 'reset' = 'button';
+
   /** Event emitter for button click */
   @Output() buttonClick = new EventEmitter<void>();
 
   onClick() {
-    if (!this.disabled) {
+    if (!this.disabled && this.buttonType !== 'submit') {
       this.buttonClick.emit();
     }
   }
