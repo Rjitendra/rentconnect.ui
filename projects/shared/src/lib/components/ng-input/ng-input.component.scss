@@ -1,3 +1,40 @@
 .ng-input {
   width: 100%;
+  
+  // Error state styling
+  &.ng-input-error {
+    .mat-mdc-form-field-outline {
+      .mat-mdc-form-field-outline-start,
+      .mat-mdc-form-field-outline-notch,
+      .mat-mdc-form-field-outline-end {
+        border-color: #f56565 !important;
+        border-width: 2px !important;
+      }
+    }
+    
+    .mat-mdc-form-field-outline-thick {
+      .mat-mdc-form-field-outline-start,
+      .mat-mdc-form-field-outline-notch,
+      .mat-mdc-form-field-outline-end {
+        border-color: #f56565 !important;
+        border-width: 2px !important;
+      }
+    }
+    
+    .mat-mdc-form-field-label {
+      color: #f56565 !important;
+    }
+    
+    .mat-mdc-form-field-icon-suffix,
+    .mat-mdc-form-field-icon-prefix {
+      color: #f56565 !important;
+    }
+  }
+  
+  // Error message styling
+  .mat-mdc-form-field-error {
+    color: #f56565;
+    font-size: 12px;
+    margin-top: 4px;
+  }
 }

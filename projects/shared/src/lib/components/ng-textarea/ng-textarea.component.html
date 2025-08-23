@@ -1,8 +1,12 @@
-<mat-form-field [appearance]="appearance" class="ng-textarea-field">
+<mat-form-field [appearance]="appearance" class="ng-textarea-field" [class.ng-textarea-error]="hasValidationError">
   @if (label) {
     <mat-label>
       <ng-label [label]="label" [required]="required" [toolTip]="toolTip" />
     </mat-label>
+  }
+  
+  @if (prefixIcon) {
+    <mat-icon matPrefix>{{ prefixIcon }}</mat-icon>
   }
   
   <textarea
@@ -25,12 +29,20 @@
     [cdkAutosizeMaxRows]="maxRows">
   </textarea>
   
+  @if (suffixIcon) {
+    <mat-icon matSuffix>{{ suffixIcon }}</mat-icon>
+  }
+  
   @if (clarifyText) {
     <div matTextSuffix>
       <ng-clarify-text 
         [clarifyText]="clarifyText" 
         [isIconDisabled]="disabled" />
     </div>
+  }
+  
+  @if (hasValidationError && displayErrorMessage) {
+    <mat-error>{{ displayErrorMessage }}</mat-error>
   }
   
   @if (showCharacterCount && maxLength) {

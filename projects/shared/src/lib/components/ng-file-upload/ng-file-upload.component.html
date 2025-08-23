@@ -41,35 +41,60 @@
         }
       </div>
     } @else {
-      <div class="file-list">
-        @for (file of uploadedFiles; track file.name) {
-          <div class="file-item">
-            <div class="file-info">
-              <mat-icon class="file-icon">{{ getFileIcon(file.type) }}</mat-icon>
-              <div class="file-details">
-                <span class="file-name">{{ file.name }}</span>
-                <span class="file-size">{{ formatFileSize(file.size) }}</span>
-                @if (file.error) {
-                  <span class="file-error">{{ file.error }}</span>
+      <!-- Check if files are images for grid preview -->
+      @if (areFilesImages()) {
+        <div class="image-preview-grid">
+          @for (file of uploadedFiles; track file.name) {
+            <div class="image-preview-item">
+              <img [src]="file.url" [alt]="file.name" class="preview-image">
+              <div class="image-overlay">
+                @if (!disabled && allowRemove) {
+                  <button mat-icon-button class="remove-image-btn" (click)="removeFile(file, $event)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                }
+                @if ($first) {
+                  <div class="primary-badge">
+                    <mat-icon>star</mat-icon>
+                    Primary
+                  </div>
                 }
               </div>
             </div>
-            
-            @if (file.progress !== undefined && file.progress < 100) {
-              <mat-progress-bar 
-                mode="determinate" 
-                [value]="file.progress">
-              </mat-progress-bar>
-            }
-            
-            @if (!disabled && allowRemove) {
-              <button mat-icon-button (click)="removeFile(file, $event)">
-                <mat-icon>close</mat-icon>
-              </button>
-            }
-          </div>
-        }
-      </div>
+          }
+        </div>
+      } @else {
+        <!-- Regular file list for non-images -->
+        <div class="file-list">
+          @for (file of uploadedFiles; track file.name) {
+            <div class="file-item">
+              <div class="file-info">
+                <mat-icon class="file-icon">{{ getFileIcon(file.type) }}</mat-icon>
+                <div class="file-details">
+                  <span class="file-name">{{ file.name }}</span>
+                  <span class="file-size">{{ formatFileSize(file.size) }}</span>
+                  @if (file.error) {
+                    <span class="file-error">{{ file.error }}</span>
+                  }
+                </div>
+              </div>
+              
+              @if (file.progress !== undefined && file.progress < 100) {
+                <mat-progress-bar 
+                  mode="determinate" 
+                  [value]="file.progress">
+                </mat-progress-bar>
+              }
+              
+              @if (!disabled && allowRemove) {
+                <button mat-icon-button (click)="removeFile(file, $event)">
+                  <mat-icon>close</mat-icon>
+                </button>
+              }
+            </div>
+          }
+        </div>
+      }
     }
     
     @if (uploadedFiles.length > 0 && config.allowMultiple && !disabled) {

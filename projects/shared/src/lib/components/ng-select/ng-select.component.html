@@ -1,8 +1,15 @@
-<mat-form-field [appearance]="appearance" class="ng-select-field">
+<mat-form-field 
+  [appearance]="appearance" 
+  class="ng-select-field"
+  [class.ng-select-error]="hasValidationError">
   @if (label) {
     <mat-label>
       <ng-label [label]="label" [required]="required" [toolTip]="toolTip" />
     </mat-label>
+  }
+  
+  @if (prefixIcon) {
+    <mat-icon matPrefix>{{ prefixIcon }}</mat-icon>
   }
   
   <mat-select
@@ -22,6 +29,10 @@
     }
   </mat-select>
   
+  @if (suffixIcon) {
+    <mat-icon matSuffix>{{ suffixIcon }}</mat-icon>
+  }
+  
   @if (clarifyText) {
     <div matTextSuffix>
       <ng-clarify-text 
@@ -32,5 +43,9 @@
   
   @if (hint) {
     <mat-hint>{{ hint }}</mat-hint>
+  }
+  
+  @if (hasValidationError && displayErrorMessage) {
+    <mat-error>{{ displayErrorMessage }}</mat-error>
   }
 </mat-form-field>

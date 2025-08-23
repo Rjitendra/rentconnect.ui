@@ -1,0 +1,60 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ng-icon {
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+/* Size variations */
+.ng-icon-small {
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.ng-icon-medium {
+  font-size: 24px !important;
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.ng-icon-large {
+  font-size: 32px !important;
+  width: 32px !important;
+  height: 32px !important;
+}
+
+/* States */
+.ng-icon-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ng-icon:not(.ng-icon-disabled):hover {
+  transform: scale(1.1);
+}
+
+/* Color variations */
+.ng-icon.primary {
+  color: #667eea;
+}
+
+.ng-icon.accent {
+  color: #764ba2;
+}
+
+.ng-icon.warn {
+  color: #f56565;
+}
+
+.ng-icon.success {
+  color: #48bb78;
+}
+
+.ng-icon.info {
+  color: #4299e1;
+}

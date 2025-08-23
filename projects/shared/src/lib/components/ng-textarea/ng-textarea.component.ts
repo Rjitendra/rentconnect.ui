@@ -3,6 +3,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
 import { NgLabelComponent } from '../ng-label/ng-label.component';
 import { NgClarifyTextComponent } from '../ng-clarify-text/ng-clarify-text.component';
 
@@ -13,6 +14,7 @@ import { NgClarifyTextComponent } from '../ng-clarify-text/ng-clarify-text.compo
     CommonModule,
     MatFormFieldModule,
     MatInputModule,
+    MatIconModule,
     NgLabelComponent,
     NgClarifyTextComponent
   ],
@@ -40,10 +42,14 @@ export class NgTextareaComponent implements ControlValueAccessor {
   @Input() ariaLabel!: string;
   @Input() rows = 4;
   @Input() cols!: number;
+  @Input() suffixIcon = '';
+  @Input() prefixIcon = '';
   @Input() minRows = 2;
   @Input() maxRows = 10;
   @Input() maxLength!: number;
   @Input() showCharacterCount = false;
+  @Input() isInvalid = false;
+  @Input() validationMessage = '';
   
   @Output() inputChange = new EventEmitter<string>();
   @Output() focusEvent = new EventEmitter<FocusEvent>();
@@ -82,5 +88,15 @@ export class NgTextareaComponent implements ControlValueAccessor {
 
   onFocus(event: FocusEvent): void {
     this.focusEvent.emit(event);
+  }
+
+  // Check if field has validation errors
+  get hasValidationError(): boolean {
+    return this.isInvalid;
+  }
+
+  // Get error message
+  get displayErrorMessage(): string {
+    return this.validationMessage || '';
   }
 }

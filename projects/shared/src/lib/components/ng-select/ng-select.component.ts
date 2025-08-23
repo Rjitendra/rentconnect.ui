@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatOptionModule } from '@angular/material/core';
+import { MatIconModule } from '@angular/material/icon';
 import { NgLabelComponent } from '../ng-label/ng-label.component';
 import { NgClarifyTextComponent } from '../ng-clarify-text/ng-clarify-text.component';
 
@@ -22,6 +23,7 @@ export interface SelectOption {
     MatSelectModule,
     MatFormFieldModule,
     MatOptionModule,
+    MatIconModule,
     NgLabelComponent,
     NgClarifyTextComponent
   ],
@@ -47,6 +49,12 @@ export class NgSelectComponent implements ControlValueAccessor {
   @Input() toolTip!: string;
   @Input() clarifyText!: string;
   @Input() hint!: string;
+  @Input() suffixIcon = '';
+  @Input() prefixIcon = '';
+  @Input() hasError = false;
+  @Input() errorMessage = '';
+  @Input() isInvalid = false;
+  @Input() validationMessage = '';
   
   @Output() selectionChange = new EventEmitter<any>();
   @Output() openedChange = new EventEmitter<boolean>();
@@ -84,5 +92,15 @@ export class NgSelectComponent implements ControlValueAccessor {
       this.onTouched();
     }
     this.openedChange.emit(opened);
+  }
+
+  // Check if field has validation errors
+  get hasValidationError(): boolean {
+    return this.hasError || this.isInvalid;
+  }
+
+  // Get error message
+  get displayErrorMessage(): string {
+    return this.errorMessage || this.validationMessage || '';
   }
 }

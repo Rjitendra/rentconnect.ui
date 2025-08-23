@@ -25,11 +25,15 @@
 <!-- Outlined Button -->
 @if (type === 'outlined') {
 <button
-  mat-button="outlined"
+  mat-stroked-button
   [matTooltip]="tooltip"
   [disabled]="disabled"
+  [class]="cssClass"
   (click)="onClick()"
 >
+  @if (icon) {
+    <mat-icon>{{ icon }}</mat-icon>
+  }
   {{ label }}
 </button>
 }
@@ -37,11 +41,15 @@
 <!-- Filled Button -->
 @if (type === 'filled') {
 <button
-  mat-button="filled"
+  mat-raised-button
   [matTooltip]="tooltip"
   [disabled]="disabled"
+  [class]="cssClass"
   (click)="onClick()"
 >
+  @if (icon) {
+    <mat-icon>{{ icon }}</mat-icon>
+  }
   {{ label }}
 </button>
 }
@@ -64,6 +72,7 @@
   mat-icon-button
   [matTooltip]="tooltip"
   [disabled]="disabled"
+  [class]="cssClass"
   (click)="onClick()"
   [attr.aria-label]="label"
 >

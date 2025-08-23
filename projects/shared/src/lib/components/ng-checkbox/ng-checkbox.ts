@@ -19,6 +19,7 @@ import {
 } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatIconModule } from '@angular/material/icon';
 import { NgLabelComponent } from '../ng-label/ng-label.component';
 import { NgClarifyTextComponent } from '../ng-clarify-text/ng-clarify-text.component';
 import { ClLabelComponent } from '../cl-label/cl-label.component';
@@ -32,6 +33,7 @@ import { ClClarifyTextComponent } from '../cl-clarify-text/cl-clarify-text.compo
     ReactiveFormsModule,
     MatCheckboxModule,
     MatSlideToggleModule,
+    MatIconModule,
     NgLabelComponent,
     NgClarifyTextComponent,
     ClLabelComponent,
@@ -80,6 +82,8 @@ export class NgCheckbox implements ControlValueAccessor {
   @Input() checkboxName?: string;
   /** Whether to hide label */
   @Input() hideLabel: boolean = false;
+  /** Icon to display next to the checkbox */
+  @Input() icon?: string;
   /** Output event when checkbox state changes */
   @Output() changed = new EventEmitter<boolean>();
 

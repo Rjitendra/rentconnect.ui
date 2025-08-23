@@ -15,3 +15,34 @@ textarea {
   resize: vertical;
   min-height: 60px;
 }
+
+// Error styling
+.ng-textarea-error {
+  .mat-mdc-form-field-outline {
+    color: #f44336 !important;
+  }
+  
+  .mat-mdc-form-field-outline-thick {
+    color: #f44336 !important;
+  }
+  
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-color: #f44336 !important;
+  }
+  
+  .mat-mdc-form-field-label {
+    color: #f44336 !important;
+  }
+  
+  .mat-icon {
+    color: #f44336 !important;
+  }
+}
+
+.mat-mdc-form-field-error {
+  color: #f44336 !important;
+  font-size: 12px;
+  margin-top: 4px;
+}

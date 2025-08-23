@@ -12,6 +12,9 @@
   (change)="onCheckboxChange($event)"
   (blur)="onBlur()"
 >
+  @if (icon) {
+    <mat-icon>{{ icon }}</mat-icon>
+  }
   @if (!hideLabel) {
   <ng-label [label]="label" [required]="isRequired" [toolTip]="toolTip || ''" />
   } @if (clarifyText){
@@ -35,6 +38,9 @@
   (change)="onCheckboxChange($event)"
   (blur)="onBlur()"
 >
+  @if (icon) {
+    <mat-icon>{{ icon }}</mat-icon>
+  }
   @if (!hideLabel) {
   <cl-label [label]="label" [required]="isRequired" [toolTip]="toolTip || ''" />
   } @if (clarifyText) {

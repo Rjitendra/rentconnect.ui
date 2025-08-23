@@ -604,9 +604,14 @@ const mockTickets: ITicket[] = [
   }
 
   getTotalRevenue(): number {
-    return this.properties
+    const total = this.properties
       .filter((p) => p.status === PropertyStatus.Rented)
-      .reduce((total, p) => total + (p.monthlyRent || 0), 0);
+      .reduce((total, p) => {
+        const rent = p.monthlyRent || 0;
+        return total + (typeof rent === 'number' && !isNaN(rent) ? rent : 0);
+      }, 0);
+    
+    return typeof total === 'number' && !isNaN(total) ? total : 0;
   }
 
   // Tenant Management Methods

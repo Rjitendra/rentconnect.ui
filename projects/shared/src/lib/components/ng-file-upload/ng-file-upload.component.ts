@@ -212,4 +212,9 @@ export class NgFileUploadComponent implements ControlValueAccessor {
     if (type.includes('presentation') || type.includes('powerpoint')) return 'slideshow';
     return 'insert_drive_file';
   }
+
+  areFilesImages(): boolean {
+    return this.uploadedFiles.length > 0 && 
+           this.uploadedFiles.every(file => file.type.startsWith('image/'));
+  }
 }

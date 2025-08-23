@@ -1,7 +1,18 @@
-<mat-form-field appearance="outline" class="ng-input">
+<mat-form-field 
+  appearance="outline" 
+  class="ng-input"
+  [class.ng-input-error]="hasValidationError">
   @if (label()) {
     <mat-label>{{ label() }}</mat-label>
   }
+  
+  @if (prefixIcon()) {
+    <mat-icon matPrefix>{{ prefixIcon() }}</mat-icon>
+  }
+  @if (prefixText()) {
+    <span matPrefix>{{ prefixText() }}</span>
+  }
+  
   <input
     matInput
     [type]="type()"
@@ -11,4 +22,15 @@
     (input)="handleInput($event)"
     (blur)="onTouched()"
     />
+    
+  @if (suffixText()) {
+    <span matSuffix>{{ suffixText() }}</span>
+  }
+  @if (suffixIcon()) {
+    <mat-icon matSuffix>{{ suffixIcon() }}</mat-icon>
+  }
+  
+  @if (hasValidationError && displayErrorMessage) {
+    <mat-error>{{ displayErrorMessage }}</mat-error>
+  }
 </mat-form-field>

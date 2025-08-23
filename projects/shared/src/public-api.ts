@@ -29,6 +29,11 @@ export * from './lib/components/ng-file-upload/ng-file-upload.component';
 export * from './lib/components/ng-progress-bar/ng-progress-bar.component';
 export * from './lib/components/ng-stepper/ng-stepper.component';
 
+// UI Components
+export * from './lib/components/ng-card/ng-card.component';
+export * from './lib/components/ng-button/ng-button';
+export * from './lib/components/ng-icon/ng-icon';
+
 
 export * from './lib/enums/input-type';
 export * from './lib/services/common.service';

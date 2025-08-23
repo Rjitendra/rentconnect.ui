@@ -36,6 +36,9 @@ export class NgButton {
   /** Tooltip text */
   @Input() tooltip?: string;
 
+  /** Additional CSS classes */
+  @Input() cssClass?: string;
+
   /** Event emitter for button click */
   @Output() buttonClick = new EventEmitter<void>();
 

@@ -61,7 +61,7 @@
         <mat-icon class="stat-icon revenue">attach_money</mat-icon>
         <div class="stat-content">
           <span class="stat-number"
-            >₹{{ getTotalRevenue() | number: "1.0-0" }}</span
+            >₹{{ (getTotalRevenue() || 0) | number: "1.0-0" }}</span
           >
           <span class="stat-label">Monthly Revenue</span>
         </div>

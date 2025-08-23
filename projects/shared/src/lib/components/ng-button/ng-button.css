@@ -1,0 +1,91 @@
+:host {
+  display: inline-block;
+}
+
+/* Enhanced button styling */
+button {
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  padding: 12px 24px !important;
+  transition: all 0.3s ease !important;
+  text-transform: none !important;
+}
+
+/* Icon spacing in buttons */
+button mat-icon {
+  margin-right: 8px !important;
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+}
+
+/* Outlined button styling */
+button[mat-stroked-button] {
+  border: 2px solid #667eea !important;
+  color: #667eea !important;
+  background: transparent !important;
+}
+
+button[mat-stroked-button]:hover:not(:disabled) {
+  background: rgba(102, 126, 234, 0.1) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2) !important;
+}
+
+/* Filled/Raised button styling */
+button[mat-raised-button] {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+  border: none !important;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3) !important;
+}
+
+button[mat-raised-button]:hover:not(:disabled) {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4) !important;
+}
+
+button[mat-raised-button]:disabled {
+  background: #e2e8f0 !important;
+  color: #a0aec0 !important;
+  box-shadow: none !important;
+}
+
+/* Text button styling */
+button[mat-button] {
+  color: #667eea !important;
+}
+
+button[mat-button]:hover:not(:disabled) {
+  background: rgba(102, 126, 234, 0.1) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Icon button styling */
+button[mat-icon-button] {
+  color: #4a5568 !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 2px solid #e2e8f0 !important;
+  border-radius: 50% !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+button[mat-icon-button]:hover:not(:disabled) {
+  background: #667eea !important;
+  color: white !important;
+  border-color: #667eea !important;
+  transform: scale(1.1) !important;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3) !important;
+}
+
+/* FAB button styling */
+button[mat-fab], button[mat-mini-fab] {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+}
+
+button[mat-fab]:hover:not(:disabled), 
+button[mat-mini-fab]:hover:not(:disabled) {
+  transform: scale(1.1) !important;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4) !important;
+}
