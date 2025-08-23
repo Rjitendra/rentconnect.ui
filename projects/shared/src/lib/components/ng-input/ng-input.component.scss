@@ -1,40 +1,21 @@
-.ng-input {
+/* ng-input.component.scss */
+:host {
+  display: block;
+}
+
+.full-width-input {
   width: 100%;
-  
-  // Error state styling
-  &.ng-input-error {
-    .mat-mdc-form-field-outline {
-      .mat-mdc-form-field-outline-start,
-      .mat-mdc-form-field-outline-notch,
-      .mat-mdc-form-field-outline-end {
-        border-color: #f56565 !important;
-        border-width: 2px !important;
-      }
-    }
-    
-    .mat-mdc-form-field-outline-thick {
-      .mat-mdc-form-field-outline-start,
-      .mat-mdc-form-field-outline-notch,
-      .mat-mdc-form-field-outline-end {
-        border-color: #f56565 !important;
-        border-width: 2px !important;
-      }
-    }
-    
-    .mat-mdc-form-field-label {
-      color: #f56565 !important;
-    }
-    
-    .mat-mdc-form-field-icon-suffix,
-    .mat-mdc-form-field-icon-prefix {
-      color: #f56565 !important;
-    }
-  }
-  
-  // Error message styling
-  .mat-mdc-form-field-error {
-    color: #f56565;
-    font-size: 12px;
-    margin-top: 4px;
-  }
+}
+
+// Custom styles for the mat-error
+::ng-deep .mat-form-field-invalid .mat-form-field-label,
+::ng-deep .mat-form-field-invalid .mat-form-field-suffix,
+::ng-deep .mat-form-field-invalid .mat-form-field-prefix,
+::ng-deep .mat-form-field-invalid .mat-input-element {
+  color: var(--mat-form-field-error-label-text-color) !important;
+}
+
+// Optional: You can style the input itself when in an error state
+::ng-deep .mat-form-field-invalid .mat-form-field-appearance-outline .mat-form-field-outline-thick {
+  color: var(--mat-form-field-error-outline-color) !important;
 }
