@@ -1,6 +1,6 @@
 import { Component, forwardRef, ElementRef, AfterViewInit, viewChild, output, input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -29,14 +29,13 @@ export interface UploadedFile {
   selector: 'ng-file-upload',
   standalone: true,
   imports: [
-    CommonModule,
     MatButtonModule,
     MatIconModule,
     MatProgressBarModule,
     MatFormFieldModule,
     NgLabelComponent,
     NgClarifyTextComponent
-  ],
+],
   templateUrl: './ng-file-upload.component.html',
   styleUrl: './ng-file-upload.component.scss',
   providers: [

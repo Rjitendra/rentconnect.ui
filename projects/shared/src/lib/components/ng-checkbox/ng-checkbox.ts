@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   ChangeDetectionStrategy,
   Component,
@@ -27,7 +27,6 @@ import { ClClarifyTextComponent } from '../cl-clarify-text/cl-clarify-text.compo
 @Component({
   selector: 'ng-checkbox',
   imports: [
-    CommonModule,
     FormsModule,
     ReactiveFormsModule,
     MatCheckboxModule,
@@ -36,8 +35,8 @@ import { ClClarifyTextComponent } from '../cl-clarify-text/cl-clarify-text.compo
     NgLabelComponent,
     NgClarifyTextComponent,
     ClLabelComponent,
-    ClClarifyTextComponent,
-  ],
+    ClClarifyTextComponent
+],
   templateUrl: './ng-checkbox.html',
   styleUrl: './ng-checkbox.scss',
   providers: [

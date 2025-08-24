@@ -1,6 +1,6 @@
 import { Component, forwardRef, output, input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { MatRadioModule } from '@angular/material/radio';
 import { NgLabelComponent } from '../ng-label/ng-label.component';
 import { NgClarifyTextComponent } from '../ng-clarify-text/ng-clarify-text.component';
@@ -15,11 +15,10 @@ export interface RadioOption {
   selector: 'ng-radio-group',
   standalone: true,
   imports: [
-    CommonModule,
     MatRadioModule,
     NgLabelComponent,
     NgClarifyTextComponent
-  ],
+],
   templateUrl: './ng-radio-group.component.html',
   styleUrl: './ng-radio-group.component.scss',
   providers: [

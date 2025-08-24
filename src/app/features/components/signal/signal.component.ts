@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,14 +16,13 @@ import { CommonService } from '../../../../../projects/shared/src/public-api';
 @Component({
   selector: 'ng-signal',
   imports: [
-    CommonModule,
     FormsModule,
     MatInputModule,
     MatButtonModule,
     MatCardModule,
     MatListModule,
-    MatIconModule,
-  ],
+    MatIconModule
+],
   templateUrl: './signal.component.html',
   styleUrl: './signal.component.scss',
 })

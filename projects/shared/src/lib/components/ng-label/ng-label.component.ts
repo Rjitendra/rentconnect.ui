@@ -1,10 +1,10 @@
 import { Component, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 
 @Component({
   selector: 'ng-label',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <span class="ng-label" [title]="toolTip()">
       {{ label() }}

@@ -1,5 +1,5 @@
 import { Component, OnInit, output, input, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 
 // Shared library imports
@@ -15,7 +15,6 @@ import { NgCardComponent, NgInputComponent, NgSelectComponent, NgDatepickerCompo
   selector: 'app-tenant-add',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     NgCardComponent,
     NgInputComponent,
@@ -23,7 +22,7 @@ import { NgCardComponent, NgInputComponent, NgSelectComponent, NgDatepickerCompo
     NgDatepickerComponent,
     NgFileUploadComponent,
     NgIconComponent
-  ],
+],
   templateUrl: './tenant-add.html',
   styleUrl: './tenant-add.scss'
 })

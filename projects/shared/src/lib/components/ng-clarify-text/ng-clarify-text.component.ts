@@ -1,12 +1,12 @@
 import { Component, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'ng-clarify-text',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatTooltipModule],
+  imports: [MatIconModule, MatTooltipModule],
   template: `
     <mat-icon 
       class="clarify-icon"

@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { NgLabelComponent } from '../ng-label/ng-label.component';
 import { NgClarifyTextComponent } from '../ng-clarify-text/ng-clarify-text.component';
@@ -8,11 +8,10 @@ import { NgClarifyTextComponent } from '../ng-clarify-text/ng-clarify-text.compo
   selector: 'ng-progress-bar',
   standalone: true,
   imports: [
-    CommonModule,
     MatProgressBarModule,
     NgLabelComponent,
     NgClarifyTextComponent
-  ],
+],
   templateUrl: './ng-progress-bar.component.html',
   styleUrl: './ng-progress-bar.component.scss'
 })

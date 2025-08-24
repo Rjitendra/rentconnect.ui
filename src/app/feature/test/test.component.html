@@ -2,25 +2,35 @@
   <h2>OIDC Test Component</h2>
 
   <!-- Login / Logout -->
-  <button (click)="login()" *ngIf="!user">Login</button>
-  <button (click)="logout()" *ngIf="user">Logout</button>
+  @if (!user) {
+    <button (click)="login()">Login</button>
+  }
+  @if (user) {
+    <button (click)="logout()">Logout</button>
+  }
 
   <hr />
 
   <!-- User Token Info -->
-  <div *ngIf="user">
-    <h3>User Info</h3>
-    <p><b>Id Token:</b> {{ user.id_token }}</p>
-    <p><b>Access Token:</b> {{ user.access_token }}</p>
-    <p><b>Expires:</b> {{ user.expires_at * 1000 | date:'medium' }}</p>
-  </div>
+  @if (user) {
+    <div>
+      <h3>User Info</h3>
+      <p><b>Id Token:</b> {{ user.id_token }}</p>
+      <p><b>Access Token:</b> {{ user.access_token }}</p>
+      <p><b>Expires:</b> {{ user.expires_at * 1000 | date:'medium' }}</p>
+    </div>
+  }
 
   <hr />
 
   <!-- Call API -->
-  <button (click)="callApi()" *ngIf="user">Call API</button>
-  <div *ngIf="apiResponse">
-    <h3>API Response</h3>
-    <pre>{{ apiResponse | json }}</pre>
-  </div>
+  @if (user) {
+    <button (click)="callApi()">Call API</button>
+  }
+  @if (apiResponse) {
+    <div>
+      <h3>API Response</h3>
+      <pre>{{ apiResponse | json }}</pre>
+    </div>
+  }
 </div>

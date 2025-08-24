@@ -1,6 +1,6 @@
 import { Component, forwardRef, output, input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -13,7 +13,6 @@ import { NgClarifyTextComponent } from '../ng-clarify-text/ng-clarify-text.compo
   selector: 'ng-datepicker',
   standalone: true,
   imports: [
-    CommonModule,
     MatDatepickerModule,
     MatFormFieldModule,
     MatInputModule,
@@ -21,7 +20,7 @@ import { NgClarifyTextComponent } from '../ng-clarify-text/ng-clarify-text.compo
     MatIconModule,
     NgLabelComponent,
     NgClarifyTextComponent
-  ],
+],
   templateUrl: './ng-datepicker.component.html',
   styleUrl: './ng-datepicker.component.scss',
   providers: [

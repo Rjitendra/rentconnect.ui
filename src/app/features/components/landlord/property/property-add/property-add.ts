@@ -6,7 +6,7 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 
 // Import shared library components
 
@@ -43,7 +43,6 @@ import {
   selector: 'app-property-add',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     NgCardComponent,
     NgIconComponent,
@@ -52,8 +51,8 @@ import {
     NgCheckbox,
     NgTextareaComponent,
     NgDatepickerComponent,
-    NgFileUploadComponent,
-  ],
+    NgFileUploadComponent
+],
   templateUrl: './property-add.html',
   styleUrl: './property-add.scss',
 })

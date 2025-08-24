@@ -1,6 +1,6 @@
 import { Component, forwardRef, output, input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { MatSliderModule } from '@angular/material/slider';
 import { NgLabelComponent } from '../ng-label/ng-label.component';
 import { NgClarifyTextComponent } from '../ng-clarify-text/ng-clarify-text.component';
@@ -9,11 +9,10 @@ import { NgClarifyTextComponent } from '../ng-clarify-text/ng-clarify-text.compo
   selector: 'ng-slider',
   standalone: true,
   imports: [
-    CommonModule,
     MatSliderModule,
     NgLabelComponent,
     NgClarifyTextComponent
-  ],
+],
   templateUrl: './ng-slider.component.html',
   styleUrl: './ng-slider.component.scss',
   providers: [

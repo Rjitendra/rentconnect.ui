@@ -2,309 +2,319 @@
   <!-- Header Section -->
   <div class="header-section">
     <div class="header-content">
-      <ng-button buttonType="button" 
-        type="icon" 
-        icon="arrow_back" 
-        class="back-button" 
+      <ng-button buttonType="button"
+        type="icon"
+        icon="arrow_back"
+        class="back-button"
         (buttonClick)="goBack()" />
-      <div class="header-info">
-        <h1>{{ property?.title || 'Property Details' }}</h1>
-        <div class="header-meta">
-          <span class="property-id">ID: #{{ property?.id }}</span>
-          <mat-chip [ngClass]="getStatusClass()">
-            <ng-icon [name]="getStatusIcon()" />
-            {{ property?.status }}
-          </mat-chip>
-        </div>
-      </div>
-      <div class="header-actions">
-        <ng-button buttonType="button" 
-          type="icon" 
-          icon="edit" 
-          class="action-btn" 
-          tooltip="Edit Property" 
-          (buttonClick)="editProperty()" />
-        <ng-button buttonType="button" 
-          type="icon" 
-          icon="share" 
-          class="action-btn" 
-          tooltip="Share Property" 
-          (buttonClick)="shareProperty()" />
-        <ng-button buttonType="button" 
-          type="icon" 
-          icon="more_vert" 
-          [matMenuTriggerFor]="moreMenu" 
-          class="action-btn" 
-          tooltip="More Options" />
-      </div>
-    </div>
-  </div>
-
-  <div class="content-grid">
-    <!-- Property Images Section -->
-    <ng-card class="images-card">
-      <div class="image-gallery">
-        <div class="main-image">
-          <img [src]="selectedImage || defaultImage" alt="Property Image" />
-          <div class="image-overlay">
-            <ng-button buttonType="button" 
-              type="fab" 
-              icon="photo_library" 
-              class="gallery-btn" 
-              (buttonClick)="openGallery()" />
+        <div class="header-info">
+          <h1>{{ property?.title || 'Property Details' }}</h1>
+          <div class="header-meta">
+            <span class="property-id">ID: #{{ property?.id }}</span>
+            <mat-chip [ngClass]="getStatusClass()">
+              <ng-icon [name]="getStatusIcon()" />
+              {{ property?.status }}
+            </mat-chip>
           </div>
         </div>
-        <div class="thumbnail-strip" *ngIf="propertyImages.length > 1">
-          <div class="thumbnail" 
-               *ngFor="let image of propertyImages" 
-               [class.active]="image === selectedImage"
-               (click)="selectImage(image)">
-            <img [src]="image" alt="Property thumbnail" />
-          </div>
-        </div>
-      </div>
-    </ng-card>
-
-    <!-- Property Overview -->
-    <ng-card 
-      class="overview-card" 
-      title="Property Overview" 
-      icon="visibility">
-        <div class="overview-grid">
-          <div class="overview-item">
-            <ng-icon name="home" />
-            <div>
-              <span class="label">Type</span>
-              <span class="value">{{ property?.propertyType }}</span>
+        <div class="header-actions">
+          <ng-button buttonType="button"
+            type="icon"
+            icon="edit"
+            class="action-btn"
+            tooltip="Edit Property"
+            (buttonClick)="editProperty()" />
+            <ng-button buttonType="button"
+              type="icon"
+              icon="share"
+              class="action-btn"
+              tooltip="Share Property"
+              (buttonClick)="shareProperty()" />
+              <ng-button buttonType="button"
+                type="icon"
+                icon="more_vert"
+                [matMenuTriggerFor]="moreMenu"
+                class="action-btn"
+                tooltip="More Options" />
+              </div>
             </div>
           </div>
-          <div class="overview-item">
-            <ng-icon name="bed" />
-            <div>
-              <span class="label">Configuration</span>
-              <span class="value">{{ property?.bhkConfiguration }}</span>
-            </div>
-          </div>
-          <div class="overview-item">
-            <ng-icon name="square_foot" />
-            <div>
-              <span class="label">Carpet Area</span>
-              <span class="value">{{ property?.carpetAreaSqFt }} sq ft</span>
-            </div>
-          </div>
-          <div class="overview-item">
-            <ng-icon name="layers" />
-            <div>
-              <span class="label">Floor</span>
-              <span class="value">{{ property?.floorNumber }} of {{ property?.totalFloors }}</span>
-            </div>
-          </div>
-          <div class="overview-item">
-            <ng-icon name="chair" />
-            <div>
-              <span class="label">Furnishing</span>
-              <span class="value">{{ property?.furnishingType }}</span>
-            </div>
-          </div>
-          <div class="overview-item">
-            <ng-icon name="schedule" />
-            <div>
-              <span class="label">Available From</span>
-              <span class="value">{{ formatDate(property?.availableFrom) }}</span>
-            </div>
-          </div>
-        </div>
 
-    </ng-card>
+          <div class="content-grid">
+            <!-- Property Images Section -->
+            <ng-card class="images-card">
+              <div class="image-gallery">
+                <div class="main-image">
+                  <img [src]="selectedImage || defaultImage" alt="Property Image" />
+                  <div class="image-overlay">
+                    <ng-button buttonType="button"
+                      type="fab"
+                      icon="photo_library"
+                      class="gallery-btn"
+                      (buttonClick)="openGallery()" />
+                    </div>
+                  </div>
+                  @if (propertyImages.length > 1) {
+                    <div class="thumbnail-strip">
+                      @for (image of propertyImages; track image) {
+                        <div class="thumbnail"
+                          [class.active]="image === selectedImage"
+                          (click)="selectImage(image)">
+                          <img [src]="image" alt="Property thumbnail" />
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+              </ng-card>
 
-    <!-- Rent Details -->
-    <ng-card 
-      class="rent-card" 
-      title="Rent Details" 
-      icon="payments">
-        <div class="rent-info">
-          <div class="rent-main">
-            <div class="rent-amount">
-              <span class="currency">₹</span>
-              <span class="amount">{{ formatCurrency(property?.monthlyRent) }}</span>
-              <span class="period">/month</span>
-            </div>
-            <div class="negotiable" *ngIf="property?.isNegotiable">
-              <mat-chip color="accent">Negotiable</mat-chip>
-            </div>
-          </div>
-          <div class="rent-details">
-            <div class="detail-item">
-              <span class="label">Security Deposit</span>
-              <span class="value">₹{{ formatCurrency(property?.securityDeposit) }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="label">Lease Type</span>
-              <span class="value">{{ property?.leaseType }}</span>
-            </div>
-          </div>
-        </div>
+              <!-- Property Overview -->
+              <ng-card
+                class="overview-card"
+                title="Property Overview"
+                icon="visibility">
+                <div class="overview-grid">
+                  <div class="overview-item">
+                    <ng-icon name="home" />
+                    <div>
+                      <span class="label">Type</span>
+                      <span class="value">{{ property?.propertyType }}</span>
+                    </div>
+                  </div>
+                  <div class="overview-item">
+                    <ng-icon name="bed" />
+                    <div>
+                      <span class="label">Configuration</span>
+                      <span class="value">{{ property?.bhkConfiguration }}</span>
+                    </div>
+                  </div>
+                  <div class="overview-item">
+                    <ng-icon name="square_foot" />
+                    <div>
+                      <span class="label">Carpet Area</span>
+                      <span class="value">{{ property?.carpetAreaSqFt }} sq ft</span>
+                    </div>
+                  </div>
+                  <div class="overview-item">
+                    <ng-icon name="layers" />
+                    <div>
+                      <span class="label">Floor</span>
+                      <span class="value">{{ property?.floorNumber }} of {{ property?.totalFloors }}</span>
+                    </div>
+                  </div>
+                  <div class="overview-item">
+                    <ng-icon name="chair" />
+                    <div>
+                      <span class="label">Furnishing</span>
+                      <span class="value">{{ property?.furnishingType }}</span>
+                    </div>
+                  </div>
+                  <div class="overview-item">
+                    <ng-icon name="schedule" />
+                    <div>
+                      <span class="label">Available From</span>
+                      <span class="value">{{ formatDate(property?.availableFrom) }}</span>
+                    </div>
+                  </div>
+                </div>
 
-    </ng-card>
+              </ng-card>
 
-    <!-- Location Details -->
-    <ng-card 
-      class="location-card" 
-      title="Location" 
-      icon="place">
-        <div class="location-info">
-          <div class="address">
-            <p class="address-line">{{ property?.addressLine1 }}</p>
-            <p class="address-line" *ngIf="property?.addressLine2">{{ property?.addressLine2 }}</p>
-            <p class="address-line">{{ property?.locality }}, {{ property?.city }}</p>
-            <p class="address-line">{{ property?.state }} - {{ property?.pinCode }}</p>
-          </div>
-          <div class="landmark" *ngIf="property?.landmark">
-            <ng-icon name="map" />
-            <span>Near {{ property?.landmark }}</span>
-          </div>
-          <ng-button buttonType="button" 
-            type="outlined" 
-            label="View on Map" 
-            icon="location_on" 
-            class="map-button" 
-            (buttonClick)="showOnMap()" />
-        </div>
+              <!-- Rent Details -->
+              <ng-card
+                class="rent-card"
+                title="Rent Details"
+                icon="payments">
+                <div class="rent-info">
+                  <div class="rent-main">
+                    <div class="rent-amount">
+                      <span class="currency">₹</span>
+                      <span class="amount">{{ formatCurrency(property?.monthlyRent) }}</span>
+                      <span class="period">/month</span>
+                    </div>
+                    @if (property?.isNegotiable) {
+                      <div class="negotiable">
+                        <mat-chip color="accent">Negotiable</mat-chip>
+                      </div>
+                    }
+                  </div>
+                  <div class="rent-details">
+                    <div class="detail-item">
+                      <span class="label">Security Deposit</span>
+                      <span class="value">₹{{ formatCurrency(property?.securityDeposit) }}</span>
+                    </div>
+                    <div class="detail-item">
+                      <span class="label">Lease Type</span>
+                      <span class="value">{{ property?.leaseType }}</span>
+                    </div>
+                  </div>
+                </div>
 
-    </ng-card>
+              </ng-card>
 
-    <!-- Property Details -->
-    <ng-card 
-      class="details-card" 
-      title="Property Details" 
-      icon="info">
-        <div class="details-grid">
-          <div class="detail-group">
-            <h4>Room Details</h4>
-            <div class="detail-item">
-              <span class="label">Bathrooms</span>
-              <span class="value">{{ property?.numberOfBathrooms }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="label">Balconies</span>
-              <span class="value">{{ property?.numberOfBalconies || 0 }}</span>
-            </div>
-          </div>
-          
-          <div class="detail-group">
-            <h4>Area Details</h4>
-            <div class="detail-item">
-              <span class="label">Carpet Area</span>
-              <span class="value">{{ property?.carpetAreaSqFt }} sq ft</span>
-            </div>
-            <div class="detail-item">
-              <span class="label">Built-up Area</span>
-              <span class="value">{{ property?.builtUpAreaSqFt }} sq ft</span>
-            </div>
-          </div>
-        </div>
+              <!-- Location Details -->
+              <ng-card
+                class="location-card"
+                title="Location"
+                icon="place">
+                <div class="location-info">
+                  <div class="address">
+                    <p class="address-line">{{ property?.addressLine1 }}</p>
+                    @if (property?.addressLine2) {
+                      <p class="address-line">{{ property?.addressLine2 }}</p>
+                    }
+                    <p class="address-line">{{ property?.locality }}, {{ property?.city }}</p>
+                    <p class="address-line">{{ property?.state }} - {{ property?.pinCode }}</p>
+                  </div>
+                  @if (property?.landmark) {
+                    <div class="landmark">
+                      <ng-icon name="map" />
+                      <span>Near {{ property?.landmark }}</span>
+                    </div>
+                  }
+                  <ng-button buttonType="button"
+                    type="outlined"
+                    label="View on Map"
+                    icon="location_on"
+                    class="map-button"
+                    (buttonClick)="showOnMap()" />
+                  </div>
 
-    </ng-card>
+                </ng-card>
 
-    <!-- Amenities -->
-    <ng-card 
-      class="amenities-card" 
-      title="Amenities & Features" 
-      icon="apartment">
-        <div class="amenities-grid">
-          <div class="amenity-item" [class.available]="property?.hasLift">
-            <ng-icon name="elevator" />
-            <span>Lift</span>
-            <ng-icon class="status-icon" [name]="property?.hasLift ? 'check_circle' : 'cancel'" />
-          </div>
-          <div class="amenity-item" [class.available]="property?.hasParking">
-            <ng-icon name="local_parking" />
-            <span>Parking</span>
-            <ng-icon class="status-icon" [name]="property?.hasParking ? 'check_circle' : 'cancel'" />
-          </div>
-          <div class="amenity-item" [class.available]="property?.hasPowerBackup">
-            <ng-icon name="battery_charging_full" />
-            <span>Power Backup</span>
-            <ng-icon class="status-icon" [name]="property?.hasPowerBackup ? 'check_circle' : 'cancel'" />
-          </div>
-          <div class="amenity-item" [class.available]="property?.hasWaterSupply">
-            <ng-icon name="water_drop" />
-            <span>24/7 Water</span>
-            <ng-icon class="status-icon" [name]="property?.hasWaterSupply ? 'check_circle' : 'cancel'" />
-          </div>
-          <div class="amenity-item" [class.available]="property?.hasGasPipeline">
-            <ng-icon name="local_fire_department" />
-            <span>Gas Pipeline</span>
-            <ng-icon class="status-icon" [name]="property?.hasGasPipeline ? 'check_circle' : 'cancel'" />
-          </div>
-          <div class="amenity-item" [class.available]="property?.hasSecurity">
-            <ng-icon name="security" />
-            <span>Security</span>
-            <ng-icon class="status-icon" [name]="property?.hasSecurity ? 'check_circle' : 'cancel'" />
-          </div>
-          <div class="amenity-item" [class.available]="property?.hasInternet">
-            <ng-icon name="wifi" />
-            <span>Internet Ready</span>
-            <ng-icon class="status-icon" [name]="property?.hasInternet ? 'check_circle' : 'cancel'" />
-          </div>
-        </div>
+                <!-- Property Details -->
+                <ng-card
+                  class="details-card"
+                  title="Property Details"
+                  icon="info">
+                  <div class="details-grid">
+                    <div class="detail-group">
+                      <h4>Room Details</h4>
+                      <div class="detail-item">
+                        <span class="label">Bathrooms</span>
+                        <span class="value">{{ property?.numberOfBathrooms }}</span>
+                      </div>
+                      <div class="detail-item">
+                        <span class="label">Balconies</span>
+                        <span class="value">{{ property?.numberOfBalconies || 0 }}</span>
+                      </div>
+                    </div>
 
-    </ng-card>
+                    <div class="detail-group">
+                      <h4>Area Details</h4>
+                      <div class="detail-item">
+                        <span class="label">Carpet Area</span>
+                        <span class="value">{{ property?.carpetAreaSqFt }} sq ft</span>
+                      </div>
+                      <div class="detail-item">
+                        <span class="label">Built-up Area</span>
+                        <span class="value">{{ property?.builtUpAreaSqFt }} sq ft</span>
+                      </div>
+                    </div>
+                  </div>
 
-    <!-- Description -->
-    <ng-card 
-      class="description-card" 
-      title="Description" 
-      icon="description" 
-      *ngIf="property?.description">
-        <p class="description-text">{{ property?.description }}</p>
+                </ng-card>
 
-    </ng-card>
+                <!-- Amenities -->
+                <ng-card
+                  class="amenities-card"
+                  title="Amenities & Features"
+                  icon="apartment">
+                  <div class="amenities-grid">
+                    <div class="amenity-item" [class.available]="property?.hasLift">
+                      <ng-icon name="elevator" />
+                      <span>Lift</span>
+                      <ng-icon class="status-icon" [name]="property?.hasLift ? 'check_circle' : 'cancel'" />
+                    </div>
+                    <div class="amenity-item" [class.available]="property?.hasParking">
+                      <ng-icon name="local_parking" />
+                      <span>Parking</span>
+                      <ng-icon class="status-icon" [name]="property?.hasParking ? 'check_circle' : 'cancel'" />
+                    </div>
+                    <div class="amenity-item" [class.available]="property?.hasPowerBackup">
+                      <ng-icon name="battery_charging_full" />
+                      <span>Power Backup</span>
+                      <ng-icon class="status-icon" [name]="property?.hasPowerBackup ? 'check_circle' : 'cancel'" />
+                    </div>
+                    <div class="amenity-item" [class.available]="property?.hasWaterSupply">
+                      <ng-icon name="water_drop" />
+                      <span>24/7 Water</span>
+                      <ng-icon class="status-icon" [name]="property?.hasWaterSupply ? 'check_circle' : 'cancel'" />
+                    </div>
+                    <div class="amenity-item" [class.available]="property?.hasGasPipeline">
+                      <ng-icon name="local_fire_department" />
+                      <span>Gas Pipeline</span>
+                      <ng-icon class="status-icon" [name]="property?.hasGasPipeline ? 'check_circle' : 'cancel'" />
+                    </div>
+                    <div class="amenity-item" [class.available]="property?.hasSecurity">
+                      <ng-icon name="security" />
+                      <span>Security</span>
+                      <ng-icon class="status-icon" [name]="property?.hasSecurity ? 'check_circle' : 'cancel'" />
+                    </div>
+                    <div class="amenity-item" [class.available]="property?.hasInternet">
+                      <ng-icon name="wifi" />
+                      <span>Internet Ready</span>
+                      <ng-icon class="status-icon" [name]="property?.hasInternet ? 'check_circle' : 'cancel'" />
+                    </div>
+                  </div>
 
-    <!-- Contact & Actions -->
-    <ng-card 
-      class="contact-card" 
-      title="Contact Owner" 
-      icon="contact_phone">
-        <div class="contact-actions">
-          <ng-button buttonType="button" 
-            type="filled" 
-            label="Call Owner" 
-            icon="phone" 
-            class="contact-btn primary" />
-          <ng-button buttonType="button" 
-            type="outlined" 
-            label="Send Message" 
-            icon="message" 
-            class="contact-btn secondary" />
-          <ng-button buttonType="button" 
-            type="outlined" 
-            label="Schedule Visit" 
-            icon="schedule" 
-            class="contact-btn secondary" />
-        </div>
+                </ng-card>
 
-    </ng-card>
-  </div>
-</div>
+                <!-- Description -->
+                @if (property?.description) {
+                  <ng-card
+                    class="description-card"
+                    title="Description"
+                    icon="description"
+                    >
+                    <p class="description-text">{{ property?.description }}</p>
+                  </ng-card>
+                }
 
-<!-- More Options Menu -->
-<mat-menu #moreMenu="matMenu">
-  <button mat-menu-item (click)="markAsFavorite()">
-    <ng-icon name="favorite_border" />
-    <span>Add to Favorites</span>
-  </button>
-  <button mat-menu-item (click)="reportProperty()">
-    <ng-icon name="report" />
-    <span>Report Property</span>
-  </button>
-  <button mat-menu-item (click)="downloadDetails()">
-    <ng-icon name="download" />
-    <span>Download Details</span>
-  </button>
-  <mat-divider />
-  <button mat-menu-item (click)="deleteProperty()" class="danger-item">
-    <ng-icon name="delete" />
-    <span>Delete Property</span>
-  </button>
-</mat-menu>
+                <!-- Contact & Actions -->
+                <ng-card
+                  class="contact-card"
+                  title="Contact Owner"
+                  icon="contact_phone">
+                  <div class="contact-actions">
+                    <ng-button buttonType="button"
+                      type="filled"
+                      label="Call Owner"
+                      icon="phone"
+                      class="contact-btn primary" />
+                      <ng-button buttonType="button"
+                        type="outlined"
+                        label="Send Message"
+                        icon="message"
+                        class="contact-btn secondary" />
+                        <ng-button buttonType="button"
+                          type="outlined"
+                          label="Schedule Visit"
+                          icon="schedule"
+                          class="contact-btn secondary" />
+                        </div>
+
+                      </ng-card>
+                    </div>
+                  </div>
+
+                  <!-- More Options Menu -->
+                  <mat-menu #moreMenu="matMenu">
+                    <button mat-menu-item (click)="markAsFavorite()">
+                      <ng-icon name="favorite_border" />
+                      <span>Add to Favorites</span>
+                    </button>
+                    <button mat-menu-item (click)="reportProperty()">
+                      <ng-icon name="report" />
+                      <span>Report Property</span>
+                    </button>
+                    <button mat-menu-item (click)="downloadDetails()">
+                      <ng-icon name="download" />
+                      <span>Download Details</span>
+                    </button>
+                    <mat-divider />
+                    <button mat-menu-item (click)="deleteProperty()" class="danger-item">
+                      <ng-icon name="delete" />
+                      <span>Delete Property</span>
+                    </button>
+                  </mat-menu>

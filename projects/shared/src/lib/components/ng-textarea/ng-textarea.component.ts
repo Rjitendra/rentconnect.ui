@@ -1,6 +1,6 @@
 import { Component, forwardRef, output, input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,13 +11,12 @@ import { NgClarifyTextComponent } from '../ng-clarify-text/ng-clarify-text.compo
   selector: 'ng-textarea',
   standalone: true,
   imports: [
-    CommonModule,
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
     NgLabelComponent,
     NgClarifyTextComponent
-  ],
+],
   templateUrl: './ng-textarea.component.html',
   styleUrl: './ng-textarea.component.scss',
   providers: [

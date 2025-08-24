@@ -26,7 +26,7 @@ import {
 } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { CommonModule } from '@angular/common';
+
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { InputType } from '../../enums/input-type';
@@ -39,9 +39,8 @@ import { InputType } from '../../enums/input-type';
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
-    CommonModule,
     ReactiveFormsModule
-  ],
+],
   templateUrl: './ng-input.component.html',
   styleUrl: './ng-input.component.scss',
   providers: [
