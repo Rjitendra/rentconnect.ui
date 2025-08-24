@@ -13,13 +13,11 @@
     </div>
   }
   
-  <mat-progress-bar
-    [mode]="mode"
+  <mat-progress-bar [mode]="mode"
     [value]="value"
     [bufferValue]="bufferValue"
     [color]="color"
-    [class]="'progress-' + size">
-  </mat-progress-bar>
+    [class]="'progress-' + size" />
   
   @if (hint) {
     <div class="hint-text">{{ hint }}</div>

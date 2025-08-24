@@ -11,7 +11,7 @@
         class="add-tenant-btn"
         matTooltip="Add New Tenant"
         (click)="onAddTenant()">
-        <ng-icon name="person_add" style="color: white !important;"></ng-icon>
+        <ng-icon name="person_add" style="color: white !important;" />
         Add New Tenant
       </button>
     </div>
@@ -22,28 +22,28 @@
     <!-- Statistics Cards -->
     <div class="stats-cards">
       <div class="stat-card">
-        <ng-icon name="people" class="stat-icon"></ng-icon>
+        <ng-icon name="people" class="stat-icon" />
         <div class="stat-content">
           <span class="stat-number">{{ tenants.length }}</span>
           <span class="stat-label">Total Tenants</span>
         </div>
       </div>
       <div class="stat-card">
-        <ng-icon name="check_circle" class="stat-icon active"></ng-icon>
+        <ng-icon name="check_circle" class="stat-icon active" />
         <div class="stat-content">
           <span class="stat-number">{{ getActiveTenants() }}</span>
           <span class="stat-label">Active Tenants</span>
         </div>
       </div>
       <div class="stat-card">
-        <ng-icon name="pending" class="stat-icon pending"></ng-icon>
+        <ng-icon name="pending" class="stat-icon pending" />
         <div class="stat-content">
           <span class="stat-number">{{ getPendingOnboarding() }}</span>
           <span class="stat-label">Pending Onboarding</span>
         </div>
       </div>
       <div class="stat-card">
-        <ng-icon name="attach_money" class="stat-icon revenue"></ng-icon>
+        <ng-icon name="attach_money" class="stat-icon revenue" />
         <div class="stat-content">
           <span class="stat-number">₹{{ getTotalRentAmount() | number:'1.0-0' }}</span>
           <span class="stat-label">Monthly Rent</span>
@@ -288,10 +288,8 @@
 
   <!-- Add Tenant Form -->
   <div *ngIf="currentView === 'add'" class="form-view">
-    <app-tenant-add
-      [propertyOptions]="propertyOptions"
+    <app-tenant-add [propertyOptions]="propertyOptions"
       (tenantAdded)="onTenantAdded()"
-      (cancel)="onTenantAddCancelled()">
-    </app-tenant-add>
+      (cancel)="onTenantAddCancelled()" />
   </div>
 </div>

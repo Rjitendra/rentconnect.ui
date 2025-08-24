@@ -41,12 +41,10 @@
   }
 </mat-form-field>
 
-<mat-datepicker 
-  #picker 
+<mat-datepicker #picker 
   [startAt]="startAt"
   [disabled]="disabled"
   [opened]="opened"
   [touchUi]="touchUi"
   (opened)="onOpened()"
-  (closed)="onClosed()">
-</mat-datepicker>
+  (closed)="onClosed()" />

@@ -6,27 +6,23 @@
       <p>Manage your property portfolio with advanced features</p>
     </div>
     <div class="header-actions" *ngIf="currentView === 'table'">
-      <ng-button
-        buttonType="button"
+      <ng-button buttonType="button"
         type="filled"
         label="Add New Property"
         icon="add"
         cssClass="create-btn"
         (buttonClick)="onCreateProperty()"
-      >
-      </ng-button>
+       />
     </div>
   </div>
   <!-- Breadcrumb Navigation -->
   <div class="breadcrumb" *ngIf="currentView !== 'table'">
-    <ng-button
-      buttonType="button"
+    <ng-button buttonType="button"
       type="text"
       label="Back to Properties"
       icon="arrow_back"
       (buttonClick)="showTable()"
-    >
-    </ng-button>
+     />
     <span class="divider">/</span>
     <span class="current-view">
       {{
@@ -43,28 +39,28 @@
     <!-- Table Statistics -->
     <div class="stats-cards">
       <div class="stat-card">
-        <ng-icon name="home" class="stat-icon"></ng-icon>
+        <ng-icon name="home" class="stat-icon" />
         <div class="stat-content">
           <span class="stat-number">{{ properties.length }}</span>
           <span class="stat-label">Total Properties</span>
         </div>
       </div>
       <div class="stat-card">
-        <ng-icon name="check_circle" class="stat-icon available"></ng-icon>
+        <ng-icon name="check_circle" class="stat-icon available" />
         <div class="stat-content">
           <span class="stat-number">{{ getAvailablePropertiesCount() }}</span>
           <span class="stat-label">Available</span>
         </div>
       </div>
       <div class="stat-card">
-        <ng-icon name="people" class="stat-icon occupied"></ng-icon>
+        <ng-icon name="people" class="stat-icon occupied" />
         <div class="stat-content">
           <span class="stat-number">{{ getOccupiedPropertiesCount() }}</span>
           <span class="stat-label">Occupied</span>
         </div>
       </div>
       <div class="stat-card">
-        <ng-icon name="attach_money" class="stat-icon revenue"></ng-icon>
+        <ng-icon name="attach_money" class="stat-icon revenue" />
         <div class="stat-content">
           <span class="stat-number"
             >₹{{ getTotalRevenue() || 0 | number: "1.0-0" }}</span
@@ -76,24 +72,22 @@
     <!-- Property Table -->
     <div class="table-section">
       <div class="table-container">
-        <ng-mat-table
-          [data]="properties"
+        <ng-mat-table [data]="properties"
           [columns]="tableColumns"
           [options]="tableOptions"
           [isPaginator]="true"
           class="property-table"
-        >
-        </ng-mat-table>
+         />
       </div>
     </div>
   </div>
   <!-- Property Detail Component -->
   <div *ngIf="currentView === 'detail'">
-    <app-property-detail (backToList)="showTable()"></app-property-detail>
+    <app-property-detail (backToList)="showTable()" />
   </div>
   <!-- Property Add/Edit Component -->
   <div *ngIf="currentView === 'create' || currentView === 'edit'">
-    <app-property-add (backToList)="showTable()"></app-property-add>
+    <app-property-add (backToList)="showTable()" />
   </div>
 
   <!-- Document Upload Modal -->
@@ -105,19 +99,17 @@
     <div class="upload-modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3>Upload Document</h3>
-        <ng-button
-          buttonType="button"
+        <ng-button buttonType="button"
           type="icon"
           icon="close"
           cssClass="close-btn"
           (buttonClick)="onCloseUploadModal()"
-        >
-        </ng-button>
+         />
       </div>
 
       <div class="modal-content">
         <div class="property-info" *ngIf="selectedPropertyForUpload">
-          <ng-icon name="home"></ng-icon>
+          <ng-icon name="home" />
           <div class="property-details">
             <span class="property-title">{{
               selectedPropertyForUpload.title
@@ -132,15 +124,13 @@
         <div class="upload-section">
           <!-- Document Category Selection -->
           <div class="category-selection">
-            <ng-select
-              label="Document Category"
+            <ng-select label="Document Category"
               [(ngModel)]="selectedDocumentCategory"
               [options]="documentCategories"
               placeholder="Select the appropriate document category"
               class="category-field"
               [required]="true"
-            >
-            </ng-select>
+             />
           </div>
 
           <div class="upload-area">
@@ -153,7 +143,7 @@
             />
 
             <div class="upload-content" (click)="triggerFileInput()">
-              <ng-icon name="cloud_upload" class="upload-icon"></ng-icon>
+              <ng-icon name="cloud_upload" class="upload-icon" />
               <h4>Choose file to upload</h4>
               <p>Drag and drop files here or click to browse</p>
               <span class="file-types"
@@ -183,21 +173,17 @@
       </div>
 
       <div class="modal-footer">
-        <ng-button
-          buttonType="button"
+        <ng-button buttonType="button"
           type="text"
           label="Cancel"
           (buttonClick)="onCloseUploadModal()"
-        >
-        </ng-button>
-        <ng-button
-          buttonType="button"
+         />
+        <ng-button buttonType="button"
           type="filled"
           label="Select File"
           icon="add"
           (buttonClick)="triggerFileInput()"
-        >
-        </ng-button>
+         />
       </div>
     </div>
   </div>
@@ -211,19 +197,17 @@
     <div class="download-modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3>Download Documents</h3>
-        <ng-button
-          buttonType="button"
+        <ng-button buttonType="button"
           type="icon"
           icon="close"
           cssClass="close-btn"
           (buttonClick)="onCloseDownloadModal()"
-        >
-        </ng-button>
+         />
       </div>
 
       <div class="modal-content">
         <div class="property-info" *ngIf="selectedPropertyForDownload">
-          <ng-icon name="home"></ng-icon>
+          <ng-icon name="home" />
           <div class="property-details">
             <span class="property-title">{{
               selectedPropertyForDownload.title
@@ -238,20 +222,18 @@
         <div class="download-section">
           <!-- Document Category Selection -->
           <div class="category-selection">
-            <ng-select
-              label="Select Download Category"
+            <ng-select label="Select Download Category"
               [(ngModel)]="selectedDownloadCategory"
               [options]="downloadCategories"
               placeholder="Choose which category of documents to download"
               class="category-field"
               [required]="true"
-            >
-            </ng-select>
+             />
           </div>
 
           <div class="download-preview" *ngIf="selectedDownloadCategory">
             <div class="preview-info">
-              <ng-icon name="download" class="preview-icon"></ng-icon>
+              <ng-icon name="download" class="preview-icon" />
               <div class="preview-details">
                 <h4>Download Preview</h4>
                 <p *ngIf="selectedDownloadCategory === 'all'">
@@ -290,15 +272,12 @@
       </div>
 
       <div class="modal-footer">
-        <ng-button
-          buttonType="button"
+        <ng-button buttonType="button"
           type="text"
           label="Cancel"
           (buttonClick)="onCloseDownloadModal()"
-        >
-        </ng-button>
-        <ng-button
-          buttonType="button"
+         />
+        <ng-button buttonType="button"
           type="filled"
           [label]="
             'Download ' +
@@ -308,8 +287,7 @@
           icon="download"
           [disabled]="isDownloadDisabled()"
           (buttonClick)="onDownloadSelectedCategory()"
-        >
-        </ng-button>
+         />
       </div>
     </div>
   </div>
@@ -322,11 +300,10 @@
     class="property-link"
     (click)="onViewProperty(property)"
   >
-    <ng-icon
-      name="home"
+    <ng-icon name="home"
       class="property-icon"
       style="color: #3949ab !important"
-    ></ng-icon>
+     />
     {{ property.title }}
   </a>
 </ng-template>
@@ -341,11 +318,10 @@
         *ngFor="let tenant of getTenantsList(property) | slice: 0 : 1"
       >
         <div class="tenant-avatar">
-          <ng-icon
-            name="person"
+          <ng-icon name="person"
             class="tenant-icon"
             style="color: #6d4c41 !important"
-          ></ng-icon>
+           />
         </div>
         <div class="tenant-info">
           <span class="tenant-name">{{ tenant.name }}</span>
@@ -358,18 +334,16 @@
       </div>
 
       <!-- View all button -->
-      <ng-icon
-        name="visibility"
+      <ng-icon name="visibility"
         [matMenuTriggerFor]="tenantMenu"
         matTooltip="View All Tenants"
         class="tenant-view-icon"
         style="color: #1976d2 !important; cursor: pointer"
-      >
-      </ng-icon>
+       />
     } @else {
       <!-- No tenants -->
       <div class="no-tenants">
-        <ng-icon name="person_off" class="no-tenant-icon"></ng-icon>
+        <ng-icon name="person_off" class="no-tenant-icon" />
         <span class="no-tenant-text">No Tenants</span>
       </div>
     }
@@ -393,7 +367,7 @@
             (click)="onTenantSelect(tenant); $event.stopPropagation()"
           >
             <div class="tenant-primary">
-              <ng-icon name="person" class="tenant-icon"></ng-icon>
+              <ng-icon name="person" class="tenant-icon" />
               <div class="tenant-details">
                 <span class="tenant-name">{{ tenant.name }}</span>
                 <span class="tenant-meta" *ngIf="tenant.age"
@@ -419,14 +393,14 @@
               *ngIf="getTenantChildren(tenant).length > 0"
             >
               <div class="children-header">
-                <ng-icon name="child_care"></ng-icon>
+                <ng-icon name="child_care" />
                 <span>Family Members</span>
               </div>
               <div
                 *ngFor="let child of getTenantChildren(tenant)"
                 class="child-item"
               >
-                <ng-icon name="person" class="child-icon"></ng-icon>
+                <ng-icon name="person" class="child-icon" />
                 <span class="child-name">{{ child.name }}</span>
                 <span class="child-relation"
                   >({{ child.relation }}, {{ child.age }} years)</span
@@ -434,7 +408,7 @@
               </div>
             </div>
           </div>
-          <mat-divider></mat-divider>
+          <mat-divider />
         </div>
       </div>
     </mat-menu>
@@ -446,36 +420,31 @@
   <div class="documents-cell">
     <div class="document-actions">
       <div class="document-info-wrapper">
-        <ng-icon
-          name="description"
+        <ng-icon name="description"
           class="document-main-icon"
           style="color: #f4511e !important"
-        ></ng-icon>
+         />
         <span class="document-count-text"
           >{{ getPropertyDocuments(property).length }} docs</span
         >
       </div>
 
       <!-- Download Documents -->
-      <ng-icon
-        name="download"
+      <ng-icon name="download"
         matTooltip="Download Documents"
         class="document-download-icon"
         style="color: #8e24aa !important; cursor: pointer"
         *ngIf="getPropertyDocuments(property).length > 0"
         (click)="handleDownloadClick(property)"
-      >
-      </ng-icon>
+       />
 
       <!-- Upload Documents -->
-      <ng-icon
-        name="upload"
+      <ng-icon name="upload"
         matTooltip="Upload Document"
         class="document-upload-icon"
         style="color: #43a047 !important; cursor: pointer"
         (click)="handleUploadClick(property)"
-      >
-      </ng-icon>
+       />
     </div>
   </div>
 </ng-template>
@@ -486,12 +455,10 @@
     class="status-chip"
     [ngClass]="'status-' + getSimplifiedStatus(property.status).toLowerCase()"
   >
-    <ng-icon
-      [name]="getStatusIcon(property.status)"
+    <ng-icon [name]="getStatusIcon(property.status)"
       class="status-icon"
       style="color: #00acc1 !important"
-    >
-    </ng-icon>
+     />
     {{ getSimplifiedStatus(property.status) }}
   </div>
 </ng-template>
@@ -499,26 +466,20 @@
 <!-- Actions Template -->
 <ng-template #actionTemplate let-property>
   <div class="action-container">
-    <ng-icon
-      name="visibility"
+    <ng-icon name="visibility"
       matTooltip="View Details"
       style="color: #673ab7 !important; cursor: pointer"
       (click)="onViewProperty(property)"
-    >
-    </ng-icon>
-    <ng-icon
-      name="edit"
+     />
+    <ng-icon name="edit"
       matTooltip="Edit Property"
       style="color: #ff9800 !important; cursor: pointer"
       (click)="onEditProperty(property)"
-    >
-    </ng-icon>
-    <ng-icon
-      name="delete"
+     />
+    <ng-icon name="delete"
       matTooltip="Delete Property"
       style="color: #e53935 !important; cursor: pointer"
       (click)="onDeleteProperty(property)"
-    >
-    </ng-icon>
+     />
   </div>
 </ng-template>

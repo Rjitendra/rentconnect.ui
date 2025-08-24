@@ -15,11 +15,11 @@
       [stepControl]="stepControls && stepControls[i]">
       
       @if (step.content) {
-        <ng-container *ngTemplateOutlet="step.content; context: { $implicit: step.data, step: step, index: i }"></ng-container>
+        <ng-container *ngTemplateOutlet="step.content; context: { $implicit: step.data, step: step, index: i }" />
       } @else {
         <div class="step-content-slot">
           <!-- Content will be projected here or defined dynamically -->
-          <ng-content></ng-content>
+          <ng-content />
         </div>
       }
       

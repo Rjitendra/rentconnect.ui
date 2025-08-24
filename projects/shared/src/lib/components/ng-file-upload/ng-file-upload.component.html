@@ -84,10 +84,8 @@
               </div>
               
               @if (file.progress !== undefined && file.progress < 100) {
-                <mat-progress-bar 
-                  mode="determinate" 
-                  [value]="file.progress">
-                </mat-progress-bar>
+                <mat-progress-bar mode="determinate" 
+                  [value]="file.progress" />
               }
               
               @if (!disabled && allowRemove) {
