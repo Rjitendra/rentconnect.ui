@@ -11,8 +11,8 @@ describe('NgCardComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ NgCardComponent ]
-    })
+    imports: [NgCardComponent]
+})
     .compileComponents();
   }));
 
