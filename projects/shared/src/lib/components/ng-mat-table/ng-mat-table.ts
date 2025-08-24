@@ -5,7 +5,9 @@ import {
   Input,
   Output,
   ViewChild,
+  TemplateRef,
 } from '@angular/core';
+import { animate, state, style, transition, trigger } from '@angular/animations';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -31,6 +33,13 @@ import { model } from '../../models/view-model';
   templateUrl: './ng-mat-table.html',
   styleUrl: './ng-mat-table.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [
+    trigger('detailExpand', [
+      state('collapsed', style({height: '0px', minHeight: '0'})),
+      state('expanded', style({height: '*'})),
+      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+    ]),
+  ],
 })
 export class NgMatTable {
   @Input() columns: TableColumn[] = [];
@@ -39,13 +48,22 @@ export class NgMatTable {
   @Input() headerCheckbox = false; // show checkbox in header
   @Input() rowCheckbox = false; // show checkbox in rows
   @Input() isPaginator = false; // enable paginator
+  @Input() expandableRows = false; // enable expandable rows
+  @Input() expandedRowTemplate?: TemplateRef<any>; // template for expanded content
+  @Input() expandKey?: string; // key to use for expansion tracking
 
   @Output() rowClick = new EventEmitter<model>();
   @Output() selectionChange = new EventEmitter<model[]>();
+  @Output() columnClick = new EventEmitter<string>();
+  @Output() rowSelect = new EventEmitter<model>();
+  @Output() rowExpand = new EventEmitter<model>();
 
   displayedColumns: string[] = [];
   dataSource: MatTableDataSource<model> = new MatTableDataSource<model>();
   selection!: SelectionModel<model>;
+  selectedColumn: string | null = null;
+  selectedRow: model | null = null;
+  expandedRows: Set<any> = new Set(); // Track expanded rows
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -101,6 +119,41 @@ export class NgMatTable {
     this.rowClick.emit(row);
   }
 
+  /** Column click */
+  onColumnClick(columnKey: string) {
+    // Toggle column selection
+    if (this.selectedColumn === columnKey) {
+      this.selectedColumn = null;
+    } else {
+      this.selectedColumn = columnKey;
+    }
+    this.columnClick.emit(columnKey);
+  }
+
+  /** Row selection */
+  onRowSelect(row: model) {
+    // Toggle row selection
+    if (this.selectedRow === row) {
+      this.selectedRow = null;
+    } else {
+      this.selectedRow = row;
+    }
+    this.rowSelect.emit(row);
+  }
+
+  /** Cell click - handles both row click and cell-specific actions */
+  onCellClick(event: Event, row: model) {
+    // Stop propagation to prevent row selection when clicking on interactive elements
+    const target = event.target as HTMLElement;
+    if (target.tagName === 'BUTTON' || target.tagName === 'A' || target.closest('button') || target.closest('a') || target.closest('ng-icon')) {
+      event.stopPropagation();
+      return;
+    }
+    
+    // Emit row click for backward compatibility
+    this.rowClick.emit(row);
+  }
+
   /** Checkbox aria-label */
   checkboxLabel(row?: model): string {
     if (!row) {
@@ -108,4 +161,25 @@ export class NgMatTable {
     }
     return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row`;
   }
+
+  /** Expandable row methods */
+  toggleRowExpansion(row: model, expandKey?: string): void {
+    const key = expandKey ? row[expandKey] : row;
+    if (this.expandedRows.has(key)) {
+      this.expandedRows.delete(key);
+    } else {
+      this.expandedRows.add(key);
+    }
+    this.rowExpand.emit(row);
+  }
+
+  isRowExpanded(row: model, expandKey?: string): boolean {
+    const key = expandKey ? row[expandKey] : row;
+    return this.expandedRows.has(key);
+  }
+
+  // Function for template use - predicate for when to show expanded detail row
+  isRowExpandedFn = (index: number, row: model) => {
+    return this.isRowExpanded(row, this.expandKey);
+  };
 }

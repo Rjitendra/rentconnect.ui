@@ -1,31 +1,74 @@
 /* ng-input.component.scss */
 :host {
   display: block;
+  width: 100%;
 }
 
 .full-width-input {
   width: 100%;
 }
 
-// Custom styles for the mat-error
-::ng-deep .mat-form-field-invalid .mat-form-field-label,
-::ng-deep .mat-form-field-invalid .mat-form-field-suffix,
-::ng-deep .mat-form-field-invalid .mat-form-field-prefix,
-::ng-deep .mat-form-field-invalid .mat-input-element {
-  color: var(--mat-form-field-error-label-text-color) !important;
+.mat-mdc-form-field {
+  width: 100%;
 }
 
-// Optional: You can style the input itself when in an error state
-::ng-deep .mat-form-field-invalid .mat-form-field-appearance-outline .mat-form-field-outline-thick {
-  color: var(--mat-form-field-error-outline-color) !important;
+// Error styling
+.ng-input-error {
+  .mat-mdc-form-field-outline {
+    color: #f44336 !important;
+  }
+  
+  .mat-mdc-form-field-outline-thick {
+    color: #f44336 !important;
+  }
+  
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-color: #f44336 !important;
+    border-width: 2px !important;
+  }
+  
+  .mat-mdc-form-field-label {
+    color: #f44336 !important;
+  }
+  
+  .mat-icon {
+    color: #f44336 !important;
+  }
+  
+  // Prevent internal input from getting red border
+  input {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
 }
 
-// Your custom border class
+// Global deep styling for better error border visibility
 ::ng-deep .ng-input-error {
-   border: 1px solid red; /* This line is crucial to remove any duplicate borders */ 
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-color: #f44336 !important;
+    border-width: 2px !important;
+  }
+  
+  .mat-mdc-form-field-outline,
+  .mat-mdc-form-field-outline-thick {
+    color: #f44336 !important;
+  }
+  
+  // Prevent internal input from getting red border
+  input {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
 }
 
-
-::ng-deep .mat-mdc-form-field-subscript-wrapper mat-mdc-form-field-bottom-align {
-  display: none;
+.mat-mdc-form-field-error {
+  color: #f44336 !important;
+  font-size: 12px;
+  margin-top: 4px;
 }

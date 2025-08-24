@@ -1,16 +1,43 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
 
 // Import shared library components
 
-
-import { IProperty } from '../../../../models/property';
-import { PropertyType, FurnishingType, LeaseType, PropertyStatus } from '../../../../enums/view.enum';
-import { PropertyService, PropertyValidationError, PropertyFormData, PropertySaveResponse } from '../../../../service/property.service';
-import { AlertService, FileUploadConfig, InputType, NgButton, NgCardComponent, NgCheckbox, NgDatepickerComponent, NgFileUploadComponent, NgInputComponent, NgSelectComponent, NgTextareaComponent, SelectOption, UploadedFile } from '../../../../../../../projects/shared/src/public-api';
+import {
+  IProperty,
+  PropertyFormData,
+  PropertySaveResponse,
+  PropertyValidationError,
+} from '../../../../models/property';
+import {
+  PropertyType,
+  FurnishingType,
+  LeaseType,
+  PropertyStatus,
+} from '../../../../enums/view.enum';
+import { PropertyService } from '../../../../service/property.service';
+import {
+  AlertService,
+  FileUploadConfig,
+  InputType,
+  NgIconComponent,
+  NgCardComponent,
+  NgCheckbox,
+  NgDatepickerComponent,
+  NgFileUploadComponent,
+  NgInputComponent,
+  NgSelectComponent,
+  NgTextareaComponent,
+  SelectOption,
+  UploadedFile,
+} from '../../../../../../../projects/shared/src/public-api';
 
 @Component({
   selector: 'app-property-add',
@@ -18,18 +45,17 @@ import { AlertService, FileUploadConfig, InputType, NgButton, NgCardComponent, N
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatIconModule,
     NgCardComponent,
-    NgButton,
+    NgIconComponent,
     NgInputComponent,
     NgSelectComponent,
     NgCheckbox,
     NgTextareaComponent,
     NgDatepickerComponent,
-    NgFileUploadComponent
+    NgFileUploadComponent,
   ],
   templateUrl: './property-add.html',
-  styleUrl: './property-add.scss'
+  styleUrl: './property-add.scss',
 })
 export class PropertyAdd implements OnInit {
   @Output() backToList = new EventEmitter<void>();
@@ -41,7 +67,12 @@ export class PropertyAdd implements OnInit {
   // Image upload configuration
   readonly maxFileSize = 5 * 1024 * 1024; // 5MB
   readonly maxFiles = 10;
-  readonly acceptedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+  readonly acceptedTypes = [
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/gif',
+  ];
 
   // Select options for dropdowns using enums
   propertyTypeOptions: SelectOption[] = [
@@ -50,7 +81,7 @@ export class PropertyAdd implements OnInit {
     { value: PropertyType.IndependentHouse, label: 'Independent House' },
     { value: PropertyType.RowHouse, label: 'Row House' },
     { value: PropertyType.Studio, label: 'Studio' },
-    { value: PropertyType.Plot, label: 'Plot' }
+    { value: PropertyType.Plot, label: 'Plot' },
   ];
 
   bhkConfigurationOptions: SelectOption[] = [
@@ -59,25 +90,25 @@ export class PropertyAdd implements OnInit {
     { value: '2BHK', label: '2 BHK' },
     { value: '3BHK', label: '3 BHK' },
     { value: '4BHK', label: '4 BHK' },
-    { value: '5BHK+', label: '5+ BHK' }
+    { value: '5BHK+', label: '5+ BHK' },
   ];
 
   furnishingTypeOptions: SelectOption[] = [
     { value: FurnishingType.Unfurnished, label: 'Unfurnished' },
     { value: FurnishingType.SemiFurnished, label: 'Semi Furnished' },
-    { value: FurnishingType.FullyFurnished, label: 'Fully Furnished' }
+    { value: FurnishingType.FullyFurnished, label: 'Fully Furnished' },
   ];
 
   leaseTypeOptions: SelectOption[] = [
     { value: LeaseType.ShortTerm, label: 'Short Term (< 11 months)' },
-    { value: LeaseType.LongTerm, label: 'Long Term (11+ months)' }
+    { value: LeaseType.LongTerm, label: 'Long Term (11+ months)' },
   ];
 
   imageUploadConfig: FileUploadConfig = {
     maxFileSize: this.maxFileSize,
     acceptedTypes: ['image/*'],
     maxFiles: this.maxFiles,
-    allowMultiple: true
+    allowMultiple: true,
   };
 
   // Expose InputType enum to template
@@ -89,13 +120,14 @@ export class PropertyAdd implements OnInit {
 
   // Validation errors
   validationErrors: PropertyValidationError[] = [];
+  isShowingValidationErrors = false;
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
     private propertyService: PropertyService,
-    private alertService: AlertService
-  ) { }
+    private alertService: AlertService,
+  ) {}
 
   ngOnInit() {
     this.initializeForm();
@@ -144,16 +176,12 @@ export class PropertyAdd implements OnInit {
       hasInternet: [false],
 
       // Property Images
-      propertyImages: [null] // Remove required validation for images
+      propertyImages: [null], // Remove required validation for images
     });
   }
 
   onSubmit() {
-
     if (this.isSaving) return; // Prevent double submission
-
-    console.log('Form submission triggered');
-    console.log('Form valid:', this.propertyForm.valid);
 
     // Clear previous validation errors
     this.validationErrors = [];
@@ -170,7 +198,7 @@ export class PropertyAdd implements OnInit {
 
     const formData: PropertyFormData = {
       ...this.propertyForm.value,
-      documents: this.convertImagesToDocuments()
+      documents: this.convertImagesToDocuments(),
     };
 
     this.propertyService.saveProperty(formData).subscribe({
@@ -179,17 +207,19 @@ export class PropertyAdd implements OnInit {
         if (response.success) {
           // Clear any previous errors
           this.validationErrors = [];
+          this.isShowingValidationErrors = false;
 
           // Show success message
           this.alertService.success({
-            errors: [{
-              message: response.message,
-              errorType: 'success'
-            }],
-            timeout: 5000
+            errors: [
+              {
+                message: response.message,
+                errorType: 'success',
+              },
+            ],
+            timeout: 5000,
           });
 
-          console.log('Property saved with ID:', response.propertyId);
           // Navigate back to property list or show success page
           setTimeout(() => {
             this.router.navigate(['/landlord/property/dashboard']);
@@ -201,22 +231,23 @@ export class PropertyAdd implements OnInit {
       },
       error: (error: Error) => {
         this.isSaving = false;
-        console.error('Error saving property:', error);
+
         this.alertService.error({
-          errors: [{
-            message: 'An error occurred while saving the property. Please try again.',
-            errorType: 'error'
-          }],
-          timeout: 5000
+          errors: [
+            {
+              message:
+                'An error occurred while saving the property. Please try again.',
+              errorType: 'error',
+            },
+          ],
+          timeout: 5000,
         });
-      }
+      },
     });
   }
 
   saveDraft() {
     if (this.isSavingDraft) return; // Prevent double submission
-
-    console.log('Saving draft...');
 
     // Clear previous validation errors
     this.validationErrors = [];
@@ -225,7 +256,7 @@ export class PropertyAdd implements OnInit {
 
     const formData: PropertyFormData = {
       ...this.propertyForm.value,
-      documents: this.convertImagesToDocuments()
+      documents: this.convertImagesToDocuments(),
     };
 
     this.propertyService.saveDraft(formData).subscribe({
@@ -234,17 +265,18 @@ export class PropertyAdd implements OnInit {
         if (response.success) {
           // Clear any previous errors
           this.validationErrors = [];
+          this.isShowingValidationErrors = false;
 
           // Show success message
           this.alertService.success({
-            errors: [{
-              message: response.message,
-              errorType: 'success'
-            }],
-            timeout: 3000
+            errors: [
+              {
+                message: response.message,
+                errorType: 'success',
+              },
+            ],
+            timeout: 3000,
           });
-
-          console.log('Draft saved with ID:', response.propertyId);
         } else {
           this.validationErrors = response.errors || [];
           this.showValidationErrors();
@@ -252,15 +284,18 @@ export class PropertyAdd implements OnInit {
       },
       error: (error: Error) => {
         this.isSavingDraft = false;
-        console.error('Error saving draft:', error);
+
         this.alertService.error({
-          errors: [{
-            message: 'An error occurred while saving the draft. Please try again.',
-            errorType: 'error'
-          }],
-          timeout: 5000
+          errors: [
+            {
+              message:
+                'An error occurred while saving the draft. Please try again.',
+              errorType: 'error',
+            },
+          ],
+          timeout: 5000,
         });
-      }
+      },
     });
   }
 
@@ -269,29 +304,37 @@ export class PropertyAdd implements OnInit {
     this.backToList.emit();
   }
 
-showValidationErrors() {
-  if (this.validationErrors.length > 0) {
-    // Log all validation errors to the console for debugging
-    console.error('Validation Errors:', this.validationErrors);
+  showValidationErrors() {
+    if (this.validationErrors.length > 0 && !this.isShowingValidationErrors) {
+      this.isShowingValidationErrors = true;
 
-    // Use alert service to show errors
-    this.alertService.error({
-      errors: [{
-        message: 'Please fix the following validation errors:',
-        errorType: 'error'
-      }, ...this.validationErrors.map(error => ({
-        message: `• ${error.message}`,
-        errorType: 'error' as const
-      }))],
-      timeout: 8000 // Show for 8 seconds
-    });
+      // Clear any existing alerts first
+      this.alertService.clearAlert();
 
-    // Mark form controls as touched to show validation errors
-    Object.keys(this.propertyForm.controls).forEach(key => {
-      this.propertyForm.get(key)?.markAsTouched();
-    });
+      // Mark all form controls as touched to show validation errors
+      this.propertyForm.markAllAsTouched();
+
+      // Create individual error messages
+      const errorMessages = this.validationErrors.map((error) => ({
+        message: error.message,
+        errorType: 'error' as const,
+      }));
+
+      // Add header message
+      const allMessages = [
+        {
+          message: `Please fix the following ${this.validationErrors.length} validation error(s):`,
+          errorType: 'error' as const,
+        },
+        ...errorMessages,
+      ];
+
+      // Use a small timeout to ensure previous alerts are cleared
+      this.alertService.error({
+        errors: allMessages,
+      });
+    }
   }
-}
 
   // Helper method to check if a field is invalid
   isFieldInvalid(fieldName: string): boolean {
@@ -304,12 +347,15 @@ showValidationErrors() {
     const control = this.propertyForm.get(fieldName);
     if (control && control.errors && control.touched) {
       const errors = control.errors;
-      if (errors['required']) return `${this.getFieldDisplayName(fieldName)} is required`;
+      if (errors['required'])
+        return `${this.getFieldDisplayName(fieldName)} is required`;
       if (errors['email']) return 'Please enter a valid email address';
       if (errors['min']) return `Minimum value is ${errors['min'].min}`;
       if (errors['max']) return `Maximum value is ${errors['max'].max}`;
-      if (errors['minlength']) return `Minimum length is ${errors['minlength'].requiredLength}`;
-      if (errors['maxlength']) return `Maximum length is ${errors['maxlength'].requiredLength}`;
+      if (errors['minlength'])
+        return `Minimum length is ${errors['minlength'].requiredLength}`;
+      if (errors['maxlength'])
+        return `Maximum length is ${errors['maxlength'].requiredLength}`;
       if (errors['pattern']) return 'Invalid format';
     }
     return '';
@@ -318,66 +364,60 @@ showValidationErrors() {
   // Helper method to get user-friendly field names
   private getFieldDisplayName(fieldName: string): string {
     const fieldNames: { [key: string]: string } = {
-      'propertyTitle': 'Property Title',
-      'propertyType': 'Property Type',
-      'monthlyRent': 'Monthly Rent',
-      'securityDeposit': 'Security Deposit',
-      'bedrooms': 'Bedrooms',
-      'bathrooms': 'Bathrooms',
-      'area': 'Area',
-      'address': 'Address',
-      'city': 'City',
-      'state': 'State',
-      'zipCode': 'Zip Code',
-      'description': 'Description',
-      'furnishingType': 'Furnishing Type',
-      'leaseType': 'Lease Type',
-      'availableFrom': 'Available From',
-      'contactEmail': 'Contact Email',
-      'contactPhone': 'Contact Phone'
+      propertyTitle: 'Property Title',
+      propertyType: 'Property Type',
+      monthlyRent: 'Monthly Rent',
+      securityDeposit: 'Security Deposit',
+      bedrooms: 'Bedrooms',
+      bathrooms: 'Bathrooms',
+      area: 'Area',
+
+      city: 'City',
+      state: 'State',
+      zipCode: 'Zip Code',
+      description: 'Description',
+      furnishingType: 'Furnishing Type',
+      leaseType: 'Lease Type',
+      availableFrom: 'Available From',
+      contactEmail: 'Contact Email',
+      contactPhone: 'Contact Phone',
     };
     return fieldNames[fieldName] || fieldName;
   }
 
   // Image upload handlers for shared component
   onImagesSelected(files: UploadedFile[]): void {
-    console.log('Images selected:', files);
     this.uploadedImages = files;
-    this.propertyForm.get('propertyImages')?.setValue(files, { emitEvent: false });
+    this.propertyForm
+      .get('propertyImages')
+      ?.setValue(files, { emitEvent: false });
   }
 
   onImageRemoved(file: UploadedFile): void {
-    console.log('Image removed:', file.name);
-    const index = this.uploadedImages.findIndex(img =>
-      img.name === file.name && img.size === file.size
+    const index = this.uploadedImages.findIndex(
+      (img) => img.name === file.name && img.size === file.size,
     );
 
     if (index >= 0) {
       this.uploadedImages.splice(index, 1);
-      this.propertyForm.get('propertyImages')?.setValue(this.uploadedImages, { emitEvent: false });
+      this.propertyForm
+        .get('propertyImages')
+        ?.setValue(this.uploadedImages, { emitEvent: false });
     }
   }
 
   onImageUploadError(error: { file: UploadedFile; error: string }): void {
-    console.error('Image upload error:', error);
     alert(`Error uploading ${error.file.name}: ${error.error}`);
   }
 
   removeImage(image: UploadedFile): void {
-    console.log('Remove image clicked:', image.name);
-    console.log('Form valid before removal:', this.propertyForm.valid);
-    console.log('Form errors before removal:', this.getFormErrors());
-
     this.removeImageFromList(image);
-
-    console.log('Form valid after removal:', this.propertyForm.valid);
-    console.log('Form errors after removal:', this.getFormErrors());
   }
 
   // Helper method to debug form errors
   private getFormErrors(): any {
     const formErrors: any = {};
-    Object.keys(this.propertyForm.controls).forEach(key => {
+    Object.keys(this.propertyForm.controls).forEach((key) => {
       const controlErrors = this.propertyForm.get(key)?.errors;
       if (controlErrors) {
         formErrors[key] = controlErrors;
@@ -387,8 +427,8 @@ showValidationErrors() {
   }
 
   private removeImageFromList(image: UploadedFile): void {
-    const index = this.uploadedImages.findIndex(img =>
-      img.name === image.name && img.size === image.size
+    const index = this.uploadedImages.findIndex(
+      (img) => img.name === image.name && img.size === image.size,
     );
 
     if (index >= 0) {
@@ -401,9 +441,9 @@ showValidationErrors() {
       this.uploadedImages.splice(index, 1);
 
       // Update form control without triggering validation
-      this.propertyForm.get('propertyImages')?.setValue(this.uploadedImages, { emitEvent: false });
-
-      console.log('Image removed. Remaining images:', this.uploadedImages.length);
+      this.propertyForm
+        .get('propertyImages')
+        ?.setValue(this.uploadedImages, { emitEvent: false });
     }
   }
 
@@ -416,7 +456,7 @@ showValidationErrors() {
       url: image.url,
       isPrimary: index === 0, // First image is primary
       documentType: 'PropertyImage',
-      uploadedAt: new Date()
+      uploadedAt: new Date(),
     }));
   }
 }

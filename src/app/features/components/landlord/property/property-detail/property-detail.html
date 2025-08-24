@@ -2,43 +2,66 @@
   <!-- Header Section -->
   <div class="header-section">
     <div class="header-content">
-      <button mat-icon-button class="back-button" (click)="goBack()">
-        <mat-icon>arrow_back</mat-icon>
-      </button>
+      <ng-button 
+        buttonType="button" 
+        type="icon" 
+        icon="arrow_back" 
+        class="back-button" 
+        (buttonClick)="goBack()">
+      </ng-button>
       <div class="header-info">
         <h1>{{ property?.title || 'Property Details' }}</h1>
         <div class="header-meta">
           <span class="property-id">ID: #{{ property?.id }}</span>
           <mat-chip [ngClass]="getStatusClass()">
-            <mat-icon>{{ getStatusIcon() }}</mat-icon>
+            <ng-icon [name]="getStatusIcon()"></ng-icon>
             {{ property?.status }}
           </mat-chip>
         </div>
       </div>
       <div class="header-actions">
-        <button mat-icon-button class="action-btn" (click)="editProperty()" matTooltip="Edit Property">
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button mat-icon-button class="action-btn" (click)="shareProperty()" matTooltip="Share Property">
-          <mat-icon>share</mat-icon>
-        </button>
-        <button mat-icon-button [matMenuTriggerFor]="moreMenu" class="action-btn" matTooltip="More Options">
-          <mat-icon>more_vert</mat-icon>
-        </button>
+        <ng-button 
+          buttonType="button" 
+          type="icon" 
+          icon="edit" 
+          class="action-btn" 
+          tooltip="Edit Property" 
+          (buttonClick)="editProperty()">
+        </ng-button>
+        <ng-button 
+          buttonType="button" 
+          type="icon" 
+          icon="share" 
+          class="action-btn" 
+          tooltip="Share Property" 
+          (buttonClick)="shareProperty()">
+        </ng-button>
+        <ng-button 
+          buttonType="button" 
+          type="icon" 
+          icon="more_vert" 
+          [matMenuTriggerFor]="moreMenu" 
+          class="action-btn" 
+          tooltip="More Options">
+        </ng-button>
       </div>
     </div>
   </div>
 
   <div class="content-grid">
     <!-- Property Images Section -->
-    <mat-card class="images-card">
+    <ng-card class="images-card">
       <div class="image-gallery">
         <div class="main-image">
           <img [src]="selectedImage || defaultImage" alt="Property Image" />
           <div class="image-overlay">
-            <button mat-fab class="gallery-btn" (click)="openGallery()">
-              <mat-icon>photo_library</mat-icon>
-            </button>
+            <ng-button 
+              buttonType="button" 
+              type="fab" 
+              icon="photo_library" 
+              class="gallery-btn" 
+              (buttonClick)="openGallery()">
+            </ng-button>
           </div>
         </div>
         <div class="thumbnail-strip" *ngIf="propertyImages.length > 1">
@@ -50,73 +73,65 @@
           </div>
         </div>
       </div>
-    </mat-card>
+    </ng-card>
 
     <!-- Property Overview -->
-    <mat-card class="overview-card">
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon class="section-icon">visibility</mat-icon>
-          Property Overview
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
+    <ng-card 
+      class="overview-card" 
+      title="Property Overview" 
+      icon="visibility">
         <div class="overview-grid">
           <div class="overview-item">
-            <mat-icon>home</mat-icon>
+            <ng-icon name="home"></ng-icon>
             <div>
               <span class="label">Type</span>
               <span class="value">{{ property?.propertyType }}</span>
             </div>
           </div>
           <div class="overview-item">
-            <mat-icon>bed</mat-icon>
+            <ng-icon name="bed"></ng-icon>
             <div>
               <span class="label">Configuration</span>
               <span class="value">{{ property?.bhkConfiguration }}</span>
             </div>
           </div>
           <div class="overview-item">
-            <mat-icon>square_foot</mat-icon>
+            <ng-icon name="square_foot"></ng-icon>
             <div>
               <span class="label">Carpet Area</span>
               <span class="value">{{ property?.carpetAreaSqFt }} sq ft</span>
             </div>
           </div>
           <div class="overview-item">
-            <mat-icon>layers</mat-icon>
+            <ng-icon name="layers"></ng-icon>
             <div>
               <span class="label">Floor</span>
               <span class="value">{{ property?.floorNumber }} of {{ property?.totalFloors }}</span>
             </div>
           </div>
           <div class="overview-item">
-            <mat-icon>chair</mat-icon>
+            <ng-icon name="chair"></ng-icon>
             <div>
               <span class="label">Furnishing</span>
               <span class="value">{{ property?.furnishingType }}</span>
             </div>
           </div>
           <div class="overview-item">
-            <mat-icon>schedule</mat-icon>
+            <ng-icon name="schedule"></ng-icon>
             <div>
               <span class="label">Available From</span>
               <span class="value">{{ formatDate(property?.availableFrom) }}</span>
             </div>
           </div>
         </div>
-      </mat-card-content>
-    </mat-card>
+
+    </ng-card>
 
     <!-- Rent Details -->
-    <mat-card class="rent-card">
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon class="section-icon">payments</mat-icon>
-          Rent Details
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
+    <ng-card 
+      class="rent-card" 
+      title="Rent Details" 
+      icon="payments">
         <div class="rent-info">
           <div class="rent-main">
             <div class="rent-amount">
@@ -139,18 +154,14 @@
             </div>
           </div>
         </div>
-      </mat-card-content>
-    </mat-card>
+
+    </ng-card>
 
     <!-- Location Details -->
-    <mat-card class="location-card">
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon class="section-icon">place</mat-icon>
-          Location
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
+    <ng-card 
+      class="location-card" 
+      title="Location" 
+      icon="place">
         <div class="location-info">
           <div class="address">
             <p class="address-line">{{ property?.addressLine1 }}</p>
@@ -159,26 +170,26 @@
             <p class="address-line">{{ property?.state }} - {{ property?.pinCode }}</p>
           </div>
           <div class="landmark" *ngIf="property?.landmark">
-            <mat-icon>map</mat-icon>
+            <ng-icon name="map"></ng-icon>
             <span>Near {{ property?.landmark }}</span>
           </div>
-          <button mat-stroked-button class="map-button" (click)="showOnMap()">
-            <mat-icon>location_on</mat-icon>
-            View on Map
-          </button>
+          <ng-button 
+            buttonType="button" 
+            type="outlined" 
+            label="View on Map" 
+            icon="location_on" 
+            class="map-button" 
+            (buttonClick)="showOnMap()">
+          </ng-button>
         </div>
-      </mat-card-content>
-    </mat-card>
+
+    </ng-card>
 
     <!-- Property Details -->
-    <mat-card class="details-card">
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon class="section-icon">info</mat-icon>
-          Property Details
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
+    <ng-card 
+      class="details-card" 
+      title="Property Details" 
+      icon="info">
         <div class="details-grid">
           <div class="detail-group">
             <h4>Room Details</h4>
@@ -204,116 +215,114 @@
             </div>
           </div>
         </div>
-      </mat-card-content>
-    </mat-card>
+
+    </ng-card>
 
     <!-- Amenities -->
-    <mat-card class="amenities-card">
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon class="section-icon">apartment</mat-icon>
-          Amenities & Features
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
+    <ng-card 
+      class="amenities-card" 
+      title="Amenities & Features" 
+      icon="apartment">
         <div class="amenities-grid">
           <div class="amenity-item" [class.available]="property?.hasLift">
-            <mat-icon>elevator</mat-icon>
+            <ng-icon name="elevator"></ng-icon>
             <span>Lift</span>
-            <mat-icon class="status-icon">{{ property?.hasLift ? 'check_circle' : 'cancel' }}</mat-icon>
+            <ng-icon class="status-icon" [name]="property?.hasLift ? 'check_circle' : 'cancel'"></ng-icon>
           </div>
           <div class="amenity-item" [class.available]="property?.hasParking">
-            <mat-icon>local_parking</mat-icon>
+            <ng-icon name="local_parking"></ng-icon>
             <span>Parking</span>
-            <mat-icon class="status-icon">{{ property?.hasParking ? 'check_circle' : 'cancel' }}</mat-icon>
+            <ng-icon class="status-icon" [name]="property?.hasParking ? 'check_circle' : 'cancel'"></ng-icon>
           </div>
           <div class="amenity-item" [class.available]="property?.hasPowerBackup">
-            <mat-icon>battery_charging_full</mat-icon>
+            <ng-icon name="battery_charging_full"></ng-icon>
             <span>Power Backup</span>
-            <mat-icon class="status-icon">{{ property?.hasPowerBackup ? 'check_circle' : 'cancel' }}</mat-icon>
+            <ng-icon class="status-icon" [name]="property?.hasPowerBackup ? 'check_circle' : 'cancel'"></ng-icon>
           </div>
           <div class="amenity-item" [class.available]="property?.hasWaterSupply">
-            <mat-icon>water_drop</mat-icon>
+            <ng-icon name="water_drop"></ng-icon>
             <span>24/7 Water</span>
-            <mat-icon class="status-icon">{{ property?.hasWaterSupply ? 'check_circle' : 'cancel' }}</mat-icon>
+            <ng-icon class="status-icon" [name]="property?.hasWaterSupply ? 'check_circle' : 'cancel'"></ng-icon>
           </div>
           <div class="amenity-item" [class.available]="property?.hasGasPipeline">
-            <mat-icon>local_fire_department</mat-icon>
+            <ng-icon name="local_fire_department"></ng-icon>
             <span>Gas Pipeline</span>
-            <mat-icon class="status-icon">{{ property?.hasGasPipeline ? 'check_circle' : 'cancel' }}</mat-icon>
+            <ng-icon class="status-icon" [name]="property?.hasGasPipeline ? 'check_circle' : 'cancel'"></ng-icon>
           </div>
           <div class="amenity-item" [class.available]="property?.hasSecurity">
-            <mat-icon>security</mat-icon>
+            <ng-icon name="security"></ng-icon>
             <span>Security</span>
-            <mat-icon class="status-icon">{{ property?.hasSecurity ? 'check_circle' : 'cancel' }}</mat-icon>
+            <ng-icon class="status-icon" [name]="property?.hasSecurity ? 'check_circle' : 'cancel'"></ng-icon>
           </div>
           <div class="amenity-item" [class.available]="property?.hasInternet">
-            <mat-icon>wifi</mat-icon>
+            <ng-icon name="wifi"></ng-icon>
             <span>Internet Ready</span>
-            <mat-icon class="status-icon">{{ property?.hasInternet ? 'check_circle' : 'cancel' }}</mat-icon>
+            <ng-icon class="status-icon" [name]="property?.hasInternet ? 'check_circle' : 'cancel'"></ng-icon>
           </div>
         </div>
-      </mat-card-content>
-    </mat-card>
+
+    </ng-card>
 
     <!-- Description -->
-    <mat-card class="description-card" *ngIf="property?.description">
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon class="section-icon">description</mat-icon>
-          Description
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
+    <ng-card 
+      class="description-card" 
+      title="Description" 
+      icon="description" 
+      *ngIf="property?.description">
         <p class="description-text">{{ property?.description }}</p>
-      </mat-card-content>
-    </mat-card>
+
+    </ng-card>
 
     <!-- Contact & Actions -->
-    <mat-card class="contact-card">
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon class="section-icon">contact_phone</mat-icon>
-          Contact Owner
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
+    <ng-card 
+      class="contact-card" 
+      title="Contact Owner" 
+      icon="contact_phone">
         <div class="contact-actions">
-          <button mat-raised-button class="contact-btn primary">
-            <mat-icon>phone</mat-icon>
-            Call Owner
-          </button>
-          <button mat-raised-button class="contact-btn secondary">
-            <mat-icon>message</mat-icon>
-            Send Message
-          </button>
-          <button mat-raised-button class="contact-btn secondary">
-            <mat-icon>schedule</mat-icon>
-            Schedule Visit
-          </button>
+          <ng-button 
+            buttonType="button" 
+            type="filled" 
+            label="Call Owner" 
+            icon="phone" 
+            class="contact-btn primary">
+          </ng-button>
+          <ng-button 
+            buttonType="button" 
+            type="outlined" 
+            label="Send Message" 
+            icon="message" 
+            class="contact-btn secondary">
+          </ng-button>
+          <ng-button 
+            buttonType="button" 
+            type="outlined" 
+            label="Schedule Visit" 
+            icon="schedule" 
+            class="contact-btn secondary">
+          </ng-button>
         </div>
-      </mat-card-content>
-    </mat-card>
+
+    </ng-card>
   </div>
 </div>
 
 <!-- More Options Menu -->
 <mat-menu #moreMenu="matMenu">
   <button mat-menu-item (click)="markAsFavorite()">
-    <mat-icon>favorite_border</mat-icon>
+    <ng-icon name="favorite_border"></ng-icon>
     <span>Add to Favorites</span>
   </button>
   <button mat-menu-item (click)="reportProperty()">
-    <mat-icon>report</mat-icon>
+    <ng-icon name="report"></ng-icon>
     <span>Report Property</span>
   </button>
   <button mat-menu-item (click)="downloadDetails()">
-    <mat-icon>download</mat-icon>
+    <ng-icon name="download"></ng-icon>
     <span>Download Details</span>
   </button>
   <mat-divider></mat-divider>
   <button mat-menu-item (click)="deleteProperty()" class="danger-item">
-    <mat-icon>delete</mat-icon>
+    <ng-icon name="delete"></ng-icon>
     <span>Delete Property</span>
   </button>
 </mat-menu>

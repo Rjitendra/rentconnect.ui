@@ -1,6 +1,6 @@
 <mat-card appearance="outlined" [ngClass]="alertType()" class="alert-card">
   <mat-card-content class="alert-content">
-    <span class="message-text">{{ messageText() }}</span>
+    <div class="message-text" [innerHTML]="getFormattedMessage()"></div>
     @if (buttons().length) {
       <mat-card-actions class="alert-actions">
         @for (btn of buttons(); track $index; let i = $index) {

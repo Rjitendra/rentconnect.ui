@@ -1,29 +1,30 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 
+// Shared Library Components
+
+
 import { IProperty } from '../../../../models/property';
 import { PropertyStatus, PropertyType, FurnishingType, LeaseType } from '../../../../enums/view.enum';
+import { NgButton, NgCardComponent, NgIconComponent } from '../../../../../../../projects/shared/src/public-api';
 
 @Component({
   selector: 'app-property-detail',
   standalone: true,
   imports: [
     CommonModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
     MatChipsModule,
     MatMenuModule,
     MatTooltipModule,
-    MatDividerModule
+    MatDividerModule,
+    NgCardComponent,
+    NgButton,
+    NgIconComponent
   ],
   templateUrl: './property-detail.html',
   styleUrl: './property-detail.scss'

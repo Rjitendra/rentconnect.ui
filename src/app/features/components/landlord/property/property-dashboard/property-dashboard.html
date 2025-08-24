@@ -6,21 +6,27 @@
       <p>Manage your property portfolio with advanced features</p>
     </div>
     <div class="header-actions" *ngIf="currentView === 'table'">
-      <button
-        mat-raised-button
-        color="primary"
-        class="create-btn"
-        (click)="onCreateProperty()"
+      <ng-button
+        buttonType="button"
+        type="filled"
+        label="Add New Property"
+        icon="add"
+        cssClass="create-btn"
+        (buttonClick)="onCreateProperty()"
       >
-        <mat-icon>add</mat-icon> Add New Property
-      </button>
+      </ng-button>
     </div>
   </div>
   <!-- Breadcrumb Navigation -->
   <div class="breadcrumb" *ngIf="currentView !== 'table'">
-    <button mat-button (click)="showTable()">
-      <mat-icon>arrow_back</mat-icon> Back to Properties
-    </button>
+    <ng-button
+      buttonType="button"
+      type="text"
+      label="Back to Properties"
+      icon="arrow_back"
+      (buttonClick)="showTable()"
+    >
+    </ng-button>
     <span class="divider">/</span>
     <span class="current-view">
       {{
@@ -37,31 +43,31 @@
     <!-- Table Statistics -->
     <div class="stats-cards">
       <div class="stat-card">
-        <mat-icon class="stat-icon">home</mat-icon>
+        <ng-icon name="home" class="stat-icon"></ng-icon>
         <div class="stat-content">
           <span class="stat-number">{{ properties.length }}</span>
           <span class="stat-label">Total Properties</span>
         </div>
       </div>
       <div class="stat-card">
-        <mat-icon class="stat-icon available">check_circle</mat-icon>
+        <ng-icon name="check_circle" class="stat-icon available"></ng-icon>
         <div class="stat-content">
           <span class="stat-number">{{ getAvailablePropertiesCount() }}</span>
           <span class="stat-label">Available</span>
         </div>
       </div>
       <div class="stat-card">
-        <mat-icon class="stat-icon occupied">people</mat-icon>
+        <ng-icon name="people" class="stat-icon occupied"></ng-icon>
         <div class="stat-content">
           <span class="stat-number">{{ getOccupiedPropertiesCount() }}</span>
           <span class="stat-label">Occupied</span>
         </div>
       </div>
       <div class="stat-card">
-        <mat-icon class="stat-icon revenue">attach_money</mat-icon>
+        <ng-icon name="attach_money" class="stat-icon revenue"></ng-icon>
         <div class="stat-content">
           <span class="stat-number"
-            >₹{{ (getTotalRevenue() || 0) | number: "1.0-0" }}</span
+            >₹{{ getTotalRevenue() || 0 | number: "1.0-0" }}</span
           >
           <span class="stat-label">Monthly Revenue</span>
         </div>
@@ -70,202 +76,14 @@
     <!-- Property Table -->
     <div class="table-section">
       <div class="table-container">
-        <table mat-table [dataSource]="properties" class="mat-elevation-z8">
-          <!-- ID Column -->
-          <ng-container matColumnDef="id">
-            <th mat-header-cell *matHeaderCellDef>ID</th>
-            <td mat-cell *matCellDef="let property">{{ property.id }}</td>
-          </ng-container>
-          <!-- Title Column -->
-          <ng-container matColumnDef="title">
-            <th mat-header-cell *matHeaderCellDef>Property Name</th>
-            <td mat-cell *matCellDef="let property">{{ property.title }}</td>
-          </ng-container>
-          <!-- Address Column -->
-          <ng-container matColumnDef="fullAddress">
-            <th mat-header-cell *matHeaderCellDef>Address</th>
-            <td mat-cell *matCellDef="let property">
-              {{ property.fullAddress }}
-            </td>
-          </ng-container>
-          <!-- Tenants Column -->
-          <ng-container matColumnDef="mappedTenants">
-            <th mat-header-cell *matHeaderCellDef>Tenants</th>
-            <td mat-cell *matCellDef="let property">
-              <div class="tenants-cell">
-                <span class="tenant-count">{{ property.mappedTenants }}</span>
-                <button 
-                  mat-icon-button 
-                  [matMenuTriggerFor]="tenantMenu"
-                  matTooltip="View Tenants"
-                  class="tenant-view-btn"
-                  *ngIf="getTenantsList(property).length > 0"
-                  (click)="onViewTenants(property); $event.stopPropagation()">
-                  <mat-icon>people</mat-icon>
-                </button>
-                
-                            <!-- Tenant Menu -->
-            <mat-menu #tenantMenu="matMenu" class="tenant-menu" panelClass="tenant-menu-panel">
-                  <div class="tenant-menu-header">
-                    <h4>Tenants for {{ property.title }}</h4>
-                  </div>
-                  <div class="tenant-list">
-                    <div *ngFor="let tenant of getTenantsList(property)" class="tenant-item">
-                                              <div class="tenant-info" (click)="onTenantSelect(tenant); $event.stopPropagation()">
-                        <div class="tenant-primary">
-                          <mat-icon class="tenant-icon">person</mat-icon>
-                          <div class="tenant-details">
-                            <span class="tenant-name">{{ tenant.name }}</span>
-                            <span class="tenant-meta" *ngIf="tenant.age">{{ tenant.age }} years old</span>
-                            <div class="tenant-badges">
-                              <span class="badge primary" *ngIf="tenant.isPrimary">Primary</span>
-                              <span class="badge active" *ngIf="tenant.isActive">Active</span>
-                              <span class="badge verified" *ngIf="tenant.isVerified">Verified</span>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <!-- Tenant Children -->
-                        <div class="tenant-children" *ngIf="getTenantChildren(tenant).length > 0">
-                          <div class="children-header">
-                            <mat-icon>child_care</mat-icon>
-                            <span>Family Members</span>
-                          </div>
-                          <div *ngFor="let child of getTenantChildren(tenant)" class="child-item">
-                            <mat-icon class="child-icon">person</mat-icon>
-                            <span class="child-name">{{ child.name }}</span>
-                            <span class="child-relation">({{ child.relation }}, {{ child.age }} years)</span>
-                          </div>
-                        </div>
-                      </div>
-                      <mat-divider></mat-divider>
-                    </div>
-                  </div>
-                </mat-menu>
-              </div>
-            </td>
-          </ng-container>
-          
-          <!-- Documents Column -->
-          <ng-container matColumnDef="documentsActions">
-            <th mat-header-cell *matHeaderCellDef>Documents</th>
-            <td mat-cell *matCellDef="let property">
-              <div class="documents-cell">
-                <div class="document-actions">
-                  <!-- Download Documents -->
-                  <button 
-                    mat-icon-button 
-                    matTooltip="Download Documents"
-                    class="document-download-btn"
-                    *ngIf="getPropertyDocuments(property).length > 0"
-                    (click)="onOpenDownloadModal(property); $event.stopPropagation()">
-                    <mat-icon>cloud_download</mat-icon>
-                  </button>
-                  
-                  <!-- Upload Documents -->
-                  <button 
-                    mat-icon-button 
-                    matTooltip="Upload Document"
-                    class="document-upload-btn"
-                    (click)="onUploadDocument(property); $event.stopPropagation()">
-                    <mat-icon>cloud_upload</mat-icon>
-                  </button>
-                  
-                  <!-- Document Count Badge -->
-                  <span 
-                    class="document-count" 
-                    *ngIf="getPropertyDocuments(property).length > 0"
-                    [matTooltip]="getPropertyDocuments(property).length + ' document(s) available'">
-                    {{ getPropertyDocuments(property).length }}
-                  </span>
-                </div>
-                
-                <!-- Download Documents Menu -->
-                <mat-menu #documentMenu="matMenu" class="document-menu">
-                  <div class="document-menu-header">
-                    <h4>Documents for {{ property.title }}</h4>
-                  </div>
-                  <div class="document-list">
-                    <div *ngFor="let doc of getPropertyDocuments(property)" class="document-item">
-                      <div class="document-info" (click)="onDownloadDocument(doc); $event.stopPropagation()">
-                        <mat-icon class="document-icon">{{ doc.fileType?.includes('pdf') ? 'picture_as_pdf' : 'description' }}</mat-icon>
-                        <div class="document-details">
-                          <span class="document-name">{{ doc.fileName }}</span>
-                          <span class="document-meta">{{ doc.category }} • {{ (doc.fileSize || 0) / 1024 | number:'1.0-1' }} KB</span>
-                          <span class="document-date">Uploaded: {{ doc.uploadedOn | date:'shortDate' }}</span>
-                          <div class="document-badges">
-                            <span class="badge verified" *ngIf="doc.isVerified">Verified</span>
-                            <span class="badge category">{{ doc.category }}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <mat-divider></mat-divider>
-                    </div>
-                    <div *ngIf="getPropertyDocuments(property).length === 0" class="no-documents">
-                      <mat-icon>description</mat-icon>
-                      <span>No documents available</span>
-                    </div>
-                  </div>
-                </mat-menu>
-              </div>
-            </td>
-          </ng-container>
-          
-          <!-- Rent Column -->
-          <ng-container matColumnDef="monthlyRent">
-            <th mat-header-cell *matHeaderCellDef>Monthly Rent</th>
-            <td mat-cell *matCellDef="let property">
-              {{ property.monthlyRent }}
-            </td>
-          </ng-container>
-          <!-- Status Column -->
-          <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef>Status</th>
-            <td mat-cell *matCellDef="let property">
-              <span
-                class="status-badge"
-                [ngClass]="'status-' + property.status?.toLowerCase()"
-              >
-                {{ property.status }}
-              </span>
-            </td>
-          </ng-container>
-          <!-- Actions Column -->
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>Actions</th>
-            <td mat-cell *matCellDef="let property">
-              <button
-                mat-icon-button
-                (click)="onRowClick(property); $event.stopPropagation()"
-                matTooltip="View Details"
-              >
-                <mat-icon>visibility</mat-icon>
-              </button>
-              <button
-                mat-icon-button
-                (click)="onEditProperty(property); $event.stopPropagation()"
-                matTooltip="Edit"
-              >
-                <mat-icon>edit</mat-icon>
-              </button>
-              <button
-                mat-icon-button
-                (click)="onDeleteProperty(property); $event.stopPropagation()"
-                matTooltip="Delete"
-                color="warn"
-              >
-                <mat-icon>delete</mat-icon>
-              </button>
-            </td>
-          </ng-container>
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr
-            mat-row
-            *matRowDef="let row; columns: displayedColumns"
-            (click)="onRowClick(row, $event)"
-            class="table-row"
-          ></tr>
-        </table>
+        <ng-mat-table
+          [data]="properties"
+          [columns]="tableColumns"
+          [options]="tableOptions"
+          [isPaginator]="true"
+          class="property-table"
+        >
+        </ng-mat-table>
       </div>
     </div>
   </div>
@@ -279,168 +97,428 @@
   </div>
 
   <!-- Document Upload Modal -->
-  <div *ngIf="showUploadModal" class="upload-modal-overlay" (click)="onCloseUploadModal()">
+  <div
+    *ngIf="showUploadModal"
+    class="upload-modal-overlay"
+    (click)="onCloseUploadModal()"
+  >
     <div class="upload-modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3>Upload Document</h3>
-        <button mat-icon-button (click)="onCloseUploadModal()" class="close-btn">
-          <mat-icon>close</mat-icon>
-        </button>
+        <ng-button
+          buttonType="button"
+          type="icon"
+          icon="close"
+          cssClass="close-btn"
+          (buttonClick)="onCloseUploadModal()"
+        >
+        </ng-button>
       </div>
-      
+
       <div class="modal-content">
         <div class="property-info" *ngIf="selectedPropertyForUpload">
-          <mat-icon>home</mat-icon>
+          <ng-icon name="home"></ng-icon>
           <div class="property-details">
-            <span class="property-title">{{ selectedPropertyForUpload.title }}</span>
-            <span class="property-address">{{ selectedPropertyForUpload.city }}, {{ selectedPropertyForUpload.state }}</span>
+            <span class="property-title">{{
+              selectedPropertyForUpload.title
+            }}</span>
+            <span class="property-address"
+              >{{ selectedPropertyForUpload.city }},
+              {{ selectedPropertyForUpload.state }}</span
+            >
           </div>
         </div>
-        
+
         <div class="upload-section">
           <!-- Document Category Selection -->
           <div class="category-selection">
-            <mat-form-field appearance="outline" class="category-field">
-              <mat-label>Document Category</mat-label>
-              <mat-select [(value)]="selectedDocumentCategory" required>
-                <mat-option *ngFor="let category of documentCategories" [value]="category.value">
-                  <div class="category-option">
-                    <span class="category-label">{{ category.label }}</span>
-                    <span class="category-description">{{ category.description }}</span>
-                  </div>
-                </mat-option>
-              </mat-select>
-              <mat-hint>Select the appropriate document category</mat-hint>
-            </mat-form-field>
+            <ng-select
+              label="Document Category"
+              [(ngModel)]="selectedDocumentCategory"
+              [options]="documentCategories"
+              placeholder="Select the appropriate document category"
+              class="category-field"
+              [required]="true"
+            >
+            </ng-select>
           </div>
-          
+
           <div class="upload-area">
-            <input 
-              type="file" 
-              id="fileInput" 
-              (change)="onFileSelected($event)" 
+            <input
+              type="file"
+              id="fileInput"
+              (change)="onFileSelected($event)"
               accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-              style="display: none;">
-            
+              style="display: none"
+            />
+
             <div class="upload-content" (click)="triggerFileInput()">
-              <mat-icon class="upload-icon">cloud_upload</mat-icon>
+              <ng-icon name="cloud_upload" class="upload-icon"></ng-icon>
               <h4>Choose file to upload</h4>
               <p>Drag and drop files here or click to browse</p>
-              <span class="file-types">Supported: PDF, DOC, DOCX, JPG, PNG</span>
+              <span class="file-types"
+                >Supported: PDF, DOC, DOCX, JPG, PNG</span
+              >
             </div>
           </div>
-          
+
           <div class="upload-instructions">
             <h5>Upload Guidelines:</h5>
             <ul>
               <li><strong>File Size:</strong> Maximum 10MB per file</li>
-              <li><strong>File Types:</strong> PDF, DOC, DOCX, JPG, PNG only</li>
-              <li><strong>Quality:</strong> Ensure documents are clear and readable</li>
-              <li><strong>Category:</strong> Select the correct category for better organization</li>
+              <li>
+                <strong>File Types:</strong> PDF, DOC, DOCX, JPG, PNG only
+              </li>
+              <li>
+                <strong>Quality:</strong> Ensure documents are clear and
+                readable
+              </li>
+              <li>
+                <strong>Category:</strong> Select the correct category for
+                better organization
+              </li>
             </ul>
           </div>
         </div>
       </div>
-      
+
       <div class="modal-footer">
-        <button mat-button (click)="onCloseUploadModal()">
-          Cancel
-        </button>
-        <button 
-          mat-raised-button 
-          color="primary" 
-          (click)="triggerFileInput()">
-          <mat-icon>add</mat-icon>
-          Select File
-        </button>
+        <ng-button
+          buttonType="button"
+          type="text"
+          label="Cancel"
+          (buttonClick)="onCloseUploadModal()"
+        >
+        </ng-button>
+        <ng-button
+          buttonType="button"
+          type="filled"
+          label="Select File"
+          icon="add"
+          (buttonClick)="triggerFileInput()"
+        >
+        </ng-button>
       </div>
     </div>
   </div>
 
   <!-- Document Download Category Modal -->
-  <div *ngIf="showDownloadModal" class="download-modal-overlay" (click)="onCloseDownloadModal()">
+  <div
+    *ngIf="showDownloadModal"
+    class="download-modal-overlay"
+    (click)="onCloseDownloadModal()"
+  >
     <div class="download-modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3>Download Documents</h3>
-        <button mat-icon-button (click)="onCloseDownloadModal()" class="close-btn">
-          <mat-icon>close</mat-icon>
-        </button>
+        <ng-button
+          buttonType="button"
+          type="icon"
+          icon="close"
+          cssClass="close-btn"
+          (buttonClick)="onCloseDownloadModal()"
+        >
+        </ng-button>
       </div>
-      
+
       <div class="modal-content">
         <div class="property-info" *ngIf="selectedPropertyForDownload">
-          <mat-icon>home</mat-icon>
+          <ng-icon name="home"></ng-icon>
           <div class="property-details">
-            <span class="property-title">{{ selectedPropertyForDownload.title }}</span>
-            <span class="property-address">{{ selectedPropertyForDownload.city }}, {{ selectedPropertyForDownload.state }}</span>
+            <span class="property-title">{{
+              selectedPropertyForDownload.title
+            }}</span>
+            <span class="property-address"
+              >{{ selectedPropertyForDownload.city }},
+              {{ selectedPropertyForDownload.state }}</span
+            >
           </div>
         </div>
-        
+
         <div class="download-section">
           <!-- Document Category Selection -->
           <div class="category-selection">
-            <mat-form-field appearance="outline" class="category-field">
-              <mat-label>Select Download Category</mat-label>
-              <mat-select [(value)]="selectedDownloadCategory" required>
-                <mat-option *ngFor="let category of downloadCategories" [value]="category.value" [disabled]="category.count === 0">
-                  <div class="download-category-option">
-                    <div class="category-info">
-                      <span class="category-label">{{ category.label }}</span>
-                      <span class="category-description">{{ category.description }}</span>
-                    </div>
-                    <div class="category-count">
-                      <span class="count-badge" [class.no-docs]="category.count === 0">
-                        {{ category.count }}
-                      </span>
-                    </div>
-                  </div>
-                </mat-option>
-              </mat-select>
-              <mat-hint>Choose which category of documents to download</mat-hint>
-            </mat-form-field>
+            <ng-select
+              label="Select Download Category"
+              [(ngModel)]="selectedDownloadCategory"
+              [options]="downloadCategories"
+              placeholder="Choose which category of documents to download"
+              class="category-field"
+              [required]="true"
+            >
+            </ng-select>
           </div>
-          
+
           <div class="download-preview" *ngIf="selectedDownloadCategory">
             <div class="preview-info">
-              <mat-icon class="preview-icon">download</mat-icon>
+              <ng-icon name="download" class="preview-icon"></ng-icon>
               <div class="preview-details">
                 <h4>Download Preview</h4>
                 <p *ngIf="selectedDownloadCategory === 'all'">
-                  You will download all {{ getAllDocumentsCount() }} documents for this property.
+                  You will download all {{ getAllDocumentsCount() }} documents
+                  for this property.
                 </p>
                 <p *ngIf="selectedDownloadCategory !== 'all'">
-                  You will download {{ getSelectedCategoryCount() }} 
+                  You will download {{ getSelectedCategoryCount() }}
                   {{ getSelectedCategoryLabel() }} documents.
                 </p>
               </div>
             </div>
           </div>
-          
+
           <div class="download-instructions">
             <h5>Download Information:</h5>
             <ul>
-              <li><strong>Multiple Downloads:</strong> Files will be downloaded one by one</li>
-              <li><strong>File Names:</strong> Original file names will be preserved</li>
-              <li><strong>File Types:</strong> PDF, DOC, DOCX, JPG, PNG supported</li>
-              <li><strong>Download Location:</strong> Files will be saved to your default downloads folder</li>
+              <li>
+                <strong>Multiple Downloads:</strong> Files will be downloaded
+                one by one
+              </li>
+              <li>
+                <strong>File Names:</strong> Original file names will be
+                preserved
+              </li>
+              <li>
+                <strong>File Types:</strong> PDF, DOC, DOCX, JPG, PNG supported
+              </li>
+              <li>
+                <strong>Download Location:</strong> Files will be saved to your
+                default downloads folder
+              </li>
             </ul>
           </div>
         </div>
       </div>
-      
+
       <div class="modal-footer">
-        <button mat-button (click)="onCloseDownloadModal()">
-          Cancel
-        </button>
-        <button 
-          mat-raised-button 
-          color="primary" 
+        <ng-button
+          buttonType="button"
+          type="text"
+          label="Cancel"
+          (buttonClick)="onCloseDownloadModal()"
+        >
+        </ng-button>
+        <ng-button
+          buttonType="button"
+          type="filled"
+          [label]="
+            'Download ' +
+            (selectedDownloadCategory === 'all' ? 'All' : '') +
+            ' Documents'
+          "
+          icon="download"
           [disabled]="isDownloadDisabled()"
-          (click)="onDownloadSelectedCategory()">
-          <mat-icon>download</mat-icon>
-          Download {{ selectedDownloadCategory === 'all' ? 'All' : '' }} Documents
-        </button>
+          (buttonClick)="onDownloadSelectedCategory()"
+        >
+        </ng-button>
       </div>
     </div>
   </div>
 </div>
+
+<!-- Property Name Template -->
+<ng-template #propertyNameTemplate let-property>
+  <a
+    href="javascript:void(0)"
+    class="property-link"
+    (click)="onViewProperty(property)"
+  >
+    <ng-icon
+      name="home"
+      class="property-icon"
+      style="color: #3949ab !important"
+    ></ng-icon>
+    {{ property.title }}
+  </a>
+</ng-template>
+
+<!-- Tenant Template -->
+<ng-template #tenantTemplate let-property>
+  <div class="tenants-cell">
+    @if (getTenantsList(property).length > 0) {
+      <!-- Show first tenant with profile -->
+      <div
+        class="tenant-profile"
+        *ngFor="let tenant of getTenantsList(property) | slice: 0 : 1"
+      >
+        <div class="tenant-avatar">
+          <ng-icon
+            name="person"
+            class="tenant-icon"
+            style="color: #6d4c41 !important"
+          ></ng-icon>
+        </div>
+        <div class="tenant-info">
+          <span class="tenant-name">{{ tenant.name }}</span>
+          @if (getTenantsList(property).length > 1) {
+            <span class="more-tenants"
+              >+{{ getTenantsList(property).length - 1 }} more</span
+            >
+          }
+        </div>
+      </div>
+
+      <!-- View all button -->
+      <ng-icon
+        name="visibility"
+        [matMenuTriggerFor]="tenantMenu"
+        matTooltip="View All Tenants"
+        class="tenant-view-icon"
+        style="color: #1976d2 !important; cursor: pointer"
+      >
+      </ng-icon>
+    } @else {
+      <!-- No tenants -->
+      <div class="no-tenants">
+        <ng-icon name="person_off" class="no-tenant-icon"></ng-icon>
+        <span class="no-tenant-text">No Tenants</span>
+      </div>
+    }
+
+    <!-- Tenant Menu -->
+    <mat-menu
+      #tenantMenu="matMenu"
+      class="tenant-menu"
+      panelClass="tenant-menu-panel"
+    >
+      <div class="tenant-menu-header">
+        <h4>Tenants for {{ property.title }}</h4>
+      </div>
+      <div class="tenant-list">
+        <div
+          *ngFor="let tenant of getTenantsList(property)"
+          class="tenant-item"
+        >
+          <div
+            class="tenant-info"
+            (click)="onTenantSelect(tenant); $event.stopPropagation()"
+          >
+            <div class="tenant-primary">
+              <ng-icon name="person" class="tenant-icon"></ng-icon>
+              <div class="tenant-details">
+                <span class="tenant-name">{{ tenant.name }}</span>
+                <span class="tenant-meta" *ngIf="tenant.age"
+                  >{{ tenant.age }} years old</span
+                >
+                <div class="tenant-badges">
+                  <span class="badge primary" *ngIf="tenant.isPrimary"
+                    >Primary</span
+                  >
+                  <span class="badge active" *ngIf="tenant.isActive"
+                    >Active</span
+                  >
+                  <span class="badge verified" *ngIf="tenant.isVerified"
+                    >Verified</span
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- Tenant Children -->
+            <div
+              class="tenant-children"
+              *ngIf="getTenantChildren(tenant).length > 0"
+            >
+              <div class="children-header">
+                <ng-icon name="child_care"></ng-icon>
+                <span>Family Members</span>
+              </div>
+              <div
+                *ngFor="let child of getTenantChildren(tenant)"
+                class="child-item"
+              >
+                <ng-icon name="person" class="child-icon"></ng-icon>
+                <span class="child-name">{{ child.name }}</span>
+                <span class="child-relation"
+                  >({{ child.relation }}, {{ child.age }} years)</span
+                >
+              </div>
+            </div>
+          </div>
+          <mat-divider></mat-divider>
+        </div>
+      </div>
+    </mat-menu>
+  </div>
+</ng-template>
+
+<!-- Document Template -->
+<ng-template #documentTemplate let-property>
+  <div class="documents-cell">
+    <div class="document-actions">
+      <div class="document-info-wrapper">
+        <ng-icon
+          name="description"
+          class="document-main-icon"
+          style="color: #f4511e !important"
+        ></ng-icon>
+        <span class="document-count-text"
+          >{{ getPropertyDocuments(property).length }} docs</span
+        >
+      </div>
+
+      <!-- Download Documents -->
+      <ng-icon
+        name="download"
+        matTooltip="Download Documents"
+        class="document-download-icon"
+        style="color: #8e24aa !important; cursor: pointer"
+        *ngIf="getPropertyDocuments(property).length > 0"
+        (click)="handleDownloadClick(property)"
+      >
+      </ng-icon>
+
+      <!-- Upload Documents -->
+      <ng-icon
+        name="upload"
+        matTooltip="Upload Document"
+        class="document-upload-icon"
+        style="color: #43a047 !important; cursor: pointer"
+        (click)="handleUploadClick(property)"
+      >
+      </ng-icon>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Status Template -->
+<ng-template #statusTemplate let-property>
+  <div
+    class="status-chip"
+    [ngClass]="'status-' + getSimplifiedStatus(property.status).toLowerCase()"
+  >
+    <ng-icon
+      [name]="getStatusIcon(property.status)"
+      class="status-icon"
+      style="color: #00acc1 !important"
+    >
+    </ng-icon>
+    {{ getSimplifiedStatus(property.status) }}
+  </div>
+</ng-template>
+
+<!-- Actions Template -->
+<ng-template #actionTemplate let-property>
+  <div class="action-container">
+    <ng-icon
+      name="visibility"
+      matTooltip="View Details"
+      style="color: #673ab7 !important; cursor: pointer"
+      (click)="onViewProperty(property)"
+    >
+    </ng-icon>
+    <ng-icon
+      name="edit"
+      matTooltip="Edit Property"
+      style="color: #ff9800 !important; cursor: pointer"
+      (click)="onEditProperty(property)"
+    >
+    </ng-icon>
+    <ng-icon
+      name="delete"
+      matTooltip="Delete Property"
+      style="color: #e53935 !important; cursor: pointer"
+      (click)="onDeleteProperty(property)"
+    >
+    </ng-icon>
+  </div>
+</ng-template>

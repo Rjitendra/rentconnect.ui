@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, forwardRef, ViewChild, ElementRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, forwardRef, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
@@ -47,7 +47,9 @@ export interface UploadedFile {
     },
   ],
 })
-export class NgFileUploadComponent implements ControlValueAccessor {
+export class NgFileUploadComponent implements ControlValueAccessor, AfterViewInit {
+  @ViewChild('fileInput') fileInputRef!: ElementRef<HTMLInputElement>;
+  
   @Input() label!: string;
   @Input() config: FileUploadConfig = {};
   @Input() disabled = false;
@@ -57,19 +59,21 @@ export class NgFileUploadComponent implements ControlValueAccessor {
   @Input() toolTip!: string;
   @Input() clarifyText!: string;
   @Input() hint!: string;
-  
+
   @Output() filesSelected = new EventEmitter<UploadedFile[]>();
   @Output() fileRemoved = new EventEmitter<UploadedFile>();
   @Output() uploadProgress = new EventEmitter<{ file: UploadedFile; progress: number }>();
   @Output() uploadError = new EventEmitter<{ file: UploadedFile; error: string }>();
-
-  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
   uploadedFiles: UploadedFile[] = [];
   isDragOver = false;
 
   private onChange = (value: UploadedFile[]) => {};
   private onTouched = () => {};
+
+  ngAfterViewInit(): void {
+    // ViewChild is now available
+  }
 
   get acceptedTypesString(): string {
     return this.config.acceptedTypes?.join(',') || '';
@@ -121,6 +125,7 @@ export class NgFileUploadComponent implements ControlValueAccessor {
   }
 
   removeFile(file: UploadedFile, event: Event): void {
+    event.preventDefault();
     event.stopPropagation();
     const index = this.uploadedFiles.indexOf(file);
     if (index >= 0) {
@@ -128,6 +133,56 @@ export class NgFileUploadComponent implements ControlValueAccessor {
       this.onChange(this.uploadedFiles);
       this.fileRemoved.emit(file);
     }
+  }
+
+  onUploadAreaClick(event: Event): void {
+    if (this.disabled) {
+      return;
+    }
+    
+    event.stopPropagation();
+    
+    // Create a temporary file input element
+    const tempInput = document.createElement('input');
+    tempInput.type = 'file';
+    tempInput.multiple = this.config.allowMultiple || false;
+    tempInput.accept = this.acceptedTypesString;
+    tempInput.style.display = 'none';
+    
+    // Add event listener for file selection
+    tempInput.addEventListener('change', (e: Event) => {
+      const target = e.target as HTMLInputElement;
+      if (target.files) {
+        const files = Array.from(target.files);
+        this.processFiles(files);
+        
+        // Update the main form control
+        this.onChange(this.uploadedFiles);
+        this.filesSelected.emit(this.uploadedFiles);
+        this.onTouched();
+      }
+      
+      // Clean up
+      document.body.removeChild(tempInput);
+    });
+    
+    // Add to DOM and trigger click
+    document.body.appendChild(tempInput);
+    tempInput.click();
+  }
+
+  triggerFileInput(): void {
+    if (this.fileInputRef && this.fileInputRef.nativeElement) {
+      this.fileInputRef.nativeElement.click();
+    }
+  }
+
+  openFileDialog(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    // Use the same temporary input approach
+    this.onUploadAreaClick(event);
   }
 
   private processFiles(files: File[]): void {

@@ -2,7 +2,7 @@
   appearance="outline"
   [floatLabel]="floatLabel()"
   class="full-width-input"
-
+  [class.ng-input-error]="hasValidationError"
 >
   @if (label()) {
     <mat-label>{{ label() }}</mat-label>
@@ -19,7 +19,7 @@
     matInput
     [type]="type()"
     [placeholder]="placeholder()"
-    [formControl]="internalControl"
+   
     [disabled]="disabled"
     (input)="handleInput($event)"
     (blur)="handleBlur()"
@@ -33,7 +33,4 @@
     <mat-icon matSuffix>{{ suffixIcon() }}</mat-icon>
   }
 
-  @if (hasValidationError) {
-    <mat-error>{{ displayErrorMessage }}</mat-error>
-  }
 </mat-form-field>

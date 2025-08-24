@@ -1,40 +1,312 @@
-/* Make the entire mat-table fill width */
-table.mat-mdc-table {
+/* ng-mat-table Enhanced Styles */
+
+/* Table Wrapper */
+.table-wrapper {
   width: 100%;
-  border-spacing: 0;
+  overflow: auto;
+  position: relative;
+  max-width: 100%;
 }
 
-/* Checkbox column */
-th.mat-mdc-header-cell.checkbox-col,
-td.mat-mdc-cell.checkbox-col {
-  width: 50px;
-  min-width: 50px;
-  max-width: 50px;
-  text-align: center;
-  padding: 0 8px;
+.table-wrapper.responsive {
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
 }
 
-/* Align checkbox vertically centered */
-.mat-mdc-checkbox {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* Enhanced scrolling for auto-width tables */
+.table-wrapper:has(.auto-width) {
+  overflow-x: auto;
+  overflow-y: visible;
 }
 
-/* Header cells */
-th.mat-mdc-header-cell {
+/* Table Layout Options */
+.mat-mdc-table.auto-width {
+  width: 100%;
+  table-layout: auto;
+  min-width: max-content;
+}
+
+.mat-mdc-table.fixed-layout {
+  width: 100%;
+  table-layout: fixed;
+}
+
+/* Ensure fixed-width columns maintain their width */
+.mat-mdc-table .mat-mdc-header-cell:not(.auto-width),
+.mat-mdc-table .mat-mdc-cell:not(.auto-width) {
+  box-sizing: border-box !important;
+}
+
+/* Force specific widths to be respected */
+.mat-mdc-table .mat-mdc-header-cell[style*="width"],
+.mat-mdc-table .mat-mdc-cell[style*="width"] {
+  box-sizing: border-box !important;
+  flex: none !important;
+}
+
+/* Sticky Header */
+.mat-mdc-header-row.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.mat-mdc-header-cell.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: white;
+}
+
+/* Sticky Paginator */
+.mat-mdc-paginator.sticky-paginator {
+  position: sticky;
+  bottom: 0;
+  z-index: 100;
+  background: white;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Auto Width Columns */
+.mat-mdc-header-cell.auto-width,
+.mat-mdc-cell.auto-width {
+  width: auto !important;
+  min-width: fit-content !important;
+  max-width: 250px !important;
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  line-height: 1.4 !important;
+}
+
+/* Text Wrapping and Truncation */
+.mat-mdc-cell.wrap-text {
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.4;
+  padding: 12px 16px;
+}
+
+.mat-mdc-cell.truncate-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 0;
+}
+
+/* Auto-width with text wrapping (overrides truncate) */
+.mat-mdc-cell.auto-width.wrap-text {
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+  max-width: 250px !important;
+}
+
+/* Default Cell Styling */
+.mat-mdc-header-cell,
+.mat-mdc-cell {
+  padding: 12px 16px;
+  vertical-align: middle;
+  transition: background-color 0.2s ease, border 0.2s ease;
+}
+
+.mat-mdc-header-cell {
   font-weight: 600;
   background-color: #f5f5f5;
+  color: #333;
+  position: relative;
 }
 
-/* Row hover effect */
-tr.mat-mdc-row:hover {
+.mat-mdc-row:hover {
   background-color: #f9f9f9;
+}
+
+/* Column Selection Styles */
+.mat-mdc-header-cell.column-selected {
+  background-color: #e3f2fd !important;
+  color: #1976d2 !important;
+  border-bottom: 3px solid #2196f3 !important;
+  font-weight: 700;
+}
+
+.mat-mdc-header-cell.column-selected::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #2196f3 0%, #1976d2 100%);
+}
+
+.mat-mdc-cell.column-selected {
+  background-color: #f3f9ff !important;
+  border-left: 3px solid #2196f3 !important;
+  border-right: 3px solid #2196f3 !important;
+}
+
+/* Column hover effect */
+.mat-mdc-header-cell:hover {
+  background-color: #e8f4f8 !important;
+  color: #1976d2;
   cursor: pointer;
 }
 
-/* Optional: add borders */
-td.mat-mdc-cell,
-th.mat-mdc-header-cell {
-  border-bottom: 1px solid #e0e0e0;
+/* Row selection with column selection */
+.mat-mdc-row:hover .mat-mdc-cell.column-selected {
+  background-color: #e8f4f8 !important;
+}
+
+/* Row Selection Styles */
+.mat-mdc-row.row-selected {
+  background-color: #e3f2fd !important;
+  border-left: 4px solid #2196f3 !important;
+  border-right: 4px solid #2196f3 !important;
+}
+
+.mat-mdc-row.row-selected .mat-mdc-cell {
+  background-color: #e3f2fd !important;
+  color: #1976d2 !important;
+  font-weight: 500;
+}
+
+/* Row hover effect */
+.mat-mdc-row:hover {
+  background-color: #f9f9f9 !important;
+  cursor: pointer;
+}
+
+.mat-mdc-row:hover .mat-mdc-cell {
+  background-color: #f9f9f9 !important;
+}
+
+/* Selected row hover effect */
+.mat-mdc-row.row-selected:hover {
+  background-color: #bbdefb !important;
+}
+
+.mat-mdc-row.row-selected:hover .mat-mdc-cell {
+  background-color: #bbdefb !important;
+}
+
+/* Combined row and column selection */
+.mat-mdc-row.row-selected .mat-mdc-cell.column-selected {
+  background-color: #90caf9 !important;
+  border: 2px solid #1976d2 !important;
+  font-weight: 600;
+}
+
+/* Text Alignment Classes */
+.mat-mdc-header-cell[style*="text-align: left"],
+.mat-mdc-cell[style*="text-align: left"] {
+  text-align: left !important;
+}
+
+.mat-mdc-header-cell[style*="text-align: center"],
+.mat-mdc-cell[style*="text-align: center"] {
+  text-align: center !important;
+}
+
+.mat-mdc-header-cell[style*="text-align: right"],
+.mat-mdc-cell[style*="text-align: right"] {
+  text-align: right !important;
+}
+
+/* Responsive Behavior */
+@media (max-width: 768px) {
+  .table-wrapper.responsive {
+    overflow-x: scroll;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .mat-mdc-header-cell,
+  .mat-mdc-cell {
+    padding: 8px 12px;
+    font-size: 0.875rem;
+  }
+  
+  .mat-mdc-cell.wrap-text {
+    padding: 8px 12px;
+    line-height: 1.3;
+  }
+}
+
+@media (max-width: 480px) {
+  .mat-mdc-header-cell,
+  .mat-mdc-cell {
+    padding: 6px 8px;
+    font-size: 0.8rem;
+  }
+}
+
+/* Scrollbar Styling */
+.table-wrapper::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Force text wrapping for auto-width columns - override any parent styles */
+.mat-mdc-table .mat-mdc-cell.auto-width {
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  max-width: 250px !important;
+  min-width: 150px !important;
+}
+
+/* Ensure text content within auto-width cells wraps */
+.mat-mdc-table .mat-mdc-cell.auto-width span,
+.mat-mdc-table .mat-mdc-cell.auto-width div {
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  display: block !important;
+  width: 100% !important;
+}
+
+/* Expandable rows */
+.expanded-row {
+  border-bottom: 1px solid transparent;
+}
+
+.expanded-detail-row {
+  min-height: 0;
+}
+
+.expanded-row-content {
+  overflow: hidden;
+  padding: 0;
+}
+
+.expanded-row-content.ng-animating {
+  overflow: hidden;
+}
+
+tr.expanded-detail-row td {
+  padding: 0 !important;
+  border: none !important;
+}
+
+.expanded-row.expanded-row {
+  border-bottom-color: #e0e0e0;
 }

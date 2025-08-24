@@ -22,9 +22,34 @@ export class NgAlertMessageComponent implements OnInit {
   ngOnInit(): void {
     // this.alertType = this.alertType || 'info';
   }
+
+  getFormattedMessage(): string {
+    const message = this.messageText();
+    if (!message) return '';
+    
+    // Replace newlines with HTML line breaks and add bullet points for multiple lines
+    const lines = message.split('\n').filter(line => line.trim() !== '');
+    
+    if (lines.length === 1) {
+      return lines[0];
+    }
+    
+    // Format multiple lines as a proper list
+    return lines.map((line, index) => {
+      if (index === 0) {
+        // First line is the header
+        return `<div class="error-header">${line}</div>`;
+      } else {
+        // Subsequent lines are error items
+        return `<div class="error-item">• ${line}</div>`;
+      }
+    }).join('');
+  }
+
   onCloseAlert(id: number): void {
     this.clearAlert.emit(id);
   }
+  
   trackByFn(index: number, item: any): any {
     return item ? item.id || index : index;
   }

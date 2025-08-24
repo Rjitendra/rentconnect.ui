@@ -1,13 +1,12 @@
 <div class="property-add-container">
   <div class="header-section">
     <div class="header-content">
-      <ng-button 
-        type="icon"
-        icon="arrow_back"
-        tooltip="Go back to property list"
-        cssClass="back-button"
-        (buttonClick)="goBack()">
-      </ng-button>
+      <ng-icon 
+        name="arrow_back"
+        matTooltip="Go back to property list"
+        (click)="goBack()"
+        style="cursor: pointer;">
+      </ng-icon>
       <div class="header-text">
         <h1>Add New Property</h1>
         <p>Create a detailed listing for your property</p>
@@ -339,25 +338,25 @@
       </ng-card>
 
       <!-- Action Buttons -->
-      <div class="action-buttons">
-        <ng-button 
-          type="outlined"
-          [label]="isSavingDraft ? 'Saving Draft...' : 'Save as Draft'"
-          [icon]="isSavingDraft ? 'hourglass_empty' : 'save'"
-          tooltip="Save your progress and continue later"
+      <div class="action-buttons-icons">
+        <button 
+          type="button"
+          class="save-draft-btn"
+          matTooltip="Save your progress and continue later"
           [disabled]="isSavingDraft"
-          (buttonClick)="saveDraft()">
-        </ng-button>
+          (click)="saveDraft()">
+          <ng-icon [name]="isSavingDraft ? 'hourglass_empty' : 'save'"></ng-icon>
+          {{ isSavingDraft ? 'Saving Draft...' : 'Save as Draft' }}
+        </button>
         
-        <ng-button 
-          type="filled"
-          [label]="isSaving ? 'Publishing...' : 'List Property'"
-          [icon]="isSaving ? 'hourglass_empty' : 'publish'"
-          tooltip="Publish your property listing"
-          [disabled]="isSaving || isSavingDraft"
-          (buttonClick)="onSubmit()">
-        </ng-button>
-        <button type="submit">Submit</button>
+        <button 
+          type="submit"
+          class="list-property-btn"
+          matTooltip="Publish your property listing"
+          [disabled]="isSaving || isSavingDraft">
+          <ng-icon [name]="isSaving ? 'hourglass_empty' : 'publish'"></ng-icon>
+          {{ isSaving ? 'Publishing...' : 'List Property' }}
+        </button>
       </div>
     </form>
   </div>

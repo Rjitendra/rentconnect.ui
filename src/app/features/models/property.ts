@@ -65,3 +65,23 @@ export interface IProperty {
   // Documents
   documents?: IDocument[];
 }
+
+
+export interface PropertyValidationError {
+  field: string;
+  message: string;
+  displayName: string;
+}
+
+export interface PropertySaveResponse {
+  success: boolean;
+  propertyId?: number;
+  message: string;
+  errors?: PropertyValidationError[];
+}
+
+// Extended interface for form data
+export interface PropertyFormData extends Partial<IProperty> {
+  // Additional fields not in IProperty
+  maintenanceCharges?: number;
+}

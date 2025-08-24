@@ -1,20 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, TemplateRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
+import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatSelectModule } from '@angular/material/select';
-import { MatFormFieldModule } from '@angular/material/form-field';
+
+
 
 import { IProperty } from '../../../../models/property';
 import { ITenant } from '../../../../models/tenant';
@@ -29,26 +25,22 @@ import {
 import { ITicket, TicketStatus } from '../../../../models/tickets';
 import { PropertyAdd } from '../property-add/property-add';
 import { PropertyDetail } from '../property-detail/property-detail';
+import { NgButton, NgIconComponent, NgSelectComponent, NgMatTable, TableColumn, TableOptions } from '../../../../../../../projects/shared/src/public-api';
 
 @Component({
   selector: 'app-property-dashboard',
   imports: [
     CommonModule,
-    MatButtonModule,
-    MatIconModule,
-    MatCardModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatSortModule,
-    MatCheckboxModule,
-    MatToolbarModule,
+    FormsModule,
     MatMenuModule,
     MatDialogModule,
     MatTooltipModule,
     MatChipsModule,
     MatDividerModule,
-    MatSelectModule,
-    MatFormFieldModule,
+    NgButton,
+    NgIconComponent,
+    NgSelectComponent,
+    NgMatTable,
     PropertyAdd,
     PropertyDetail,
   ],
@@ -56,21 +48,30 @@ import { PropertyDetail } from '../property-detail/property-detail';
   styleUrl: './property-dashboard.scss',
 })
 export class PropertyDashboard implements OnInit {
+  // Template references for dynamic content
+  @ViewChild('propertyNameTemplate', { static: true }) propertyNameTemplate!: TemplateRef<unknown>;
+  @ViewChild('tenantTemplate', { static: true }) tenantTemplate!: TemplateRef<unknown>;
+  @ViewChild('documentTemplate', { static: true }) documentTemplate!: TemplateRef<unknown>;
+  @ViewChild('actionTemplate', { static: true }) actionTemplate!: TemplateRef<unknown>;
+  @ViewChild('statusTemplate', { static: true }) statusTemplate!: TemplateRef<unknown>;
+
   // State Management
   currentView: 'table' | 'detail' | 'create' | 'edit' = 'table';
   selectedProperty: IProperty | null = null;
 
-  // Table columns
-  displayedColumns: string[] = [
-    'id',
-    'title',
-    'fullAddress',
-    'mappedTenants',
-    'documentsActions',
-    'monthlyRent',
-    'status',
-    'actions',
-  ];
+  // Table columns configuration (will be initialized in ngOnInit)
+  tableColumns: TableColumn[] = [];
+
+  tableOptions: TableOptions = {
+    pageSize: 10,
+    pageSizeOptions: [5, 10, 25, 50],
+    sortable: true,
+    multiSelect: false,
+    responsive: true,
+    autoWidth: true,
+    stickyHeader: true,
+    stickyPaginator: true
+  };
 
   // Mock Property Data
   properties: IProperty[] = [];
@@ -87,6 +88,8 @@ export class PropertyDashboard implements OnInit {
       dob: '1988-05-12',
       age: 36,
       occupation: 'Designer',
+      aadhaarNumber: '123456789012',
+      panNumber: 'ABCDE1234F',
       tenancyStartDate: '2024-01-01',
       tenancyEndDate: '2025-01-01',
       rentDueDate: '2024-01-05',
@@ -112,6 +115,8 @@ export class PropertyDashboard implements OnInit {
       dob: '1985-08-22',
       age: 39,
       occupation: 'Software Engineer',
+      aadhaarNumber: '123456789013',
+      panNumber: 'ABCDE1234G',
       tenancyStartDate: '2024-01-01',
       tenancyEndDate: '2025-01-01',
       rentDueDate: '2024-01-05',
@@ -132,11 +137,13 @@ export class PropertyDashboard implements OnInit {
       landlordId: 1,
       propertyId: 1,
       name: 'Sarah Johnson',
-      email: '',
-      phoneNumber: '',
+      email: 'sarah.johnson@example.com',
+      phoneNumber: '9876543214',
       dob: '2010-03-15',
       age: 14,
       occupation: 'Student',
+      aadhaarNumber: '123456789014',
+      panNumber: 'ABCDE1234H',
       tenancyStartDate: '2024-01-01',
       tenancyEndDate: '2025-01-01',
       rentDueDate: '2024-01-05',
@@ -156,11 +163,13 @@ export class PropertyDashboard implements OnInit {
       landlordId: 1,
       propertyId: 1,
       name: 'James Johnson',
-      email: '',
-      phoneNumber: '',
+      email: 'james.johnson@example.com',
+      phoneNumber: '9876543215',
       dob: '2012-07-08',
       age: 12,
       occupation: 'Student',
+      aadhaarNumber: '123456789015',
+      panNumber: 'ABCDE1234I',
       tenancyStartDate: '2024-01-01',
       tenancyEndDate: '2025-01-01',
       rentDueDate: '2024-01-05',
@@ -185,6 +194,8 @@ export class PropertyDashboard implements OnInit {
       dob: '1992-11-18',
       age: 32,
       occupation: 'Teacher',
+      aadhaarNumber: '123456789016',
+      panNumber: 'ABCDE1234J',
       tenancyStartDate: '2024-02-01',
       tenancyEndDate: '2025-02-01',
       rentDueDate: '2024-02-05',
@@ -233,7 +244,78 @@ export class PropertyDashboard implements OnInit {
   constructor(private dialog: MatDialog) {}
 
   ngOnInit() {
+    this.initializeTableColumns();
     this.loadMockData();
+  }
+  
+  private initializeTableColumns() {
+    // Initialize table columns with templates
+    this.tableColumns = [
+      { 
+        key: 'id', 
+        label: 'ID', 
+        width: '80px',
+        align: 'center',
+        headerAlign: 'center'
+      },
+      { 
+        key: 'title', 
+        label: 'Property Name', 
+        width: 'auto',
+        type: 'custom', 
+        template: this.propertyNameTemplate,
+        align: 'left'
+      },
+      { 
+        key: 'fullAddress', 
+        label: 'Address', 
+        width: 'auto',
+        align: 'left'
+      },
+      { 
+        key: 'mappedTenants', 
+        label: 'Tenants', 
+        width: '300px',
+        type: 'custom', 
+        template: this.tenantTemplate,
+        align: 'center',
+        headerAlign: 'center'
+      },
+      { 
+        key: 'documentsActions', 
+        label: 'Documents', 
+        width: '150px',
+        type: 'custom', 
+        template: this.documentTemplate,
+        align: 'center',
+        headerAlign: 'center'
+      },
+      { 
+        key: 'monthlyRent', 
+        label: 'Monthly Rent', 
+        width: '120px',
+        align: 'right',
+        headerAlign: 'right'
+      },
+      { 
+        key: 'status', 
+        label: 'Status', 
+        width: '150px',
+        type: 'custom', 
+        template: this.statusTemplate,
+        align: 'center',
+        headerAlign: 'center'
+      },
+      { 
+        key: 'actions', 
+        label: 'Actions', 
+        width: '200px',
+        type: 'custom', 
+        template: this.actionTemplate,
+        align: 'center',
+        headerAlign: 'center'
+      }
+    ];
   }
 
   private loadMockData() {
@@ -330,6 +412,8 @@ const mockTenants: ITenant[] = [
     phoneNumber: '9876543212',
     dob: '1988-05-12',
     occupation: 'Designer',
+    aadhaarNumber: '123456789012',
+    panNumber: 'ABCDE1234F',
     tenancyStartDate: '2024-01-01',
     tenancyEndDate: '2025-01-01',
     rentDueDate: '2024-01-05',
@@ -354,6 +438,8 @@ const mockTenants: ITenant[] = [
     phoneNumber: '9876543210',
     dob: '1990-01-01',
     occupation: 'Engineer',
+    aadhaarNumber: '123456789013',
+    panNumber: 'ABCDE1234G',
     tenancyStartDate: '2024-02-01',
     tenancyEndDate: '2025-02-01',
     rentDueDate: '2024-02-05',
@@ -568,19 +654,11 @@ const mockTickets: ITicket[] = [
   onViewProperty(property: any): void {
     this.selectedProperty = property;
     this.currentView = 'detail';
-
-    alert(
-      `Viewing property: ${property.title}\n\nAddress: ${property.fullAddress}\nRent: ${property.monthlyRent}\nStatus: ${property.status}`
-    );
   }
 
   onEditProperty(property: any): void {
     this.selectedProperty = property;
     this.currentView = 'edit';
-
-    alert(
-      `Edit functionality will be implemented with forms.\n\nProperty: ${property.title}`
-    );
   }
 
   onDeleteProperty(property: any): void {
@@ -910,13 +988,39 @@ const mockTickets: ITicket[] = [
     // Handle tenant selection logic here
   }
 
-  // Updated row click handler
-  onRowClick(property: IProperty, event?: Event): void {
-    if (event) {
-      event.stopPropagation();
-    }
+  // Navigation method for property details
+  navigateToDetail(property: IProperty): void {
     this.selectedProperty = property;
     this.currentView = 'detail';
+  }
+
+  // Get status icon based on property status
+  getStatusIcon(status: string): string {
+    switch (status?.toLowerCase()) {
+      case 'available':
+      case 'listed':
+        return 'check_circle';
+      case 'rented':
+      case 'occupied':
+        return 'people';
+      case 'undermaintenance':
+      case 'maintenance':
+        return 'build';
+      case 'draft':
+        return 'edit';
+      default:
+        return 'info';
+    }
+  }
+
+  // Handle document download click without row navigation
+  handleDownloadClick(property: IProperty): void {
+    this.onOpenDownloadModal(property);
+  }
+
+  // Handle document upload click without row navigation
+  handleUploadClick(property: IProperty): void {
+    this.onUploadDocument(property);
   }
 
   private exportPropertiesToCSV(properties: any[]): void {
@@ -955,5 +1059,22 @@ const mockTickets: ITicket[] = [
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  }
+
+  getSimplifiedStatus(status: string): string {
+    switch (status?.toLowerCase()) {
+      case 'available':
+      case 'listed':
+        return 'LISTED';
+      case 'rented':
+      case 'occupied':
+        return 'RENTED';
+      case 'undermaintenance':
+        return 'RENTED';
+      case 'draft':
+        return 'LISTED';
+      default:
+        return 'LISTED';
+    }
   }
 }

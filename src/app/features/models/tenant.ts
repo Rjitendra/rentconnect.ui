@@ -16,15 +16,34 @@ export interface ITenant {
 
   // Personal info
   name: string;
-  email?: string;
+  email: string; // Made required for onboarding
   phoneNumber: string;
+  alternatePhoneNumber?: string;
   dob: Date | string;
   age?: number; // Age in years
   occupation: string;
+  gender?: 'Male' | 'Female' | 'Other';
+  maritalStatus?: 'Single' | 'Married' | 'Divorced' | 'Widowed';
 
-  // Govt. IDs
-  aadhaarNumber?: string;
-  panNumber?: string;
+  // Address info
+  currentAddress?: string;
+  permanentAddress?: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
+  emergencyContactRelation?: string;
+
+  // Govt. IDs (Required for Indian tenants)
+  aadhaarNumber: string; // Made required
+  panNumber: string; // Made required
+  drivingLicenseNumber?: string;
+  voterIdNumber?: string;
+
+  // Employment details
+  employerName?: string;
+  employerAddress?: string;
+  employerPhone?: string;
+  monthlyIncome?: number;
+  workExperience?: number; // in years
 
   // Tenancy details
   tenancyStartDate: Date | string;
@@ -32,6 +51,17 @@ export interface ITenant {
   rentDueDate: Date | string;
   rentAmount: number;
   securityDeposit: number;
+  maintenanceCharges?: number;
+  leaseDuration?: number; // in months
+  noticePeriod?: number; // in days
+  
+  // Agreement details
+  agreementSigned?: boolean;
+  agreementDate?: Date | string;
+  agreementUrl?: string;
+  onboardingEmailSent?: boolean;
+  onboardingEmailDate?: Date | string;
+  onboardingCompleted?: boolean;
 
   // File references
   backgroundCheckFileUrl?: string;
@@ -42,11 +72,13 @@ export interface ITenant {
   isAcknowledge: boolean;
   acknowledgeDate?: Date | string;
   isVerified: boolean;
+  verificationNotes?: string;
 
   // Flags
   isNewTenant: boolean;
   isPrimary: boolean;
   isActive: boolean;
+  needsOnboarding?: boolean;
 
   // Audit
   ipAddress?: string;
@@ -62,6 +94,7 @@ export interface ITenant {
   // Navigation collections
   tickets?: ITicket[];
   documents?: IDocument[];
+  children?: TenantChildren[];
 }
 
 export interface TenantChildren {

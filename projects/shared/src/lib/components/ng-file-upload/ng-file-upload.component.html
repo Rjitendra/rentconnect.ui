@@ -16,7 +16,11 @@
        (dragover)="onDragOver($event)"
        (dragleave)="onDragLeave($event)"
        (drop)="onDrop($event)"
-       (click)="!disabled && fileInput.click()">
+       (click)="onUploadAreaClick($event)"
+       role="button"
+       tabindex="0"
+       (keydown.enter)="onUploadAreaClick($event)"
+       (keydown.space)="onUploadAreaClick($event)">
     
     <input
       #fileInput
@@ -25,7 +29,7 @@
       [accept]="acceptedTypesString"
       [disabled]="disabled"
       (change)="onFileSelect($event)"
-      hidden>
+      style="position: absolute; left: -9999px; opacity: 0; pointer-events: none;">
     
     @if (uploadedFiles.length === 0) {
       <div class="upload-content">
@@ -49,7 +53,7 @@
               <img [src]="file.url" [alt]="file.name" class="preview-image">
               <div class="image-overlay">
                 @if (!disabled && allowRemove) {
-                  <button mat-icon-button class="remove-image-btn" (click)="removeFile(file, $event)">
+                  <button type="button" mat-icon-button class="remove-image-btn" (click)="removeFile(file, $event)">
                     <mat-icon>delete</mat-icon>
                   </button>
                 }
@@ -87,7 +91,7 @@
               }
               
               @if (!disabled && allowRemove) {
-                <button mat-icon-button (click)="removeFile(file, $event)">
+                <button type="button" mat-icon-button (click)="removeFile(file, $event)">
                   <mat-icon>close</mat-icon>
                 </button>
               }
@@ -98,7 +102,7 @@
     }
     
     @if (uploadedFiles.length > 0 && config.allowMultiple && !disabled) {
-      <button mat-stroked-button class="add-more-btn">
+      <button type="button" mat-stroked-button class="add-more-btn" (click)="openFileDialog($event)">
         <mat-icon>add</mat-icon>
         Add More Files
       </button>
