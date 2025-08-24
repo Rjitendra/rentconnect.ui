@@ -2,11 +2,10 @@ import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  EventEmitter,
   inject,
   Input,
-  Output,
   forwardRef,
+  output
 } from '@angular/core';
 import {
   FormBuilder,
@@ -85,7 +84,7 @@ export class NgCheckbox implements ControlValueAccessor {
   /** Icon to display next to the checkbox */
   @Input() icon?: string;
   /** Output event when checkbox state changes */
-  @Output() changed = new EventEmitter<boolean>();
+  readonly changed = output<boolean>();
 
   value: boolean = false;
   private onChange = (value: boolean) => {};

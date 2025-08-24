@@ -1,11 +1,10 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  EventEmitter,
   Input,
-  Output,
   TemplateRef,
-  viewChild
+  viewChild,
+  output
 } from '@angular/core';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
@@ -52,11 +51,11 @@ export class NgMatTable {
   @Input() expandedRowTemplate?: TemplateRef<any>; // template for expanded content
   @Input() expandKey?: string; // key to use for expansion tracking
 
-  @Output() rowClick = new EventEmitter<model>();
-  @Output() selectionChange = new EventEmitter<model[]>();
-  @Output() columnClick = new EventEmitter<string>();
-  @Output() rowSelect = new EventEmitter<model>();
-  @Output() rowExpand = new EventEmitter<model>();
+  readonly rowClick = output<model>();
+  readonly selectionChange = output<model[]>();
+  readonly columnClick = output<string>();
+  readonly rowSelect = output<model>();
+  readonly rowExpand = output<model>();
 
   displayedColumns: string[] = [];
   dataSource: MatTableDataSource<model> = new MatTableDataSource<model>();

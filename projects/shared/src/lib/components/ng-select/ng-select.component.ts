@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, forwardRef } from '@angular/core';
+import { Component, Input, forwardRef, output } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatSelectModule } from '@angular/material/select';
@@ -56,8 +56,8 @@ export class NgSelectComponent implements ControlValueAccessor {
   @Input() isInvalid = false;
   @Input() validationMessage = '';
   
-  @Output() selectionChange = new EventEmitter<any>();
-  @Output() openedChange = new EventEmitter<boolean>();
+  readonly selectionChange = output<any>();
+  readonly openedChange = output<boolean>();
 
   value: any = null;
 

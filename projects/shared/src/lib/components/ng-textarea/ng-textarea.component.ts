@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, forwardRef } from '@angular/core';
+import { Component, Input, forwardRef, output } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -51,8 +51,8 @@ export class NgTextareaComponent implements ControlValueAccessor {
   @Input() isInvalid = false;
   @Input() validationMessage = '';
   
-  @Output() inputChange = new EventEmitter<string>();
-  @Output() focusEvent = new EventEmitter<FocusEvent>();
+  readonly inputChange = output<string>();
+  readonly focusEvent = output<FocusEvent>();
 
   value: string = '';
 

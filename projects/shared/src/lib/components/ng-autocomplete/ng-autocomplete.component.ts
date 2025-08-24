@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, forwardRef, OnInit } from '@angular/core';
+import { Component, Input, forwardRef, OnInit, output } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -50,8 +50,8 @@ export class NgAutocompleteComponent implements ControlValueAccessor, OnInit {
   @Input() clarifyText!: string;
   @Input() hint!: string;
   
-  @Output() optionSelected = new EventEmitter<AutocompleteOption>();
-  @Output() inputChange = new EventEmitter<string>();
+  readonly optionSelected = output<AutocompleteOption>();
+  readonly inputChange = output<string>();
 
   inputControl = new FormControl('');
   filteredOptions!: Observable<AutocompleteOption[]>;

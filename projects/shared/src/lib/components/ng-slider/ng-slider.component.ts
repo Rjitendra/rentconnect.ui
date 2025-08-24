@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, forwardRef } from '@angular/core';
+import { Component, Input, forwardRef, output } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatSliderModule } from '@angular/material/slider';
@@ -44,8 +44,8 @@ export class NgSliderComponent implements ControlValueAccessor {
   @Input() valueUnit = '';
   @Input() displayValue!: string | number;
   
-  @Output() valueChange = new EventEmitter<number>();
-  @Output() dragEnd = new EventEmitter<any>();
+  readonly valueChange = output<number>();
+  readonly dragEnd = output<any>();
 
   value: number = 0;
 

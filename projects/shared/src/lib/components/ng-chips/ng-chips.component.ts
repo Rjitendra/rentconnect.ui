@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, forwardRef, ElementRef, OnInit, viewChild } from '@angular/core';
+import { Component, Input, forwardRef, ElementRef, OnInit, viewChild, output } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatChipsModule } from '@angular/material/chips';
@@ -57,9 +57,9 @@ export class NgChipsComponent implements ControlValueAccessor, OnInit {
   @Input() hint!: string;
   @Input() maxChips!: number;
   
-  @Output() chipAdded = new EventEmitter<ChipOption>();
-  @Output() chipRemoved = new EventEmitter<ChipOption>();
-  @Output() selectionChange = new EventEmitter<ChipOption[]>();
+  readonly chipAdded = output<ChipOption>();
+  readonly chipRemoved = output<ChipOption>();
+  readonly selectionChange = output<ChipOption[]>();
 
   readonly chipInput = viewChild.required<ElementRef<HTMLInputElement>>('chipInput');
 

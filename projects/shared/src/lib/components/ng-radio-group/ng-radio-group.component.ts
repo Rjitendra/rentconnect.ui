@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, forwardRef } from '@angular/core';
+import { Component, Input, forwardRef, output } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatRadioModule } from '@angular/material/radio';
@@ -43,7 +43,7 @@ export class NgRadioGroupComponent implements ControlValueAccessor {
   @Input() ariaLabel!: string;
   @Input() ariaLabelledBy!: string;
   
-  @Output() selectionChange = new EventEmitter<any>();
+  readonly selectionChange = output<any>();
 
   value: any = null;
 

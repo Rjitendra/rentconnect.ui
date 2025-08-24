@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, output } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -58,7 +58,7 @@ import {
   styleUrl: './property-add.scss',
 })
 export class PropertyAdd implements OnInit {
-  @Output() backToList = new EventEmitter<void>();
+  readonly backToList = output<void>();
 
   propertyForm!: FormGroup;
   uploadedImages: UploadedFile[] = [];
@@ -301,6 +301,7 @@ export class PropertyAdd implements OnInit {
 
   goBack() {
     // Emit event to parent component instead of router navigation
+    // TODO: The 'emit' function requires a mandatory void argument
     this.backToList.emit();
   }
 

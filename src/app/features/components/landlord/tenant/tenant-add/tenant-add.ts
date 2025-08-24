@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
+import { Component, OnInit, Input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 
@@ -29,8 +29,8 @@ import { NgCardComponent, NgInputComponent, NgSelectComponent, NgDatepickerCompo
 })
 export class TenantAddComponent implements OnInit {
   @Input() propertyOptions: SelectOption[] = [];
-  @Output() tenantAdded = new EventEmitter<void>();
-  @Output() cancel = new EventEmitter<void>();
+  readonly tenantAdded = output<void>();
+  readonly cancel = output<void>();
 
   // Form
   tenantForm!: FormGroup;
@@ -218,6 +218,7 @@ export class TenantAddComponent implements OnInit {
         
         if (successCount === totalCount) {
           this.showSuccess(`Successfully added ${successCount} tenant${successCount > 1 ? 's' : ''} to the property`);
+          // TODO: The 'emit' function requires a mandatory void argument
           this.tenantAdded.emit();
         } else {
           this.showError(`Added ${successCount} out of ${totalCount} tenants. Some tenants failed to save.`);
@@ -237,6 +238,7 @@ export class TenantAddComponent implements OnInit {
   }
 
   onCancel() {
+    // TODO: The 'emit' function requires a mandatory void argument
     this.cancel.emit();
   }
 

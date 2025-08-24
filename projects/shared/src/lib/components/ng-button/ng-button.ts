@@ -1,10 +1,9 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  EventEmitter,
   input,
   Input,
-  Output,
+  output
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
@@ -43,10 +42,11 @@ export class NgButton {
     @Input()  buttonType: 'button' | 'submit' | 'reset' = 'button';
 
   /** Event emitter for button click */
-  @Output() buttonClick = new EventEmitter<void>();
+  readonly buttonClick = output<void>();
 
   onClick() {
     if (!this.disabled && this.buttonType !== 'submit') {
+      // TODO: The 'emit' function requires a mandatory void argument
       this.buttonClick.emit();
     }
   }

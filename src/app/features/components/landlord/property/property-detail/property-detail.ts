@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatChipsModule } from '@angular/material/chips';
@@ -30,7 +30,7 @@ import { NgButton, NgCardComponent, NgIconComponent } from '../../../../../../..
   styleUrl: './property-detail.scss'
 })
 export class PropertyDetail implements OnInit {
-  @Output() backToList = new EventEmitter<void>();
+  readonly backToList = output<void>();
   
   property: IProperty | null = null;
   selectedImage: string = '';
@@ -152,6 +152,7 @@ export class PropertyDetail implements OnInit {
 
   goBack() {
     // Emit event to parent component instead of router navigation
+    // TODO: The 'emit' function requires a mandatory void argument
     this.backToList.emit();
   }
 

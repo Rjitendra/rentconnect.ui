@@ -1,10 +1,9 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  EventEmitter,
   forwardRef,
   Input,
-  Output,
+  output
 } from '@angular/core';
 import {
   ControlValueAccessor,
@@ -37,7 +36,7 @@ export class NgToggleButton implements ControlValueAccessor {
   @Input() hideMultipleSelectionIndicator = false;
 
   /** Outputs */
-  @Output() selectionChange = new EventEmitter<any>();
+  readonly selectionChange = output<any>();
 
   /** internal value */
   value: any;

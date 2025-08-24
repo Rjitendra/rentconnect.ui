@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ContentChildren, QueryList, TemplateRef } from '@angular/core';
+import { Component, Input, ContentChildren, QueryList, TemplateRef, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatButtonModule } from '@angular/material/button';
@@ -39,9 +39,12 @@ export class NgStepperComponent {
   @Input() completeText = 'Complete';
   @Input() stepControls: any[] = [];
   
-  @Output() selectionChange = new EventEmitter<any>();
-  @Output() stepCompleted = new EventEmitter<{ step: StepConfig; index: number }>();
-  @Output() stepperCompleted = new EventEmitter<void>();
+  readonly selectionChange = output<any>();
+  readonly stepCompleted = output<{
+    step: StepConfig;
+    index: number;
+}>();
+  readonly stepperCompleted = output<void>();
 
   onSelectionChange(event: any): void {
     this.selectedIndex = event.selectedIndex;
@@ -63,6 +66,7 @@ export class NgStepperComponent {
 
   complete(): void {
     this.markStepCompleted(this.selectedIndex);
+    // TODO: The 'emit' function requires a mandatory void argument
     this.stepperCompleted.emit();
   }
 

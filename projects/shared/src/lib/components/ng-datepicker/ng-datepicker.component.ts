@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, forwardRef } from '@angular/core';
+import { Component, Input, forwardRef, output } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -51,10 +51,10 @@ export class NgDatepickerComponent implements ControlValueAccessor {
   @Input() touchUi = false;
   @Input() opened = false;
   
-  @Output() dateInput = new EventEmitter<any>();
-  @Output() dateChange = new EventEmitter<any>();
-  @Output() pickerOpened = new EventEmitter<void>();
-  @Output() pickerClosed = new EventEmitter<void>();
+  readonly dateInput = output<any>();
+  readonly dateChange = output<any>();
+  readonly pickerOpened = output<void>();
+  readonly pickerClosed = output<void>();
 
   value: Date | null = null;
 
@@ -90,6 +90,7 @@ export class NgDatepickerComponent implements ControlValueAccessor {
   }
 
   onOpened(): void {
+    // TODO: The 'emit' function requires a mandatory void argument
     this.pickerOpened.emit();
   }
 
@@ -99,6 +100,7 @@ export class NgDatepickerComponent implements ControlValueAccessor {
 
   onClosed(): void {
     this.onTouched();
+    // TODO: The 'emit' function requires a mandatory void argument
     this.pickerClosed.emit();
   }
 }

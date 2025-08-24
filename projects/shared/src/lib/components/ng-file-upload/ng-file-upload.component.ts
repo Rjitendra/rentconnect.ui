@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, forwardRef, ElementRef, AfterViewInit, viewChild } from '@angular/core';
+import { Component, Input, forwardRef, ElementRef, AfterViewInit, viewChild, output } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
@@ -60,10 +60,16 @@ export class NgFileUploadComponent implements ControlValueAccessor, AfterViewIni
   @Input() clarifyText!: string;
   @Input() hint!: string;
 
-  @Output() filesSelected = new EventEmitter<UploadedFile[]>();
-  @Output() fileRemoved = new EventEmitter<UploadedFile>();
-  @Output() uploadProgress = new EventEmitter<{ file: UploadedFile; progress: number }>();
-  @Output() uploadError = new EventEmitter<{ file: UploadedFile; error: string }>();
+  readonly filesSelected = output<UploadedFile[]>();
+  readonly fileRemoved = output<UploadedFile>();
+  readonly uploadProgress = output<{
+    file: UploadedFile;
+    progress: number;
+}>();
+  readonly uploadError = output<{
+    file: UploadedFile;
+    error: string;
+}>();
 
   uploadedFiles: UploadedFile[] = [];
   isDragOver = false;
