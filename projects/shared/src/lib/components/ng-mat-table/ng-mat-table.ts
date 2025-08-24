@@ -4,8 +4,8 @@ import {
   EventEmitter,
   Input,
   Output,
-  ViewChild,
   TemplateRef,
+  viewChild
 } from '@angular/core';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
@@ -65,8 +65,8 @@ export class NgMatTable {
   selectedRow: model | null = null;
   expandedRows: Set<any> = new Set(); // Track expanded rows
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
+  readonly paginator = viewChild.required(MatPaginator);
+  readonly sort = viewChild.required(MatSort);
 
   ngOnInit() {
     // Setup columns
@@ -86,10 +86,10 @@ export class NgMatTable {
 
   ngAfterViewInit() {
     if (!this.options.serverSide) {
-      this.dataSource.paginator = this.paginator;
+      this.dataSource.paginator = this.paginator();
     }
     if (this.options.sortable) {
-      this.dataSource.sort = this.sort;
+      this.dataSource.sort = this.sort();
     }
   }
 

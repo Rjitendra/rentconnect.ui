@@ -1,4 +1,4 @@
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, OnInit, TemplateRef, viewChild } from '@angular/core';
 
 import {
   NgMatTable,
@@ -17,7 +17,7 @@ interface User {
   styleUrl: './home.component.scss',
 })
 export class HomeComponent implements OnInit {
-   @ViewChild('emailTemplate', { static: true }) emailTemplate!: TemplateRef<unknown>;
+   readonly emailTemplate = viewChild.required<TemplateRef<unknown>>('emailTemplate');
   columns: TableColumn[] = [];
     
 
@@ -42,7 +42,7 @@ ngOnInit(): void {
     this.columns = [
     { key: 'id', label: 'ID', width: '60px' },
     { key: 'name', label: 'Name', width: '150px' },
-    { key: 'email', label: 'Email', type: 'custom', template: this.emailTemplate },
+    { key: 'email', label: 'Email', type: 'custom', template: this.emailTemplate() },
     { key: 'role', label: 'Role' },
   ];
 }

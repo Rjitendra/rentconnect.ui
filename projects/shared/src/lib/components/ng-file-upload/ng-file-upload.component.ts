@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, forwardRef, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, forwardRef, ElementRef, AfterViewInit, viewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
@@ -48,7 +48,7 @@ export interface UploadedFile {
   ],
 })
 export class NgFileUploadComponent implements ControlValueAccessor, AfterViewInit {
-  @ViewChild('fileInput') fileInputRef!: ElementRef<HTMLInputElement>;
+  readonly fileInputRef = viewChild.required<ElementRef<HTMLInputElement>>('fileInput');
   
   @Input() label!: string;
   @Input() config: FileUploadConfig = {};
@@ -172,8 +172,9 @@ export class NgFileUploadComponent implements ControlValueAccessor, AfterViewIni
   }
 
   triggerFileInput(): void {
-    if (this.fileInputRef && this.fileInputRef.nativeElement) {
-      this.fileInputRef.nativeElement.click();
+    const fileInputRef = this.fileInputRef();
+    if (fileInputRef && fileInputRef.nativeElement) {
+      fileInputRef.nativeElement.click();
     }
   }
 

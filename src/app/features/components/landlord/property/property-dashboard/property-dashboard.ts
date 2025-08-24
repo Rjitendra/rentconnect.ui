@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, TemplateRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, TemplateRef, AfterViewInit, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
@@ -49,11 +49,11 @@ import { NgButton, NgIconComponent, NgSelectComponent, NgMatTable, TableColumn, 
 })
 export class PropertyDashboard implements OnInit {
   // Template references for dynamic content
-  @ViewChild('propertyNameTemplate', { static: true }) propertyNameTemplate!: TemplateRef<unknown>;
-  @ViewChild('tenantTemplate', { static: true }) tenantTemplate!: TemplateRef<unknown>;
-  @ViewChild('documentTemplate', { static: true }) documentTemplate!: TemplateRef<unknown>;
-  @ViewChild('actionTemplate', { static: true }) actionTemplate!: TemplateRef<unknown>;
-  @ViewChild('statusTemplate', { static: true }) statusTemplate!: TemplateRef<unknown>;
+  readonly propertyNameTemplate = viewChild.required<TemplateRef<unknown>>('propertyNameTemplate');
+  readonly tenantTemplate = viewChild.required<TemplateRef<unknown>>('tenantTemplate');
+  readonly documentTemplate = viewChild.required<TemplateRef<unknown>>('documentTemplate');
+  readonly actionTemplate = viewChild.required<TemplateRef<unknown>>('actionTemplate');
+  readonly statusTemplate = viewChild.required<TemplateRef<unknown>>('statusTemplate');
 
   // State Management
   currentView: 'table' | 'detail' | 'create' | 'edit' = 'table';
@@ -263,7 +263,7 @@ export class PropertyDashboard implements OnInit {
         label: 'Property Name', 
         width: 'auto',
         type: 'custom', 
-        template: this.propertyNameTemplate,
+        template: this.propertyNameTemplate(),
         align: 'left'
       },
       { 
@@ -277,7 +277,7 @@ export class PropertyDashboard implements OnInit {
         label: 'Tenants', 
         width: '300px',
         type: 'custom', 
-        template: this.tenantTemplate,
+        template: this.tenantTemplate(),
         align: 'center',
         headerAlign: 'center'
       },
@@ -286,7 +286,7 @@ export class PropertyDashboard implements OnInit {
         label: 'Documents', 
         width: '150px',
         type: 'custom', 
-        template: this.documentTemplate,
+        template: this.documentTemplate(),
         align: 'center',
         headerAlign: 'center'
       },
@@ -302,7 +302,7 @@ export class PropertyDashboard implements OnInit {
         label: 'Status', 
         width: '150px',
         type: 'custom', 
-        template: this.statusTemplate,
+        template: this.statusTemplate(),
         align: 'center',
         headerAlign: 'center'
       },
@@ -311,7 +311,7 @@ export class PropertyDashboard implements OnInit {
         label: 'Actions', 
         width: '200px',
         type: 'custom', 
-        template: this.actionTemplate,
+        template: this.actionTemplate(),
         align: 'center',
         headerAlign: 'center'
       }
