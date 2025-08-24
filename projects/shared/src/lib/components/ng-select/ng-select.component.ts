@@ -44,10 +44,10 @@ export class NgSelectComponent implements ControlValueAccessor {
   readonly disabled = input(false);
   readonly required = input(false);
   readonly appearance = input<'fill' | 'outline'>('outline');
-  readonly uniqueId = input.required<string>();
-  readonly toolTip = input.required<string>();
-  readonly clarifyText = input.required<string>();
-  readonly hint = input.required<string>();
+  readonly uniqueId = input<string>('');
+  readonly toolTip = input<string>('');
+  readonly clarifyText = input<string>('');
+  readonly hint = input<string>('');
   readonly suffixIcon = input('');
   readonly prefixIcon = input('');
   readonly hasError = input(false);
@@ -76,7 +76,7 @@ export class NgSelectComponent implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+    // this.disabled = isDisabled;
   }
 
   onSelectionChange(event: any): void {

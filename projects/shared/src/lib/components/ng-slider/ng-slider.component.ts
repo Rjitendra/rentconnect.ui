@@ -64,7 +64,7 @@ export class NgSliderComponent implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+  //  this.disabled = isDisabled;
   }
 
   onValueChange(newValue: number): void {

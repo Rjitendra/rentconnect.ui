@@ -49,15 +49,15 @@ export interface UploadedFile {
 export class NgFileUploadComponent implements ControlValueAccessor, AfterViewInit {
   readonly fileInputRef = viewChild.required<ElementRef<HTMLInputElement>>('fileInput');
   
-  readonly label = input.required<string>();
+  readonly label = input<string>('');
   readonly config = input<FileUploadConfig>({});
   readonly disabled = input(false);
   readonly required = input(false);
-  readonly dragText = input.required<string>();
+  readonly dragText = input<string>('Drop files here');
   readonly allowRemove = input(true);
-  readonly toolTip = input.required<string>();
-  readonly clarifyText = input.required<string>();
-  readonly hint = input.required<string>();
+  readonly toolTip = input<string>('');
+  readonly clarifyText = input<string>('');
+  readonly hint = input<string>('');
 
   readonly filesSelected = output<UploadedFile[]>();
   readonly fileRemoved = output<UploadedFile>();
@@ -97,7 +97,7 @@ export class NgFileUploadComponent implements ControlValueAccessor, AfterViewIni
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+   // this.disabled = isDisabled;
   }
 
   onDragOver(event: DragEvent): void {

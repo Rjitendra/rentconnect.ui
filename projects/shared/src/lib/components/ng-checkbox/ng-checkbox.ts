@@ -71,7 +71,7 @@ export class NgCheckbox implements ControlValueAccessor {
   /** Tooltip text */
   readonly toolTip = input<string>();
   /** Clarify text for help icon */
-  readonly clarifyText = input<string>();
+  readonly clarifyText = input<string>('');
   /** Color theme */
   readonly color = input<'primary' | 'accent' | 'warn'>('primary');
   /** Unique ID for the checkbox */
@@ -99,7 +99,7 @@ export class NgCheckbox implements ControlValueAccessor {
   // ControlValueAccessor implementation
   writeValue(value: boolean): void {
     this.value = value || false;
-    this.checked = this.value;
+   // this.checked = this.value;
   }
 
   registerOnChange(fn: (value: boolean) => void): void {
@@ -111,7 +111,7 @@ export class NgCheckbox implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+   // this.disabled = isDisabled;
   }
 
   onBlur(): void {

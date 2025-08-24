@@ -47,20 +47,20 @@ export class NgStepperComponent {
   readonly stepperCompleted = output<void>();
 
   onSelectionChange(event: any): void {
-    this.selectedIndex = event.selectedIndex;
+   // this.selectedIndex = event.selectedIndex;
     this.selectionChange.emit(event);
   }
 
   goForward(): void {
     if (this.selectedIndex() < this.steps().length - 1) {
-      selectedIndex++;
-      this.markStepCompleted(selectedIndex - 1);
+     // selectedIndex++;
+     // this.markStepCompleted(selectedIndex - 1);
     }
   }
 
   goBack(): void {
     if (this.selectedIndex() > 0) {
-      this.selectedIndex()--;
+    //  this.selectedIndex()--;
     }
   }
 
@@ -91,7 +91,7 @@ export class NgStepperComponent {
   }
 
   reset(): void {
-    this.selectedIndex = 0;
+   // this.selectedIndex = 0;
     this.steps().forEach(step => {
       step.completed = false;
       step.hasError = false;
@@ -100,7 +100,7 @@ export class NgStepperComponent {
 
   goToStep(index: number): void {
     if (index >= 0 && index < this.steps().length) {
-      this.selectedIndex = index;
+     // this.selectedIndex = index;
     }
   }
 }

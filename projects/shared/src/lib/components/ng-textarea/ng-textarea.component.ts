@@ -28,24 +28,24 @@ import { NgClarifyTextComponent } from '../ng-clarify-text/ng-clarify-text.compo
   ],
 })
 export class NgTextareaComponent implements ControlValueAccessor {
-  readonly label = input.required<string>();
+  readonly label = input<string>('');
   readonly placeholder = input('');
   readonly disabled = input(false);
   readonly readonly = input(false);
   readonly required = input(false);
   readonly appearance = input<'fill' | 'outline'>('outline');
-  readonly uniqueId = input.required<string>();
-  readonly toolTip = input.required<string>();
-  readonly clarifyText = input.required<string>();
-  readonly hint = input.required<string>();
-  readonly ariaLabel = input.required<string>();
+  readonly uniqueId = input<string>('');
+  readonly toolTip = input<string>('');
+  readonly clarifyText = input<string>('');
+  readonly hint = input<string>('');
+  readonly ariaLabel = input<string>('');
   readonly rows = input(4);
-  readonly cols = input.required<number>();
+  readonly cols = input<number>();
   readonly suffixIcon = input('');
   readonly prefixIcon = input('');
   readonly minRows = input(2);
   readonly maxRows = input(10);
-  readonly maxLength = input.required<number>();
+  readonly maxLength = input<number>();
   readonly showCharacterCount = input(false);
   readonly isInvalid = input(false);
   readonly validationMessage = input('');
@@ -71,7 +71,7 @@ export class NgTextareaComponent implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+   //+ this.disabled = isDisabled;
   }
 
   onInput(event: Event): void {

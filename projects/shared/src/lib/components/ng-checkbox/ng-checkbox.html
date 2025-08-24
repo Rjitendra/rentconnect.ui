@@ -20,7 +20,7 @@
   } @if (clarifyText()){
   <ng-clarify-text
     matSuffix
-    [clarifyText]="clarifyText()"
+    [clarifyText]="clarifyText() || ''"
     [isIconDisabled]="disabled()"
   />
   }
@@ -46,7 +46,7 @@
   } @if (clarifyText()) {
   <cl-clarify-text
     matSuffix
-    [clarifyText]="clarifyText()"
+   [clarifyText]="clarifyText() || ''"
     [isIconDisabled]="disabled()"
   />
   }

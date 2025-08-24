@@ -37,11 +37,11 @@
         <p class="upload-text">
           {{ dragText() || 'Drag and drop files here or click to browse' }}
         </p>
-        @if (config().acceptedTypes && config().acceptedTypes.length > 0) {
+        @if (config().acceptedTypes) {
           <p class="upload-hint">Accepted: {{ acceptedTypesString }}</p>
         }
         @if (config().maxFileSize) {
-          <p class="upload-hint">Max size: {{ formatFileSize(config().maxFileSize) }}</p>
+          <p class="upload-hint">Max size: {{ formatFileSize(config().maxFileSize || 0) }}</p>
         }
       </div>
     } @else {

@@ -90,7 +90,7 @@ export class NgChipsComponent implements ControlValueAccessor, OnInit {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+   // this.disabled = isDisabled;
     if (isDisabled) {
       this.inputControl.disable();
     } else {

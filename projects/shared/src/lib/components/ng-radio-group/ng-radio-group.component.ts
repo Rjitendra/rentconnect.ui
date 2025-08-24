@@ -62,7 +62,7 @@ export class NgRadioGroupComponent implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+   // this.disabled = isDisabled;
   }
 
   onSelectionChange(event: any): void {

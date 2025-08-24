@@ -32,21 +32,21 @@ import { NgClarifyTextComponent } from '../ng-clarify-text/ng-clarify-text.compo
   ],
 })
 export class NgDatepickerComponent implements ControlValueAccessor {
-  readonly label = input.required<string>();
+  readonly label = input<string>('');
   readonly placeholder = input('');
   readonly disabled = input(false);
   readonly readonly = input(false);
   readonly required = input(false);
   readonly appearance = input<'fill' | 'outline'>('outline');
-  readonly uniqueId = input.required<string>();
-  readonly toolTip = input.required<string>();
-  readonly clarifyText = input.required<string>();
-  readonly hint = input.required<string>();
-  readonly minDate = input.required<Date>();
-  readonly maxDate = input.required<Date>();
-  readonly startAt = input.required<Date>();
+  readonly uniqueId = input<string>('');
+  readonly toolTip = input<string>('');
+  readonly clarifyText = input<string>('');
+  readonly hint = input<string>();
+  readonly minDate = input<Date | null>(null);
+  readonly maxDate = input<Date | null>(null);
+  readonly startAt = input<Date | null>(null);
   readonly showToggle = input(true);
-  readonly customIcon = input.required<string>();
+  readonly customIcon = input<string>('');
   readonly touchUi = input(false);
   readonly opened = input(false);
   
@@ -73,7 +73,7 @@ export class NgDatepickerComponent implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+   // this.disabled = isDisabled;
   }
 
   onDateInput(event: any): void {
