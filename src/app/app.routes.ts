@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
-import { PropertyManager } from './features/components/landlord/property/property-manager/property-manager';
-import { PropertyDashboard } from './features/components/landlord/property/property-dashboard/property-dashboard';
-import { TenantDashboard } from './features/components/landlord/tenant/tenant-dashboard/tenant-dashboard';
+
+
+
 
 export const routes: Routes = [
   {
@@ -19,15 +19,15 @@ export const routes: Routes = [
 
       {
         path: 'landlord',
-        component: PropertyManager,
+        loadComponent: () => import('./features/components/landlord/property/property-manager/property-manager').then(m => m.PropertyManager),
         children: [
           {
             path: 'property',
-            component: PropertyDashboard,
+            loadComponent: () => import('./features/components/landlord/property/property-dashboard/property-dashboard').then(m => m.PropertyDashboard),
           },
           {
             path: 'tenant',
-            component: TenantDashboard,
+            loadComponent: () => import('./features/components/landlord/tenant/tenant-dashboard/tenant-dashboard').then(m => m.TenantDashboard),
           }
         ],
       },
