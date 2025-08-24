@@ -1,4 +1,4 @@
-import { Component, OnInit, output } from '@angular/core';
+import { Component, OnInit, output, inject } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -58,6 +58,11 @@ import {
   styleUrl: './property-add.scss',
 })
 export class PropertyAdd implements OnInit {
+  private fb = inject(FormBuilder);
+  private router = inject(Router);
+  private propertyService = inject(PropertyService);
+  private alertService = inject(AlertService);
+
   readonly backToList = output<void>();
 
   propertyForm!: FormGroup;
@@ -122,12 +127,10 @@ export class PropertyAdd implements OnInit {
   validationErrors: PropertyValidationError[] = [];
   isShowingValidationErrors = false;
 
-  constructor(
-    private fb: FormBuilder,
-    private router: Router,
-    private propertyService: PropertyService,
-    private alertService: AlertService,
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit() {
     this.initializeForm();

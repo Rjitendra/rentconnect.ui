@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { User } from 'oidc-client';
@@ -15,13 +15,16 @@ import { TestService } from '../../oauth/service/test.service';
   standalone: true,
 })
 export class TestComponent implements OnInit {
+  private oauthService = inject(OauthService);
+  private testService = inject(TestService);
+
   user: User | null = null;
   apiResponse: any;
 
-  constructor(
-    private oauthService: OauthService,
-    private testService: TestService
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.loadUser();

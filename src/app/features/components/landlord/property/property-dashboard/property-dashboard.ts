@@ -1,4 +1,4 @@
-import { Component, OnInit, TemplateRef, AfterViewInit, viewChild } from '@angular/core';
+import { Component, OnInit, TemplateRef, AfterViewInit, viewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
@@ -48,6 +48,8 @@ import { NgButton, NgIconComponent, NgSelectComponent, NgMatTable, TableColumn, 
   styleUrl: './property-dashboard.scss',
 })
 export class PropertyDashboard implements OnInit {
+  private dialog = inject(MatDialog);
+
   // Template references for dynamic content
   readonly propertyNameTemplate = viewChild.required<TemplateRef<unknown>>('propertyNameTemplate');
   readonly tenantTemplate = viewChild.required<TemplateRef<unknown>>('tenantTemplate');
@@ -241,7 +243,10 @@ export class PropertyDashboard implements OnInit {
     { value: DocumentCategory.PropertyPhoto, label: 'Property Photos', count: 0, description: 'Property images and videos' },
   ];
 
-  constructor(private dialog: MatDialog) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit() {
     this.initializeTableColumns();

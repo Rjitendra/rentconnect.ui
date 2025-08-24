@@ -3,7 +3,7 @@ import {
   HttpErrorResponse,
   HttpHeaders,
 } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { User } from 'oidc-client';
 import { OauthService } from './oauth.service';
 
@@ -11,10 +11,13 @@ import { OauthService } from './oauth.service';
   providedIn: 'root',
 })
 export class TestService {
-  constructor(
-    private httpClient: HttpClient,
-    private authService: OauthService
-  ) {}
+  private httpClient = inject(HttpClient);
+  private authService = inject(OauthService);
+
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   public callApi(): Promise<any> {
     return this.authService.getUser().then((user: any) => {

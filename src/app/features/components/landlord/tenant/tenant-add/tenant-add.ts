@@ -1,4 +1,4 @@
-import { Component, OnInit, output, input } from '@angular/core';
+import { Component, OnInit, output, input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 
@@ -28,6 +28,10 @@ import { NgCardComponent, NgInputComponent, NgSelectComponent, NgDatepickerCompo
   styleUrl: './tenant-add.scss'
 })
 export class TenantAddComponent implements OnInit {
+  private fb = inject(FormBuilder);
+  private alertService = inject(AlertService);
+  private tenantService = inject(TenantService);
+
   readonly propertyOptions = input<SelectOption[]>([]);
   readonly tenantAdded = output<void>();
   readonly cancel = output<void>();
@@ -47,11 +51,10 @@ export class TenantAddComponent implements OnInit {
     allowMultiple: true
   };
 
-  constructor(
-    private fb: FormBuilder,
-    private alertService: AlertService,
-    private tenantService: TenantService
-  ) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
     this.initializeForm();
   }
 

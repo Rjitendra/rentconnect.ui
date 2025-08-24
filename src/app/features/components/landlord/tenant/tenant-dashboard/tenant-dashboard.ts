@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTableModule } from '@angular/material/table';
@@ -35,6 +35,9 @@ type ViewType = 'table' | 'add' | 'edit' | 'detail';
   styleUrl: './tenant-dashboard.scss'
 })
 export class TenantDashboard implements OnInit {
+  private alertService = inject(AlertService);
+  private tenantService = inject(TenantService);
+
   // View management
   currentView: ViewType = 'table';
   selectedTenant: ITenant | null = null;
@@ -61,10 +64,10 @@ export class TenantDashboard implements OnInit {
     { value: 8, label: '2BHK Apartment - Jayanagar, Bangalore' }
   ];
 
-  constructor(
-    private alertService: AlertService,
-    private tenantService: TenantService
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit() {
     this.loadTenants();

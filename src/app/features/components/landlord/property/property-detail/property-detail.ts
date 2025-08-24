@@ -1,4 +1,4 @@
-import { Component, OnInit, output } from '@angular/core';
+import { Component, OnInit, output, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatChipsModule } from '@angular/material/chips';
@@ -30,6 +30,9 @@ import { NgButton, NgCardComponent, NgIconComponent } from '../../../../../../..
   styleUrl: './property-detail.scss'
 })
 export class PropertyDetail implements OnInit {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+
   readonly backToList = output<void>();
   
   property: IProperty | null = null;
@@ -44,10 +47,10 @@ export class PropertyDetail implements OnInit {
     'https://via.placeholder.com/800x400/667eea/ffffff?text=Bathroom'
   ];
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router
-  ) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit() {
     this.loadProperty();

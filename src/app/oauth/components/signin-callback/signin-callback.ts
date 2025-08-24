@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { OauthService } from '../../service/oauth.service';
 
 @Component({
@@ -7,7 +7,12 @@ import { OauthService } from '../../service/oauth.service';
  template: `<div></div>`,
 })
 export class SigninCallback implements OnInit {
-  constructor(private authService: OauthService) {}
+  private authService = inject(OauthService);
+
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   ngOnInit(): void {
     this.authService.finishLogin().then((x) => {
