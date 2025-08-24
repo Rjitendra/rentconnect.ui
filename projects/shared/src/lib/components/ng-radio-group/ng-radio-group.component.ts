@@ -1,4 +1,4 @@
-import { Component, Input, forwardRef, output } from '@angular/core';
+import { Component, forwardRef, output, input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatRadioModule } from '@angular/material/radio';
@@ -31,17 +31,17 @@ export interface RadioOption {
   ],
 })
 export class NgRadioGroupComponent implements ControlValueAccessor {
-  @Input() groupLabel!: string;
-  @Input() options: RadioOption[] = [];
-  @Input() disabled = false;
-  @Input() required = false;
-  @Input() vertical = true;
-  @Input() name!: string;
-  @Input() toolTip!: string;
-  @Input() clarifyText!: string;
-  @Input() hint!: string;
-  @Input() ariaLabel!: string;
-  @Input() ariaLabelledBy!: string;
+  readonly groupLabel = input.required<string>();
+  readonly options = input<RadioOption[]>([]);
+  readonly disabled = input(false);
+  readonly required = input(false);
+  readonly vertical = input(true);
+  readonly name = input.required<string>();
+  readonly toolTip = input.required<string>();
+  readonly clarifyText = input.required<string>();
+  readonly hint = input.required<string>();
+  readonly ariaLabel = input.required<string>();
+  readonly ariaLabelledBy = input.required<string>();
   
   readonly selectionChange = output<any>();
 

@@ -83,7 +83,7 @@ describe('NgFileUploadComponent', () => {
 
   it('should set disabled state correctly', () => {
     component.setDisabledState(true);
-    expect(component.disabled).toBe(true);
+    expect(component.disabled()).toBe(true);
   });
 
   it('should handle drag events', () => {

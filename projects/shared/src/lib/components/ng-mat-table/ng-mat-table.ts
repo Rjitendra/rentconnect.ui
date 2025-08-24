@@ -1,10 +1,10 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  Input,
   TemplateRef,
   viewChild,
-  output
+  output,
+  input
 } from '@angular/core';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
@@ -41,15 +41,15 @@ import { model } from '../../models/view-model';
   ],
 })
 export class NgMatTable {
-  @Input() columns: TableColumn[] = [];
-  @Input() data: model[] = [];
-  @Input() options: TableOptions = {};
-  @Input() headerCheckbox = false; // show checkbox in header
-  @Input() rowCheckbox = false; // show checkbox in rows
-  @Input() isPaginator = false; // enable paginator
-  @Input() expandableRows = false; // enable expandable rows
-  @Input() expandedRowTemplate?: TemplateRef<any>; // template for expanded content
-  @Input() expandKey?: string; // key to use for expansion tracking
+  readonly columns = input<TableColumn[]>([]);
+  readonly data = input<model[]>([]);
+  readonly options = input<TableOptions>({});
+  readonly headerCheckbox = input(false); // show checkbox in header
+  readonly rowCheckbox = input(false); // show checkbox in rows
+  readonly isPaginator = input(false); // enable paginator
+  readonly expandableRows = input(false); // enable expandable rows
+  readonly expandedRowTemplate = input<TemplateRef<any>>(); // template for expanded content
+  readonly expandKey = input<string>(); // key to use for expansion tracking
 
   readonly rowClick = output<model>();
   readonly selectionChange = output<model[]>();
@@ -70,24 +70,25 @@ export class NgMatTable {
   ngOnInit() {
     // Setup columns
     this.displayedColumns = [
-      ...(this.headerCheckbox || this.rowCheckbox ? ['select'] : []),
-      ...this.columns.map((c) => c.key),
+      ...(this.headerCheckbox() || this.rowCheckbox() ? ['select'] : []),
+      ...this.columns().map((c) => c.key),
     ];
 
-    this.dataSource = new MatTableDataSource(this.data);
+    this.dataSource = new MatTableDataSource(this.data());
 
     // Initialize selection
     this.selection = new SelectionModel<model>(
-      this.options.multiSelect ?? true,
+      this.options().multiSelect ?? true,
       []
     );
   }
 
   ngAfterViewInit() {
-    if (!this.options.serverSide) {
+    const options = this.options();
+    if (!options.serverSide) {
       this.dataSource.paginator = this.paginator();
     }
-    if (this.options.sortable) {
+    if (options.sortable) {
       this.dataSource.sort = this.sort();
     }
   }
@@ -179,6 +180,6 @@ export class NgMatTable {
 
   // Function for template use - predicate for when to show expanded detail row
   isRowExpandedFn = (index: number, row: model) => {
-    return this.isRowExpanded(row, this.expandKey);
+    return this.isRowExpanded(row, this.expandKey());
   };
 }

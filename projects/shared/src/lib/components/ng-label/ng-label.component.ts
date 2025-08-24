@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -6,9 +6,9 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <span class="ng-label" [title]="toolTip">
-      {{ label }}
-      @if (required) {
+    <span class="ng-label" [title]="toolTip()">
+      {{ label() }}
+      @if (required()) {
         <span class="required-asterisk">*</span>
       }
     </span>
@@ -26,7 +26,7 @@ import { CommonModule } from '@angular/common';
   `]
 })
 export class NgLabelComponent {
-  @Input() label!: string;
-  @Input() required = false;
-  @Input() toolTip!: string;
+  readonly label = input.required<string>();
+  readonly required = input(false);
+  readonly toolTip = input.required<string>();
 }

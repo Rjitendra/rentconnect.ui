@@ -1,53 +1,53 @@
-@if (!isToggle) {
+@if (!isToggle()) {
 <mat-checkbox
-  [name]="uniqueId || checkboxName || 'inputCheck'"
-  [aria-label]="label || toolTip || ''"
+  [name]="uniqueId() || checkboxName() || 'inputCheck'"
+  [aria-label]="label() || toolTip() || ''"
   [checked]="value"
-  [color]="color"
-  [disabled]="disabled"
-  [id]="uniqueId || ''"
-  [labelPosition]="labelPosition || 'after'"
-  [required]="isRequired"
-  [indeterminate]="indeterminate"
+  [color]="color()"
+  [disabled]="disabled()"
+  [id]="uniqueId() || ''"
+  [labelPosition]="labelPosition() || 'after'"
+  [required]="isRequired()"
+  [indeterminate]="indeterminate()"
   (change)="onCheckboxChange($event)"
   (blur)="onBlur()"
 >
-  @if (icon) {
-    <mat-icon>{{ icon }}</mat-icon>
+  @if (icon()) {
+    <mat-icon>{{ icon() }}</mat-icon>
   }
-  @if (!hideLabel) {
-  <ng-label [label]="label" [required]="isRequired" [toolTip]="toolTip || ''" />
-  } @if (clarifyText){
+  @if (!hideLabel()) {
+  <ng-label [label]="label()" [required]="isRequired()" [toolTip]="toolTip() || ''" />
+  } @if (clarifyText()){
   <ng-clarify-text
     matSuffix
-    [clarifyText]="clarifyText"
-    [isIconDisabled]="disabled"
+    [clarifyText]="clarifyText()"
+    [isIconDisabled]="disabled()"
   />
   }
 </mat-checkbox>
 } @else {
 <mat-slide-toggle
-  [name]="uniqueId || checkboxName || 'inputCheck'"
-  [aria-label]="label"
+  [name]="uniqueId() || checkboxName() || 'inputCheck'"
+  [aria-label]="label()"
   [checked]="value"
-  [color]="color"
-  [disabled]="disabled"
-  [id]="uniqueId || ''"
-  [labelPosition]="labelPosition || 'after'"
-  [required]="isRequired"
+  [color]="color()"
+  [disabled]="disabled()"
+  [id]="uniqueId() || ''"
+  [labelPosition]="labelPosition() || 'after'"
+  [required]="isRequired()"
   (change)="onCheckboxChange($event)"
   (blur)="onBlur()"
 >
-  @if (icon) {
-    <mat-icon>{{ icon }}</mat-icon>
+  @if (icon()) {
+    <mat-icon>{{ icon() }}</mat-icon>
   }
-  @if (!hideLabel) {
-  <cl-label [label]="label" [required]="isRequired" [toolTip]="toolTip || ''" />
-  } @if (clarifyText) {
+  @if (!hideLabel()) {
+  <cl-label [label]="label()" [required]="isRequired()" [toolTip]="toolTip() || ''" />
+  } @if (clarifyText()) {
   <cl-clarify-text
     matSuffix
-    [clarifyText]="clarifyText"
-    [isIconDisabled]="disabled"
+    [clarifyText]="clarifyText()"
+    [isIconDisabled]="disabled()"
   />
   }
 </mat-slide-toggle>

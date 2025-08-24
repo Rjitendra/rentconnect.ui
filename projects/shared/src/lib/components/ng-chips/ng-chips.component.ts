@@ -1,4 +1,4 @@
-import { Component, Input, forwardRef, ElementRef, OnInit, viewChild, output } from '@angular/core';
+import { Component, forwardRef, ElementRef, OnInit, viewChild, output, input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatChipsModule } from '@angular/material/chips';
@@ -44,18 +44,18 @@ export interface ChipOption {
   ],
 })
 export class NgChipsComponent implements ControlValueAccessor, OnInit {
-  @Input() label!: string;
-  @Input() placeholder = 'Add item...';
-  @Input() disabled = false;
-  @Input() required = false;
-  @Input() allowInput = true;
-  @Input() availableOptions: ChipOption[] = [];
-  @Input() separatorKeyCodes: number[] = [13, 188]; // Enter and comma
-  @Input() appearance: 'fill' | 'outline' = 'outline';
-  @Input() toolTip!: string;
-  @Input() clarifyText!: string;
-  @Input() hint!: string;
-  @Input() maxChips!: number;
+  readonly label = input.required<string>();
+  readonly placeholder = input('Add item...');
+  readonly disabled = input(false);
+  readonly required = input(false);
+  readonly allowInput = input(true);
+  readonly availableOptions = input<ChipOption[]>([]);
+  readonly separatorKeyCodes = input<number[]>([13, 188]); // Enter and comma
+  readonly appearance = input<'fill' | 'outline'>('outline');
+  readonly toolTip = input.required<string>();
+  readonly clarifyText = input.required<string>();
+  readonly hint = input.required<string>();
+  readonly maxChips = input.required<number>();
   
   readonly chipAdded = output<ChipOption>();
   readonly chipRemoved = output<ChipOption>();
@@ -146,12 +146,13 @@ export class NgChipsComponent implements ControlValueAccessor, OnInit {
   }
 
   private _canAddChip(): boolean {
-    return !this.maxChips || this.selectedChips.length < this.maxChips;
+    const maxChips = this.maxChips();
+    return !maxChips || this.selectedChips.length < maxChips;
   }
 
   private _filterOptions(value: string): ChipOption[] {
     const filterValue = typeof value === 'string' ? value.toLowerCase() : '';
-    return this.availableOptions.filter(option => {
+    return this.availableOptions().filter(option => {
       const isNotSelected = !this.selectedChips.some(selected => 
         selected.value === option.value
       );

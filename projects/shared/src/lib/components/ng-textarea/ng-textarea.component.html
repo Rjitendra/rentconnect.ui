@@ -1,43 +1,43 @@
-<mat-form-field [appearance]="appearance" class="ng-textarea-field" [class.ng-textarea-error]="hasValidationError">
-  @if (label) {
+<mat-form-field [appearance]="appearance()" class="ng-textarea-field" [class.ng-textarea-error]="hasValidationError">
+  @if (label()) {
     <mat-label>
-      <ng-label [label]="label" [required]="required" [toolTip]="toolTip" />
+      <ng-label [label]="label()" [required]="required()" [toolTip]="toolTip()" />
     </mat-label>
   }
   
-  @if (prefixIcon) {
-    <mat-icon matPrefix>{{ prefixIcon }}</mat-icon>
+  @if (prefixIcon()) {
+    <mat-icon matPrefix>{{ prefixIcon() }}</mat-icon>
   }
   
   <textarea
     matInput
     [value]="value || ''"
-    [placeholder]="placeholder"
-    [disabled]="disabled"
-    [required]="required"
-    [readonly]="readonly"
-    [rows]="rows"
-    [cols]="cols"
-    [attr.maxlength]="maxLength"
-    [id]="uniqueId"
-    [attr.aria-label]="ariaLabel"
+    [placeholder]="placeholder()"
+    [disabled]="disabled()"
+    [required]="required()"
+    [readonly]="readonly()"
+    [rows]="rows()"
+    [cols]="cols()"
+    [attr.maxlength]="maxLength()"
+    [id]="uniqueId()"
+    [attr.aria-label]="ariaLabel()"
     (input)="onInput($event)"
     (blur)="onBlur()"
     (focus)="onFocus($event)"
     cdkTextareaAutosize
-    [cdkAutosizeMinRows]="minRows"
-    [cdkAutosizeMaxRows]="maxRows">
+    [cdkAutosizeMinRows]="minRows()"
+    [cdkAutosizeMaxRows]="maxRows()">
   </textarea>
   
-  @if (suffixIcon) {
-    <mat-icon matSuffix>{{ suffixIcon }}</mat-icon>
+  @if (suffixIcon()) {
+    <mat-icon matSuffix>{{ suffixIcon() }}</mat-icon>
   }
   
-  @if (clarifyText) {
+  @if (clarifyText()) {
     <div matTextSuffix>
       <ng-clarify-text 
-        [clarifyText]="clarifyText" 
-        [isIconDisabled]="disabled" />
+        [clarifyText]="clarifyText()" 
+        [isIconDisabled]="disabled()" />
     </div>
   }
   
@@ -45,11 +45,11 @@
     <mat-error>{{ displayErrorMessage }}</mat-error>
   }
   
-  @if (showCharacterCount && maxLength) {
+  @if (showCharacterCount() && maxLength()) {
     <mat-hint align="end">
-      {{ (value || '').length }} / {{ maxLength }}
+      {{ (value || '').length }} / {{ maxLength() }}
     </mat-hint>
-  } @else if (hint) {
-    <mat-hint>{{ hint }}</mat-hint>
+  } @else if (hint()) {
+    <mat-hint>{{ hint() }}</mat-hint>
   }
 </mat-form-field>

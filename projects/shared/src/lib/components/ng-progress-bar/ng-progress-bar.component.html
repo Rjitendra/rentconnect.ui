@@ -1,25 +1,25 @@
 <div class="ng-progress-bar">
-  @if (label) {
+  @if (label()) {
     <div class="progress-label">
-      <ng-label [label]="label" [toolTip]="toolTip" />
-      @if (clarifyText) {
+      <ng-label [label]="label()" [toolTip]="toolTip()" />
+      @if (clarifyText()) {
         <ng-clarify-text 
-          [clarifyText]="clarifyText" 
+          [clarifyText]="clarifyText()" 
           [isIconDisabled]="false" />
       }
-      @if (showValue && mode !== 'indeterminate') {
-        <span class="progress-value">{{ displayValue || value }}{{ valueUnit }}</span>
+      @if (showValue() && mode() !== 'indeterminate') {
+        <span class="progress-value">{{ displayValue() || value() }}{{ valueUnit() }}</span>
       }
     </div>
   }
   
-  <mat-progress-bar [mode]="mode"
-    [value]="value"
-    [bufferValue]="bufferValue"
-    [color]="color"
-    [class]="'progress-' + size" />
+  <mat-progress-bar [mode]="mode()"
+    [value]="value()"
+    [bufferValue]="bufferValue()"
+    [color]="color()"
+    [class]="'progress-' + size()" />
   
-  @if (hint) {
-    <div class="hint-text">{{ hint }}</div>
+  @if (hint()) {
+    <div class="hint-text">{{ hint() }}</div>
   }
 </div>

@@ -1,4 +1,4 @@
-import { Component, Input, forwardRef, output } from '@angular/core';
+import { Component, forwardRef, output, input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatSliderModule } from '@angular/material/slider';
@@ -25,24 +25,24 @@ import { NgClarifyTextComponent } from '../ng-clarify-text/ng-clarify-text.compo
   ],
 })
 export class NgSliderComponent implements ControlValueAccessor {
-  @Input() label!: string;
-  @Input() min = 0;
-  @Input() max = 100;
-  @Input() step = 1;
-  @Input() disabled = false;
-  @Input() required = false;
-  @Input() discrete = false;
-  @Input() showTickMarks = false;
-  @Input() showMinMax = true;
-  @Input() showValue = true;
-  @Input() color: 'primary' | 'accent' | 'warn' = 'primary';
-  @Input() uniqueId!: string;
-  @Input() name!: string;
-  @Input() toolTip!: string;
-  @Input() clarifyText!: string;
-  @Input() hint!: string;
-  @Input() valueUnit = '';
-  @Input() displayValue!: string | number;
+  readonly label = input.required<string>();
+  readonly min = input(0);
+  readonly max = input(100);
+  readonly step = input(1);
+  readonly disabled = input(false);
+  readonly required = input(false);
+  readonly discrete = input(false);
+  readonly showTickMarks = input(false);
+  readonly showMinMax = input(true);
+  readonly showValue = input(true);
+  readonly color = input<'primary' | 'accent' | 'warn'>('primary');
+  readonly uniqueId = input.required<string>();
+  readonly name = input.required<string>();
+  readonly toolTip = input.required<string>();
+  readonly clarifyText = input.required<string>();
+  readonly hint = input.required<string>();
+  readonly valueUnit = input('');
+  readonly displayValue = input.required<string | number>();
   
   readonly valueChange = output<number>();
   readonly dragEnd = output<any>();
@@ -53,7 +53,7 @@ export class NgSliderComponent implements ControlValueAccessor {
   private onTouched = () => {};
 
   writeValue(value: number): void {
-    this.value = value ?? this.min;
+    this.value = value ?? this.min();
   }
 
   registerOnChange(fn: (value: number) => void): void {

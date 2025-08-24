@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -15,9 +15,9 @@ import { MatIconModule } from '@angular/material/icon';
   styleUrl: './ng-card.component.scss'
 })
 export class NgCardComponent {
-  @Input() title?: string;
-  @Input() subtitle?: string;
-  @Input() icon?: string;
-  @Input() appearance: 'raised' | 'outlined' = 'raised';
-  @Input() class?: string;
+  readonly title = input<string>();
+  readonly subtitle = input<string>();
+  readonly icon = input<string>();
+  readonly appearance = input<'raised' | 'outlined'>('raised');
+  readonly class = input<string>();
 }

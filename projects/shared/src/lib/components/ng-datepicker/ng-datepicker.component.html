@@ -1,7 +1,7 @@
-<mat-form-field [appearance]="appearance" class="ng-datepicker-field">
-  @if (label) {
+<mat-form-field [appearance]="appearance()" class="ng-datepicker-field">
+  @if (label()) {
     <mat-label>
-      <ng-label [label]="label" [required]="required" [toolTip]="toolTip" />
+      <ng-label [label]="label()" [required]="required()" [toolTip]="toolTip()" />
     </mat-label>
   }
   
@@ -9,42 +9,42 @@
     matInput
     [matDatepicker]="picker"
     [value]="value"
-    [placeholder]="placeholder"
-    [disabled]="disabled"
-    [required]="required"
-    [readonly]="readonly"
-    [min]="minDate"
-    [max]="maxDate"
-    [id]="uniqueId"
+    [placeholder]="placeholder()"
+    [disabled]="disabled()"
+    [required]="required()"
+    [readonly]="readonly()"
+    [min]="minDate()"
+    [max]="maxDate()"
+    [id]="uniqueId()"
     (dateInput)="onDateInput($event)"
     (dateChange)="onDateChange($event)"
     (blur)="onBlur()">
   
-  @if (showToggle) {
-    <mat-datepicker-toggle matIconSuffix [for]="picker" [disabled]="disabled">
-      @if (customIcon) {
-        <mat-icon matDatepickerToggleIcon>{{ customIcon }}</mat-icon>
+  @if (showToggle()) {
+    <mat-datepicker-toggle matIconSuffix [for]="picker" [disabled]="disabled()">
+      @if (customIcon()) {
+        <mat-icon matDatepickerToggleIcon>{{ customIcon() }}</mat-icon>
       }
     </mat-datepicker-toggle>
   }
   
-  @if (clarifyText && !showToggle) {
+  @if (clarifyText() && !showToggle()) {
     <div matTextSuffix>
       <ng-clarify-text 
-        [clarifyText]="clarifyText" 
-        [isIconDisabled]="disabled" />
+        [clarifyText]="clarifyText()" 
+        [isIconDisabled]="disabled()" />
     </div>
   }
   
-  @if (hint) {
-    <mat-hint>{{ hint }}</mat-hint>
+  @if (hint()) {
+    <mat-hint>{{ hint() }}</mat-hint>
   }
 </mat-form-field>
 
 <mat-datepicker #picker 
-  [startAt]="startAt"
-  [disabled]="disabled"
-  [opened]="opened"
-  [touchUi]="touchUi"
+  [startAt]="startAt()"
+  [disabled]="disabled()"
+  [opened]="opened()"
+  [touchUi]="touchUi()"
   (opened)="onOpened()"
   (closed)="onClosed()" />

@@ -47,7 +47,7 @@ describe('NgSliderComponent', () => {
 
   it('should set disabled state correctly', () => {
     component.setDisabledState(true);
-    expect(component.disabled).toBe(true);
+    expect(component.disabled()).toBe(true);
   });
 
   it('should emit dragEnd when dragging ends', () => {

@@ -1,4 +1,4 @@
-import { Component, Input, ContentChildren, QueryList, TemplateRef, output } from '@angular/core';
+import { Component, ContentChildren, QueryList, TemplateRef, output, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatButtonModule } from '@angular/material/button';
@@ -28,16 +28,16 @@ export interface StepConfig {
   styleUrl: './ng-stepper.component.scss'
 })
 export class NgStepperComponent {
-  @Input() steps: StepConfig[] = [];
-  @Input() orientation: 'horizontal' | 'vertical' = 'horizontal';
-  @Input() linear = false;
-  @Input() selectedIndex = 0;
-  @Input() labelPosition: 'bottom' | 'end' = 'end';
-  @Input() showNavigation = true;
-  @Input() nextText = 'Next';
-  @Input() backText = 'Back';
-  @Input() completeText = 'Complete';
-  @Input() stepControls: any[] = [];
+  readonly steps = input<StepConfig[]>([]);
+  readonly orientation = input<'horizontal' | 'vertical'>('horizontal');
+  readonly linear = input(false);
+  readonly selectedIndex = input(0);
+  readonly labelPosition = input<'bottom' | 'end'>('end');
+  readonly showNavigation = input(true);
+  readonly nextText = input('Next');
+  readonly backText = input('Back');
+  readonly completeText = input('Complete');
+  readonly stepControls = input<any[]>([]);
   
   readonly selectionChange = output<any>();
   readonly stepCompleted = output<{
@@ -52,29 +52,30 @@ export class NgStepperComponent {
   }
 
   goForward(): void {
-    if (this.selectedIndex < this.steps.length - 1) {
-      this.selectedIndex++;
-      this.markStepCompleted(this.selectedIndex - 1);
+    if (this.selectedIndex() < this.steps().length - 1) {
+      selectedIndex++;
+      this.markStepCompleted(selectedIndex - 1);
     }
   }
 
   goBack(): void {
-    if (this.selectedIndex > 0) {
-      this.selectedIndex--;
+    if (this.selectedIndex() > 0) {
+      this.selectedIndex()--;
     }
   }
 
   complete(): void {
-    this.markStepCompleted(this.selectedIndex);
+    this.markStepCompleted(this.selectedIndex());
     // TODO: The 'emit' function requires a mandatory void argument
     this.stepperCompleted.emit();
   }
 
   private markStepCompleted(index: number): void {
-    if (this.steps[index]) {
-      this.steps[index].completed = true;
+    const steps = this.steps();
+    if (steps[index]) {
+      steps[index].completed = true;
       this.stepCompleted.emit({
-        step: this.steps[index],
+        step: steps[index],
         index: index
       });
     }
@@ -91,14 +92,14 @@ export class NgStepperComponent {
 
   reset(): void {
     this.selectedIndex = 0;
-    this.steps.forEach(step => {
+    this.steps().forEach(step => {
       step.completed = false;
       step.hasError = false;
     });
   }
 
   goToStep(index: number): void {
-    if (index >= 0 && index < this.steps.length) {
+    if (index >= 0 && index < this.steps().length) {
       this.selectedIndex = index;
     }
   }

@@ -1,13 +1,13 @@
 <mat-button-toggle-group
-  [appearance]="appearance"
-  [disabled]="disabled"
-  [multiple]="multiple"
-  [hideSingleSelectionIndicator]="hideSingleSelectionIndicator"
-  [hideMultipleSelectionIndicator]="hideMultipleSelectionIndicator"
+  [appearance]="appearance()"
+  [disabled]="disabled()"
+  [multiple]="multiple()"
+  [hideSingleSelectionIndicator]="hideSingleSelectionIndicator()"
+  [hideMultipleSelectionIndicator]="hideMultipleSelectionIndicator()"
   [(ngModel)]="value"
   (change)="onToggleChange($event)"
 >
-  <mat-button-toggle *ngFor="let option of options" [value]="option.value">
+  <mat-button-toggle *ngFor="let option of options()" [value]="option.value">
     {{ option.label }}
   </mat-button-toggle>
 </mat-button-toggle-group>

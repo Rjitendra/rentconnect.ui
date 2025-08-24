@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -10,8 +10,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   template: `
     <mat-icon 
       class="clarify-icon"
-      [class.disabled]="isIconDisabled"
-      [matTooltip]="clarifyText"
+      [class.disabled]="isIconDisabled()"
+      [matTooltip]="clarifyText()"
       matTooltipPosition="above">
       help_outline
     </mat-icon>
@@ -34,6 +34,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   `]
 })
 export class ClClarifyTextComponent {
-  @Input() clarifyText!: string;
-  @Input() isIconDisabled = false;
+  readonly clarifyText = input.required<string>();
+  readonly isIconDisabled = input(false);
 }

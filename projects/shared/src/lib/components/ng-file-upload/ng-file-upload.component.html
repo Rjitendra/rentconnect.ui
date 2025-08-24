@@ -1,17 +1,17 @@
 <div class="ng-file-upload">
-  @if (label) {
+  @if (label()) {
     <div class="upload-label">
-      <ng-label [label]="label" [required]="required" [toolTip]="toolTip" />
-      @if (clarifyText) {
+      <ng-label [label]="label()" [required]="required()" [toolTip]="toolTip()" />
+      @if (clarifyText()) {
         <ng-clarify-text 
-          [clarifyText]="clarifyText" 
-          [isIconDisabled]="disabled" />
+          [clarifyText]="clarifyText()" 
+          [isIconDisabled]="disabled()" />
       }
     </div>
   }
   
   <div class="upload-area" 
-       [class.disabled]="disabled"
+       [class.disabled]="disabled()"
        [class.dragover]="isDragOver"
        (dragover)="onDragOver($event)"
        (dragleave)="onDragLeave($event)"
@@ -25,9 +25,9 @@
     <input
       #fileInput
       type="file"
-      [multiple]="config.allowMultiple"
+      [multiple]="config().allowMultiple"
       [accept]="acceptedTypesString"
-      [disabled]="disabled"
+      [disabled]="disabled()"
       (change)="onFileSelect($event)"
       style="position: absolute; left: -9999px; opacity: 0; pointer-events: none;">
     
@@ -35,13 +35,13 @@
       <div class="upload-content">
         <mat-icon class="upload-icon">cloud_upload</mat-icon>
         <p class="upload-text">
-          {{ dragText || 'Drag and drop files here or click to browse' }}
+          {{ dragText() || 'Drag and drop files here or click to browse' }}
         </p>
-        @if (config.acceptedTypes && config.acceptedTypes.length > 0) {
+        @if (config().acceptedTypes && config().acceptedTypes.length > 0) {
           <p class="upload-hint">Accepted: {{ acceptedTypesString }}</p>
         }
-        @if (config.maxFileSize) {
-          <p class="upload-hint">Max size: {{ formatFileSize(config.maxFileSize) }}</p>
+        @if (config().maxFileSize) {
+          <p class="upload-hint">Max size: {{ formatFileSize(config().maxFileSize) }}</p>
         }
       </div>
     } @else {
@@ -52,7 +52,7 @@
             <div class="image-preview-item">
               <img [src]="file.url" [alt]="file.name" class="preview-image">
               <div class="image-overlay">
-                @if (!disabled && allowRemove) {
+                @if (!disabled() && allowRemove()) {
                   <button type="button" mat-icon-button class="remove-image-btn" (click)="removeFile(file, $event)">
                     <mat-icon>delete</mat-icon>
                   </button>
@@ -88,7 +88,7 @@
                   [value]="file.progress" />
               }
               
-              @if (!disabled && allowRemove) {
+              @if (!disabled() && allowRemove()) {
                 <button type="button" mat-icon-button (click)="removeFile(file, $event)">
                   <mat-icon>close</mat-icon>
                 </button>
@@ -99,7 +99,7 @@
       }
     }
     
-    @if (uploadedFiles.length > 0 && config.allowMultiple && !disabled) {
+    @if (uploadedFiles.length > 0 && config().allowMultiple && !disabled()) {
       <button type="button" mat-stroked-button class="add-more-btn" (click)="openFileDialog($event)">
         <mat-icon>add</mat-icon>
         Add More Files
@@ -107,7 +107,7 @@
     }
   </div>
   
-  @if (hint) {
-    <div class="hint-text">{{ hint }}</div>
+  @if (hint()) {
+    <div class="hint-text">{{ hint() }}</div>
   }
 </div>

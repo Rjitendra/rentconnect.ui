@@ -3,9 +3,9 @@ import {
   ChangeDetectionStrategy,
   Component,
   inject,
-  Input,
   forwardRef,
-  output
+  output,
+  input
 } from '@angular/core';
 import {
   FormBuilder,
@@ -50,39 +50,39 @@ import { ClClarifyTextComponent } from '../cl-clarify-text/cl-clarify-text.compo
 })
 export class NgCheckbox implements ControlValueAccessor {
   /** Label for the checkbox */
-  @Input() label: string = 'Checkbox';
+  readonly label = input<string>('Checkbox');
   /** Whether the checkbox is checked */
-  @Input() checked: boolean = false;
+  readonly checked = input<boolean>(false);
   /** Whether the checkbox is indeterminate */
-  @Input() indeterminate: boolean = false;
+  readonly indeterminate = input<boolean>(false);
   /** Position of the label: 'before' | 'after' */
-  @Input() labelPosition: 'before' | 'after' = 'after';
+  readonly labelPosition = input<'before' | 'after'>('after');
   /** Whether the checkbox is disabled */
-  @Input() disabled: boolean = false;
+  readonly disabled = input<boolean>(false);
   /** FormControl for reactive forms support */
-  @Input() control?: FormControl;
+  readonly control = input<FormControl>();
   /** FormControl for reactive forms support (alias) */
-  @Input() formCtrl?: FormControl;
+  readonly formCtrl = input<FormControl>();
   /** FormGroup for reactive forms support */
-  @Input() formGroup?: FormGroup;
+  readonly formGroup = input<FormGroup>();
   /** Whether to show as toggle instead of checkbox */
-  @Input() isToggle: boolean = false;
+  readonly isToggle = input<boolean>(false);
   /** Whether field is required */
-  @Input() isRequired: boolean = false;
+  readonly isRequired = input<boolean>(false);
   /** Tooltip text */
-  @Input() toolTip?: string;
+  readonly toolTip = input<string>();
   /** Clarify text for help icon */
-  @Input() clarifyText?: string;
+  readonly clarifyText = input<string>();
   /** Color theme */
-  @Input() color: 'primary' | 'accent' | 'warn' = 'primary';
+  readonly color = input<'primary' | 'accent' | 'warn'>('primary');
   /** Unique ID for the checkbox */
-  @Input() uniqueId?: string;
+  readonly uniqueId = input<string>();
   /** Checkbox name */
-  @Input() checkboxName?: string;
+  readonly checkboxName = input<string>();
   /** Whether to hide label */
-  @Input() hideLabel: boolean = false;
+  readonly hideLabel = input<boolean>(false);
   /** Icon to display next to the checkbox */
-  @Input() icon?: string;
+  readonly icon = input<string>();
   /** Output event when checkbox state changes */
   readonly changed = output<boolean>();
 

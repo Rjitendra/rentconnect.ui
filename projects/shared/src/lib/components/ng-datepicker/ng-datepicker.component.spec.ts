@@ -62,7 +62,7 @@ describe('NgDatepickerComponent', () => {
 
   it('should set disabled state correctly', () => {
     component.setDisabledState(true);
-    expect(component.disabled).toBe(true);
+    expect(component.disabled()).toBe(true);
   });
 
   it('should emit pickerOpened when opened', () => {

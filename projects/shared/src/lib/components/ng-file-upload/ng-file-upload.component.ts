@@ -1,4 +1,4 @@
-import { Component, Input, forwardRef, ElementRef, AfterViewInit, viewChild, output } from '@angular/core';
+import { Component, forwardRef, ElementRef, AfterViewInit, viewChild, output, input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
@@ -50,15 +50,15 @@ export interface UploadedFile {
 export class NgFileUploadComponent implements ControlValueAccessor, AfterViewInit {
   readonly fileInputRef = viewChild.required<ElementRef<HTMLInputElement>>('fileInput');
   
-  @Input() label!: string;
-  @Input() config: FileUploadConfig = {};
-  @Input() disabled = false;
-  @Input() required = false;
-  @Input() dragText!: string;
-  @Input() allowRemove = true;
-  @Input() toolTip!: string;
-  @Input() clarifyText!: string;
-  @Input() hint!: string;
+  readonly label = input.required<string>();
+  readonly config = input<FileUploadConfig>({});
+  readonly disabled = input(false);
+  readonly required = input(false);
+  readonly dragText = input.required<string>();
+  readonly allowRemove = input(true);
+  readonly toolTip = input.required<string>();
+  readonly clarifyText = input.required<string>();
+  readonly hint = input.required<string>();
 
   readonly filesSelected = output<UploadedFile[]>();
   readonly fileRemoved = output<UploadedFile>();
@@ -82,7 +82,7 @@ export class NgFileUploadComponent implements ControlValueAccessor, AfterViewIni
   }
 
   get acceptedTypesString(): string {
-    return this.config.acceptedTypes?.join(',') || '';
+    return this.config().acceptedTypes?.join(',') || '';
   }
 
   writeValue(value: UploadedFile[]): void {
@@ -103,7 +103,7 @@ export class NgFileUploadComponent implements ControlValueAccessor, AfterViewIni
 
   onDragOver(event: DragEvent): void {
     event.preventDefault();
-    if (!this.disabled) {
+    if (!this.disabled()) {
       this.isDragOver = true;
     }
   }
@@ -117,7 +117,7 @@ export class NgFileUploadComponent implements ControlValueAccessor, AfterViewIni
     event.preventDefault();
     this.isDragOver = false;
     
-    if (this.disabled) return;
+    if (this.disabled()) return;
     
     const files = Array.from(event.dataTransfer?.files || []);
     this.processFiles(files);
@@ -142,7 +142,7 @@ export class NgFileUploadComponent implements ControlValueAccessor, AfterViewIni
   }
 
   onUploadAreaClick(event: Event): void {
-    if (this.disabled) {
+    if (this.disabled()) {
       return;
     }
     
@@ -151,7 +151,7 @@ export class NgFileUploadComponent implements ControlValueAccessor, AfterViewIni
     // Create a temporary file input element
     const tempInput = document.createElement('input');
     tempInput.type = 'file';
-    tempInput.multiple = this.config.allowMultiple || false;
+    tempInput.multiple = this.config().allowMultiple || false;
     tempInput.accept = this.acceptedTypesString;
     tempInput.style.display = 'none';
     
@@ -203,10 +203,11 @@ export class NgFileUploadComponent implements ControlValueAccessor, AfterViewIni
           url: this.createFileUrl(file)
         };
         
-        if (!this.config.allowMultiple) {
+        const config = this.config();
+        if (!config.allowMultiple) {
           this.uploadedFiles = [uploadedFile];
         } else {
-          if (!this.config.maxFiles || this.uploadedFiles.length < this.config.maxFiles) {
+          if (!config.maxFiles || this.uploadedFiles.length < config.maxFiles) {
             this.uploadedFiles.push(uploadedFile);
           }
         }
@@ -220,17 +221,18 @@ export class NgFileUploadComponent implements ControlValueAccessor, AfterViewIni
 
   private validateFile(file: File): boolean {
     // Check file size
-    if (this.config.maxFileSize && file.size > this.config.maxFileSize) {
+    const config = this.config();
+    if (config.maxFileSize && file.size > config.maxFileSize) {
       this.uploadError.emit({
         file: { file, name: file.name, size: file.size, type: file.type },
-        error: `File size exceeds ${this.formatFileSize(this.config.maxFileSize)}`
+        error: `File size exceeds ${this.formatFileSize(config.maxFileSize)}`
       });
       return false;
     }
     
     // Check file type
-    if (this.config.acceptedTypes && this.config.acceptedTypes.length > 0) {
-      const isAccepted = this.config.acceptedTypes.some(type => {
+    if (config.acceptedTypes && config.acceptedTypes.length > 0) {
+      const isAccepted = config.acceptedTypes.some(type => {
         if (type.startsWith('.')) {
           return file.name.toLowerCase().endsWith(type.toLowerCase());
         }

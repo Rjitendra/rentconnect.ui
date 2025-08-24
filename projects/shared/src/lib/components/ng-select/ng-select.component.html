@@ -1,48 +1,48 @@
 <mat-form-field 
-  [appearance]="appearance" 
+  [appearance]="appearance()" 
   class="ng-select-field"
   [class.ng-select-error]="hasValidationError">
-  @if (label) {
+  @if (label()) {
     <mat-label>
-      <ng-label [label]="label" [required]="required" [toolTip]="toolTip" />
+      <ng-label [label]="label()" [required]="required()" [toolTip]="toolTip()" />
     </mat-label>
   }
   
-  @if (prefixIcon) {
-    <mat-icon matPrefix>{{ prefixIcon }}</mat-icon>
+  @if (prefixIcon()) {
+    <mat-icon matPrefix>{{ prefixIcon() }}</mat-icon>
   }
   
   <mat-select
     [value]="value"
-    [placeholder]="placeholder"
-    [multiple]="multiple"
-    [disabled]="disabled"
-    [required]="required"
-    [id]="uniqueId"
+    [placeholder]="placeholder()"
+    [multiple]="multiple()"
+    [disabled]="disabled()"
+    [required]="required()"
+    [id]="uniqueId()"
     (selectionChange)="onSelectionChange($event)"
     (openedChange)="onOpenedChange($event)">
     
-    @for (option of options; track option.value) {
+    @for (option of options(); track option.value) {
       <mat-option [value]="option.value" [disabled]="option.disabled">
         {{ option.label }}
       </mat-option>
     }
   </mat-select>
   
-  @if (suffixIcon) {
-    <mat-icon matSuffix>{{ suffixIcon }}</mat-icon>
+  @if (suffixIcon()) {
+    <mat-icon matSuffix>{{ suffixIcon() }}</mat-icon>
   }
   
-  @if (clarifyText) {
+  @if (clarifyText()) {
     <div matTextSuffix>
       <ng-clarify-text 
-        [clarifyText]="clarifyText" 
-        [isIconDisabled]="disabled" />
+        [clarifyText]="clarifyText()" 
+        [isIconDisabled]="disabled()" />
     </div>
   }
   
-  @if (hint) {
-    <mat-hint>{{ hint }}</mat-hint>
+  @if (hint()) {
+    <mat-hint>{{ hint() }}</mat-hint>
   }
   
   @if (hasValidationError && displayErrorMessage) {

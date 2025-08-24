@@ -1,4 +1,4 @@
-import { Component, Input, forwardRef, output } from '@angular/core';
+import { Component, forwardRef, output, input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -29,27 +29,27 @@ import { NgClarifyTextComponent } from '../ng-clarify-text/ng-clarify-text.compo
   ],
 })
 export class NgTextareaComponent implements ControlValueAccessor {
-  @Input() label!: string;
-  @Input() placeholder = '';
-  @Input() disabled = false;
-  @Input() readonly = false;
-  @Input() required = false;
-  @Input() appearance: 'fill' | 'outline' = 'outline';
-  @Input() uniqueId!: string;
-  @Input() toolTip!: string;
-  @Input() clarifyText!: string;
-  @Input() hint!: string;
-  @Input() ariaLabel!: string;
-  @Input() rows = 4;
-  @Input() cols!: number;
-  @Input() suffixIcon = '';
-  @Input() prefixIcon = '';
-  @Input() minRows = 2;
-  @Input() maxRows = 10;
-  @Input() maxLength!: number;
-  @Input() showCharacterCount = false;
-  @Input() isInvalid = false;
-  @Input() validationMessage = '';
+  readonly label = input.required<string>();
+  readonly placeholder = input('');
+  readonly disabled = input(false);
+  readonly readonly = input(false);
+  readonly required = input(false);
+  readonly appearance = input<'fill' | 'outline'>('outline');
+  readonly uniqueId = input.required<string>();
+  readonly toolTip = input.required<string>();
+  readonly clarifyText = input.required<string>();
+  readonly hint = input.required<string>();
+  readonly ariaLabel = input.required<string>();
+  readonly rows = input(4);
+  readonly cols = input.required<number>();
+  readonly suffixIcon = input('');
+  readonly prefixIcon = input('');
+  readonly minRows = input(2);
+  readonly maxRows = input(10);
+  readonly maxLength = input.required<number>();
+  readonly showCharacterCount = input(false);
+  readonly isInvalid = input(false);
+  readonly validationMessage = input('');
   
   readonly inputChange = output<string>();
   readonly focusEvent = output<FocusEvent>();
@@ -92,11 +92,11 @@ export class NgTextareaComponent implements ControlValueAccessor {
 
   // Check if field has validation errors
   get hasValidationError(): boolean {
-    return this.isInvalid;
+    return this.isInvalid();
   }
 
   // Get error message
   get displayErrorMessage(): string {
-    return this.validationMessage || '';
+    return this.validationMessage() || '';
   }
 }

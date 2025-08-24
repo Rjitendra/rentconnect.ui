@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { NgLabelComponent } from '../ng-label/ng-label.component';
@@ -17,16 +17,16 @@ import { NgClarifyTextComponent } from '../ng-clarify-text/ng-clarify-text.compo
   styleUrl: './ng-progress-bar.component.scss'
 })
 export class NgProgressBarComponent {
-  @Input() label!: string;
-  @Input() mode: 'determinate' | 'indeterminate' | 'buffer' | 'query' = 'determinate';
-  @Input() value = 0;
-  @Input() bufferValue = 0;
-  @Input() color: 'primary' | 'accent' | 'warn' = 'primary';
-  @Input() size: 'small' | 'medium' | 'large' = 'medium';
-  @Input() showValue = true;
-  @Input() valueUnit = '%';
-  @Input() displayValue!: string | number;
-  @Input() toolTip!: string;
-  @Input() clarifyText!: string;
-  @Input() hint!: string;
+  readonly label = input.required<string>();
+  readonly mode = input<'determinate' | 'indeterminate' | 'buffer' | 'query'>('determinate');
+  readonly value = input(0);
+  readonly bufferValue = input(0);
+  readonly color = input<'primary' | 'accent' | 'warn'>('primary');
+  readonly size = input<'small' | 'medium' | 'large'>('medium');
+  readonly showValue = input(true);
+  readonly valueUnit = input('%');
+  readonly displayValue = input.required<string | number>();
+  readonly toolTip = input.required<string>();
+  readonly clarifyText = input.required<string>();
+  readonly hint = input.required<string>();
 }

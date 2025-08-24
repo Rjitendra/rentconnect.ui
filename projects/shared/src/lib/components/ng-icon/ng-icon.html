@@ -1,7 +1,7 @@
 <mat-icon 
   [class]="iconClasses"
   [ngStyle]="iconStyles"
-  [matTooltip]="tooltip || ''"
-  [attr.aria-label]="tooltip || name">
-  {{ name }}
+  [matTooltip]="tooltip() || ''"
+  [attr.aria-label]="tooltip() || name()">
+  {{ name() }}
 </mat-icon>

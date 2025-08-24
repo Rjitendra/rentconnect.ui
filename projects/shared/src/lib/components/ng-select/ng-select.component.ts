@@ -1,4 +1,4 @@
-import { Component, Input, forwardRef, output } from '@angular/core';
+import { Component, forwardRef, output, input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatSelectModule } from '@angular/material/select';
@@ -38,23 +38,23 @@ export interface SelectOption {
   ],
 })
 export class NgSelectComponent implements ControlValueAccessor {
-  @Input() label!: string;
-  @Input() placeholder = '';
-  @Input() options: SelectOption[] = [];
-  @Input() multiple = false;
-  @Input() disabled = false;
-  @Input() required = false;
-  @Input() appearance: 'fill' | 'outline' = 'outline';
-  @Input() uniqueId!: string;
-  @Input() toolTip!: string;
-  @Input() clarifyText!: string;
-  @Input() hint!: string;
-  @Input() suffixIcon = '';
-  @Input() prefixIcon = '';
-  @Input() hasError = false;
-  @Input() errorMessage = '';
-  @Input() isInvalid = false;
-  @Input() validationMessage = '';
+  readonly label = input.required<string>();
+  readonly placeholder = input('');
+  readonly options = input<SelectOption[]>([]);
+  readonly multiple = input(false);
+  readonly disabled = input(false);
+  readonly required = input(false);
+  readonly appearance = input<'fill' | 'outline'>('outline');
+  readonly uniqueId = input.required<string>();
+  readonly toolTip = input.required<string>();
+  readonly clarifyText = input.required<string>();
+  readonly hint = input.required<string>();
+  readonly suffixIcon = input('');
+  readonly prefixIcon = input('');
+  readonly hasError = input(false);
+  readonly errorMessage = input('');
+  readonly isInvalid = input(false);
+  readonly validationMessage = input('');
   
   readonly selectionChange = output<any>();
   readonly openedChange = output<boolean>();
@@ -96,11 +96,11 @@ export class NgSelectComponent implements ControlValueAccessor {
 
   // Check if field has validation errors
   get hasValidationError(): boolean {
-    return this.hasError || this.isInvalid;
+    return this.hasError() || this.isInvalid();
   }
 
   // Get error message
   get displayErrorMessage(): string {
-    return this.errorMessage || this.validationMessage || '';
+    return this.errorMessage() || this.validationMessage() || '';
   }
 }

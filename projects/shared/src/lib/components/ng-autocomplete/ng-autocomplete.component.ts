@@ -1,4 +1,4 @@
-import { Component, Input, forwardRef, OnInit, output } from '@angular/core';
+import { Component, forwardRef, OnInit, output, input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -39,16 +39,16 @@ export interface AutocompleteOption {
   ],
 })
 export class NgAutocompleteComponent implements ControlValueAccessor, OnInit {
-  @Input() label!: string;
-  @Input() placeholder = '';
-  @Input() options: AutocompleteOption[] = [];
-  @Input() disabled = false;
-  @Input() required = false;
-  @Input() appearance: 'fill' | 'outline' = 'outline';
-  @Input() uniqueId!: string;
-  @Input() toolTip!: string;
-  @Input() clarifyText!: string;
-  @Input() hint!: string;
+  readonly label = input.required<string>();
+  readonly placeholder = input('');
+  readonly options = input<AutocompleteOption[]>([]);
+  readonly disabled = input(false);
+  readonly required = input(false);
+  readonly appearance = input<'fill' | 'outline'>('outline');
+  readonly uniqueId = input.required<string>();
+  readonly toolTip = input.required<string>();
+  readonly clarifyText = input.required<string>();
+  readonly hint = input.required<string>();
   
   readonly optionSelected = output<AutocompleteOption>();
   readonly inputChange = output<string>();
@@ -122,7 +122,7 @@ export class NgAutocompleteComponent implements ControlValueAccessor, OnInit {
 
   private _filter(value: string): AutocompleteOption[] {
     const filterValue = typeof value === 'string' ? value.toLowerCase() : '';
-    return this.options.filter(option =>
+    return this.options().filter(option =>
       option.label.toLowerCase().includes(filterValue)
     );
   }

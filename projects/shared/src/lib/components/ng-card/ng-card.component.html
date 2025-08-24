@@ -1,16 +1,16 @@
-<mat-card [appearance]="appearance" [class]="class">
-  @if (title || subtitle || icon) {
+<mat-card [appearance]="appearance()" [class]="class()">
+  @if (title() || subtitle() || icon()) {
     <mat-card-header>
-      @if (title) {
+      @if (title()) {
         <mat-card-title>
-          @if (icon) {
-            <mat-icon class="section-icon">{{ icon }}</mat-icon>
+          @if (icon()) {
+            <mat-icon class="section-icon">{{ icon() }}</mat-icon>
           }
-          {{ title }}
+          {{ title() }}
         </mat-card-title>
       }
-      @if (subtitle) {
-        <mat-card-subtitle>{{ subtitle }}</mat-card-subtitle>
+      @if (subtitle()) {
+        <mat-card-subtitle>{{ subtitle() }}</mat-card-subtitle>
       }
     </mat-card-header>
   }

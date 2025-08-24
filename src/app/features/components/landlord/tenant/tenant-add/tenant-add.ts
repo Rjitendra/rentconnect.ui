@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, output } from '@angular/core';
+import { Component, OnInit, output, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 
@@ -28,7 +28,7 @@ import { NgCardComponent, NgInputComponent, NgSelectComponent, NgDatepickerCompo
   styleUrl: './tenant-add.scss'
 })
 export class TenantAddComponent implements OnInit {
-  @Input() propertyOptions: SelectOption[] = [];
+  readonly propertyOptions = input<SelectOption[]>([]);
   readonly tenantAdded = output<void>();
   readonly cancel = output<void>();
 

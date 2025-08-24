@@ -2,8 +2,8 @@ import {
   ChangeDetectionStrategy,
   Component,
   forwardRef,
-  Input,
-  output
+  output,
+  input
 } from '@angular/core';
 import {
   ControlValueAccessor,
@@ -28,12 +28,15 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 })
 export class NgToggleButton implements ControlValueAccessor {
   /** Inputs for full control */
-  @Input() options: { label: string; value: any }[] = []; // toggle items
-  @Input() appearance: 'standard' | 'legacy' = 'standard';
-  @Input() disabled = false;
-  @Input() multiple = false;
-  @Input() hideSingleSelectionIndicator = false;
-  @Input() hideMultipleSelectionIndicator = false;
+  readonly options = input<{
+    label: string;
+    value: any;
+}[]>([]); // toggle items
+  readonly appearance = input<'standard' | 'legacy'>('standard');
+  readonly disabled = input(false);
+  readonly multiple = input(false);
+  readonly hideSingleSelectionIndicator = input(false);
+  readonly hideMultipleSelectionIndicator = input(false);
 
   /** Outputs */
   readonly selectionChange = output<any>();

@@ -1,4 +1,4 @@
-import { Component, Input, forwardRef, output } from '@angular/core';
+import { Component, forwardRef, output, input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -33,23 +33,23 @@ import { NgClarifyTextComponent } from '../ng-clarify-text/ng-clarify-text.compo
   ],
 })
 export class NgDatepickerComponent implements ControlValueAccessor {
-  @Input() label!: string;
-  @Input() placeholder = '';
-  @Input() disabled = false;
-  @Input() readonly = false;
-  @Input() required = false;
-  @Input() appearance: 'fill' | 'outline' = 'outline';
-  @Input() uniqueId!: string;
-  @Input() toolTip!: string;
-  @Input() clarifyText!: string;
-  @Input() hint!: string;
-  @Input() minDate!: Date;
-  @Input() maxDate!: Date;
-  @Input() startAt!: Date;
-  @Input() showToggle = true;
-  @Input() customIcon!: string;
-  @Input() touchUi = false;
-  @Input() opened = false;
+  readonly label = input.required<string>();
+  readonly placeholder = input('');
+  readonly disabled = input(false);
+  readonly readonly = input(false);
+  readonly required = input(false);
+  readonly appearance = input<'fill' | 'outline'>('outline');
+  readonly uniqueId = input.required<string>();
+  readonly toolTip = input.required<string>();
+  readonly clarifyText = input.required<string>();
+  readonly hint = input.required<string>();
+  readonly minDate = input.required<Date>();
+  readonly maxDate = input.required<Date>();
+  readonly startAt = input.required<Date>();
+  readonly showToggle = input(true);
+  readonly customIcon = input.required<string>();
+  readonly touchUi = input(false);
+  readonly opened = input(false);
   
   readonly dateInput = output<any>();
   readonly dateChange = output<any>();

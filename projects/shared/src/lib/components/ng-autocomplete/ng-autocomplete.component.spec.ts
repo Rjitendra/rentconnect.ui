@@ -76,7 +76,7 @@ describe('NgAutocompleteComponent', () => {
 
   it('should set disabled state correctly', () => {
     component.setDisabledState(true);
-    expect(component.disabled).toBe(true);
+    expect(component.disabled()).toBe(true);
     expect(component.inputControl.disabled).toBe(true);
   });
 });

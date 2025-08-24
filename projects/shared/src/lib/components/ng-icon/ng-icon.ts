@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -16,39 +16,41 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 })
 export class NgIconComponent {
   /** Material icon name */
-  @Input() name: string = '';
+  readonly name = input<string>('');
   
   /** Icon size: small | medium | large | custom */
-  @Input() size: 'small' | 'medium' | 'large' | 'custom' = 'medium';
+  readonly size = input<'small' | 'medium' | 'large' | 'custom'>('medium');
   
   /** Custom size in pixels (only used when size is 'custom') */
-  @Input() customSize?: number;
+  readonly customSize = input<number>();
   
   /** Icon color */
-  @Input() color?: string;
+  readonly color = input<string>();
   
   /** Whether the icon is disabled */
-  @Input() disabled: boolean = false;
+  readonly disabled = input<boolean>(false);
   
   /** Tooltip text */
-  @Input() tooltip?: string;
+  readonly tooltip = input<string>();
   
   /** Additional CSS classes */
-  @Input() cssClass?: string;
+  readonly cssClass = input<string>();
 
   get iconClasses(): string {
     const classes = ['ng-icon'];
     
-    if (this.size !== 'custom') {
-      classes.push(`ng-icon-${this.size}`);
+    const size = this.size();
+    if (size !== 'custom') {
+      classes.push(`ng-icon-${size}`);
     }
     
-    if (this.disabled) {
+    if (this.disabled()) {
       classes.push('ng-icon-disabled');
     }
     
-    if (this.cssClass) {
-      classes.push(this.cssClass);
+    const cssClass = this.cssClass();
+    if (cssClass) {
+      classes.push(cssClass);
     }
     
     return classes.join(' ');
@@ -57,14 +59,16 @@ export class NgIconComponent {
   get iconStyles(): any {
     const styles: any = {};
     
-    if (this.size === 'custom' && this.customSize) {
-      styles.fontSize = `${this.customSize}px`;
-      styles.width = `${this.customSize}px`;
-      styles.height = `${this.customSize}px`;
+    const customSize = this.customSize();
+    if (this.size() === 'custom' && customSize) {
+      styles.fontSize = `${customSize}px`;
+      styles.width = `${customSize}px`;
+      styles.height = `${customSize}px`;
     }
     
-    if (this.color) {
-      styles.color = this.color;
+    const color = this.color();
+    if (color) {
+      styles.color = color;
     }
     
     return styles;

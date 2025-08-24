@@ -70,7 +70,7 @@ describe('NgRadioGroupComponent', () => {
 
   it('should set disabled state correctly', () => {
     component.setDisabledState(true);
-    expect(component.disabled).toBe(true);
+    expect(component.disabled()).toBe(true);
   });
 
   it('should show hint when provided', () => {
