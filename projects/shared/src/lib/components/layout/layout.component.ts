@@ -5,6 +5,7 @@ import {
   Component,
   ElementRef,
   input,
+  output,
   viewChild
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,6 +17,7 @@ import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterModule } from '@angular/router';
 import { INav } from '../../models/inav';
+import { IUserDetail } from '../../models/user';
 
 @Component({
   selector: 'lib-layout',
@@ -35,6 +37,10 @@ import { INav } from '../../models/inav';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LibLayoutComponent implements AfterViewInit {
+  logIn = output<void>();
+  logOut = output<void>();
+  user: IUserDetail | null = null;
+
   readonly sidenav = viewChild.required<MatSidenav>('sidenav');
   readonly toggleButton = viewChild.required('toggleButton', { read: ElementRef });
   readonly navItems = input<INav[]>([]);
@@ -42,7 +48,7 @@ export class LibLayoutComponent implements AfterViewInit {
   currentYear: number = new Date().getFullYear();
   isExpanded = false; // Default state is collapsed
   isRotated = false;
-  
+
   private readonly EXPANDED_WIDTH = 240;
   private readonly COLLAPSED_WIDTH = 60;
 
@@ -84,9 +90,7 @@ export class LibLayoutComponent implements AfterViewInit {
   }
 
   onLogout() {
-    // Implement logout logic here
-    console.log('Logout clicked');
-    // You can emit an event or call a service to handle logout
+    this.logOut.emit();
   }
 
   onProfile() {

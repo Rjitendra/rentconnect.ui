@@ -1,11 +1,19 @@
 import { Routes } from '@angular/router';
-
-
-
+import { authGuard } from './auth-guard';
+import { SigninCallback } from './oauth/components/signin-callback/signin-callback';
+import { SignoutCallback } from './oauth/components/signout-callback/signout-callback';
 
 export const routes: Routes = [
   {
     path: '',
+    loadComponent: () =>
+      import('./features/components/landing/landing').then(
+        (m) => m.LandingComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'landlord',
     loadComponent: () =>
       import('./layout/layout.component').then((m) => m.LayoutComponent),
     children: [
@@ -13,24 +21,28 @@ export const routes: Routes = [
         path: '',
         loadComponent: () =>
           import('./features/components/home/home.component').then(
-            (m) => m.HomeComponent
+            (m) => m.HomeComponent,
           ),
       },
-
       {
-        path: 'landlord',
-        loadComponent: () => import('./features/components/landlord/property/property-manager/property-manager').then(m => m.PropertyManager),
-        children: [
-          {
-            path: 'property',
-            loadComponent: () => import('./features/components/landlord/property/property-dashboard/property-dashboard').then(m => m.PropertyDashboard),
-          },
-          {
-            path: 'tenant',
-            loadComponent: () => import('./features/components/landlord/tenant/tenant-dashboard/tenant-dashboard').then(m => m.TenantDashboard),
-          }
-        ],
+        path: 'property',
+        loadComponent: () =>
+          import(
+            './features/components/landlord/property/property-dashboard/property-dashboard'
+          ).then((m) => m.PropertyDashboard),
       },
+      {
+        path: 'tenant',
+        loadComponent: () =>
+          import(
+            './features/components/landlord/tenant/tenant-dashboard/tenant-dashboard'
+          ).then((m) => m.TenantDashboard),
+      },
+
+
     ],
   },
+  { path: 'signin-callback', component: SigninCallback },
+  { path: 'signout-callback', component: SignoutCallback },
+  { path: '**', redirectTo: '' }
 ];

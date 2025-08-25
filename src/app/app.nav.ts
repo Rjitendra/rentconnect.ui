@@ -9,7 +9,7 @@ export const NAVITEMS: INav[] = [
 
   {
     name: 'Property Manager',
-    url: 'landlord/property',
+    url: '/landlord/property',
     icon: 'apartment',
   },
   {

@@ -1,10 +1,12 @@
 <div class="property-add-container">
   <div class="header-section">
     <div class="header-content">
-      <ng-icon name="arrow_back"
+      <ng-icon
+        name="arrow_back"
         matTooltip="Go back to property list"
         (click)="goBack()"
-        style="cursor: pointer;" />
+        style="cursor: pointer"
+      />
       <div class="header-text">
         <h1>Add New Property</h1>
         <p>Create a detailed listing for your property</p>
@@ -15,283 +17,332 @@
   <div class="form-container">
     <form [formGroup]="propertyForm" (ngSubmit)="onSubmit()">
       <!-- Basic Information Card -->
-      <ng-card 
-        title="Basic Information" 
-        icon="home"
-        class="form-card">
-          <div class="form-row">
-            <ng-input class="full-width"
-              formControlName="title"
-              label="Property Title"
-              placeholder="e.g., Beautiful 2BHK Apartment in Prime Location"
-              suffixIcon="title"
-              />
-          </div>
+      <ng-card title="Basic Information" icon="home" class="form-card">
+        <div class="form-row">
+          <ng-input
+            class="full-width"
+            formControlName="title"
+            label="Property Title"
+            placeholder="e.g., Beautiful 2BHK Apartment in Prime Location"
+            suffixIcon="title"
+          />
+        </div>
 
-          <div class="form-row">
-            <ng-textarea class="full-width"
-              formControlName="description"
-              label="Description"
-              placeholder="Describe your property features, amenities, and what makes it special..."
-              [rows]="4"
-              suffixIcon="description" />
-          </div>
+        <div class="form-row">
+          <ng-textarea
+            class="full-width"
+            formControlName="description"
+            label="Description"
+            placeholder="Describe your property features, amenities, and what makes it special..."
+            [rows]="4"
+            suffixIcon="description"
+          />
+        </div>
 
-          <div class="form-row">
-            <ng-select class="half-width"
-              formControlName="propertyType"
-              label="Property Type"
-              [options]="propertyTypeOptions"
-              placeholder="Select property type"
-              suffixIcon="apartment" />
+        <div class="form-row">
+          <ng-select
+            class="half-width"
+            formControlName="propertyType"
+            label="Property Type"
+            [options]="propertyTypeOptions"
+            placeholder="Select property type"
+            suffixIcon="apartment"
+          />
 
-            <ng-select class="half-width"
-              formControlName="bhkConfiguration"
-              label="BHK Configuration"
-              [options]="bhkConfigurationOptions"
-              placeholder="Select BHK configuration"
-              suffixIcon="bed" />
-          </div>
+          <ng-select
+            class="half-width"
+            formControlName="bhkConfiguration"
+            label="BHK Configuration"
+            [options]="bhkConfigurationOptions"
+            placeholder="Select BHK configuration"
+            suffixIcon="bed"
+          />
+        </div>
 
-          <div class="form-row">
-            <ng-input class="third-width"
-              formControlName="floorNumber"
-              label="Floor Number"
-              [type]="InputType.Number"
-              placeholder="e.g., 3"
-              suffixIcon="layers" />
+        <div class="form-row">
+          <ng-input
+            class="third-width"
+            formControlName="floorNumber"
+            label="Floor Number"
+            [type]="InputType.Number"
+            placeholder="e.g., 3"
+            suffixIcon="layers"
+          />
 
-            <ng-input class="third-width"
-              formControlName="totalFloors"
-              label="Total Floors"
-              [type]="InputType.Number"
-              placeholder="e.g., 10"
-              suffixIcon="business" />
+          <ng-input
+            class="third-width"
+            formControlName="totalFloors"
+            label="Total Floors"
+            [type]="InputType.Number"
+            placeholder="e.g., 10"
+            suffixIcon="business"
+          />
 
-            <ng-input class="third-width"
-              formControlName="numberOfBathrooms"
-              label="Bathrooms"
-              [type]="InputType.Number"
-              placeholder="e.g., 2"
-              suffixIcon="bathtub" />
-          </div>
+          <ng-input
+            class="third-width"
+            formControlName="numberOfBathrooms"
+            label="Bathrooms"
+            [type]="InputType.Number"
+            placeholder="e.g., 2"
+            suffixIcon="bathtub"
+          />
+        </div>
       </ng-card>
 
       <!-- Area & Furnishing Card -->
-      <ng-card 
-        title="Area & Furnishing" 
-        icon="square_foot"
-        class="form-card">
-          <div class="form-row">
-            <ng-input class="half-width"
-              formControlName="carpetAreaSqFt"
-              label="Carpet Area (sq ft)"
-              [type]="InputType.Number"
-              placeholder="e.g., 850"
-              suffixText="sq ft" />
+      <ng-card title="Area & Furnishing" icon="square_foot" class="form-card">
+        <div class="form-row">
+          <ng-input
+            class="half-width"
+            formControlName="carpetAreaSqFt"
+            label="Carpet Area (sq ft)"
+            [type]="InputType.Number"
+            placeholder="e.g., 850"
+            suffixText="sq ft"
+          />
 
-            <ng-input class="half-width"
-              formControlName="builtUpAreaSqFt"
-              label="Built-up Area (sq ft)"
-              [type]="InputType.Number"
-              placeholder="e.g., 1200"
-              suffixText="sq ft" />
-          </div>
+          <ng-input
+            class="half-width"
+            formControlName="builtUpAreaSqFt"
+            label="Built-up Area (sq ft)"
+            [type]="InputType.Number"
+            placeholder="e.g., 1200"
+            suffixText="sq ft"
+          />
+        </div>
 
-          <div class="form-row">
-            <ng-select class="half-width"
-              formControlName="furnishingType"
-              label="Furnishing Type"
-              [options]="furnishingTypeOptions"
-              placeholder="Select furnishing type"
-              suffixIcon="chair" />
+        <div class="form-row">
+          <ng-select
+            class="half-width"
+            formControlName="furnishingType"
+            label="Furnishing Type"
+            [options]="furnishingTypeOptions"
+            placeholder="Select furnishing type"
+            suffixIcon="chair"
+          />
 
-            <ng-input class="half-width"
-              formControlName="numberOfBalconies"
-              label="Balconies"
-              [type]="InputType.Number"
-              placeholder="e.g., 2"
-              suffixIcon="deck" />
-          </div>
+          <ng-input
+            class="half-width"
+            formControlName="numberOfBalconies"
+            label="Balconies"
+            [type]="InputType.Number"
+            placeholder="e.g., 2"
+            suffixIcon="deck"
+          />
+        </div>
       </ng-card>
 
       <!-- Location Card -->
-      <ng-card 
-        title="Location Details" 
-        icon="place"
-        class="form-card">
-          <div class="form-row">
-            <ng-input class="full-width"
-              formControlName="addressLine1"
-              label="Address Line 1"
-              placeholder="House/Flat number, Building name"
-              suffixIcon="home" />
-          </div>
+      <ng-card title="Location Details" icon="place" class="form-card">
+        <div class="form-row">
+          <ng-input
+            class="full-width"
+            formControlName="addressLine1"
+            label="Address Line 1"
+            placeholder="House/Flat number, Building name"
+            suffixIcon="home"
+          />
+        </div>
 
-          <div class="form-row">
-            <ng-input class="full-width"
-              formControlName="addressLine2"
-              label="Address Line 2"
-              placeholder="Street, Area (Optional)"
-              suffixIcon="location_on" />
-          </div>
+        <div class="form-row">
+          <ng-input
+            class="full-width"
+            formControlName="addressLine2"
+            label="Address Line 2"
+            placeholder="Street, Area (Optional)"
+            suffixIcon="location_on"
+          />
+        </div>
 
-          <div class="form-row">
-            <ng-input class="half-width"
-              formControlName="landmark"
-              label="Landmark"
-              placeholder="Near Metro, Mall, etc."
-              suffixIcon="map" />
+        <div class="form-row">
+          <ng-input
+            class="half-width"
+            formControlName="landmark"
+            label="Landmark"
+            placeholder="Near Metro, Mall, etc."
+            suffixIcon="map"
+          />
 
-            <ng-input class="half-width"
-              formControlName="locality"
-              label="Locality"
-              placeholder="Sector, Area name"
-              suffixIcon="location_city" />
-          </div>
+          <ng-input
+            class="half-width"
+            formControlName="locality"
+            label="Locality"
+            placeholder="Sector, Area name"
+            suffixIcon="location_city"
+          />
+        </div>
 
-          <div class="form-row">
-            <ng-input class="third-width"
-              formControlName="city"
-              label="City"
-              placeholder="e.g., Mumbai"
-              suffixIcon="location_city" />
+        <div class="form-row">
+          <ng-input
+            class="third-width"
+            formControlName="city"
+            label="City"
+            placeholder="e.g., Mumbai"
+            suffixIcon="location_city"
+          />
 
-            <ng-input class="third-width"
-              formControlName="state"
-              label="State"
-              placeholder="e.g., Maharashtra"
-              suffixIcon="public" />
+          <ng-input
+            class="third-width"
+            formControlName="state"
+            label="State"
+            placeholder="e.g., Maharashtra"
+            suffixIcon="public"
+          />
 
-            <ng-input class="third-width"
-              formControlName="pinCode"
-              label="PIN Code"
-              placeholder="e.g., 400001"
-              suffixIcon="markunread_mailbox" />
-          </div>
+          <ng-input
+            class="third-width"
+            formControlName="pinCode"
+            label="PIN Code"
+            placeholder="e.g., 400001"
+            suffixIcon="markunread_mailbox"
+          />
+        </div>
       </ng-card>
 
       <!-- Rent Details Card -->
-      <ng-card 
-        title="Rent Details" 
-        icon="payments"
-        class="form-card">
-          <div class="form-row">
-            <ng-input class="half-width"
-              formControlName="monthlyRent"
-              label="Monthly Rent"
-              [type]="InputType.Number"
-              placeholder="e.g., 25000"
-              prefixText="₹ "
-              suffixText="/month" />
+      <ng-card title="Rent Details" icon="payments" class="form-card">
+        <div class="form-row">
+          <ng-input
+            class="half-width"
+            formControlName="monthlyRent"
+            label="Monthly Rent"
+            [type]="InputType.Number"
+            placeholder="e.g., 25000"
+            prefixText="₹ "
+            suffixText="/month"
+          />
 
-            <ng-input class="half-width"
-              formControlName="securityDeposit"
-              label="Security Deposit"
-              [type]="InputType.Number"
-              placeholder="e.g., 50000"
-              prefixText="₹ " />
-          </div>
+          <ng-input
+            class="half-width"
+            formControlName="securityDeposit"
+            label="Security Deposit"
+            [type]="InputType.Number"
+            placeholder="e.g., 50000"
+            prefixText="₹ "
+          />
+        </div>
 
-          <div class="form-row">
-            <ng-datepicker class="half-width"
-              formControlName="availableFrom"
-              label="Available From" />
+        <div class="form-row">
+          <ng-datepicker
+            class="half-width"
+            formControlName="availableFrom"
+            label="Available From"
+          />
 
-            <ng-select class="half-width"
-              formControlName="leaseType"
-              label="Lease Type"
-              [options]="leaseTypeOptions"
-              placeholder="Select lease type"
-              suffixIcon="schedule" />
-          </div>
+          <ng-select
+            class="half-width"
+            formControlName="leaseType"
+            label="Lease Type"
+            [options]="leaseTypeOptions"
+            placeholder="Select lease type"
+            suffixIcon="schedule"
+          />
+        </div>
 
-          <div class="form-row">
-            <ng-checkbox formControlName="isNegotiable"
-              label="Rent is negotiable"
-              class="negotiable-checkbox" />
-          </div>
+        <div class="form-row">
+          <ng-checkbox
+            formControlName="isNegotiable"
+            label="Rent is negotiable"
+            class="negotiable-checkbox"
+          />
+        </div>
       </ng-card>
 
       <!-- Property Images Card -->
-      <ng-card 
-        title="Property Images" 
+      <ng-card
+        title="Property Images"
         subtitle="Upload high-quality images to showcase your property (Max 10 images, 5MB each)"
         icon="photo_library"
-        class="form-card">
-          <ng-file-upload formControlName="propertyImages"
-            label="Property Images"
-            [config]="imageUploadConfig"
-            dragText="Drag and drop property images here or click to browse"
-            hint="Upload clear, well-lit photos of different rooms and areas of your property"
-            clarifyText="Good quality images help attract more tenants. Include photos of living room, bedrooms, kitchen, bathrooms, and any special features."
-            (filesSelected)="onImagesSelected($event)"
-            (fileRemoved)="onImageRemoved($event)"
-            (uploadError)="onImageUploadError($event)" />
+        class="form-card"
+      >
+        <ng-file-upload
+          formControlName="propertyImages"
+          label="Property Images"
+          [config]="imageUploadConfig"
+          dragText="Drag and drop property images here or click to browse"
+          hint="Upload clear, well-lit photos of different rooms and areas of your property"
+          clarifyText="Good quality images help attract more tenants. Include photos of living room, bedrooms, kitchen, bathrooms, and any special features."
+          (filesSelected)="onImagesSelected($event)"
+          (fileRemoved)="onImageRemoved($event)"
+          (uploadError)="onImageUploadError($event)"
+        />
       </ng-card>
 
       <!-- Amenities Card -->
-      <ng-card 
-        title="Amenities & Features" 
-        icon="apartment"
-        class="form-card">
-          <div class="amenities-grid">
-            <ng-checkbox formControlName="hasLift"
-              label="Lift Available"
-              icon="elevator"
-              class="amenity-checkbox" />
+      <ng-card title="Amenities & Features" icon="apartment" class="form-card">
+        <div class="amenities-grid">
+          <ng-checkbox
+            formControlName="hasLift"
+            label="Lift Available"
+            icon="elevator"
+            class="amenity-checkbox"
+          />
 
-            <ng-checkbox formControlName="hasParking"
-              label="Parking"
-              icon="local_parking"
-              class="amenity-checkbox" />
+          <ng-checkbox
+            formControlName="hasParking"
+            label="Parking"
+            icon="local_parking"
+            class="amenity-checkbox"
+          />
 
-            <ng-checkbox formControlName="hasPowerBackup"
-              label="Power Backup"
-              icon="battery_charging_full"
-              class="amenity-checkbox" />
+          <ng-checkbox
+            formControlName="hasPowerBackup"
+            label="Power Backup"
+            icon="battery_charging_full"
+            class="amenity-checkbox"
+          />
 
-            <ng-checkbox formControlName="hasWaterSupply"
-              label="24/7 Water Supply"
-              icon="water_drop"
-              class="amenity-checkbox" />
+          <ng-checkbox
+            formControlName="hasWaterSupply"
+            label="24/7 Water Supply"
+            icon="water_drop"
+            class="amenity-checkbox"
+          />
 
-            <ng-checkbox formControlName="hasGasPipeline"
-              label="Gas Pipeline"
-              icon="local_fire_department"
-              class="amenity-checkbox" />
+          <ng-checkbox
+            formControlName="hasGasPipeline"
+            label="Gas Pipeline"
+            icon="local_fire_department"
+            class="amenity-checkbox"
+          />
 
-            <ng-checkbox formControlName="hasSecurity"
-              label="Security"
-              icon="security"
-              class="amenity-checkbox" />
+          <ng-checkbox
+            formControlName="hasSecurity"
+            label="Security"
+            icon="security"
+            class="amenity-checkbox"
+          />
 
-            <ng-checkbox formControlName="hasInternet"
-              label="Internet/WiFi Ready"
-              icon="wifi"
-              class="amenity-checkbox" />
-          </div>
+          <ng-checkbox
+            formControlName="hasInternet"
+            label="Internet/WiFi Ready"
+            icon="wifi"
+            class="amenity-checkbox"
+          />
+        </div>
       </ng-card>
 
       <!-- Action Buttons -->
       <div class="action-buttons-icons">
-        <button 
+        <button
           type="button"
           class="save-draft-btn"
           matTooltip="Save your progress and continue later"
           [disabled]="isSavingDraft"
-          (click)="saveDraft()">
+          (click)="saveDraft()"
+        >
           <ng-icon [name]="isSavingDraft ? 'hourglass_empty' : 'save'" />
-          {{ isSavingDraft ? 'Saving Draft...' : 'Save as Draft' }}
+          {{ isSavingDraft ? "Saving Draft..." : "Save as Draft" }}
         </button>
-        
-        <button 
+
+        <button
           type="submit"
           class="list-property-btn"
           matTooltip="Publish your property listing"
-          [disabled]="isSaving || isSavingDraft">
+          [disabled]="isSaving || isSavingDraft"
+        >
           <ng-icon [name]="isSaving ? 'hourglass_empty' : 'publish'" />
-          {{ isSaving ? 'Publishing...' : 'List Property' }}
+          {{ isSaving ? "Publishing..." : "List Property" }}
         </button>
       </div>
     </form>

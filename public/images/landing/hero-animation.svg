@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="450" height="300" viewBox="0 0 450 300">
+  <rect width="450" height="300" rx="12" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2"/>
+  
+  <!-- Building illustration -->
+  <rect x="150" y="80" width="150" height="160" fill="#3b82f6" rx="4"/>
+  <rect x="160" y="100" width="15" height="15" fill="#60a5fa" rx="2"/>
+  <rect x="180" y="100" width="15" height="15" fill="#60a5fa" rx="2"/>
+  <rect x="200" y="100" width="15" height="15" fill="#60a5fa" rx="2"/>
+  <rect x="220" y="100" width="15" height="15" fill="#60a5fa" rx="2"/>
+  <rect x="240" y="100" width="15" height="15" fill="#60a5fa" rx="2"/>
+  <rect x="260" y="100" width="15" height="15" fill="#60a5fa" rx="2"/>
+  <rect x="280" y="100" width="15" height="15" fill="#60a5fa" rx="2"/>
+  
+  <rect x="160" y="120" width="15" height="15" fill="#60a5fa" rx="2"/>
+  <rect x="180" y="120" width="15" height="15" fill="#60a5fa" rx="2"/>
+  <rect x="200" y="120" width="15" height="15" fill="#60a5fa" rx="2"/>
+  <rect x="220" y="120" width="15" height="15" fill="#60a5fa" rx="2"/>
+  <rect x="240" y="120" width="15" height="15" fill="#60a5fa" rx="2"/>
+  <rect x="260" y="120" width="15" height="15" fill="#60a5fa" rx="2"/>
+  <rect x="280" y="120" width="15" height="15" fill="#60a5fa" rx="2"/>
+  
+  <rect x="160" y="140" width="15" height="15" fill="#60a5fa" rx="2"/>
+  <rect x="180" y="140" width="15" height="15" fill="#60a5fa" rx="2"/>
+  <rect x="200" y="140" width="15" height="15" fill="#60a5fa" rx="2"/>
+  <rect x="220" y="140" width="15" height="15" fill="#60a5fa" rx="2"/>
+  <rect x="240" y="140" width="15" height="15" fill="#60a5fa" rx="2"/>
+  <rect x="260" y="140" width="15" height="15" fill="#60a5fa" rx="2"/>
+  <rect x="280" y="140" width="15" height="15" fill="#60a5fa" rx="2"/>
+  
+  <!-- Door -->
+  <rect x="210" y="200" width="30" height="40" fill="#1e40af" rx="2"/>
+  
+  <!-- Key icon -->
+  <circle cx="100" cy="150" r="8" fill="#fbbf24"/>
+  <rect x="95" y="145" width="10" height="3" fill="#fbbf24"/>
+  <rect x="92" y="147" width="3" height="3" fill="#fbbf24"/>
+  
+  <!-- Arrow pointing to building -->
+  <path d="M 120 150 L 140 150" stroke="#10b981" stroke-width="3" fill="none"/>
+  <path d="M 135 145 L 140 150 L 135 155" stroke="#10b981" stroke-width="3" fill="none"/>
+  
+  <!-- Text -->
+  <text x="225" y="270" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#1f2937">Simplifying Rental Management</text>
+</svg>

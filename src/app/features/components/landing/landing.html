@@ -1,0 +1,272 @@
+<div class="landing-page">
+  <!-- Navigation -->
+  <div class="section-2 wf-section">
+    <div class="navbar-no-shadow-container">
+      <div class="container-regular">
+        <div class="navbar-wrapper">
+          <a href="#" class="navbar-brand">
+            <img src="images/landing/logo-modern.svg" 
+                 loading="lazy" 
+                 width="40" 
+                 alt="RentConnect Logo" />
+            <span>RentConnect</span>
+          </a>
+          <nav role="navigation" class="nav-menu-wrapper" [class.mobile-open]="isMobileMenuOpen">
+            <ul role="list" class="nav-menu">
+              <li><a href="javascript:void(0)" class="nav-link" (click)="closeMobileMenu()">Help</a></li>
+              <li><a href="javascript:void(0)" class="nav-link" (click)="highlightSection('AboutUs'); closeMobileMenu()">About RC</a></li>
+              <li><a href="javascript:void(0)" class="nav-link" (click)="highlightSection('ContactUS'); closeMobileMenu()">Contact US</a></li>
+              <li><a href="javascript:void(0)" class="nav-link" (click)="highlightSection('Pricing'); closeMobileMenu()">Pricing</a></li>
+              <li><a href="javascript:void(0)" (click)="login(); closeMobileMenu()" class="nav-link">Sign In</a></li>
+              <li class="mobile-margin-top-10">
+                <div class="nav-button-wrapper">
+                  <a href="javascript:void(0)" (click)="onSignUp(); closeMobileMenu()" class="button-primary">Signup For Free</a>
+                </div>
+              </li>
+            </ul>
+          </nav>
+          <div class="menu-button" (click)="toggleMobileMenu()">
+            <div class="hamburger-icon" [class.open]="isMobileMenuOpen"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero Text -->
+  <div class="text-block-4">Simplifying Rental Management<br />For Everyone</div>
+
+  <!-- Hero Section -->
+  <section class="hero-heading-center wf-section">
+    <div class="container-2">
+      <h1 class="centered-heading margin-bottom-32px">RentConnect - Redefining Property Management</h1>
+      <div class="hero-wrapper">
+        <div class="hero-split">
+          <p class="margin-bottom-24px">
+            Introducing RentConnect - the all-in-one solution for managing your rental properties. 
+            We don't do a lot of things, but we ensure to do the important things, right!<br /><br />
+            We offer a user-friendly interface and powerful features, that'll help you save time, 
+            reduce stress and increase efficiency. The 4 fundamental issues we solve are:
+          </p>
+          <div class="text-block-5">
+            &gt; <strong class="bold-text-2">Property Management</strong> - Keep track of multiple properties <br />
+            &gt; <strong class="bold-text-3">Tenant Management</strong> - Add &amp; manage tenants <br />
+            &gt; <strong class="bold-text-4">Rent Collection</strong> - Hassle free online rent collection<br />
+            &gt; <strong class="bold-text-5">Issue Tracking</strong> - Quickly and easily report and resolve any property issues<br />
+          </div>
+          <a href="javascript:void(0)" class="button-primary-2" (click)="onSignUp()">Signup for free</a>
+        </div>
+        <div class="hero-split">
+          <img src="images/landing/hero-animation.svg" 
+               loading="lazy" 
+               width="450" 
+               alt="Property Management Illustration" 
+               class="shadow-two" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="Features" class="features-table wf-section">
+    <div class="container-2">
+      <h2 class="centered-heading">Why RentConnect?</h2>
+      <p class="centered-subheading">
+        With our application, you'll have all the tools you need to manage your rental properties with ease. 
+        Try us today and see the difference we make in your property management experience!
+      </p>
+      <div class="comparison-table">
+        <div class="comparison-row-main">
+          <h3 class="comparison-title">Other Services</h3>
+          <h3 class="comparison-title">RentConnect</h3>
+        </div>
+        <div class="comparison-row">
+          <div class="comparison-negative">Provide services focused towards agents</div>
+          <div class="comparison-positive">We focus on you, the landlords</div>
+        </div>
+        <div class="comparison-row">
+          <div class="comparison-negative">Offer you a ton of services you'll never need.</div>
+          <div class="comparison-positive">Give you the exact tools you need</div>
+        </div>
+        <div class="comparison-row">
+          <div class="comparison-negative">No trial, charge you high, charge you for everything</div>
+          <div class="comparison-positive">2-months free trial - after that a reasonable uniform fee.</div>
+        </div>
+        <div class="comparison-row">
+          <div class="comparison-negative">No issue management service</div>
+          <div class="comparison-positive">Issue management and reporting for each property</div>
+        </div>
+        <div class="comparison-row">
+          <div class="comparison-negative">Store the financial data themselves</div>
+          <div class="comparison-positive">Partner with Stripe to handle all financial transactions securely</div>
+        </div>
+        <div class="comparison-row">
+          <div class="comparison-negative">Complex customer support</div>
+          <div class="comparison-positive">Available always - personal resolution to your queries</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section id="Pricing" class="pricing-overview wf-section">
+    <div class="container-2">
+      <h2 class="centered-heading">Pricing</h2>
+      <p class="pricing-description">
+        We offer you 2 months of no-commitment trial for free, without any credit card requirements. 
+        Sign up with Stripe for receiving rent.<br />
+      </p>
+      <div class="pricing-grid">
+        <div class="pricing-card-three">
+          <h3 class="heading-4">Free 2-Months</h3>
+          <p class="pricing-card-text">
+            Get 2 months free trial after sign-up. No credit card needed. 
+            You'll be asked to pay if you wish to continue using the services beyond two months.<br /><br />
+            All the features are free to use except rent collection, which will have its gateway and management charges.
+          </p>
+        </div>
+        <div class="pricing-card-three">
+          <h3 class="heading-3">$5/month After Trial</h3>
+          <p class="pricing-card-text">
+            After your two months trial, pay $60 yearly (just $5/month) for all of the services (billed annually). 
+            Even if you renew early, your paid subscription will start after 60 days of free use.<br /><br />
+            You'll receive reminders in due course. Non-active accounts stay with us, but in dormant stage.
+          </p>
+        </div>
+        <div class="pricing-card-three">
+          <h3 class="heading-2">2% Rent Charge</h3>
+          <p class="pricing-card-text">
+            All online rent payment/collection has a flat 2%+ Stripe gateway charge towards managing the financial transactions. 
+            This is charged during the trial period as well.<br /><br />
+            You can see the latest Stripe charges <a href="https://stripe.com/pricing">here</a>. 
+            You can enter the cash transactions in the system yourself for no charge.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Us Section -->
+  <section id="AboutUs" class="team-circles wf-section">
+    <div class="container-4">
+      <h2 class="centered-heading-2">Meet our Entrepreneurs!</h2>
+      <p class="centered-subheading-2">
+        Meet the wonderful team behind RentConnect!<br /><br />
+        Our founders came together in 2024 to solve the rental property management problem. 
+        They have been having troubles managing properties and came up with this comprehensive solution.<br /><br />
+        They both are professionals in IT and Real Estate for over a decade and have learned quite a few business lessons on the way. 
+        Say them hello or reach out to RentConnect using the Contact Us section below!<br /><br />
+        Happy renting!
+      </p>
+      <div class="founders-grid">
+        <div class="founder-card">
+          <img src="images/landing/founder1.svg" 
+               loading="lazy" 
+               alt="Founder 1" 
+               class="founder-image" />
+          <div class="founder-name">Founder 1</div>
+        </div>
+        <div class="founder-card">
+          <img src="images/landing/founder2.svg" 
+               loading="lazy" 
+               alt="Founder 2" 
+               class="founder-image" />
+          <div class="founder-name">Founder 2</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Additional Features Section -->
+  <section class="additional-features wf-section">
+    <div class="container-2">
+      <h2 class="centered-heading">Key Features</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🏠</div>
+          <h3>Property Management</h3>
+          <p>Easily manage multiple properties with our intuitive dashboard. Track rent, maintenance, and tenant information all in one place.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">👥</div>
+          <h3>Tenant Management</h3>
+          <p>Keep detailed records of your tenants, including contact information, lease agreements, and payment history.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">💳</div>
+          <h3>Online Rent Collection</h3>
+          <p>Automate rent collection with secure online payments. Reduce late payments and streamline your cash flow.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔧</div>
+          <h3>Issue Tracking</h3>
+          <p>Track and resolve property issues efficiently. Maintain communication between tenants and service providers.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3>Financial Reports</h3>
+          <p>Generate comprehensive financial reports to track your property investment performance and tax obligations.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📱</div>
+          <h3>Mobile Access</h3>
+          <p>Access your property management tools on the go with our responsive web application that works on all devices.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="ContactUS" class="testimonial-stack wf-section">
+    <div class="container-2">
+      <div class="testimonial-card-three">
+        <div class="testimonial-card-content">
+          <h3 class="testimonial-card-heading">We are just a ping away!</h3>
+          <p class="testimonial-text-three">
+            Drop an email for any questions - admin@rentconnect.com<br /><br />
+            Or Scan the QR code below to WhatsApp us
+          </p>
+          <div class="testimonial-info-four">
+            <img src="images/landing/qr-code.svg" 
+                 loading="lazy" 
+                 width="120" 
+                 alt="Contact QR Code" 
+                 class="testimonial-image centered" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <section class="footer-subscribe wf-section">
+    <div class="container-3">
+      <div class="footer-wrapper-three">
+        <div class="footer-block-three">
+          <a href="javascript:void(0)" class="footer-link-three" (click)="onSignUp()">Signup for Free</a>
+          <a href="javascript:void(0)" class="footer-link-three" (click)="highlightSection('Features')">Features</a>
+          <a href="javascript:void(0)" class="footer-link-three" (click)="highlightSection('Pricing')">Pricing</a>
+          <a href="https://stripe.com" class="footer-link-three">Payments Partner Stripe <sup>©</sup></a>
+        </div>
+        <div class="footer-social-block-three">
+          <a href="#" class="footer-social-link-three">
+            <img src="images/social/facebook.svg" loading="lazy" alt="Facebook" />
+          </a>
+          <a href="#" class="footer-social-link-three">
+            <img src="images/social/twitter.svg" loading="lazy" alt="Twitter" />
+          </a>
+          <a href="#" class="footer-social-link-three">
+            <img src="images/social/youtube.svg" loading="lazy" alt="YouTube" />
+          </a>
+        </div>
+      </div>
+      <div class="footer-divider-two"></div>
+      <div class="footer-bottom">
+        <div class="footer-copyright">© 2024 RentConnect. All rights reserved.</div>
+        <div class="footer-legal-block">
+          <a href="TermAndCondition.pdf" download class="footer-legal-link">Privacy Policy</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
