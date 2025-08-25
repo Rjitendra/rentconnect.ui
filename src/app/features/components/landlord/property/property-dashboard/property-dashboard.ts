@@ -330,10 +330,10 @@ const mockDocuments: IDocument[] = [
     ownerId: 1,
     ownerType: 'Landlord',
     category: DocumentCategory.Legal,
-    fileUrl: 'data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVGl0bGUgKFByb3BlcnR5IERlZWQpCi9Qcm9kdWNlciAoU2FtcGxlIFBERikKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL0xlbmd0aCAzMyAKPj4Kc3RyZWFtCkJUCi9GMSAxMiBUZgoxMCA1NjYgVGQKKFByb3BlcnR5IERlZWQpIFRqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDMKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNzQgMDAwMDAgbiAKdHJhaWxlcgo8PAovUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKMTI4CiUlRU9G',
-    fileName: 'property_deed.pdf',
-    fileType: 'application/pdf',
-    fileSize: 102400,
+    url: 'data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVGl0bGUgKFByb3BlcnR5IERlZWQpCi9Qcm9kdWNlciAoU2FtcGxlIFBERikKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL0xlbmd0aCAzMyAKPj4Kc3RyZWFtCkJUCi9GMSAxMiBUZgoxMCA1NjYgVGQKKFByb3BlcnR5IERlZWQpIFRqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDMKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNzQgMDAwMDAgbiAKdHJhaWxlcgo8PAovUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKMTI4CiUlRU9G',
+    name: 'property_deed.pdf',
+    type: 'application/pdf',
+    size: 102400,
     documentIdentifier: 'DOC-001',
     uploadedOn: '2024-01-10T10:00:00Z',
     isVerified: true,
@@ -343,10 +343,10 @@ const mockDocuments: IDocument[] = [
     ownerId: 1,
     ownerType: 'Landlord',
     category: DocumentCategory.Agreement,
-    fileUrl: 'data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVGl0bGUgKFJlbnRhbCBBZ3JlZW1lbnQpCi9Qcm9kdWNlciAoU2FtcGxlIFBERikKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL0xlbmd0aCAzNyAKPj4Kc3RyZWFtCkJUCi9GMSAxMiBUZgoxMCA1NjYgVGQKKFJlbnRhbCBBZ3JlZW1lbnQpIFRqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDMKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwODIgMDAwMDAgbiAKdHJhaWxlcgo8PAovUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKMTM2CiUlRU9G',
-    fileName: 'rental_agreement.pdf',
-    fileType: 'application/pdf',
-    fileSize: 204800,
+    url: 'data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVGl0bGUgKFJlbnRhbCBBZ3JlZW1lbnQpCi9Qcm9kdWNlciAoU2FtcGxlIFBERikKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL0xlbmd0aCAzNyAKPj4Kc3RyZWFtCkJUCi9GMSAxMiBUZgoxMCA1NjYgVGQKKFJlbnRhbCBBZ3JlZW1lbnQpIFRqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDMKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwODIgMDAwMDAgbiAKdHJhaWxlcgo8PAovUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKMTM2CiUlRU9G',
+    name: 'rental_agreement.pdf',
+    type: 'application/pdf',
+    size: 204800,
     documentIdentifier: 'DOC-002',
     uploadedOn: '2024-02-05T12:00:00Z',
     isVerified: false,
@@ -356,10 +356,10 @@ const mockDocuments: IDocument[] = [
     ownerId: 1,
     ownerType: 'Landlord',
     category: DocumentCategory.Financial,
-    fileUrl: 'data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVGl0bGUgKFJlbnQgUmVjZWlwdCkKL1Byb2R1Y2VyIChTYW1wbGUgUERGKQo+PgplbmRvYmoKMiAwIG9iago8PAovTGVuZ3RoIDMxIAo+PgpzdHJlYW0KQlQKL0YxIDEyIFRmCjEwIDU2NiBUZAooUmVudCBSZWNlaXB0KSBUagpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCAzCjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAwOSAwMDAwMCBuIAowMDAwMDAwMDc2IDAwMDAwIG4gCnRyYWlsZXIKPDwKL1Jvb3QgMSAwIFIKPj4Kc3RhcnR4cmVmCjEyOAolJUVPRg==',
-    fileName: 'rent_receipt_jan2024.pdf',
-    fileType: 'application/pdf',
-    fileSize: 89600,
+    url: 'data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVGl0bGUgKFJlbnQgUmVjZWlwdCkKL1Byb2R1Y2VyIChTYW1wbGUgUERGKQo+PgplbmRvYmoKMiAwIG9iago8PAovTGVuZ3RoIDMxIAo+PgpzdHJlYW0KQlQKL0YxIDEyIFRmCjEwIDU2NiBUZAooUmVudCBSZWNlaXB0KSBUagpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCAzCjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAwOSAwMDAwMCBuIAowMDAwMDAwMDc2IDAwMDAwIG4gCnRyYWlsZXIKPDwKL1Jvb3QgMSAwIFIKPj4Kc3RhcnR4cmVmCjEyOAolJUVPRg==',
+    name: 'rent_receipt_jan2024.pdf',
+    type: 'application/pdf',
+    size: 89600,
     documentIdentifier: 'DOC-003',
     uploadedOn: '2024-01-31T15:30:00Z',
     isVerified: true,
@@ -369,10 +369,10 @@ const mockDocuments: IDocument[] = [
     ownerId: 1,
     ownerType: 'Landlord',
     category: DocumentCategory.OwnershipProof,
-    fileUrl: 'data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVGl0bGUgKE93bmVyc2hpcCBDZXJ0aWZpY2F0ZSkKL1Byb2R1Y2VyIChTYW1wbGUgUERGKQo+PgplbmRvYmoKMiAwIG9iago8PAovTGVuZ3RoIDM5IAo+PgpzdHJlYW0KQlQKL0YxIDEyIFRmCjEwIDU2NiBUZAooT3duZXJzaGlwIENlcnRpZmljYXRlKSBUagpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCAzCjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAwOSAwMDAwMCBuIAowMDAwMDAwMDg0IDAwMDAwIG4gCnRyYWlsZXIKPDwKL1Jvb3QgMSAwIFIKPj4Kc3RhcnR4cmVmCjE0MgolJUVPRg==',
-    fileName: 'ownership_certificate.pdf',
-    fileType: 'application/pdf',
-    fileSize: 156200,
+    url: 'data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVGl0bGUgKE93bmVyc2hpcCBDZXJ0aWZpY2F0ZSkKL1Byb2R1Y2VyIChTYW1wbGUgUERGKQo+PgplbmRvYmoKMiAwIG9iago8PAovTGVuZ3RoIDM5IAo+PgpzdHJlYW0KQlQKL0YxIDEyIFRmCjEwIDU2NiBUZAooT3duZXJzaGlwIENlcnRpZmljYXRlKSBUagpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCAzCjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAwOSAwMDAwMCBuIAowMDAwMDAwMDg0IDAwMDAwIG4gCnRyYWlsZXIKPDwKL1Jvb3QgMSAwIFIKPj4Kc3RhcnR4cmVmCjE0MgolJUVPRg==',
+    name: 'ownership_certificate.pdf',
+    type: 'application/pdf',
+    size: 156200,
     documentIdentifier: 'DOC-004',
     uploadedOn: '2024-01-05T09:15:00Z',
     isVerified: true,
@@ -382,10 +382,10 @@ const mockDocuments: IDocument[] = [
     ownerId: 1,
     ownerType: 'Landlord',
     category: DocumentCategory.UtilityBill,
-    fileUrl: 'data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVGl0bGUgKEVsZWN0cmljaXR5IEJpbGwpCi9Qcm9kdWNlciAoU2FtcGxlIFBERikKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL0xlbmd0aCAzNCAKPj4Kc3RyZWFtCkJUCi9GMSAxMiBUZgoxMCA1NjYgVGQKKEVsZWN0cmljaXR5IEJpbGwpIFRqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDMKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNzkgMDAwMDAgbiAKdHJhaWxlcgo8PAovUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKMTMxCiUlRU9G',
-    fileName: 'electricity_bill_feb2024.pdf',
-    fileType: 'application/pdf',
-    fileSize: 67800,
+    url: 'data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVGl0bGUgKEVsZWN0cmljaXR5IEJpbGwpCi9Qcm9kdWNlciAoU2FtcGxlIFBERikKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL0xlbmd0aCAzNCAKPj4Kc3RyZWFtCkJUCi9GMSAxMiBUZgoxMCA1NjYgVGQKKEVsZWN0cmljaXR5IEJpbGwpIFRqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDMKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNzkgMDAwMDAgbiAKdHJhaWxlcgo8PAovUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKMTMxCiUlRU9G',
+    name: 'electricity_bill_feb2024.pdf',
+    type: 'application/pdf',
+    size: 67800,
     documentIdentifier: 'DOC-005',
     uploadedOn: '2024-02-15T11:45:00Z',
     isVerified: false,
@@ -395,10 +395,10 @@ const mockDocuments: IDocument[] = [
     ownerId: 1,
     ownerType: 'Landlord',
     category: DocumentCategory.PropertyPhoto,
-    fileUrl: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
-    fileName: 'property_exterior.jpg',
-    fileType: 'image/jpeg',
-    fileSize: 245600,
+    url: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
+    name: 'property_exterior.jpg',
+    type: 'image/jpeg',
+    size: 245600,
     documentIdentifier: 'DOC-006',
     uploadedOn: '2024-01-20T14:20:00Z',
     isVerified: true,
@@ -841,10 +841,10 @@ const mockTickets: ITicket[] = [
           ownerId: property.landlordId || 1,
           ownerType: 'Landlord',
           category: this.selectedDocumentCategory,
-          fileUrl: URL.createObjectURL(file), // In real app, this would be the server URL
-          fileName: file.name,
-          fileType: file.type,
-          fileSize: file.size,
+          url: URL.createObjectURL(file), // In real app, this would be the server URL
+          name: file.name,
+          type: file.type,
+          size: file.size,
           documentIdentifier: `DOC-${Date.now()}`,
           uploadedOn: new Date().toISOString(),
           isVerified: false,
@@ -890,13 +890,13 @@ const mockTickets: ITicket[] = [
   }
 
   onDownloadDocument(doc: IDocument): void {
-    console.log('Downloading document:', doc.fileName);
+    console.log('Downloading document:', doc.name);
     
     // Create a temporary link element for download
-    if (doc.fileUrl) {
+    if (doc.url) {
       const link = document.createElement('a');
-      link.href = doc.fileUrl;
-      link.download = doc.fileName || 'document';
+      link.href = doc.url;
+      link.download = doc.name || 'document';
       link.target = '_blank';
       
       // Append to body, click, and remove
@@ -904,7 +904,7 @@ const mockTickets: ITicket[] = [
       link.click();
       document.body.removeChild(link);
       
-      console.log(`Downloaded: ${doc.fileName}`);
+      console.log(`Downloaded: ${doc.name}`);
     } else {
       alert('Document file not available for download.');
     }

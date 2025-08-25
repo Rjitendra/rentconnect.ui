@@ -1,13 +1,18 @@
 import { DocumentCategory } from '../enums/view.enum'; // Assuming this enum is defined in the same directory
 export interface IDocument {
+  id?: number; // Primary key
   ownerId: number; // Landlord/Tenant ID
   ownerType: string; // Restrict to allowed strings
 
   category: DocumentCategory; // Enum for Aadhaar, Photo, RentalAgreement, etc.
-  fileUrl: string;
-  fileName?: string; // Original file name
-  fileType?: string; // MIME type, e.g., 'image/jpeg', 'application/pdf'
-  fileSize?: number; // Size in bytes
+
+  file?: File;
+  name?: string;
+  size?: number;
+  type?: string;
+  url?: string; // for preview
+
+
 
   documentIdentifier?: string; // Unique identifier, optional
   uploadedOn?: string; // Use string for Date serialization (ISO format)

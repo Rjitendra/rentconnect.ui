@@ -38,6 +38,7 @@ import {
   SelectOption,
   UploadedFile,
 } from '../../../../../../../projects/shared/src/public-api';
+import { IDocument } from '../../../../models/document';
 
 @Component({
   selector: 'app-property-add',
@@ -458,8 +459,49 @@ export class PropertyAdd implements OnInit {
       size: image.size,
       url: image.url,
       isPrimary: index === 0, // First image is primary
-      documentType: 'PropertyImage',
+      documentType: 'PropertyImages',
       uploadedAt: new Date(),
     }));
   }
+
+  private convertPropertyToFormData(property: IProperty): FormData {
+  const formData = new FormData();
+
+  // loop through keys of the object
+  Object.entries(property).forEach(([key, value]) => {
+    if (value === null || value === undefined) return; // skip null/undefined
+
+    // handle arrays separately (e.g., tenants, documents)
+    if (Array.isArray(value)) {
+      if (key === 'documents') {
+        // assuming each document has a file property
+        value.forEach((doc: any, index: number) => {
+          if (doc.file instanceof File) {
+            formData.append(`documents[${index}]`, doc.file, doc.file.name);
+          } else {
+            formData.append(`documents[${index}]`, JSON.stringify(doc));
+          }
+        });
+      } else {
+        // generic array → stringify
+        formData.append(key, JSON.stringify(value));
+      }
+    }
+    // handle Date objects
+    else if (value instanceof Date) {
+      formData.append(key, value.toISOString());
+    }
+    // handle objects (landlord, tenants, etc.)
+    else if (typeof value === 'object') {
+      formData.append(key, JSON.stringify(value));
+    }
+    // primitives (string, number, boolean)
+    else {
+      formData.append(key, value.toString());
+    }
+  });
+
+  return formData;
+}
+
 }
