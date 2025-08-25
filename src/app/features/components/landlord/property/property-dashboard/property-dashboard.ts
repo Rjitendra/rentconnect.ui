@@ -1,9 +1,6 @@
 import { Component, OnInit, TemplateRef, AfterViewInit, viewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatSortModule } from '@angular/material/sort';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -23,9 +20,10 @@ import {
   DocumentCategory,
 } from '../../../../enums/view.enum';
 import { ITicket, TicketStatus } from '../../../../models/tickets';
-import { PropertyAdd } from '../property-add/property-add';
 import { PropertyDetail } from '../property-detail/property-detail';
 import { NgButton, NgIconComponent, NgSelectComponent, NgMatTable, TableColumn, TableOptions } from '../../../../../../../projects/shared/src/public-api';
+import { PropertyAdd } from '../property-add/property-add';
+import { IUserDetail, OauthService } from '../../../../../oauth/service/oauth.service';
 
 @Component({
   selector: 'app-property-dashboard',
@@ -49,7 +47,7 @@ import { NgButton, NgIconComponent, NgSelectComponent, NgMatTable, TableColumn, 
 })
 export class PropertyDashboard implements OnInit {
   private dialog = inject(MatDialog);
-
+  private userService = inject(OauthService);
   // Template references for dynamic content
   readonly propertyNameTemplate = viewChild.required<TemplateRef<unknown>>('propertyNameTemplate');
   readonly tenantTemplate = viewChild.required<TemplateRef<unknown>>('tenantTemplate');
@@ -77,7 +75,7 @@ export class PropertyDashboard implements OnInit {
 
   // Mock Property Data
   properties: IProperty[] = [];
-  
+
   // Mock tenant data for testing
   private mockTenants: ITenant[] = [
     {
@@ -222,7 +220,7 @@ export class PropertyDashboard implements OnInit {
   selectedPropertyForDownload: IProperty | null = null;
   selectedDocumentCategory: DocumentCategory = DocumentCategory.Legal;
   selectedDownloadCategory: DocumentCategory | 'all' = 'all';
-  
+
   // Document categories for dropdown
   documentCategories = [
     { value: DocumentCategory.Legal, label: 'Legal Documents', description: 'Property deeds, ownership documents' },
@@ -243,79 +241,82 @@ export class PropertyDashboard implements OnInit {
     { value: DocumentCategory.PropertyPhoto, label: 'Property Photos', count: 0, description: 'Property images and videos' },
   ];
 
+   userdetail: Partial<IUserDetail> = {};
   /** Inserted by Angular inject() migration for backwards compatibility */
   constructor(...args: unknown[]);
 
-  constructor() {}
+  constructor() {
+    this.userdetail = this.userService.getUserInfo();
+   }
 
   ngOnInit() {
     this.initializeTableColumns();
     this.loadMockData();
   }
-  
+
   private initializeTableColumns() {
     // Initialize table columns with templates
     this.tableColumns = [
-      { 
-        key: 'id', 
-        label: 'ID', 
+      {
+        key: 'id',
+        label: 'ID',
         width: '80px',
         align: 'center',
         headerAlign: 'center'
       },
-      { 
-        key: 'title', 
-        label: 'Property Name', 
+      {
+        key: 'title',
+        label: 'Property Name',
         width: 'auto',
-        type: 'custom', 
+        type: 'custom',
         template: this.propertyNameTemplate(),
         align: 'left'
       },
-      { 
-        key: 'fullAddress', 
-        label: 'Address', 
+      {
+        key: 'fullAddress',
+        label: 'Address',
         width: 'auto',
         align: 'left'
       },
-      { 
-        key: 'mappedTenants', 
-        label: 'Tenants', 
+      {
+        key: 'mappedTenants',
+        label: 'Tenants',
         width: '300px',
-        type: 'custom', 
+        type: 'custom',
         template: this.tenantTemplate(),
         align: 'center',
         headerAlign: 'center'
       },
-      { 
-        key: 'documentsActions', 
-        label: 'Documents', 
+      {
+        key: 'documentsActions',
+        label: 'Documents',
         width: '150px',
-        type: 'custom', 
+        type: 'custom',
         template: this.documentTemplate(),
         align: 'center',
         headerAlign: 'center'
       },
-      { 
-        key: 'monthlyRent', 
-        label: 'Monthly Rent', 
+      {
+        key: 'monthlyRent',
+        label: 'Monthly Rent',
         width: '120px',
         align: 'right',
         headerAlign: 'right'
       },
-      { 
-        key: 'status', 
-        label: 'Status', 
+      {
+        key: 'status',
+        label: 'Status',
         width: '150px',
-        type: 'custom', 
+        type: 'custom',
         template: this.statusTemplate(),
         align: 'center',
         headerAlign: 'center'
       },
-      { 
-        key: 'actions', 
-        label: 'Actions', 
+      {
+        key: 'actions',
+        label: 'Actions',
         width: '200px',
-        type: 'custom', 
+        type: 'custom',
         template: this.actionTemplate(),
         align: 'center',
         headerAlign: 'center'
@@ -324,283 +325,283 @@ export class PropertyDashboard implements OnInit {
   }
 
   private loadMockData() {
-// Mock Documents
-const mockDocuments: IDocument[] = [
-  {
-    ownerId: 1,
-    ownerType: 'Landlord',
-    category: DocumentCategory.Legal,
-    url: 'data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVGl0bGUgKFByb3BlcnR5IERlZWQpCi9Qcm9kdWNlciAoU2FtcGxlIFBERikKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL0xlbmd0aCAzMyAKPj4Kc3RyZWFtCkJUCi9GMSAxMiBUZgoxMCA1NjYgVGQKKFByb3BlcnR5IERlZWQpIFRqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDMKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNzQgMDAwMDAgbiAKdHJhaWxlcgo8PAovUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKMTI4CiUlRU9G',
-    name: 'property_deed.pdf',
-    type: 'application/pdf',
-    size: 102400,
-    documentIdentifier: 'DOC-001',
-    uploadedOn: '2024-01-10T10:00:00Z',
-    isVerified: true,
-    description: 'Property deed document',
-  },
-  {
-    ownerId: 1,
-    ownerType: 'Landlord',
-    category: DocumentCategory.Agreement,
-    url: 'data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVGl0bGUgKFJlbnRhbCBBZ3JlZW1lbnQpCi9Qcm9kdWNlciAoU2FtcGxlIFBERikKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL0xlbmd0aCAzNyAKPj4Kc3RyZWFtCkJUCi9GMSAxMiBUZgoxMCA1NjYgVGQKKFJlbnRhbCBBZ3JlZW1lbnQpIFRqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDMKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwODIgMDAwMDAgbiAKdHJhaWxlcgo8PAovUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKMTM2CiUlRU9G',
-    name: 'rental_agreement.pdf',
-    type: 'application/pdf',
-    size: 204800,
-    documentIdentifier: 'DOC-002',
-    uploadedOn: '2024-02-05T12:00:00Z',
-    isVerified: false,
-    description: 'Rental agreement for tenant',
-  },
-  {
-    ownerId: 1,
-    ownerType: 'Landlord',
-    category: DocumentCategory.Financial,
-    url: 'data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVGl0bGUgKFJlbnQgUmVjZWlwdCkKL1Byb2R1Y2VyIChTYW1wbGUgUERGKQo+PgplbmRvYmoKMiAwIG9iago8PAovTGVuZ3RoIDMxIAo+PgpzdHJlYW0KQlQKL0YxIDEyIFRmCjEwIDU2NiBUZAooUmVudCBSZWNlaXB0KSBUagpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCAzCjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAwOSAwMDAwMCBuIAowMDAwMDAwMDc2IDAwMDAwIG4gCnRyYWlsZXIKPDwKL1Jvb3QgMSAwIFIKPj4Kc3RhcnR4cmVmCjEyOAolJUVPRg==',
-    name: 'rent_receipt_jan2024.pdf',
-    type: 'application/pdf',
-    size: 89600,
-    documentIdentifier: 'DOC-003',
-    uploadedOn: '2024-01-31T15:30:00Z',
-    isVerified: true,
-    description: 'Rent receipt for January 2024',
-  },
-  {
-    ownerId: 1,
-    ownerType: 'Landlord',
-    category: DocumentCategory.OwnershipProof,
-    url: 'data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVGl0bGUgKE93bmVyc2hpcCBDZXJ0aWZpY2F0ZSkKL1Byb2R1Y2VyIChTYW1wbGUgUERGKQo+PgplbmRvYmoKMiAwIG9iago8PAovTGVuZ3RoIDM5IAo+PgpzdHJlYW0KQlQKL0YxIDEyIFRmCjEwIDU2NiBUZAooT3duZXJzaGlwIENlcnRpZmljYXRlKSBUagpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCAzCjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAwOSAwMDAwMCBuIAowMDAwMDAwMDg0IDAwMDAwIG4gCnRyYWlsZXIKPDwKL1Jvb3QgMSAwIFIKPj4Kc3RhcnR4cmVmCjE0MgolJUVPRg==',
-    name: 'ownership_certificate.pdf',
-    type: 'application/pdf',
-    size: 156200,
-    documentIdentifier: 'DOC-004',
-    uploadedOn: '2024-01-05T09:15:00Z',
-    isVerified: true,
-    description: 'Property ownership certificate',
-  },
-  {
-    ownerId: 1,
-    ownerType: 'Landlord',
-    category: DocumentCategory.UtilityBill,
-    url: 'data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVGl0bGUgKEVsZWN0cmljaXR5IEJpbGwpCi9Qcm9kdWNlciAoU2FtcGxlIFBERikKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL0xlbmd0aCAzNCAKPj4Kc3RyZWFtCkJUCi9GMSAxMiBUZgoxMCA1NjYgVGQKKEVsZWN0cmljaXR5IEJpbGwpIFRqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDMKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNzkgMDAwMDAgbiAKdHJhaWxlcgo8PAovUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKMTMxCiUlRU9G',
-    name: 'electricity_bill_feb2024.pdf',
-    type: 'application/pdf',
-    size: 67800,
-    documentIdentifier: 'DOC-005',
-    uploadedOn: '2024-02-15T11:45:00Z',
-    isVerified: false,
-    description: 'Electricity bill for February 2024',
-  },
-  {
-    ownerId: 1,
-    ownerType: 'Landlord',
-    category: DocumentCategory.PropertyPhoto,
-    url: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
-    name: 'property_exterior.jpg',
-    type: 'image/jpeg',
-    size: 245600,
-    documentIdentifier: 'DOC-006',
-    uploadedOn: '2024-01-20T14:20:00Z',
-    isVerified: true,
-    description: 'Property exterior photograph',
-  },
-];
-
-// Mock Tenants
-const mockTenants: ITenant[] = [
-  {
-    id: 1,
-    landlordId: 1,
-    propertyId: 1,
-    name: 'Alice Johnson',
-    email: 'alice.johnson@example.com',
-    phoneNumber: '9876543212',
-    dob: '1988-05-12',
-    occupation: 'Designer',
-    aadhaarNumber: '123456789012',
-    panNumber: 'ABCDE1234F',
-    tenancyStartDate: '2024-01-01',
-    tenancyEndDate: '2025-01-01',
-    rentDueDate: '2024-01-05',
-    rentAmount: 45000,
-    securityDeposit: 135000,
-    isAcknowledge: true,
-    acknowledgeDate: '2024-01-01',
-    isVerified: true,
-    isNewTenant: false,
-    isPrimary: true,
-    isActive: true,
-    tenantGroup: 1,
-    documents: [mockDocuments[0]],
-    tickets: [],
-  },
-  {
-    id: 2,
-    landlordId: 1,
-    propertyId: 2,
-    name: 'John Doe',
-    email: 'john@example.com',
-    phoneNumber: '9876543210',
-    dob: '1990-01-01',
-    occupation: 'Engineer',
-    aadhaarNumber: '123456789013',
-    panNumber: 'ABCDE1234G',
-    tenancyStartDate: '2024-02-01',
-    tenancyEndDate: '2025-02-01',
-    rentDueDate: '2024-02-05',
-    rentAmount: 35000,
-    securityDeposit: 70000,
-    isAcknowledge: true,
-    acknowledgeDate: '2024-02-01',
-    isVerified: true,
-    isNewTenant: false,
-    isPrimary: true,
-    isActive: true,
-    tenantGroup: 2,
-    documents: [],
-    tickets: [],
-  },
-];
-
-// Mock Properties
-const mockProperties: IProperty[] = [
-  {
-    id: 1,
-    landlordId: 1,
-    title: 'Luxury 3BHK Apartment',
-    description: 'Spacious 3BHK apartment with modern amenities',
-    propertyType: PropertyType.Apartment,
-    bhkConfiguration: '3BHK',
-    floorNumber: 5,
-    totalFloors: 12,
-    carpetAreaSqFt: 1200,
-    builtUpAreaSqFt: 1400,
-    furnishingType: FurnishingType.SemiFurnished,
-    addressLine1: '123, Park Avenue',
-    addressLine2: 'Sector 15',
-    locality: 'Dwarka',
-    city: 'New Delhi',
-    state: 'Delhi',
-    pinCode: '110075',
-    monthlyRent: 45000,
-    securityDeposit: 135000,
-    isNegotiable: true,
-    availableFrom: '2024-01-01',
-    leaseType: LeaseType.ShortTerm,
-    hasLift: true,
-    hasParking: true,
-    hasPowerBackup: true,
-    hasWaterSupply: true,
-    hasGasPipeline: false,
-    hasSecurity: true,
-    hasInternet: true,
-    status: PropertyStatus.Rented,
-    createdOn: '2023-12-01',
-    updatedOn: '2024-01-10',
-    tenants: [mockTenants[0]],
-    documents: [mockDocuments[0], mockDocuments[1], mockDocuments[2], mockDocuments[3], mockDocuments[5]],
-  },
-  {
-    id: 2,
-    landlordId: 1,
-    title: 'Cozy 2BHK House',
-    description: 'Independent house with garden',
-    propertyType: PropertyType.Apartment,
-    bhkConfiguration: '2BHK',
-    floorNumber: 0,
-    totalFloors: 2,
-    carpetAreaSqFt: 1000,
-    builtUpAreaSqFt: 1200,
-    furnishingType: FurnishingType.FullyFurnished,
-    addressLine1: '456, Green Valley',
-    locality: 'Gurgaon',
-    city: 'Gurgaon',
-    state: 'Haryana',
-    pinCode: '122001',
-    monthlyRent: 35000,
-    securityDeposit: 70000,
-    isNegotiable: false,
-    availableFrom: '2024-02-01',
-    leaseType: LeaseType.LongTerm,
-    hasLift: false,
-    hasParking: true,
-    hasPowerBackup: true,
-    hasWaterSupply: true,
-    hasGasPipeline: true,
-    hasSecurity: true,
-    hasInternet: true,
-    status: PropertyStatus.Listed,
-    createdOn: '2023-11-15',
-    updatedOn: '2024-02-05',
-    tenants: [mockTenants[1]],
-    documents: [mockDocuments[1], mockDocuments[4]],
-  },
-];
-
-// Mock Ticket Status
-const mockTicketStatus: TicketStatus[] = [
-  {
-    id: 1,
-    ticketId: 1,
-    status: 'Open',
-    comment: 'Ticket created',
-    addedBy: 1,
-    dateCreated: '2024-03-01',
-  },
-  {
-    id: 2,
-    ticketId: 1,
-    status: 'In Progress',
-    comment: 'Assigned to maintenance',
-    addedBy: 2,
-    dateCreated: '2024-03-02',
-    dateModified: '2024-03-02',
-  },
-];
-
-// Mock Tickets
-const mockTickets: ITicket[] = [
-  {
-    id: 1,
-    landlordId: 1,
-    tenantGroupId: 1,
-    propertyId: 1,
-    category: 'Maintenance',
-    description: 'Leaking faucet in kitchen',
-    dateCreated: '2024-03-01',
-    status: mockTicketStatus,
-    tenantId: 1,
-    tenant: mockTenants[0],
-    property: mockProperties[0],
-  },
-  {
-    id: 2,
-    landlordId: 1,
-    tenantGroupId: 2,
-    propertyId: 2,
-    category: 'Repair',
-    description: 'Broken window in bedroom',
-    dateCreated: '2024-03-05',
-    status: [
+    // Mock Documents
+    const mockDocuments: IDocument[] = [
       {
-        id: 3,
-        ticketId: 2,
-        status: 'Open',
-        comment: 'Reported by tenant',
-        addedBy: 2,
-        dateCreated: '2024-03-05',
+        ownerId: 1,
+        ownerType: 'Landlord',
+        category: DocumentCategory.Legal,
+        url: 'data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVGl0bGUgKFByb3BlcnR5IERlZWQpCi9Qcm9kdWNlciAoU2FtcGxlIFBERikKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL0xlbmd0aCAzMyAKPj4Kc3RyZWFtCkJUCi9GMSAxMiBUZgoxMCA1NjYgVGQKKFByb3BlcnR5IERlZWQpIFRqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDMKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNzQgMDAwMDAgbiAKdHJhaWxlcgo8PAovUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKMTI4CiUlRU9G',
+        name: 'property_deed.pdf',
+        type: 'application/pdf',
+        size: 102400,
+        documentIdentifier: 'DOC-001',
+        uploadedOn: '2024-01-10T10:00:00Z',
+        isVerified: true,
+        description: 'Property deed document',
       },
-    ],
-    tenantId: 2,
-    tenant: mockTenants[1],
-    property: mockProperties[1],
-  },
-];
+      {
+        ownerId: 1,
+        ownerType: 'Landlord',
+        category: DocumentCategory.Agreement,
+        url: 'data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVGl0bGUgKFJlbnRhbCBBZ3JlZW1lbnQpCi9Qcm9kdWNlciAoU2FtcGxlIFBERikKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL0xlbmd0aCAzNyAKPj4Kc3RyZWFtCkJUCi9GMSAxMiBUZgoxMCA1NjYgVGQKKFJlbnRhbCBBZ3JlZW1lbnQpIFRqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDMKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwODIgMDAwMDAgbiAKdHJhaWxlcgo8PAovUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKMTM2CiUlRU9G',
+        name: 'rental_agreement.pdf',
+        type: 'application/pdf',
+        size: 204800,
+        documentIdentifier: 'DOC-002',
+        uploadedOn: '2024-02-05T12:00:00Z',
+        isVerified: false,
+        description: 'Rental agreement for tenant',
+      },
+      {
+        ownerId: 1,
+        ownerType: 'Landlord',
+        category: DocumentCategory.Financial,
+        url: 'data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVGl0bGUgKFJlbnQgUmVjZWlwdCkKL1Byb2R1Y2VyIChTYW1wbGUgUERGKQo+PgplbmRvYmoKMiAwIG9iago8PAovTGVuZ3RoIDMxIAo+PgpzdHJlYW0KQlQKL0YxIDEyIFRmCjEwIDU2NiBUZAooUmVudCBSZWNlaXB0KSBUagpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCAzCjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAwOSAwMDAwMCBuIAowMDAwMDAwMDc2IDAwMDAwIG4gCnRyYWlsZXIKPDwKL1Jvb3QgMSAwIFIKPj4Kc3RhcnR4cmVmCjEyOAolJUVPRg==',
+        name: 'rent_receipt_jan2024.pdf',
+        type: 'application/pdf',
+        size: 89600,
+        documentIdentifier: 'DOC-003',
+        uploadedOn: '2024-01-31T15:30:00Z',
+        isVerified: true,
+        description: 'Rent receipt for January 2024',
+      },
+      {
+        ownerId: 1,
+        ownerType: 'Landlord',
+        category: DocumentCategory.OwnershipProof,
+        url: 'data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVGl0bGUgKE93bmVyc2hpcCBDZXJ0aWZpY2F0ZSkKL1Byb2R1Y2VyIChTYW1wbGUgUERGKQo+PgplbmRvYmoKMiAwIG9iago8PAovTGVuZ3RoIDM5IAo+PgpzdHJlYW0KQlQKL0YxIDEyIFRmCjEwIDU2NiBUZAooT3duZXJzaGlwIENlcnRpZmljYXRlKSBUagpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCAzCjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAwOSAwMDAwMCBuIAowMDAwMDAwMDg0IDAwMDAwIG4gCnRyYWlsZXIKPDwKL1Jvb3QgMSAwIFIKPj4Kc3RhcnR4cmVmCjE0MgolJUVPRg==',
+        name: 'ownership_certificate.pdf',
+        type: 'application/pdf',
+        size: 156200,
+        documentIdentifier: 'DOC-004',
+        uploadedOn: '2024-01-05T09:15:00Z',
+        isVerified: true,
+        description: 'Property ownership certificate',
+      },
+      {
+        ownerId: 1,
+        ownerType: 'Landlord',
+        category: DocumentCategory.UtilityBill,
+        url: 'data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVGl0bGUgKEVsZWN0cmljaXR5IEJpbGwpCi9Qcm9kdWNlciAoU2FtcGxlIFBERikKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL0xlbmd0aCAzNCAKPj4Kc3RyZWFtCkJUCi9GMSAxMiBUZgoxMCA1NjYgVGQKKEVsZWN0cmljaXR5IEJpbGwpIFRqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDMKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNzkgMDAwMDAgbiAKdHJhaWxlcgo8PAovUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKMTMxCiUlRU9G',
+        name: 'electricity_bill_feb2024.pdf',
+        type: 'application/pdf',
+        size: 67800,
+        documentIdentifier: 'DOC-005',
+        uploadedOn: '2024-02-15T11:45:00Z',
+        isVerified: false,
+        description: 'Electricity bill for February 2024',
+      },
+      {
+        ownerId: 1,
+        ownerType: 'Landlord',
+        category: DocumentCategory.PropertyPhoto,
+        url: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
+        name: 'property_exterior.jpg',
+        type: 'image/jpeg',
+        size: 245600,
+        documentIdentifier: 'DOC-006',
+        uploadedOn: '2024-01-20T14:20:00Z',
+        isVerified: true,
+        description: 'Property exterior photograph',
+      },
+    ];
+
+    // Mock Tenants
+    const mockTenants: ITenant[] = [
+      {
+        id: 1,
+        landlordId: 1,
+        propertyId: 1,
+        name: 'Alice Johnson',
+        email: 'alice.johnson@example.com',
+        phoneNumber: '9876543212',
+        dob: '1988-05-12',
+        occupation: 'Designer',
+        aadhaarNumber: '123456789012',
+        panNumber: 'ABCDE1234F',
+        tenancyStartDate: '2024-01-01',
+        tenancyEndDate: '2025-01-01',
+        rentDueDate: '2024-01-05',
+        rentAmount: 45000,
+        securityDeposit: 135000,
+        isAcknowledge: true,
+        acknowledgeDate: '2024-01-01',
+        isVerified: true,
+        isNewTenant: false,
+        isPrimary: true,
+        isActive: true,
+        tenantGroup: 1,
+        documents: [mockDocuments[0]],
+        tickets: [],
+      },
+      {
+        id: 2,
+        landlordId: 1,
+        propertyId: 2,
+        name: 'John Doe',
+        email: 'john@example.com',
+        phoneNumber: '9876543210',
+        dob: '1990-01-01',
+        occupation: 'Engineer',
+        aadhaarNumber: '123456789013',
+        panNumber: 'ABCDE1234G',
+        tenancyStartDate: '2024-02-01',
+        tenancyEndDate: '2025-02-01',
+        rentDueDate: '2024-02-05',
+        rentAmount: 35000,
+        securityDeposit: 70000,
+        isAcknowledge: true,
+        acknowledgeDate: '2024-02-01',
+        isVerified: true,
+        isNewTenant: false,
+        isPrimary: true,
+        isActive: true,
+        tenantGroup: 2,
+        documents: [],
+        tickets: [],
+      },
+    ];
+
+    // Mock Properties
+    const mockProperties: IProperty[] = [
+      {
+        id: 1,
+        landlordId: 1,
+        title: 'Luxury 3BHK Apartment',
+        description: 'Spacious 3BHK apartment with modern amenities',
+        propertyType: PropertyType.Apartment,
+        bhkConfiguration: '3BHK',
+        floorNumber: 5,
+        totalFloors: 12,
+        carpetAreaSqFt: 1200,
+        builtUpAreaSqFt: 1400,
+        furnishingType: FurnishingType.SemiFurnished,
+        addressLine1: '123, Park Avenue',
+        addressLine2: 'Sector 15',
+        locality: 'Dwarka',
+        city: 'New Delhi',
+        state: 'Delhi',
+        pinCode: '110075',
+        monthlyRent: 45000,
+        securityDeposit: 135000,
+        isNegotiable: true,
+        availableFrom: '2024-01-01',
+        leaseType: LeaseType.ShortTerm,
+        hasLift: true,
+        hasParking: true,
+        hasPowerBackup: true,
+        hasWaterSupply: true,
+        hasGasPipeline: false,
+        hasSecurity: true,
+        hasInternet: true,
+        status: PropertyStatus.Rented,
+        createdOn: '2023-12-01',
+        updatedOn: '2024-01-10',
+        tenants: [mockTenants[0]],
+        documents: [mockDocuments[0], mockDocuments[1], mockDocuments[2], mockDocuments[3], mockDocuments[5]],
+      },
+      {
+        id: 2,
+        landlordId: 1,
+        title: 'Cozy 2BHK House',
+        description: 'Independent house with garden',
+        propertyType: PropertyType.Apartment,
+        bhkConfiguration: '2BHK',
+        floorNumber: 0,
+        totalFloors: 2,
+        carpetAreaSqFt: 1000,
+        builtUpAreaSqFt: 1200,
+        furnishingType: FurnishingType.FullyFurnished,
+        addressLine1: '456, Green Valley',
+        locality: 'Gurgaon',
+        city: 'Gurgaon',
+        state: 'Haryana',
+        pinCode: '122001',
+        monthlyRent: 35000,
+        securityDeposit: 70000,
+        isNegotiable: false,
+        availableFrom: '2024-02-01',
+        leaseType: LeaseType.LongTerm,
+        hasLift: false,
+        hasParking: true,
+        hasPowerBackup: true,
+        hasWaterSupply: true,
+        hasGasPipeline: true,
+        hasSecurity: true,
+        hasInternet: true,
+        status: PropertyStatus.Listed,
+        createdOn: '2023-11-15',
+        updatedOn: '2024-02-05',
+        tenants: [mockTenants[1]],
+        documents: [mockDocuments[1], mockDocuments[4]],
+      },
+    ];
+
+    // Mock Ticket Status
+    const mockTicketStatus: TicketStatus[] = [
+      {
+        id: 1,
+        ticketId: 1,
+        status: 'Open',
+        comment: 'Ticket created',
+        addedBy: 1,
+        dateCreated: '2024-03-01',
+      },
+      {
+        id: 2,
+        ticketId: 1,
+        status: 'In Progress',
+        comment: 'Assigned to maintenance',
+        addedBy: 2,
+        dateCreated: '2024-03-02',
+        dateModified: '2024-03-02',
+      },
+    ];
+
+    // Mock Tickets
+    const mockTickets: ITicket[] = [
+      {
+        id: 1,
+        landlordId: 1,
+        tenantGroupId: 1,
+        propertyId: 1,
+        category: 'Maintenance',
+        description: 'Leaking faucet in kitchen',
+        dateCreated: '2024-03-01',
+        status: mockTicketStatus,
+        tenantId: 1,
+        tenant: mockTenants[0],
+        property: mockProperties[0],
+      },
+      {
+        id: 2,
+        landlordId: 1,
+        tenantGroupId: 2,
+        propertyId: 2,
+        category: 'Repair',
+        description: 'Broken window in bedroom',
+        dateCreated: '2024-03-05',
+        status: [
+          {
+            id: 3,
+            ticketId: 2,
+            status: 'Open',
+            comment: 'Reported by tenant',
+            addedBy: 2,
+            dateCreated: '2024-03-05',
+          },
+        ],
+        tenantId: 2,
+        tenant: mockTenants[1],
+        property: mockProperties[1],
+      },
+    ];
 
 
 
 
-   this.properties = mockProperties.map((property) => this.transformPropertyForTable(property));
+    this.properties = mockProperties.map((property) => this.transformPropertyForTable(property));
 
   }
 
@@ -693,7 +694,7 @@ const mockTickets: ITicket[] = [
         const rent = p.monthlyRent || 0;
         return total + (typeof rent === 'number' && !isNaN(rent) ? rent : 0);
       }, 0);
-    
+
     return typeof total === 'number' && !isNaN(total) ? total : 0;
   }
 
@@ -704,18 +705,18 @@ const mockTickets: ITicket[] = [
 
   getTenantChildren(tenant: ITenant): any[] {
     // Return family members (non-primary tenants) from the same tenant group
-    const familyMembers = this.mockTenants.filter((t: ITenant) => 
-      t.tenantGroup === tenant.tenantGroup && 
-      t.id !== tenant.id && 
+    const familyMembers = this.mockTenants.filter((t: ITenant) =>
+      t.tenantGroup === tenant.tenantGroup &&
+      t.id !== tenant.id &&
       !t.isPrimary
     );
-    
+
     return familyMembers.map((member: ITenant) => ({
       id: member.id,
       name: member.name,
       age: member.age,
-      relation: member.age && member.age < 18 ? 
-        (member.name.includes('Sarah') ? 'Daughter' : 'Son') : 
+      relation: member.age && member.age < 18 ?
+        (member.name.includes('Sarah') ? 'Daughter' : 'Son') :
         'Spouse'
     }));
   }
@@ -743,7 +744,7 @@ const mockTickets: ITicket[] = [
 
   private updateDownloadCategoryCounts(property: IProperty): void {
     const documents = property.documents || [];
-    
+
     // Update download categories with actual document counts
     this.downloadCategories = this.downloadCategories.map(category => {
       if (category.value === 'all') {
@@ -784,7 +785,7 @@ const mockTickets: ITicket[] = [
         'image/jpg',
         'image/png'
       ];
-      
+
       if (!allowedTypes.includes(file.type)) {
         alert('Invalid file type. Please upload PDF, DOC, DOCX, JPG, or PNG files only.');
         return;
@@ -801,7 +802,7 @@ const mockTickets: ITicket[] = [
 
   private uploadFile(file: File, property: IProperty): void {
     console.log('Uploading file:', file.name, 'for property:', property.title);
-    
+
     // Mock upload process with progress indication
     const uploadProgress = document.createElement('div');
     uploadProgress.innerHTML = `
@@ -813,7 +814,7 @@ const mockTickets: ITicket[] = [
         <span id="progress-text">0%</span>
       </div>
     `;
-    
+
     // Insert progress indicator in modal
     const modalContent = document.querySelector('.upload-modal .modal-content');
     if (modalContent) {
@@ -825,17 +826,17 @@ const mockTickets: ITicket[] = [
     const progressInterval = setInterval(() => {
       progress += Math.random() * 20;
       if (progress > 100) progress = 100;
-      
+
       const progressBar = document.getElementById('progress-bar');
       const progressText = document.getElementById('progress-text');
       if (progressBar && progressText) {
         progressBar.style.width = `${progress}%`;
         progressText.textContent = `${Math.round(progress)}%`;
       }
-      
+
       if (progress >= 100) {
         clearInterval(progressInterval);
-        
+
         // Create document object
         const newDocument: IDocument = {
           ownerId: property.landlordId || 1,
@@ -861,12 +862,12 @@ const mockTickets: ITicket[] = [
         this.updatePropertyInList(property);
 
         console.log('File uploaded successfully:', newDocument);
-        
+
         // Show success message
         setTimeout(() => {
           alert(`File "${file.name}" uploaded successfully as ${this.getSelectedCategoryName()}`);
           this.onCloseUploadModal();
-          
+
           // Reset file input
           const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
           if (fileInput) {
@@ -891,19 +892,19 @@ const mockTickets: ITicket[] = [
 
   onDownloadDocument(doc: IDocument): void {
     console.log('Downloading document:', doc.name);
-    
+
     // Create a temporary link element for download
     if (doc.url) {
       const link = document.createElement('a');
       link.href = doc.url;
       link.download = doc.name || 'document';
       link.target = '_blank';
-      
+
       // Append to body, click, and remove
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       console.log(`Downloaded: ${doc.name}`);
     } else {
       alert('Document file not available for download.');
@@ -929,7 +930,7 @@ const mockTickets: ITicket[] = [
   }
 
   isDownloadDisabled(): boolean {
-    return this.selectedDownloadCategory === 'all' 
+    return this.selectedDownloadCategory === 'all'
       ? this.getAllDocumentsCount() === 0
       : this.getSelectedCategoryCount() === 0;
   }
@@ -941,7 +942,7 @@ const mockTickets: ITicket[] = [
     }
 
     let documentsToDownload: IDocument[] = [];
-    
+
     if (this.selectedDownloadCategory === 'all') {
       documentsToDownload = this.selectedPropertyForDownload.documents;
     } else {
@@ -956,7 +957,7 @@ const mockTickets: ITicket[] = [
     }
 
     console.log('Downloading documents for category:', this.selectedDownloadCategory);
-    
+
     // If only one document, download directly
     if (documentsToDownload.length === 1) {
       this.onDownloadDocument(documentsToDownload[0]);
@@ -968,7 +969,7 @@ const mockTickets: ITicket[] = [
     const confirmDownload = confirm(
       `This will download ${documentsToDownload.length} documents. Continue?`
     );
-    
+
     if (confirmDownload) {
       // Download each document with a small delay
       documentsToDownload.forEach((doc, index) => {
@@ -979,8 +980,8 @@ const mockTickets: ITicket[] = [
 
       // Show success message
       setTimeout(() => {
-        const categoryName = this.selectedDownloadCategory === 'all' 
-          ? 'All Documents' 
+        const categoryName = this.selectedDownloadCategory === 'all'
+          ? 'All Documents'
           : this.getSelectedCategoryLabel();
         alert(`${documentsToDownload.length} documents from "${categoryName}" category have been downloaded.`);
         this.onCloseDownloadModal();

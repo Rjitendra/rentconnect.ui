@@ -21,6 +21,7 @@ import {
   FurnishingType,
   LeaseType,
   PropertyStatus,
+  DocumentCategory,
 } from '../../../../enums/view.enum';
 import { PropertyService } from '../../../../service/property.service';
 import {
@@ -39,6 +40,8 @@ import {
   UploadedFile,
 } from '../../../../../../../projects/shared/src/public-api';
 import { IDocument } from '../../../../models/document';
+import { IUserDetail, OauthService } from '../../../../../oauth/service/oauth.service';
+import { OwnerType } from '../../../../constants/owner-type.constants';
 
 @Component({
   selector: 'app-property-add',
@@ -53,7 +56,7 @@ import { IDocument } from '../../../../models/document';
     NgTextareaComponent,
     NgDatepickerComponent,
     NgFileUploadComponent
-],
+  ],
   templateUrl: './property-add.html',
   styleUrl: './property-add.scss',
 })
@@ -62,7 +65,7 @@ export class PropertyAdd implements OnInit {
   private router = inject(Router);
   private propertyService = inject(PropertyService);
   private alertService = inject(AlertService);
-
+  private userService = inject(OauthService);
   readonly backToList = output<void>();
 
   propertyForm!: FormGroup;
@@ -126,11 +129,9 @@ export class PropertyAdd implements OnInit {
   // Validation errors
   validationErrors: PropertyValidationError[] = [];
   isShowingValidationErrors = false;
+  userdetail: Partial<IUserDetail> = {};
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
+  constructor() { this.userdetail = this.userService.getUserInfo(); }
 
   ngOnInit() {
     this.initializeForm();
@@ -199,54 +200,75 @@ export class PropertyAdd implements OnInit {
 
     this.isSaving = true;
 
-    const formData: PropertyFormData = {
-      ...this.propertyForm.value,
-      documents: this.convertImagesToDocuments(),
-    };
+    try {
+      // Create property object with form data and documents
+      const propertyData: IProperty = {
+        ...this.propertyForm.value,
+        landlordId: this.userdetail?.userId ? Number(this.userdetail.userId) : 0,
+        documents: this.convertImagesToDocuments(),
+        status: PropertyStatus.Listed,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
 
-    this.propertyService.saveProperty(formData).subscribe({
-      next: (response: PropertySaveResponse) => {
-        this.isSaving = false;
-        if (response.success) {
-          // Clear any previous errors
-          this.validationErrors = [];
-          this.isShowingValidationErrors = false;
+      // Convert to FormData for file upload support
+      const formData = this.convertPropertyToFormData(propertyData);
 
-          // Show success message
-          this.alertService.success({
+      this.propertyService.saveProperty(formData).subscribe({
+        next: (response: PropertySaveResponse) => {
+          this.isSaving = false;
+          if (response.success) {
+            // Clear any previous errors
+            this.validationErrors = [];
+            this.isShowingValidationErrors = false;
+
+            // Show success message
+            this.alertService.success({
+              errors: [
+                {
+                  message: response.message,
+                  errorType: 'success',
+                },
+              ],
+              timeout: 5000,
+            });
+
+            // Navigate back to property list or show success page
+            setTimeout(() => {
+              this.router.navigate(['/landlord/property/dashboard']);
+            }, 2000);
+          } else {
+            this.validationErrors = response.errors || [];
+            this.showValidationErrors();
+          }
+        },
+        error: (error: Error) => {
+          this.isSaving = false;
+
+          this.alertService.error({
             errors: [
               {
-                message: response.message,
-                errorType: 'success',
+                message:
+                  'An error occurred while saving the property. Please try again.',
+                errorType: 'error',
               },
             ],
             timeout: 5000,
           });
-
-          // Navigate back to property list or show success page
-          setTimeout(() => {
-            this.router.navigate(['/landlord/property/dashboard']);
-          }, 2000);
-        } else {
-          this.validationErrors = response.errors || [];
-          this.showValidationErrors();
-        }
-      },
-      error: (error: Error) => {
-        this.isSaving = false;
-
-        this.alertService.error({
-          errors: [
-            {
-              message:
-                'An error occurred while saving the property. Please try again.',
-              errorType: 'error',
-            },
-          ],
-          timeout: 5000,
-        });
-      },
-    });
+        },
+      });
+    } catch (error) {
+      this.isSaving = false;
+      this.alertService.error({
+        errors: [
+          {
+            message: 'Failed to prepare property data for saving. Please check your input and try again.',
+            errorType: 'error',
+          },
+        ],
+        timeout: 5000,
+      });
+    }
   }
 
   saveDraft() {
@@ -257,49 +279,69 @@ export class PropertyAdd implements OnInit {
 
     this.isSavingDraft = true;
 
-    const formData: PropertyFormData = {
-      ...this.propertyForm.value,
-      documents: this.convertImagesToDocuments(),
-    };
+    try {
+      // Create property object with form data and documents
+      const propertyData: IProperty = {
+        ...this.propertyForm.value,
+        documents: this.convertImagesToDocuments(),
+        status: PropertyStatus.Draft,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
 
-    this.propertyService.saveDraft(formData).subscribe({
-      next: (response: PropertySaveResponse) => {
-        this.isSavingDraft = false;
-        if (response.success) {
-          // Clear any previous errors
-          this.validationErrors = [];
-          this.isShowingValidationErrors = false;
+      // Convert to FormData for file upload support
+      const formData = this.convertPropertyToFormData(propertyData);
 
-          // Show success message
-          this.alertService.success({
+      this.propertyService.saveDraft(formData).subscribe({
+        next: (response: PropertySaveResponse) => {
+          this.isSavingDraft = false;
+          if (response.success) {
+            // Clear any previous errors
+            this.validationErrors = [];
+            this.isShowingValidationErrors = false;
+
+            // Show success message
+            this.alertService.success({
+              errors: [
+                {
+                  message: response.message,
+                  errorType: 'success',
+                },
+              ],
+              timeout: 3000,
+            });
+          } else {
+            this.validationErrors = response.errors || [];
+            this.showValidationErrors();
+          }
+        },
+        error: (error: Error) => {
+          this.isSavingDraft = false;
+
+          this.alertService.error({
             errors: [
               {
-                message: response.message,
-                errorType: 'success',
+                message:
+                  'An error occurred while saving the draft. Please try again.',
+                errorType: 'error',
               },
             ],
-            timeout: 3000,
+            timeout: 5000,
           });
-        } else {
-          this.validationErrors = response.errors || [];
-          this.showValidationErrors();
-        }
-      },
-      error: (error: Error) => {
-        this.isSavingDraft = false;
-
-        this.alertService.error({
-          errors: [
-            {
-              message:
-                'An error occurred while saving the draft. Please try again.',
-              errorType: 'error',
-            },
-          ],
-          timeout: 5000,
-        });
-      },
-    });
+        },
+      });
+    } catch (error) {
+      this.isSavingDraft = false;
+      this.alertService.error({
+        errors: [
+          {
+            message: 'Failed to prepare draft data for saving. Please check your input and try again.',
+            errorType: 'error',
+          },
+        ],
+        timeout: 5000,
+      });
+    }
   }
 
   goBack() {
@@ -391,10 +433,23 @@ export class PropertyAdd implements OnInit {
 
   // Image upload handlers for shared component
   onImagesSelected(files: UploadedFile[]): void {
-    this.uploadedImages = files;
+    // Validate files before accepting them
+    const validFiles = this.validateUploadedFiles(files);
+
+    if (validFiles.length !== files.length) {
+      this.alertService.error({
+        errors: [{
+          message: `${files.length - validFiles.length} file(s) were rejected due to validation errors.`,
+          errorType: 'error'
+        }],
+        timeout: 5000
+      });
+    }
+
+    this.uploadedImages = validFiles;
     this.propertyForm
       .get('propertyImages')
-      ?.setValue(files, { emitEvent: false });
+      ?.setValue(validFiles, { emitEvent: false });
   }
 
   onImageRemoved(file: UploadedFile): void {
@@ -411,7 +466,13 @@ export class PropertyAdd implements OnInit {
   }
 
   onImageUploadError(error: { file: UploadedFile; error: string }): void {
-    alert(`Error uploading ${error.file.name}: ${error.error}`);
+    this.alertService.error({
+      errors: [{
+        message: `Error uploading ${error.file.name}: ${error.error}`,
+        errorType: 'error'
+      }],
+      timeout: 5000
+    });
   }
 
   removeImage(image: UploadedFile): void {
@@ -451,57 +512,126 @@ export class PropertyAdd implements OnInit {
     }
   }
 
+  // Helper method to validate uploaded files
+  private validateUploadedFiles(files: UploadedFile[]): UploadedFile[] {
+    const validFiles: UploadedFile[] = [];
+
+    for (const file of files) {
+      let isValid = true;
+
+      // Check file size
+      if (file.size > this.maxFileSize) {
+        this.alertService.error({
+          errors: [{
+            message: `File "${file.name}" is too large. Maximum size is ${this.maxFileSize / 1024 / 1024}MB.`,
+            errorType: 'error'
+          }],
+          timeout: 5000
+        });
+        isValid = false;
+      }
+
+      // Check file type
+      if (!this.acceptedTypes.includes(file.type)) {
+        this.alertService.error({
+          errors: [{
+            message: `File "${file.name}" has an unsupported format. Only ${this.acceptedTypes.join(', ')} are allowed.`,
+            errorType: 'error'
+          }],
+          timeout: 5000
+        });
+        isValid = false;
+      }
+
+      // Check total number of files
+      if (validFiles.length >= this.maxFiles) {
+        this.alertService.error({
+          errors: [{
+            message: `Maximum ${this.maxFiles} files allowed. Additional files will be ignored.`,
+            errorType: 'error'
+          }],
+          timeout: 5000
+        });
+        break;
+      }
+
+      if (isValid) {
+        validFiles.push(file);
+      }
+    }
+
+    return validFiles;
+  }
+
   // Helper method to convert uploaded files to documents for the property model
-  private convertImagesToDocuments(): any[] {
+  private convertImagesToDocuments(): IDocument[] {
+     const ownerId = this.userdetail?.userId ? Number(this.userdetail.userId) : 0;
     return this.uploadedImages.map((image, index) => ({
+      ownerId: ownerId, // Will be set when property is saved
+      ownerType: OwnerType.LANDLORD,
+      category: DocumentCategory.PropertyPhoto,
       name: image.name,
       type: image.type,
       size: image.size,
       url: image.url,
-      isPrimary: index === 0, // First image is primary
-      documentType: 'PropertyImages',
-      uploadedAt: new Date(),
+      file: image.file, // Include the actual File object
+      uploadedOn: new Date().toISOString(),
+      isVerified: false,
+      description: index === 0 ? 'Primary property image' : `Property image ${index + 1}`
     }));
   }
 
   private convertPropertyToFormData(property: IProperty): FormData {
-  const formData = new FormData();
+    const formData = new FormData();
 
-  // loop through keys of the object
-  Object.entries(property).forEach(([key, value]) => {
-    if (value === null || value === undefined) return; // skip null/undefined
+    // Handle file uploads separately first
+    if (property.documents && Array.isArray(property.documents)) {
+      property.documents.forEach((doc: IDocument, index: number) => {
+        if (doc.file instanceof File) {
+          // Append the actual file with a proper field name
+          formData.append(`propertyImages`, doc.file, doc.file.name);
 
-    // handle arrays separately (e.g., tenants, documents)
-    if (Array.isArray(value)) {
-      if (key === 'documents') {
-        // assuming each document has a file property
-        value.forEach((doc: any, index: number) => {
-          if (doc.file instanceof File) {
-            formData.append(`documents[${index}]`, doc.file, doc.file.name);
-          } else {
-            formData.append(`documents[${index}]`, JSON.stringify(doc));
-          }
-        });
-      } else {
-        // generic array → stringify
+          // Append document metadata
+          formData.append(`documentMetadata[${index}]`, JSON.stringify({
+            name: doc.name,
+            type: doc.type,
+            size: doc.size,
+            category: doc.category,
+            description: doc.description,
+            ownerId: doc.ownerId,
+            ownerType: doc.ownerType
+          }));
+        }
+      });
+    }
+
+    // Handle other property fields
+    Object.entries(property).forEach(([key, value]) => {
+      // Skip documents as they're handled above
+      if (key === 'documents') return;
+
+      // Skip null/undefined values
+      if (value === null || value === undefined) return;
+
+      // Handle arrays (excluding documents)
+      if (Array.isArray(value)) {
         formData.append(key, JSON.stringify(value));
       }
-    }
-    // handle Date objects
-    else if (value instanceof Date) {
-      formData.append(key, value.toISOString());
-    }
-    // handle objects (landlord, tenants, etc.)
-    else if (typeof value === 'object') {
-      formData.append(key, JSON.stringify(value));
-    }
-    // primitives (string, number, boolean)
-    else {
-      formData.append(key, value.toString());
-    }
-  });
+      // Handle Date objects
+      else if (value instanceof Date) {
+        formData.append(key, value.toISOString());
+      }
+      // Handle nested objects
+      else if (typeof value === 'object') {
+        formData.append(key, JSON.stringify(value));
+      }
+      // Handle primitives (string, number, boolean)
+      else {
+        formData.append(key, value.toString());
+      }
+    });
 
-  return formData;
-}
+    return formData;
+  }
 
 }
