@@ -32,7 +32,7 @@ export enum DocumentCategory {
   UtilityBill = 'UtilityBill',
   NoObjectionCertificate = 'NoObjectionCertificate',
   BankProof = 'BankProof',
-  PropertyPhoto = 'PropertyPhoto',
+  PropertyPhoto = 'PropertyImages',
   RentalAgreement = 'RentalAgreement',
   AddressProof = 'AddressProof',
   IdProof = 'IdProof',

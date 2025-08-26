@@ -35,7 +35,7 @@ export class PropertyService {
     formData: FormData,
   ): Observable<any> {
 
-    return this._http.post<any>(`${environment.apiBaseUrl}property-create`, formData);
+    return this._http.post<any>(`${environment.apiBaseUrl}Property/property-create`, formData);
 
     // try {
     //   // Extract property data from FormData

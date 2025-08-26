@@ -185,7 +185,8 @@ export class PropertyAdd implements OnInit {
   }
 
   onSubmit() {
-    if (this.isSaving) return; // Prevent double submission
+    this.propertyForm.markAllAsDirty();
+    //  if (this.isSaving) return; // Prevent double submission
 
     // Clear previous validation errors
     this.validationErrors = [];
@@ -197,7 +198,7 @@ export class PropertyAdd implements OnInit {
       this.showValidationErrors();
       return;
     }
-
+    if (this.propertyForm.invalid) { return; }
     this.isSaving = true;
 
     try {
@@ -351,7 +352,7 @@ export class PropertyAdd implements OnInit {
   }
 
   showValidationErrors() {
-    if (this.validationErrors.length > 0 && !this.isShowingValidationErrors) {
+    if (this.validationErrors.length > 0 ) {
       this.isShowingValidationErrors = true;
 
       // Clear any existing alerts first
@@ -565,7 +566,7 @@ export class PropertyAdd implements OnInit {
 
   // Helper method to convert uploaded files to documents for the property model
   private convertImagesToDocuments(): IDocument[] {
-     const ownerId = this.userdetail?.userId ? Number(this.userdetail.userId) : 0;
+    const ownerId = this.userdetail?.userId ? Number(this.userdetail.userId) : 0;
     return this.uploadedImages.map((image, index) => ({
       ownerId: ownerId, // Will be set when property is saved
       ownerType: OwnerType.LANDLORD,
@@ -584,24 +585,24 @@ export class PropertyAdd implements OnInit {
   private convertPropertyToFormData(property: IProperty): FormData {
     const formData = new FormData();
 
-    // Handle file uploads separately first
+
+
+    // Handle documents (files + metadata)
     if (property.documents && Array.isArray(property.documents)) {
       property.documents.forEach((doc: IDocument, index: number) => {
         if (doc.file instanceof File) {
-          // Append the actual file with a proper field name
-          formData.append(`propertyImages`, doc.file, doc.file.name);
-
-          // Append document metadata
-          formData.append(`documentMetadata[${index}]`, JSON.stringify({
-            name: doc.name,
-            type: doc.type,
-            size: doc.size,
-            category: doc.category,
-            description: doc.description,
-            ownerId: doc.ownerId,
-            ownerType: doc.ownerType
-          }));
+          // Append the actual file
+          formData.append(`documents[${index}].file`, doc.file, doc.file.name);
         }
+
+        // Append metadata fields individually (so .NET model binder can map)
+        if (doc.name) formData.append(`documents[${index}].name`, doc.name);
+        if (doc.type) formData.append(`documents[${index}].type`, doc.type);
+        if (doc.size) formData.append(`documents[${index}].size`, doc.size.toString());
+        if (doc.category) formData.append(`documents[${index}].category`, doc.category.toString());
+        if (doc.description) formData.append(`documents[${index}].description`, doc.description);
+        if (doc.ownerId) formData.append(`documents[${index}].ownerId`, doc.ownerId.toString());
+        if (doc.ownerType) formData.append(`documents[${index}].ownerType`, doc.ownerType);
       });
     }
 
