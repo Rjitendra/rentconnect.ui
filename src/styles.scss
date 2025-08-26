@@ -3,7 +3,7 @@
 /* You can add global styles to this file, and also import other style files */
 
 /* Import shared form control validation styles */
-@import '../projects/shared/src/lib/styles/shared-controls.scss';
+@use '../projects/shared/src/lib/styles/shared-controls.scss';
 html,
 body {
   height: 100%;

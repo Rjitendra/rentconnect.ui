@@ -3,7 +3,7 @@
    ========================================================================== */
 
 // Import all shared style files
-@import './shared-controls.scss';
+@use './shared-controls.scss';
 
 // Export for easy access
 // This file can be imported by any project that needs shared component styles
