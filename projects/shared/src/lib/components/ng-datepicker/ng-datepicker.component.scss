@@ -3,9 +3,8 @@
   width: 100%;
 }
 
-.ng-datepicker-field {
-  width: 100%;
-}
+/* Error styling is now handled by shared-controls.scss */
+/* Component uses .ng-datepicker-error class which is defined in shared styles */
 
 .mat-mdc-form-field {
   width: 100%;

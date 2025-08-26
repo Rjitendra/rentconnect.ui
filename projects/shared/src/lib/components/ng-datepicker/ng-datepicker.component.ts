@@ -49,6 +49,10 @@ export class NgDatepickerComponent implements ControlValueAccessor {
   readonly customIcon = input<string>('');
   readonly touchUi = input(false);
   readonly opened = input(false);
+  readonly hasError = input(false);
+  readonly errorMessage = input('');
+  readonly isInvalid = input(false);
+  readonly validationMessage = input('');
   
   readonly dateInput = output<any>();
   readonly dateChange = output<any>();
@@ -101,5 +105,15 @@ export class NgDatepickerComponent implements ControlValueAccessor {
     this.onTouched();
     // TODO: The 'emit' function requires a mandatory void argument
     this.pickerClosed.emit();
+  }
+
+  // Check if field has validation errors
+  get hasValidationError(): boolean {
+    return this.hasError() || this.isInvalid();
+  }
+
+  // Get error message
+  get displayErrorMessage(): string {
+    return this.errorMessage() || this.validationMessage() || '';
   }
 }

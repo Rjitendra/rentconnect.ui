@@ -82,6 +82,14 @@ export class NgCheckbox implements ControlValueAccessor {
   readonly hideLabel = input<boolean>(false);
   /** Icon to display next to the checkbox */
   readonly icon = input<string>();
+  /** Whether checkbox has validation error */
+  readonly hasError = input<boolean>(false);
+  /** Error message to display */
+  readonly errorMessage = input<string>('');
+  /** Whether checkbox is invalid */
+  readonly isInvalid = input<boolean>(false);
+  /** Validation message */
+  readonly validationMessage = input<string>('');
   /** Output event when checkbox state changes */
   readonly changed = output<boolean>();
 
@@ -116,5 +124,15 @@ export class NgCheckbox implements ControlValueAccessor {
 
   onBlur(): void {
     this.onTouched();
+  }
+
+  // Check if field has validation errors
+  get hasValidationError(): boolean {
+    return this.hasError() || this.isInvalid();
+  }
+
+  // Get error message
+  get displayErrorMessage(): string {
+    return this.errorMessage() || this.validationMessage() || '';
   }
 }

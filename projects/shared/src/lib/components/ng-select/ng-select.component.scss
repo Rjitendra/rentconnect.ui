@@ -3,46 +3,8 @@
   width: 100%;
 }
 
-.ng-select-field {
-  width: 100%;
-  
-  // Error state styling
-  &.ng-select-error {
-    .mat-mdc-form-field-outline {
-      .mat-mdc-form-field-outline-start,
-      .mat-mdc-form-field-outline-notch,
-      .mat-mdc-form-field-outline-end {
-        border-color: #f56565 !important;
-        border-width: 2px !important;
-      }
-    }
-    
-    .mat-mdc-form-field-outline-thick {
-      .mat-mdc-form-field-outline-start,
-      .mat-mdc-form-field-outline-notch,
-      .mat-mdc-form-field-outline-end {
-        border-color: #f56565 !important;
-        border-width: 2px !important;
-      }
-    }
-    
-    .mat-mdc-form-field-label {
-      color: #f56565 !important;
-    }
-    
-    .mat-mdc-form-field-icon-suffix,
-    .mat-mdc-form-field-icon-prefix {
-      color: #f56565 !important;
-    }
-  }
-  
-  // Error message styling
-  .mat-mdc-form-field-error {
-    color: #f56565;
-    font-size: 12px;
-    margin-top: 4px;
-  }
-}
+/* Error styling is now handled by shared-controls.scss */
+/* Component uses .ng-select-error class which is defined in shared styles */
 
 .mat-mdc-form-field {
   width: 100%;

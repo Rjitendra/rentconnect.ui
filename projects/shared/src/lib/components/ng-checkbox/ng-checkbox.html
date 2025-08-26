@@ -1,9 +1,10 @@
 @if (!isToggle()) {
+<div class="ng-checkbox-wrapper" [class.ng-checkbox-error]="hasValidationError">
 <mat-checkbox
   [name]="uniqueId() || checkboxName() || 'inputCheck'"
   [aria-label]="label() || toolTip() || ''"
   [checked]="value"
-  [color]="color()"
+  [color]="hasValidationError ? 'warn' : color()"
   [disabled]="disabled()"
   [id]="uniqueId() || ''"
   [labelPosition]="labelPosition() || 'after'"
@@ -25,12 +26,17 @@
   />
   }
 </mat-checkbox>
+@if (hasValidationError && displayErrorMessage) {
+  <div class="ng-checkbox-error-message">{{ displayErrorMessage }}</div>
+}
+</div>
 } @else {
+<div class="ng-toggle-wrapper" [class.ng-toggle-error]="hasValidationError">
 <mat-slide-toggle
   [name]="uniqueId() || checkboxName() || 'inputCheck'"
   [aria-label]="label()"
   [checked]="value"
-  [color]="color()"
+  [color]="hasValidationError ? 'warn' : color()"
   [disabled]="disabled()"
   [id]="uniqueId() || ''"
   [labelPosition]="labelPosition() || 'after'"
@@ -51,4 +57,8 @@
   />
   }
 </mat-slide-toggle>
+@if (hasValidationError && displayErrorMessage) {
+  <div class="ng-toggle-error-message">{{ displayErrorMessage }}</div>
+}
+</div>
 }
