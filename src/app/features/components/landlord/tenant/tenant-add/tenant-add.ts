@@ -289,7 +289,7 @@ export class TenantAddComponent implements OnInit {
     if (name.includes('aadhaar') || name.includes('aadhar')) return DocumentCategory.Aadhaar;
     if (name.includes('pan')) return DocumentCategory.PAN;
     if (name.includes('photo') || name.includes('image')) return DocumentCategory.ProfilePhoto;
-    if (name.includes('agreement')) return DocumentCategory.Agreement;
+    if (name.includes('agreement')) return DocumentCategory.RentalAgreement;
     return DocumentCategory.IdProof;
   }
 

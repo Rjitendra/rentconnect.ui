@@ -1,4 +1,4 @@
- import { Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Observable, of, delay, throwError } from 'rxjs';
 import { ITenant, TenantChildren } from '../models/tenant';
 import { IDocument } from '../models/document';
@@ -93,7 +93,7 @@ export class TenantService {
           ownerId: 1,
           ownerType: 'Tenant',
           category: DocumentCategory.Aadhaar,
-            url: '/documents/aadhaar_1.pdf',
+          url: '/documents/aadhaar_1.pdf',
           name: 'Rajesh_Aadhaar.pdf',
           type: 'application/pdf',
           size: 1024000,
@@ -369,18 +369,7 @@ export class TenantService {
           isVerified: false,
           verifiedBy: undefined
         },
-        {
-          ownerId: 5,
-          ownerType: 'Tenant',
-          category: DocumentCategory.Financial,
-          url: '/documents/salary_slip_amit.pdf',
-          name: 'Amit_Salary_Slip.pdf',
-          type: 'application/pdf',
-          size: 256000,
-          uploadedOn: '2024-01-15T10:40:00Z',
-          isVerified: false,
-          verifiedBy: undefined
-        }
+
       ],
       children: []
     },
@@ -510,18 +499,7 @@ export class TenantService {
           isVerified: true,
           verifiedBy: 'System Admin'
         },
-        {
-          ownerId: 7,
-          ownerType: 'Tenant',
-          category: DocumentCategory.Financial,
-          url: '/documents/business_proof_vikram.pdf',
-          name: 'Vikram_Business_Proof.pdf',
-          type: 'application/pdf',
-          size: 768000,
-          uploadedOn: '2024-02-15T10:10:00Z',
-          isVerified: true,
-          verifiedBy: 'System Admin'
-        }
+
       ],
       children: []
     },
@@ -1068,18 +1046,7 @@ export class TenantService {
           isVerified: false,
           verifiedBy: undefined
         },
-        {
-          ownerId: 18,
-          ownerType: 'Tenant',
-          category: DocumentCategory.Financial,
-          url: '/documents/salary_slip_anita.pdf',
-          name: 'Anita_Salary_Slip.pdf',
-          type: 'application/pdf',
-          size: 384000,
-          uploadedOn: '2024-06-20T10:10:00Z',
-          isVerified: false,
-          verifiedBy: undefined
-        }
+
       ],
       children: []
     },
@@ -1244,7 +1211,7 @@ export class TenantService {
 
   private nextId = 22;
 
-  constructor() {}
+  constructor() { }
 
   // Get all tenants
   getAllTenants(): Observable<ITenant[]> {
@@ -1262,7 +1229,7 @@ export class TenantService {
     const propertyTenants = this.tenants.filter(t => t.propertyId === propertyId);
     return of(propertyTenants);
   }
- // Save tenant (create or update)
+  // Save tenant (create or update)
   saveTenant(tenant: Partial<ITenant>): Observable<TenantSaveResponse> {
     return new Observable(observer => {
       setTimeout(() => {
@@ -1364,7 +1331,7 @@ export class TenantService {
           tenant.onboardingEmailSent = true;
           tenant.onboardingEmailDate = new Date().toISOString();
           tenant.needsOnboarding = false;
-          
+
           observer.next({
             success: true,
             message: `Onboarding email sent to ${tenant.email}`
@@ -1394,7 +1361,7 @@ export class TenantService {
           tenant.tenancyEndDate = request.endDate;
           tenant.rentAmount = request.rentAmount;
           tenant.securityDeposit = request.securityDeposit;
-          
+
           observer.next({
             success: true,
             message: `Agreement created for ${tenant.name}`,
@@ -1422,12 +1389,12 @@ export class TenantService {
             id: Date.now(), // Simple ID generation
             age: this.calculateAge(child.dob as string)
           };
-          
+
           if (!tenant.children) {
             tenant.children = [];
           }
           tenant.children.push(newChild);
-          
+
           observer.next({
             success: true,
             message: `Family member ${child.name} added successfully`,
@@ -1457,7 +1424,7 @@ export class TenantService {
               ...childData,
               age: childData.dob ? this.calculateAge(childData.dob as string) : tenant.children[childIndex].age
             };
-            
+
             observer.next({
               success: true,
               message: 'Family member updated successfully'
@@ -1522,12 +1489,12 @@ export class TenantService {
             uploadedOn: new Date().toISOString(),
             isVerified: false
           };
-          
+
           if (!tenant.documents) {
             tenant.documents = [];
           }
           tenant.documents.push(newDocument);
-          
+
           observer.next({
             success: true,
             message: 'Document uploaded successfully'
@@ -1558,7 +1525,7 @@ export class TenantService {
         const inactive = this.tenants.filter(t => !t.isActive);
         const pendingOnboarding = this.tenants.filter(t => t.needsOnboarding);
         const totalMonthlyRent = active.reduce((sum, t) => sum + t.rentAmount, 0);
-        
+
         observer.next({
           total: this.tenants.length,
           active: active.length,
@@ -1568,7 +1535,7 @@ export class TenantService {
           averageRent: active.length > 0 ? totalMonthlyRent / active.length : 0
         });
         observer.complete();
-        });
+      });
     });
   }
 

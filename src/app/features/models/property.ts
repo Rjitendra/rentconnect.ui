@@ -23,7 +23,7 @@ export interface IProperty {
   totalFloors?: number;
   carpetAreaSqFt?: number;
   builtUpAreaSqFt?: number;
-  isFurnished?: boolean;
+  isFurnished: boolean;
   furnishingType?: FurnishingType;
   numberOfBathrooms?: number;
   numberOfBalconies?: number;

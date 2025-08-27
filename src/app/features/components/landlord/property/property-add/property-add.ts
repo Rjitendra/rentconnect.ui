@@ -571,7 +571,7 @@ export class PropertyAdd implements OnInit {
     return this.uploadedImages.map((image, index) => ({
       ownerId: ownerId, // Will be set when property is saved
       ownerType: OwnerType.LANDLORD,
-      category: DocumentCategory.PropertyPhoto,
+      category: DocumentCategory.PropertyImages,
       name: image.name,
       type: image.type,
       size: image.size,

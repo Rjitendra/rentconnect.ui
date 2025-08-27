@@ -69,6 +69,7 @@ export class PropertyDetail implements OnInit {
       description: 'This beautiful 3BHK apartment is located in the heart of the city with excellent connectivity to metro stations, shopping malls, and schools. The apartment features modern amenities, spacious rooms, and a stunning view of the city skyline. Perfect for families looking for a comfortable and convenient lifestyle.',
       propertyType: PropertyType.Apartment,
       bhkConfiguration: '3BHK',
+      isFurnished: true,
       floorNumber: 5,
       totalFloors: 12,
       carpetAreaSqFt: 1200,
@@ -120,7 +121,7 @@ export class PropertyDetail implements OnInit {
 
   getStatusClass(): string {
     if (!this.property?.status) return '';
-    return `status-${this.property.status.toLowerCase()}`;
+    return `status-${this.property.status}`;
   }
 
   getStatusIcon(): string {

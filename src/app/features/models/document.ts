@@ -11,7 +11,9 @@ export interface IDocument {
   size?: number;
   type?: string;
   url?: string; // for preview
-
+  landlordId?: number; // Optional, if linked to a property
+  propertyId?: number; // Optional, if linked to a property
+  tenantId?: number; // Optional, if linked to a tenant
 
 
   documentIdentifier?: string; // Unique identifier, optional

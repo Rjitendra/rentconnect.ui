@@ -1,48 +1,47 @@
 export enum PropertyType {
-  Apartment = 'Apartment',
-  Villa = 'Villa',
-  IndependentHouse = 'IndependentHouse',
-  RowHouse = 'RowHouse',
-  Plot = 'Plot',
-  Studio = 'Studio',
+  Apartment = 0,
+  Villa = 1,
+  IndependentHouse = 2,
+  RowHouse = 3,
+  Plot = 4,
+  Studio = 5
 }
 
+
 export enum FurnishingType {
-  Unfurnished = 'Unfurnished',
-  SemiFurnished = 'SemiFurnished',
-  FullyFurnished = 'FullyFurnished',
+  Unfurnished = 0,
+  SemiFurnished = 1,
+  FullyFurnished = 2,
 }
 
 export enum LeaseType {
-  ShortTerm = 'ShortTerm',
-  LongTerm = 'LongTerm',
+  ShortTerm = 0,
+  LongTerm = 1,
 }
 
 export enum PropertyStatus {
-  Draft = 'Draft',
-  Listed = 'Listed',
-  Rented = 'Rented',
-  Archived = 'Archived',
+  Draft = 0,
+  Listed = 1,
+  Rented = 2,
+  Archived = 3,
 }
 
 export enum DocumentCategory {
-  Aadhaar = 'Aadhaar',
-  PAN = 'PAN',
-  OwnershipProof = 'OwnershipProof',
-  UtilityBill = 'UtilityBill',
-  NoObjectionCertificate = 'NoObjectionCertificate',
-  BankProof = 'BankProof',
-  PropertyPhoto = 'PropertyImages',
-  RentalAgreement = 'RentalAgreement',
-  AddressProof = 'AddressProof',
-  IdProof = 'IdProof',
-  ProfilePhoto = 'ProfilePhoto',
-  EmploymentProof = 'EmploymentProof',
-  PersonPhoto = 'PersonPhoto',
-  Legal = 'Legal',
-  Agreement = 'Agreement',
-  Financial = 'Financial'
+  Aadhaar = 0,
+  PAN = 1,
+  OwnershipProof = 2,
+  UtilityBill = 3,
+  NoObjectionCertificate = 4,
+  BankProof = 5,
+  PropertyImages = 6,
+  RentalAgreement = 7,
+  AddressProof = 8,
+  IdProof = 9,
+  ProfilePhoto = 10,
+  EmploymentProof = 11,
+  PersonPhoto = 12,
 }
+
 export enum TenantStatus {
   Active = 'Active',
   Inactive = 'Inactive',

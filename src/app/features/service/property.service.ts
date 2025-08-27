@@ -25,7 +25,7 @@ export class PropertyService {
 
   constructor() {
     // Initialize with some mock data if needed
-    this.loadMockData();
+   
   }
 
   /**
@@ -456,7 +456,7 @@ export class PropertyService {
       const document: IDocument = {
         ownerId: metadata.ownerId || 0,
         ownerType: metadata.ownerType || 'Property',
-        category: metadata.category || DocumentCategory.PropertyPhoto,
+        category: metadata.category || DocumentCategory.PropertyImages,
         name: metadata.name || file.name,
         type: metadata.type || file.type,
         size: metadata.size || file.size,
@@ -473,40 +473,5 @@ export class PropertyService {
     return documents;
   }
 
-  private loadMockData(): void {
-    // Add some mock properties for testing
-    this.properties = [
-      {
-        id: 1,
-        landlordId: 1,
-        title: 'Spacious 2BHK Apartment',
-        description: 'Beautiful apartment with modern amenities',
-        propertyType: PropertyType.Apartment,
-        bhkConfiguration: '2BHK',
-        carpetAreaSqFt: 800,
-        builtUpAreaSqFt: 1000,
-        monthlyRent: 25000,
-        securityDeposit: 50000,
-        addressLine1: '123 Main Street',
-        city: 'Mumbai',
-        state: 'Maharashtra',
-        pinCode: '400001',
-        status: PropertyStatus.Listed,
-        createdOn: new Date(),
-        updatedOn: new Date(),
-        availableFrom: new Date(),
-        documents: [],
-        furnishingType: FurnishingType.SemiFurnished,
-        numberOfBalconies: 2,
-        numberOfBathrooms: 2,
-        floorNumber: 3,
-        totalFloors: 10,
-        isNegotiable: true,
-        leaseType: LeaseType.LongTerm,
-        hasLift: true,
-        hasParking: true,
-        hasWaterSupply: true,
-      },
-    ];
-  }
+
 }
