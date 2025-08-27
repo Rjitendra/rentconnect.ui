@@ -96,6 +96,13 @@
             ],
             "styles": ["src/styles.scss"]
           }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "eslintConfig": ".eslintrc.json",
+            "lintFilePatterns": ["src/app/**/*.ts", "src/app/**/*.html"]
+          }
         }
       }
     },

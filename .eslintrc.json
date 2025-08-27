@@ -1,0 +1,158 @@
+{
+  "root": true,
+  "ignorePatterns": [
+    "node_modules/",
+    "dist/",
+    "coverage/",
+    "*.spec.ts",
+    "projects/"
+  ], // 👈 Add your custom folder here ],
+  "overrides": [
+    {
+      "files": ["*.ts"],
+      "parserOptions": {
+        "project": ["tsconfig.json"]
+      },
+      "extends": [
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@typescript-eslint/recommended-requiring-type-checking",
+        "plugin:@angular-eslint/recommended",
+        "plugin:@angular-eslint/template/process-inline-templates",
+        "plugin:prettier/recommended" // 🔥 Add this
+      ],
+      "plugins": [
+        "@typescript-eslint",
+        "@angular-eslint",
+        "eslint-plugin-import",
+        "eslint-plugin-jsdoc",
+        "eslint-plugin-prefer-arrow",
+        "deprecation",
+        "rxjs"
+      ],
+
+      "rules": {
+        "deprecation/deprecation": "warn",
+        "semi": ["error", "always"],
+        "quotes": ["error", "single"],
+        "prettier/prettier": "error", // ✅ Show formatting issues as ESLint errors
+        // 🔥 Angular specific rules
+        "@angular-eslint/component-selector": [
+          "error",
+          {
+            "type": "element",
+            "prefix": ["ng"],
+            "style": "kebab-case"
+          }
+        ],
+        "@angular-eslint/directive-selector": [
+          "error",
+          {
+            "type": "attribute",
+            "prefix": ["ng"],
+            "style": "camelCase"
+          }
+        ],
+
+        "@angular-eslint/no-output-on-prefix": ["error"],
+        // "@angular-eslint/prefer-on-push-component-change-detection": ["error"],
+        "@angular-eslint/prefer-standalone": "off",
+        "@angular-eslint/prefer-inject": "off",
+        // 🔥 TypeScript specific rules
+        "@typescript-eslint/member-ordering": "error",
+        "@typescript-eslint/naming-convention": [
+          "off",
+          {
+            "selector": "variable",
+            "types": ["object"],
+            "format": ["PascalCase"],
+            "leadingUnderscore": "forbid"
+          }
+        ],
+        "@typescript-eslint/no-unsafe-assignment": "off",
+
+        // 🔥 General ESLint rules
+        "eqeqeq": "error",
+        "no-duplicate-imports": "error",
+        "no-eval": "error",
+        "no-implied-eval": "error",
+        "no-lonely-if": "error",
+        "no-new-func": "error",
+        "no-script-url": "error",
+
+        // 🔥 Import plugin rules
+        "import/no-unresolved": "off",
+        "import/named": "off",
+        "import/namespace": "warn",
+        "import/no-deprecated": "warn",
+        "import/no-named-as-default": "off",
+        "import/export": "warn",
+        "import/order": [
+          "error",
+          {
+            "groups": ["builtin", "external", "parent", "sibling", "index"],
+            "newlines-between": "always",
+            "alphabetize": {
+              "order": "asc",
+              "caseInsensitive": true
+            }
+          }
+        ],
+
+        // 🔥 JSDoc
+        "jsdoc/newline-after-description": "off",
+        "jsdoc/no-types": "off",
+
+        // 🔥 Prefer arrow functions
+        "prefer-arrow/prefer-arrow-functions": [
+          "error",
+          {
+            "disallowPrototype": false,
+            "singleReturnOnly": true,
+            "classPropertiesAllowed": false
+          }
+        ],
+
+        // 🔥 RxJS
+        "rxjs/no-nested-subscribe": "error"
+      }
+    },
+    {
+      "files": ["*.html"],
+      "extends": [
+        "plugin:@angular-eslint/template/recommended",
+        "plugin:prettier/recommended"
+      ],
+      "parser": "@angular-eslint/template-parser",
+      "plugins": ["@angular-eslint/template", "prettier"],
+      "rules": {
+        "@angular-eslint/template/self-closing-tag": "off",
+        "prettier/prettier": [
+          "error",
+          {
+            "endOfLine": "lf"
+          }
+        ],
+
+        "@angular-eslint/template/attributes-order": ["error"],
+        "@angular-eslint/template/prefer-self-closing-tags": ["error"],
+        "@angular-eslint/template/no-inline-styles": ["error"],
+        "@angular-eslint/template/no-duplicate-attributes": ["error"],
+        "@angular-eslint/template/no-interpolation-in-attributes": ["error"],
+        "@angular-eslint/template/no-negated-async": ["error"],
+        "@angular-eslint/template/prefer-control-flow": ["error"],
+        "@angular-eslint/template/prefer-ngsrc": ["off"],
+        "@angular-eslint/template/use-track-by-function": ["error"],
+        "@angular-eslint/template/valid-aria": ["error"],
+        "@angular-eslint/template/alt-text": ["error"],
+        "@angular-eslint/template/elements-content": ["error"],
+        "@angular-eslint/template/label-has-associated-control": ["error"],
+        "@angular-eslint/template/button-has-type": ["error"],
+        "@angular-eslint/template/no-distracting-elements": ["error"],
+        "@angular-eslint/template/no-positive-tabindex": ["error"],
+        "@angular-eslint/template/mouse-events-have-key-events": ["error"],
+        "@angular-eslint/template/role-has-required-aria": ["error"],
+        "@angular-eslint/use-lifecycle-interface": ["error"]
+      }
+    }
+  ]
+}

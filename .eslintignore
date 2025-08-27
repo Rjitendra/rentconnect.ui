@@ -1,0 +1,10 @@
+# Ignore compiled output and dependencies
+node_modules/
+dist/
+coverage/
+
+# Optional: ignore environment files or test mocks
+src/environments/
+
+# ✅ Correct way to ignore spec files
+**/*.spec.ts
