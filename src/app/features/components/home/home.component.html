@@ -1,11 +1,13 @@
-<ng-mat-table [columns]="columns"
-      [data]="users"
-      [options]="tableOptions"
-      [headerCheckbox]="true"
-      [rowCheckbox]="true"
-      (rowClick)="onRowClick($event)"
-      (selectionChange)="onSelectionChange($event)" />
+<ng-mat-table
+  [columns]="columns"
+  [data]="users"
+  [options]="tableOptions"
+  [headerCheckbox]="true"
+  [rowCheckbox]="true"
+  (rowClick)="onRowClick($event)"
+  (selectionChange)="onSelectionChange($event)"
+/>
 
-    <ng-template #emailTemplate let-row>
-      <a href="mailto:{{ row.email }}">{{ row.email }}</a>
-    </ng-template>
+<ng-template #emailTemplate let-row>
+  <a href="mailto:{{ row.email }}">{{ row.email }}</a>
+</ng-template>

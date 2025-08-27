@@ -78,17 +78,17 @@
       </div>
       <!-- Property Table -->
       <div class="table-section">
-        @if(properties$ | async){
-        <div class="table-container">
-          <ng-mat-table
-            [data]="properties"
-            [columns]="tableColumns"
-            [options]="tableOptions"
-            [isPaginator]="true"
-            class="property-table"
-          />
-        </div>
-      }
+        @if (properties$ | async) {
+          <div class="table-container">
+            <ng-mat-table
+              class="property-table"
+              [data]="properties"
+              [columns]="tableColumns"
+              [options]="tableOptions"
+              [isPaginator]="true"
+            />
+          </div>
+        }
       </div>
     </div>
   }
@@ -139,20 +139,20 @@
             <div class="category-selection">
               <ng-select
                 label="Document Category"
-                [(ngModel)]="selectedDocumentCategory"
-                [options]="documentCategories"
                 placeholder="Select the appropriate document category"
                 class="category-field"
+                [options]="documentCategories"
                 [required]="true"
+                [(ngModel)]="selectedDocumentCategory"
               />
             </div>
             <div class="upload-area">
               <input
                 type="file"
                 id="fileInput"
-                (change)="onFileSelected($event)"
                 accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                 style="display: none"
+                (change)="onFileSelected($event)"
               />
               <div class="upload-content" (click)="triggerFileInput()">
                 <ng-icon name="cloud_upload" class="upload-icon" />
@@ -235,11 +235,11 @@
             <div class="category-selection">
               <ng-select
                 label="Select Download Category"
-                [(ngModel)]="selectedDownloadCategory"
-                [options]="downloadCategories"
                 placeholder="Choose which category of documents to download"
                 class="category-field"
+                [options]="downloadCategories"
                 [required]="true"
+                [(ngModel)]="selectedDownloadCategory"
               />
             </div>
             @if (selectedDownloadCategory) {
@@ -298,12 +298,12 @@
           <ng-button
             buttonType="button"
             type="filled"
+            icon="download"
             [label]="
               'Download ' +
               (selectedDownloadCategory === 'all' ? 'All' : '') +
               ' Documents'
             "
-            icon="download"
             [disabled]="isDownloadDisabled()"
             (buttonClick)="onDownloadSelectedCategory()"
           />
@@ -357,10 +357,10 @@
       <!-- View all button -->
       <ng-icon
         name="visibility"
-        [matMenuTriggerFor]="tenantMenu"
         matTooltip="View All Tenants"
         class="tenant-view-icon"
         style="color: #1976d2 !important; cursor: pointer"
+        [matMenuTriggerFor]="tenantMenu"
       />
     } @else {
       <!-- No tenants -->
@@ -478,9 +478,9 @@
     [ngClass]="'status-' + getSimplifiedStatus(property.status).toLowerCase()"
   >
     <ng-icon
-      [name]="getStatusIcon(property.status)"
       class="status-icon"
       style="color: #00acc1 !important"
+      [name]="getStatusIcon(property.status)"
     />
     {{ getSimplifiedStatus(property.status) }}
   </div>

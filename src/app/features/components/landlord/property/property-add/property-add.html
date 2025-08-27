@@ -4,8 +4,8 @@
       <ng-icon
         name="arrow_back"
         matTooltip="Go back to property list"
-        (click)="goBack()"
         style="cursor: pointer"
+        (click)="goBack()"
       />
       <div class="header-text">
         <h1>Add New Property</h1>
@@ -34,8 +34,8 @@
             formControlName="description"
             label="Description"
             placeholder="Describe your property features, amenities, and what makes it special..."
-            [rows]="4"
             suffixIcon="description"
+            [rows]="4"
           />
         </div>
 
@@ -44,18 +44,18 @@
             class="half-width"
             formControlName="propertyType"
             label="Property Type"
-            [options]="propertyTypeOptions"
             placeholder="Select property type"
             suffixIcon="apartment"
+            [options]="propertyTypeOptions"
           />
 
           <ng-select
             class="half-width"
             formControlName="bhkConfiguration"
             label="BHK Configuration"
-            [options]="bhkConfigurationOptions"
             placeholder="Select BHK configuration"
             suffixIcon="bed"
+            [options]="bhkConfigurationOptions"
           />
         </div>
 
@@ -64,27 +64,27 @@
             class="third-width"
             formControlName="floorNumber"
             label="Floor Number"
-            [type]="InputType.Number"
             placeholder="e.g., 3"
             suffixIcon="layers"
+            [type]="InputType.Number"
           />
 
           <ng-input
             class="third-width"
             formControlName="totalFloors"
             label="Total Floors"
-            [type]="InputType.Number"
             placeholder="e.g., 10"
             suffixIcon="business"
+            [type]="InputType.Number"
           />
 
           <ng-input
             class="third-width"
             formControlName="numberOfBathrooms"
             label="Bathrooms"
-            [type]="InputType.Number"
             placeholder="e.g., 2"
             suffixIcon="bathtub"
+            [type]="InputType.Number"
           />
         </div>
       </ng-card>
@@ -96,18 +96,18 @@
             class="half-width"
             formControlName="carpetAreaSqFt"
             label="Carpet Area (sq ft)"
-            [type]="InputType.Number"
             placeholder="e.g., 850"
             suffixText="sq ft"
+            [type]="InputType.Number"
           />
 
           <ng-input
             class="half-width"
             formControlName="builtUpAreaSqFt"
             label="Built-up Area (sq ft)"
-            [type]="InputType.Number"
             placeholder="e.g., 1200"
             suffixText="sq ft"
+            [type]="InputType.Number"
           />
         </div>
 
@@ -116,18 +116,18 @@
             class="half-width"
             formControlName="furnishingType"
             label="Furnishing Type"
-            [options]="furnishingTypeOptions"
             placeholder="Select furnishing type"
             suffixIcon="chair"
+            [options]="furnishingTypeOptions"
           />
 
           <ng-input
             class="half-width"
             formControlName="numberOfBalconies"
             label="Balconies"
-            [type]="InputType.Number"
             placeholder="e.g., 2"
             suffixIcon="deck"
+            [type]="InputType.Number"
           />
         </div>
       </ng-card>
@@ -206,19 +206,19 @@
             class="half-width"
             formControlName="monthlyRent"
             label="Monthly Rent"
-            [type]="InputType.Number"
             placeholder="e.g., 25000"
             prefixText="₹ "
             suffixText="/month"
+            [type]="InputType.Number"
           />
 
           <ng-input
             class="half-width"
             formControlName="securityDeposit"
             label="Security Deposit"
-            [type]="InputType.Number"
             placeholder="e.g., 50000"
             prefixText="₹ "
+            [type]="InputType.Number"
           />
         </div>
 
@@ -233,9 +233,9 @@
             class="half-width"
             formControlName="leaseType"
             label="Lease Type"
-            [options]="leaseTypeOptions"
             placeholder="Select lease type"
             suffixIcon="schedule"
+            [options]="leaseTypeOptions"
           />
         </div>
 
@@ -258,10 +258,10 @@
         <ng-file-upload
           formControlName="propertyImages"
           label="Property Images"
-          [config]="imageUploadConfig"
           dragText="Drag and drop property images here or click to browse"
           hint="Upload clear, well-lit photos of different rooms and areas of your property"
           clarifyText="Good quality images help attract more tenants. Include photos of living room, bedrooms, kitchen, bathrooms, and any special features."
+          [config]="imageUploadConfig"
           (filesSelected)="onImagesSelected($event)"
           (fileRemoved)="onImageRemoved($event)"
           (uploadError)="onImageUploadError($event)"

@@ -5,14 +5,15 @@
       <h1>Tenant Management</h1>
       <p>Manage your tenants, agreements, and onboarding process</p>
     </div>
-    @if (currentView === 'table') {
+    @if (currentView === "table") {
       <div class="header-actions">
         <button
           type="button"
           class="add-tenant-btn"
           matTooltip="Add New Tenant"
-          (click)="onAddTenant()">
-          <ng-icon name="person_add" style="color: white !important;" />
+          (click)="onAddTenant()"
+        >
+          <ng-icon name="person_add" style="color: white !important" />
           Add New Tenant
         </button>
       </div>
@@ -20,7 +21,7 @@
   </div>
 
   <!-- Table View -->
-  @if (currentView === 'table') {
+  @if (currentView === "table") {
     <div class="table-view">
       <!-- Statistics Cards -->
       <div class="stats-cards">
@@ -48,7 +49,9 @@
         <div class="stat-card">
           <ng-icon name="attach_money" class="stat-icon revenue" />
           <div class="stat-content">
-            <span class="stat-number">₹{{ getTotalRentAmount() | number:'1.0-0' }}</span>
+            <span class="stat-number"
+              >₹{{ getTotalRentAmount() | number: "1.0-0" }}</span
+            >
             <span class="stat-label">Monthly Rent</span>
           </div>
         </div>
@@ -56,40 +59,51 @@
       <!-- Tenant Table -->
       <div class="table-section">
         <div class="table-container">
-          <table mat-table [dataSource]="primaryTenants" multiTemplateDataRows class="tenant-table mat-elevation-z8">
+          <table
+            mat-table
+            multiTemplateDataRows
+            class="tenant-table mat-elevation-z8"
+            [dataSource]="primaryTenants"
+          >
             <!-- Expand Column -->
             <ng-container matColumnDef="expand">
-              <th mat-header-cell *matHeaderCellDef aria-label="row actions">&nbsp;</th>
-              <td mat-cell *matCellDef="let tenant">
+              <th *matHeaderCellDef mat-header-cell aria-label="row actions">
+                &nbsp;
+              </th>
+              <td *matCellDef="let tenant" mat-cell>
                 <button
                   mat-icon-button
                   aria-label="expand row"
-                  (click)="toggleExpansion(tenant); $event.stopPropagation()"
                   class="expand-toggle-button"
-                  [class.expand-toggle-button-expanded]="isExpanded(tenant)">
+                  [class.expand-toggle-button-expanded]="isExpanded(tenant)"
+                  (click)="toggleExpansion(tenant); $event.stopPropagation()"
+                >
                   <mat-icon>keyboard_arrow_down</mat-icon>
                 </button>
               </td>
             </ng-container>
             <!-- ID Column -->
             <ng-container matColumnDef="id">
-              <th mat-header-cell *matHeaderCellDef>ID</th>
-              <td mat-cell *matCellDef="let tenant">{{ tenant.id }}</td>
+              <th *matHeaderCellDef mat-header-cell>ID</th>
+              <td *matCellDef="let tenant" mat-cell>{{ tenant.id }}</td>
             </ng-container>
             <!-- Primary Tenant Column -->
             <ng-container matColumnDef="name">
-              <th mat-header-cell *matHeaderCellDef>Primary Tenant</th>
-              <td mat-cell *matCellDef="let tenant">
+              <th *matHeaderCellDef mat-header-cell>Primary Tenant</th>
+              <td *matCellDef="let tenant" mat-cell>
                 <div class="tenant-name-cell">
                   <div class="tenant-avatar">
-                    <mat-icon style="color: #ffc107;">star</mat-icon>
+                    <mat-icon style="color: #ffc107">star</mat-icon>
                   </div>
                   <div class="tenant-info">
                     <span class="name">{{ tenant.name }}</span>
                     <span class="email">{{ tenant.email }}</span>
                     @if (getGroupMemberCount(tenant.tenantGroup) > 1) {
                       <span class="group-info">
-                        + {{ getGroupMemberCount(tenant.tenantGroup) - 1 }} more tenant{{ getGroupMemberCount(tenant.tenantGroup) > 2 ? 's' : '' }}
+                        + {{ getGroupMemberCount(tenant.tenantGroup) - 1 }} more
+                        tenant{{
+                          getGroupMemberCount(tenant.tenantGroup) > 2 ? "s" : ""
+                        }}
                       </span>
                     }
                   </div>
@@ -98,74 +112,85 @@
             </ng-container>
             <!-- Property Column -->
             <ng-container matColumnDef="property">
-              <th mat-header-cell *matHeaderCellDef>Property</th>
-              <td mat-cell *matCellDef="let tenant">
+              <th *matHeaderCellDef mat-header-cell>Property</th>
+              <td *matCellDef="let tenant" mat-cell>
                 <div class="property-cell">
-                  <mat-icon style="color: #4caf50;">home</mat-icon>
+                  <mat-icon style="color: #4caf50">home</mat-icon>
                   <span>{{ getPropertyName(tenant.propertyId) }}</span>
                 </div>
               </td>
             </ng-container>
             <!-- Phone Column -->
             <ng-container matColumnDef="phone">
-              <th mat-header-cell *matHeaderCellDef>Phone</th>
-              <td mat-cell *matCellDef="let tenant">{{ tenant.phoneNumber }}</td>
+              <th *matHeaderCellDef mat-header-cell>Phone</th>
+              <td *matCellDef="let tenant" mat-cell>
+                {{ tenant.phoneNumber }}
+              </td>
             </ng-container>
             <!-- Rent Amount Column -->
             <ng-container matColumnDef="rentAmount">
-              <th mat-header-cell *matHeaderCellDef>Rent Amount</th>
-              <td mat-cell *matCellDef="let tenant">{{ tenant.rentAmount }}</td>
+              <th *matHeaderCellDef mat-header-cell>Rent Amount</th>
+              <td *matCellDef="let tenant" mat-cell>{{ tenant.rentAmount }}</td>
             </ng-container>
             <!-- Tenants Count Column -->
             <ng-container matColumnDef="tenantCount">
-              <th mat-header-cell *matHeaderCellDef>Tenants</th>
-              <td mat-cell *matCellDef="let tenant">{{ getGroupMemberCount(tenant.tenantGroup) }}</td>
+              <th *matHeaderCellDef mat-header-cell>Tenants</th>
+              <td *matCellDef="let tenant" mat-cell>
+                {{ getGroupMemberCount(tenant.tenantGroup) }}
+              </td>
             </ng-container>
             <!-- Status Column -->
             <ng-container matColumnDef="status">
-              <th mat-header-cell *matHeaderCellDef>Status</th>
-              <td mat-cell *matCellDef="let tenant">
+              <th *matHeaderCellDef mat-header-cell>Status</th>
+              <td *matCellDef="let tenant" mat-cell>
                 <span class="status-chip" [ngClass]="getStatusClass(tenant)">
-                  <mat-icon style="font-size: 14px;">{{ getStatusIcon(tenant) }}</mat-icon>
+                  <mat-icon style="font-size: 14px">{{
+                    getStatusIcon(tenant)
+                  }}</mat-icon>
                   {{ getStatusText(tenant) }}
                 </span>
               </td>
             </ng-container>
             <!-- Actions Column -->
             <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef>Actions</th>
-              <td mat-cell *matCellDef="let tenant">
+              <th *matHeaderCellDef mat-header-cell>Actions</th>
+              <td *matCellDef="let tenant" mat-cell>
                 <div class="actions-cell">
                   <mat-icon
                     matTooltip="View Details"
-                    style="color: #2196f3; cursor: pointer;"
-                    (click)="onViewTenant(tenant)">
+                    style="color: #2196f3; cursor: pointer"
+                    (click)="onViewTenant(tenant)"
+                  >
                     visibility
                   </mat-icon>
                   <mat-icon
                     matTooltip="Edit Tenant"
-                    style="color: #ff9800; cursor: pointer;"
-                    (click)="onEditTenant(tenant)">
+                    style="color: #ff9800; cursor: pointer"
+                    (click)="onEditTenant(tenant)"
+                  >
                     edit
                   </mat-icon>
                   <mat-icon
                     matTooltip="Create Agreement"
-                    style="color: #9c27b0; cursor: pointer;"
-                    (click)="onCreateAgreement(tenant)">
+                    style="color: #9c27b0; cursor: pointer"
+                    (click)="onCreateAgreement(tenant)"
+                  >
                     description
                   </mat-icon>
                   @if (tenant.needsOnboarding) {
                     <mat-icon
                       matTooltip="Send Onboarding Email"
-                      style="color: #4caf50; cursor: pointer;"
-                      (click)="onSendOnboardingEmail(tenant)">
+                      style="color: #4caf50; cursor: pointer"
+                      (click)="onSendOnboardingEmail(tenant)"
+                    >
                       email
                     </mat-icon>
                   }
                   <mat-icon
                     matTooltip="Delete Tenant"
-                    style="color: #f44336; cursor: pointer;"
-                    (click)="onDeleteTenant(tenant)">
+                    style="color: #f44336; cursor: pointer"
+                    (click)="onDeleteTenant(tenant)"
+                  >
                     delete
                   </mat-icon>
                 </div>
@@ -173,26 +198,46 @@
             </ng-container>
             <!-- Expanded Detail Column -->
             <ng-container matColumnDef="expandedDetail">
-              <td mat-cell *matCellDef="let tenant" [attr.colspan]="displayedColumnsWithExpand.length">
-                <div class="tenant-detail-wrapper" [class.tenant-detail-wrapper-expanded]="isExpanded(tenant)">
+              <td
+                *matCellDef="let tenant"
+                mat-cell
+                [attr.colspan]="displayedColumnsWithExpand.length"
+              >
+                <div
+                  class="tenant-detail-wrapper"
+                  [class.tenant-detail-wrapper-expanded]="isExpanded(tenant)"
+                >
                   <div class="tenant-detail">
                     <div class="expanded-header">
                       <h3>
-                        <mat-icon style="color: #2196f3;">people</mat-icon>
+                        <mat-icon style="color: #2196f3">people</mat-icon>
                         All Tenants in {{ getPropertyName(tenant.propertyId) }}
-                        <span class="tenant-count">({{ getGroupMemberCount(tenant.tenantGroup) }} tenants)</span>
+                        <span class="tenant-count"
+                          >({{
+                            getGroupMemberCount(tenant.tenantGroup)
+                          }}
+                          tenants)</span
+                        >
                       </h3>
                     </div>
                     <div class="tenant-cards">
-                      @for (member of getGroupMembers(tenant.tenantGroup); track member) {
+                      @for (
+                        member of getGroupMembers(tenant.tenantGroup);
+                        track member
+                      ) {
                         <div
                           class="tenant-card"
-                          [class.primary-tenant]="member.isPrimary">
+                          [class.primary-tenant]="member.isPrimary"
+                        >
                           <div class="tenant-card-header">
                             <div class="tenant-info">
                               <div class="tenant-avatar">
-                                <mat-icon [style.color]="member.isPrimary ? '#ffc107' : '#2196f3'">
-                                  {{ member.isPrimary ? 'star' : 'person' }}
+                                <mat-icon
+                                  [style.color]="
+                                    member.isPrimary ? '#ffc107' : '#2196f3'
+                                  "
+                                >
+                                  {{ member.isPrimary ? "star" : "person" }}
                                 </mat-icon>
                               </div>
                               <div class="tenant-details">
@@ -208,8 +253,13 @@
                               </div>
                             </div>
                             <div class="tenant-status">
-                              <span class="status-chip" [ngClass]="getStatusClass(member)">
-                                <mat-icon style="font-size: 14px;">{{ getStatusIcon(member) }}</mat-icon>
+                              <span
+                                class="status-chip"
+                                [ngClass]="getStatusClass(member)"
+                              >
+                                <mat-icon style="font-size: 14px">{{
+                                  getStatusIcon(member)
+                                }}</mat-icon>
                                 {{ getStatusText(member) }}
                               </span>
                             </div>
@@ -217,34 +267,39 @@
                           <div class="tenant-card-actions">
                             <mat-icon
                               matTooltip="View Details"
-                              style="color: #2196f3; cursor: pointer;"
-                              (click)="onViewTenant(member)">
+                              style="color: #2196f3; cursor: pointer"
+                              (click)="onViewTenant(member)"
+                            >
                               visibility
                             </mat-icon>
                             <mat-icon
                               matTooltip="Edit Tenant"
-                              style="color: #ff9800; cursor: pointer;"
-                              (click)="onEditTenant(member)">
+                              style="color: #ff9800; cursor: pointer"
+                              (click)="onEditTenant(member)"
+                            >
                               edit
                             </mat-icon>
                             <mat-icon
                               matTooltip="Create Agreement"
-                              style="color: #9c27b0; cursor: pointer;"
-                              (click)="onCreateAgreement(member)">
+                              style="color: #9c27b0; cursor: pointer"
+                              (click)="onCreateAgreement(member)"
+                            >
                               description
                             </mat-icon>
                             @if (member.needsOnboarding) {
                               <mat-icon
                                 matTooltip="Send Onboarding Email"
-                                style="color: #4caf50; cursor: pointer;"
-                                (click)="onSendOnboardingEmail(member)">
+                                style="color: #4caf50; cursor: pointer"
+                                (click)="onSendOnboardingEmail(member)"
+                              >
                                 email
                               </mat-icon>
                             }
                             <mat-icon
                               matTooltip="Delete Tenant"
-                              style="color: #f44336; cursor: pointer;"
-                              (click)="onDeleteTenant(member)">
+                              style="color: #f44336; cursor: pointer"
+                              (click)="onDeleteTenant(member)"
+                            >
                               delete
                             </mat-icon>
                           </div>
@@ -256,15 +311,24 @@
               </td>
             </ng-container>
             <!-- Header Row -->
-            <tr mat-header-row *matHeaderRowDef="displayedColumnsWithExpand"></tr>
+            <tr
+              *matHeaderRowDef="displayedColumnsWithExpand"
+              mat-header-row
+            ></tr>
             <!-- Data Rows -->
-            <tr mat-row *matRowDef="let tenant; columns: displayedColumnsWithExpand;"
+            <tr
+              *matRowDef="let tenant; columns: displayedColumnsWithExpand"
+              mat-row
               class="tenant-element-row"
               [class.tenant-expanded-row]="isExpanded(tenant)"
-              (click)="toggleExpansion(tenant)">
-            </tr>
+              (click)="toggleExpansion(tenant)"
+            ></tr>
             <!-- Expanded Detail Rows -->
-            <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="tenant-detail-row"></tr>
+            <tr
+              *matRowDef="let row; columns: ['expandedDetail']"
+              mat-row
+              class="tenant-detail-row"
+            ></tr>
           </table>
         </div>
       </div>
@@ -272,11 +336,13 @@
   }
 
   <!-- Add Tenant Form -->
-  @if (currentView === 'add') {
+  @if (currentView === "add") {
     <div class="form-view">
-      <app-tenant-add [propertyOptions]="propertyOptions"
+      <app-tenant-add
+        [propertyOptions]="propertyOptions"
         (tenantAdded)="onTenantAdded()"
-        (cancel)="onTenantAddCancelled()" />
-      </div>
-    }
-  </div>
+        (cancel)="onTenantAddCancelled()"
+      />
+    </div>
+  }
+</div>

@@ -1,225 +1,310 @@
 <div class="tenant-add-form">
   <div class="form-header">
     <h1>Add New Tenants</h1>
-    <p>Add tenants to your property with all required information and documents</p>
+    <p>
+      Add tenants to your property with all required information and documents
+    </p>
   </div>
 
   <div class="tenant-form-container">
     <form [formGroup]="tenantForm" (ngSubmit)="onSubmit()">
-
       <!-- Property & Tenancy Details Card (Shared for all tenants) -->
-      <ng-card title="Property & Tenancy Details" icon="home" class="form-card shared-details">
+      <ng-card
+        title="Property & Tenancy Details"
+        icon="home"
+        class="form-card shared-details"
+      >
         <div class="form-row">
-          <ng-select class="full-width"
+          <ng-select
+            class="full-width"
             formControlName="propertyId"
             label="Link Property"
-            [options]="propertyOptions()"
             placeholder="Select property to link"
-            suffixIcon="home" />
-          </div>
+            suffixIcon="home"
+            [options]="propertyOptions()"
+          />
+        </div>
 
-          <div class="form-row">
-            <ng-input class="third-width"
-              formControlName="rentAmount"
-              label="Total Rent Amount"
-              placeholder="25000"
-              [type]="InputType.Number"
-              suffixText="₹" />
+        <div class="form-row">
+          <ng-input
+            class="third-width"
+            formControlName="rentAmount"
+            label="Total Rent Amount"
+            placeholder="25000"
+            suffixText="₹"
+            [type]="InputType.Number"
+          />
 
-              <ng-input class="third-width"
-                formControlName="securityDeposit"
-                label="Security Deposit"
-                placeholder="50000"
-                [type]="InputType.Number"
-                suffixText="₹" />
+          <ng-input
+            class="third-width"
+            formControlName="securityDeposit"
+            label="Security Deposit"
+            placeholder="50000"
+            suffixText="₹"
+            [type]="InputType.Number"
+          />
 
-                <ng-input class="third-width"
-                  formControlName="maintenanceCharges"
-                  label="Maintenance"
-                  placeholder="2000"
-                  [type]="InputType.Number"
-                  suffixText="₹" />
+          <ng-input
+            class="third-width"
+            formControlName="maintenanceCharges"
+            label="Maintenance"
+            placeholder="2000"
+            suffixText="₹"
+            [type]="InputType.Number"
+          />
+          />
+        </div>
+
+        <div class="form-row">
+          <ng-datepicker
+            class="third-width"
+            formControlName="tenancyStartDate"
+            label="Tenancy Start Date"
+            placeholder="Select date"
+          />
+
+          <ng-datepicker
+            class="third-width"
+            formControlName="rentDueDate"
+            label="Rent Due Date"
+            placeholder="Select date"
+          />
+
+          <ng-input
+            class="third-width"
+            formControlName="leaseDuration"
+            label="Lease Duration"
+            placeholder="12"
+            suffixText="months"
+            [type]="InputType.Number"
+          />
+          />
+        </div>
+      </ng-card>
+
+      <!-- Tenants Section -->
+      <div class="tenants-section">
+        <div class="tenants-header">
+          <h2>
+            <ng-icon name="people" style="color: #2196f3 !important" />
+            Tenants ({{ tenantsFormArray.length }})
+          </h2>
+          <button type="button" class="add-tenant-btn" (click)="addTenant()">
+            <ng-icon name="person_add" style="color: white !important" />
+            Add Tenant
+          </button>
+        </div>
+
+        <!-- Tenant Forms Array -->
+        <div formArrayName="tenants">
+          @for (
+            tenantForm of tenantsFormArray.controls;
+            track tenantForm;
+            let i = $index
+          ) {
+            <div class="tenant-form-group" [formGroupName]="i">
+              <!-- Tenant Header -->
+              <div class="tenant-header">
+                <div class="tenant-title">
+                  <h3>
+                    <ng-icon
+                      [name]="
+                        getTenantFormGroup(i).get('isPrimary')?.value
+                          ? 'star'
+                          : 'person'
+                      "
+                      [style.color]="
+                        getTenantFormGroup(i).get('isPrimary')?.value
+                          ? '#ffc107'
+                          : '#666'
+                      "
+                    />
+                    Tenant {{ i + 1 }}
+                    @if (getTenantFormGroup(i).get("isPrimary")?.value) {
+                      <span class="primary-badge"> Primary </span>
+                    }
+                  </h3>
                 </div>
-
+                <div class="tenant-actions">
+                  @if (!getTenantFormGroup(i).get("isPrimary")?.value) {
+                    <button
+                      type="button"
+                      class="primary-btn"
+                      title="Set as primary tenant"
+                      (click)="setPrimaryTenant(i)"
+                    >
+                      <ng-icon name="star" style="color: #ffc107 !important" />
+                    </button>
+                  }
+                  @if (tenantsFormArray.length > 1) {
+                    <button
+                      type="button"
+                      class="remove-btn"
+                      title="Remove tenant"
+                      (click)="removeTenant(i)"
+                    >
+                      <ng-icon
+                        name="person_remove"
+                        style="color: #f44336 !important"
+                      />
+                    </button>
+                  }
+                </div>
+              </div>
+              <!-- Personal Information -->
+              <ng-card
+                title="Personal Information"
+                icon="person"
+                class="tenant-card"
+              >
                 <div class="form-row">
-                  <ng-datepicker class="third-width"
-                    formControlName="tenancyStartDate"
-                    label="Tenancy Start Date"
-                    placeholder="Select date" />
+                  <ng-input
+                    class="half-width"
+                    formControlName="name"
+                    label="Full Name"
+                    placeholder="Enter tenant's full name"
+                    suffixIcon="person"
+                  />
+                  <ng-input
+                    class="half-width"
+                    formControlName="email"
+                    label="Email Address"
+                    placeholder="tenant@example.com"
+                    suffixIcon="email"
+                  />
+                </div>
+                <div class="form-row">
+                  <ng-input
+                    class="half-width"
+                    formControlName="phoneNumber"
+                    label="Phone Number"
+                    placeholder="+91 9876543210"
+                    suffixIcon="phone"
+                  />
+                  <ng-datepicker
+                    class="half-width"
+                    formControlName="dob"
+                    label="Date of Birth"
+                    placeholder="Select date"
+                  />
+                </div>
+                <div class="form-row">
+                  <ng-input
+                    class="half-width"
+                    formControlName="occupation"
+                    label="Occupation"
+                    placeholder="Software Engineer"
+                    suffixIcon="work"
+                  />
+                </div>
+              </ng-card>
+              <!-- Government IDs -->
+              <ng-card
+                title="Government IDs (Required)"
+                icon="badge"
+                class="tenant-card"
+              >
+                <div class="form-row">
+                  <ng-input
+                    class="half-width"
+                    formControlName="aadhaarNumber"
+                    label="Aadhaar Number"
+                    placeholder="1234 5678 9012"
+                    suffixIcon="credit_card"
+                  />
+                  <ng-input
+                    class="half-width"
+                    formControlName="panNumber"
+                    label="PAN Number"
+                    placeholder="ABCDE1234F"
+                    suffixIcon="credit_card"
+                  />
+                </div>
+              </ng-card>
+              <!-- Emergency Contact -->
+              <ng-card
+                title="Emergency Contact"
+                icon="contact_emergency"
+                class="tenant-card"
+              >
+                <div class="form-row">
+                  <ng-input
+                    class="third-width"
+                    formControlName="emergencyContactName"
+                    label="Contact Name"
+                    placeholder="Emergency contact name"
+                    suffixIcon="person"
+                  />
+                  <ng-input
+                    class="third-width"
+                    formControlName="emergencyContactPhone"
+                    label="Contact Phone"
+                    placeholder="+91 9876543210"
+                    suffixIcon="phone"
+                  />
+                  <ng-input
+                    class="third-width"
+                    formControlName="emergencyContactRelation"
+                    label="Relationship"
+                    placeholder="Father, Mother, etc."
+                    suffixIcon="family_restroom"
+                  />
+                </div>
+              </ng-card>
+              <!-- Document Upload for this tenant -->
+              <ng-card
+                title="Documents for {{
+                  getTenantFormGroup(i).get('name')?.value ||
+                    'Tenant ' + (i + 1)
+                }}"
+                icon="upload_file"
+                class="tenant-card"
+              >
+                <div class="document-upload-section">
+                  <ng-file-upload
+                    [config]="documentUploadConfig"
+                    (filesSelected)="onTenantDocumentsUploaded($event, i)"
+                    (fileRemoved)="onTenantDocumentDeleted($event, i)"
+                  />
+                </div>
+              </ng-card>
+            </div>
+          }
+        </div>
+      </div>
 
-                    <ng-datepicker class="third-width"
-                      formControlName="rentDueDate"
-                      label="Rent Due Date"
-                      placeholder="Select date" />
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button
+          type="button"
+          class="cancel-btn"
+          title="Cancel and go back"
+          (click)="onCancel()"
+        >
+          <ng-icon name="cancel" style="color: #666 !important" />
+          Cancel
+        </button>
 
-                      <ng-input class="third-width"
-                        formControlName="leaseDuration"
-                        label="Lease Duration"
-                        placeholder="12"
-                        [type]="InputType.Number"
-                        suffixText="months" />
-                      </div>
-                    </ng-card>
-
-                    <!-- Tenants Section -->
-                    <div class="tenants-section">
-                      <div class="tenants-header">
-                        <h2>
-                          <ng-icon name="people" style="color: #2196f3 !important;" />
-                          Tenants ({{ tenantsFormArray.length }})
-                        </h2>
-                        <button
-                          type="button"
-                          class="add-tenant-btn"
-                          (click)="addTenant()">
-                          <ng-icon name="person_add" style="color: white !important;" />
-                          Add Tenant
-                        </button>
-                      </div>
-
-                      <!-- Tenant Forms Array -->
-                      <div formArrayName="tenants">
-                        @for (tenantForm of tenantsFormArray.controls; track tenantForm; let i = $index) {
-                          <div
-                            [formGroupName]="i"
-                            class="tenant-form-group">
-                            <!-- Tenant Header -->
-                            <div class="tenant-header">
-                              <div class="tenant-title">
-                                <h3>
-                                  <ng-icon [name]="getTenantFormGroup(i).get('isPrimary')?.value ? 'star' : 'person'"
-                                    [style.color]="getTenantFormGroup(i).get('isPrimary')?.value ? '#ffc107' : '#666'" />
-                                    Tenant {{ i + 1 }}
-                                    @if (getTenantFormGroup(i).get('isPrimary')?.value) {
-                                      <span
-                                        class="primary-badge">
-                                        Primary
-                                      </span>
-                                    }
-                                  </h3>
-                                </div>
-                                <div class="tenant-actions">
-                                  @if (!getTenantFormGroup(i).get('isPrimary')?.value) {
-                                    <button
-                                      type="button"
-                                      class="primary-btn"
-                                      title="Set as primary tenant"
-                                      (click)="setPrimaryTenant(i)">
-                                      <ng-icon name="star" style="color: #ffc107 !important;" />
-                                    </button>
-                                  }
-                                  @if (tenantsFormArray.length > 1) {
-                                    <button
-                                      type="button"
-                                      class="remove-btn"
-                                      title="Remove tenant"
-                                      (click)="removeTenant(i)">
-                                      <ng-icon name="person_remove" style="color: #f44336 !important;" />
-                                    </button>
-                                  }
-                                </div>
-                              </div>
-                              <!-- Personal Information -->
-                              <ng-card title="Personal Information" icon="person" class="tenant-card">
-                                <div class="form-row">
-                                  <ng-input class="half-width"
-                                    formControlName="name"
-                                    label="Full Name"
-                                    placeholder="Enter tenant's full name"
-                                    suffixIcon="person" />
-                                    <ng-input class="half-width"
-                                      formControlName="email"
-                                      label="Email Address"
-                                      placeholder="tenant@example.com"
-                                      suffixIcon="email" />
-                                    </div>
-                                    <div class="form-row">
-                                      <ng-input class="half-width"
-                                        formControlName="phoneNumber"
-                                        label="Phone Number"
-                                        placeholder="+91 9876543210"
-                                        suffixIcon="phone" />
-                                        <ng-datepicker class="half-width"
-                                          formControlName="dob"
-                                          label="Date of Birth"
-                                          placeholder="Select date" />
-                                        </div>
-                                        <div class="form-row">
-                                          <ng-input class="half-width"
-                                            formControlName="occupation"
-                                            label="Occupation"
-                                            placeholder="Software Engineer"
-                                            suffixIcon="work" />
-                                          </div>
-                                        </ng-card>
-                                        <!-- Government IDs -->
-                                        <ng-card title="Government IDs (Required)" icon="badge" class="tenant-card">
-                                          <div class="form-row">
-                                            <ng-input class="half-width"
-                                              formControlName="aadhaarNumber"
-                                              label="Aadhaar Number"
-                                              placeholder="1234 5678 9012"
-                                              suffixIcon="credit_card" />
-                                              <ng-input class="half-width"
-                                                formControlName="panNumber"
-                                                label="PAN Number"
-                                                placeholder="ABCDE1234F"
-                                                suffixIcon="credit_card" />
-                                              </div>
-                                            </ng-card>
-                                            <!-- Emergency Contact -->
-                                            <ng-card title="Emergency Contact" icon="contact_emergency" class="tenant-card">
-                                              <div class="form-row">
-                                                <ng-input class="third-width"
-                                                  formControlName="emergencyContactName"
-                                                  label="Contact Name"
-                                                  placeholder="Emergency contact name"
-                                                  suffixIcon="person" />
-                                                  <ng-input class="third-width"
-                                                    formControlName="emergencyContactPhone"
-                                                    label="Contact Phone"
-                                                    placeholder="+91 9876543210"
-                                                    suffixIcon="phone" />
-                                                    <ng-input class="third-width"
-                                                      formControlName="emergencyContactRelation"
-                                                      label="Relationship"
-                                                      placeholder="Father, Mother, etc."
-                                                      suffixIcon="family_restroom" />
-                                                    </div>
-                                                  </ng-card>
-                                                  <!-- Document Upload for this tenant -->
-                                                  <ng-card title="Documents for {{ getTenantFormGroup(i).get('name')?.value || 'Tenant ' + (i + 1) }}" icon="upload_file" class="tenant-card">
-                                                    <div class="document-upload-section">
-                                                      <ng-file-upload [config]="documentUploadConfig"
-                                                        (filesSelected)="onTenantDocumentsUploaded($event, i)"
-                                                        (fileRemoved)="onTenantDocumentDeleted($event, i)" />
-                                                      </div>
-                                                    </ng-card>
-                                                  </div>
-                                                }
-                                              </div>
-                                            </div>
-
-                                            <!-- Action Buttons -->
-                                            <div class="action-buttons">
-                                              <button
-                                                type="button"
-                                                class="cancel-btn"
-                                                title="Cancel and go back"
-                                                (click)="onCancel()">
-                                                <ng-icon name="cancel" style="color: #666 !important;" />
-                                                Cancel
-                                              </button>
-
-                                              <button
-                                                type="submit"
-                                                class="save-btn"
-                                                title="Save all tenants"
-                                                [disabled]="tenantForm.invalid || isSaving">
-                                                <ng-icon [name]="isSaving ? 'hourglass_empty' : 'save'" style="color: white !important;" />
-                                                {{ isSaving ? 'Saving...' : 'Add ' + tenantsFormArray.length + ' Tenant' + (tenantsFormArray.length > 1 ? 's' : '') }}
-                                              </button>
-                                            </div>
-                                          </form>
-                                        </div>
-                                      </div>
+        <button
+          type="submit"
+          class="save-btn"
+          title="Save all tenants"
+          [disabled]="tenantForm.invalid || isSaving"
+        >
+          <ng-icon
+            style="color: white !important"
+            [name]="isSaving ? 'hourglass_empty' : 'save'"
+          />
+          {{
+            isSaving
+              ? "Saving..."
+              : "Add " +
+                tenantsFormArray.length +
+                " Tenant" +
+                (tenantsFormArray.length > 1 ? "s" : "")
+          }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
