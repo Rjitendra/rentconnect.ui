@@ -37,7 +37,7 @@ export class PropertyService {
 
     return this._http.post<any>(`${environment.apiBaseUrl}Property/create`, formData);
 
-   
+
   }
 
   /**
@@ -161,8 +161,11 @@ export class PropertyService {
   /**
    * Get all properties
    */
-  getProperties(): Observable<IProperty[]> {
-    return of(this.properties).pipe(delay(300));
+  getProperties(landlordId: number): Observable<IProperty[]> {
+    const url = `${environment.apiBaseUrl}Property/landlord/${landlordId}`;
+    return this._http.get<IProperty[]>(`${url}Property/getall`);
+
+    // return of(this.properties).pipe(delay(300));
   }
 
   /**
