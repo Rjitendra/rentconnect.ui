@@ -328,10 +328,6 @@ export class PropertyDashboard implements OnInit {
   private loadData() {
     this.isLoading = true;
     this.loadingError = null;
-
-    // First load mock data
-    // this.loadMockData();
-
     // Then fetch data from API if user is available
     if (this.userdetail?.userId) {
       this.loadApiData();
@@ -344,69 +340,6 @@ export class PropertyDashboard implements OnInit {
 
   private loadApiData() {
     const landlordId = Number(this.userdetail.userId);
-    // const apiProperties: IProperty[] = [
-    //   {
-    //     id: 1,
-    //     landlordId: 1,
-    //     tenants: [],
-    //     title: "Beautiful 2BHK Apartment with Modern Amenities",
-    //     description: "Spacious and well-ventilated 2BHK apartment located in a prime location with excellent connectivity to IT hubs and shopping centers. The property features modern amenities and is perfect for families.",
-    //     propertyType: 0,
-    //     bhkConfiguration: "2BHK",
-    //     floorNumber: 2,
-    //     totalFloors: 5,
-    //     carpetAreaSqFt: 850,
-    //     builtUpAreaSqFt: 1200,
-    //     isFurnished: false,
-    //     furnishingType: 1,
-    //     numberOfBathrooms: 2,
-    //     numberOfBalconies: 1,
-    //     addressLine1: "123 Green Valley Apartments, MG Road",
-    //     addressLine2: "Near Metro Station",
-    //     landmark: "Opposite City Mall",
-    //     locality: "Koramangala",
-    //     city: "Bangalore",
-    //     state: "Karnataka",
-    //     pinCode: "560095",
-    //     latitude: -1,
-    //     longitude: -1,
-    //     monthlyRent: 25000,
-    //     securityDeposit: 50000,
-    //     isNegotiable: true,
-    //     availableFrom: "2025-09-26T00:00:00Z",
-    //     leaseType: 1,
-    //     hasLift: true,
-    //     hasParking: true,
-    //     hasPowerBackup: true,
-    //     hasWaterSupply: true,
-    //     hasGasPipeline: false,
-    //     hasSecurity: true,
-    //     hasInternet: true,
-    //     status: 0,
-    //     createdOn: "2025-08-27T06:27:27.7408676Z",
-    //     updatedOn: "2025-08-27T06:27:28.2417761Z",
-    //     documents: [
-    //       {
-    //         file: undefined,
-    //         ownerId: 1,
-    //         ownerType: "Landlord",
-    //         category: 6,
-    //         landlordId: -1,
-    //         propertyId: 1,
-    //         tenantId: -1,
-    //         name: "e64571d1-002e-40fc-980d-051784c75858_1730815613210.jpg",
-    //         size: 12000,
-    //         type: "image/jpeg",
-    //         url: "/uploads/Property/1/e64571d1-002e-40fc-980d-051784c75858_1730815613210.jpg",
-    //         documentIdentifier: "3",
-    //         uploadedOn: "2025-08-27T09:54:01.9192523Z",
-    //         isVerified: true,
-    //         verifiedBy: "",
-    //         description: ""
-    //       }
-    //     ]
-    //   }
-    // ];
 
     this.propertyService.getProperties(landlordId).subscribe({
       next: (apiProperties: IProperty[]) => {
@@ -418,17 +351,10 @@ export class PropertyDashboard implements OnInit {
             this.transformPropertyForTable(property)
           );
 
-          // Combine mock properties with API properties
-          // Remove duplicates based on ID (API data takes precedence)
-
-
-
           this.properties = [...transformedApiProperties];
           this.properties$ = of(this.properties)
-         this.$cdr.markForCheck();
-          console.log(`Loaded ${apiProperties.length} properties from API`);
-        } else {
-          console.log('No properties found in API, using mock data only');
+          this.$cdr.markForCheck();
+
         }
       },
       error: (error) => {
