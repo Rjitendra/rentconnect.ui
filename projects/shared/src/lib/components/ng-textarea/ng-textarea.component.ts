@@ -1,5 +1,5 @@
-import { Component, forwardRef, output, input } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Component, forwardRef, output, input, Injector, inject, OnInit } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, NgControl, FormControl, ReactiveFormsModule } from '@angular/forms';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -15,7 +15,8 @@ import { NgClarifyTextComponent } from '../ng-clarify-text/ng-clarify-text.compo
     MatInputModule,
     MatIconModule,
     NgLabelComponent,
-    NgClarifyTextComponent
+    NgClarifyTextComponent,
+    ReactiveFormsModule
 ],
   templateUrl: './ng-textarea.component.html',
   styleUrl: './ng-textarea.component.scss',
@@ -27,7 +28,9 @@ import { NgClarifyTextComponent } from '../ng-clarify-text/ng-clarify-text.compo
     },
   ],
 })
-export class NgTextareaComponent implements ControlValueAccessor {
+export class NgTextareaComponent implements ControlValueAccessor, OnInit {
+  private injector = inject(Injector);
+  public ngControl: NgControl | null = null;
   readonly label = input<string>('');
   readonly placeholder = input('');
   readonly disabled = input(false);
@@ -54,16 +57,47 @@ export class NgTextareaComponent implements ControlValueAccessor {
   readonly focusEvent = output<FocusEvent>();
 
   value: string = '';
+  internalControl = new FormControl();
 
   private onChange = (value: string) => {};
   private onTouched = () => {};
 
+  ngOnInit() {
+    this.tryGetNgControl();
+    this.setupValidationSync();
+  }
+
+  private tryGetNgControl() {
+    try {
+      this.ngControl = this.injector.get(NgControl, null);
+    } catch (error) {
+      this.ngControl = null;
+    }
+  }
+
+  private setupValidationSync() {
+    // Sync validation from external control to internal control
+    if (this.ngControl?.control) {
+      // Copy validators from external control
+      this.internalControl.setValidators(this.ngControl.control.validator);
+      // Sync validation state changes
+      this.ngControl.control.statusChanges?.subscribe(() => {
+        this.internalControl.updateValueAndValidity({ emitEvent: false });
+      });
+    }
+  }
+
   writeValue(value: string): void {
     this.value = value || '';
+    this.internalControl.setValue(value, { emitEvent: false });
   }
 
   registerOnChange(fn: (value: string) => void): void {
     this.onChange = fn;
+    this.internalControl.valueChanges.subscribe(value => {
+      this.value = value;
+      fn(value);
+    });
   }
 
   registerOnTouched(fn: () => void): void {
@@ -71,17 +105,26 @@ export class NgTextareaComponent implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-   //+ this.disabled = isDisabled;
+    if (isDisabled) {
+      this.internalControl.disable();
+    } else {
+      this.internalControl.enable();
+    }
   }
 
   onInput(event: Event): void {
     const target = event.target as HTMLTextAreaElement;
     this.value = target.value;
-    this.onChange(this.value);
+    this.internalControl.setValue(target.value);
     this.inputChange.emit(this.value);
   }
 
   onBlur(): void {
+    this.internalControl.markAsTouched();
+    // Also mark external control as touched if it exists
+    if (this.ngControl?.control) {
+      this.ngControl.control.markAsTouched();
+    }
     this.onTouched();
   }
 
@@ -89,13 +132,6 @@ export class NgTextareaComponent implements ControlValueAccessor {
     this.focusEvent.emit(event);
   }
 
-  // Check if field has validation errors
-  get hasValidationError(): boolean {
-    return this.isInvalid();
-  }
-
-  // Get error message
-  get displayErrorMessage(): string {
-    return this.validationMessage() || '';
-  }
+  // Note: Validation is now handled automatically by Angular Material
+  // No custom validation logic needed - Angular handles invalid/touched states
 }

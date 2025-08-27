@@ -35,56 +35,9 @@ export class PropertyService {
     formData: FormData,
   ): Observable<any> {
 
-    return this._http.post<any>(`${environment.apiBaseUrl}Property/property-create`, formData);
+    return this._http.post<any>(`${environment.apiBaseUrl}Property/create`, formData);
 
-    // try {
-    //   // Extract property data from FormData
-    //   const propertyData = this.extractPropertyFromFormData(formData);
-
-    //   // Validate required fields for published property
-    //   const validationErrors = this.validatePropertyForPublish(propertyData);
-
-    //   if (validationErrors.length > 0) {
-    //     return of({
-    //       success: false,
-    //       message: 'Please fix validation errors before publishing',
-    //       errors: validationErrors,
-    //     }).pipe(delay(500)); // Simulate API delay
-    //   }
-
-    //   // Create property object
-    //   const property: IProperty = {
-    //     ...this.createBaseProperty(propertyData),
-    //     status: PropertyStatus.Listed,
-    //     id: this.generateId(),
-    //   };
-
-    //   // Process uploaded files
-    //   const uploadedFiles = formData.getAll('propertyImages') as File[];
-    //   if (uploadedFiles.length > 0) {
-    //     property.documents = this.processUploadedFiles(uploadedFiles, formData);
-    //   }
-
-    //   // Simulate API call
-    //   return this.simulateApiCall(() => {
-    //     this.properties.push(property);
-    //     return {
-    //       success: true,
-    //       propertyId: property.id,
-    //       message: 'Property published successfully! Your listing is now live.',
-    //     };
-    //   });
-    // } catch (error) {
-    //   return of({
-    //     success: false,
-    //     message: 'Invalid data format. Please try again.',
-    //     errors: [{
-    //       field: 'general',
-    //       displayName: 'General',
-    //       message: 'Failed to process property data'
-    //     }],
-    //   }).pipe(delay(300));
-    // }
+   
   }
 
   /**

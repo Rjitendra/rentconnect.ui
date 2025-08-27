@@ -1,165 +1,47 @@
-/* ==========================================================================
-   SHARED FORM CONTROLS VALIDATION STYLES
-   ========================================================================== */
-
-/* ==========================================================================
-   VARIABLES
-   ========================================================================== */
 $error-color: #f44336;
-$error-border-width: 2px;
+$error-border-width: 1px;
 $error-font-size: 12px;
 $error-line-height: 1.2;
 
-/* ==========================================================================
-   MIXINS
-   ========================================================================== */
-
-// Base error styling for form fields
-@mixin form-field-error-base {
+// High priority validation styling - works regardless of container structure
+.mat-mdc-form-field.ng-invalid.ng-touched,
+.property-add-container .mat-mdc-form-field.ng-invalid.ng-touched,
+.form-container .mat-mdc-form-field.ng-invalid.ng-touched,
+.form-card .mat-mdc-form-field.ng-invalid.ng-touched,
+ng-input .mat-mdc-form-field.ng-invalid.ng-touched,
+.property-add-container ng-input .mat-mdc-form-field.ng-invalid.ng-touched {
   .mat-mdc-form-field-outline {
     color: $error-color !important;
   }
-  
+
   .mat-mdc-form-field-outline-thick {
     color: $error-color !important;
   }
-  
+
   .mdc-notched-outline__leading,
   .mdc-notched-outline__notch,
   .mdc-notched-outline__trailing {
     border-color: $error-color !important;
-   
+    border-width: $error-border-width !important;
   }
-  
+
   .mat-mdc-form-field-label {
     color: $error-color !important;
   }
-}
 
-// Icon error styling
-@mixin form-field-error-icons {
   .mat-icon,
   .clarify-icon,
   .mat-mdc-form-field-icon-suffix,
   .mat-mdc-form-field-icon-prefix {
     color: $error-color !important;
   }
-  
-  // Target ng-clarify-text component specifically
-  ng-clarify-text .clarify-icon {
+
+  // Target ng-clarify-text icons
+  ng-clarify-text .clarify-icon,
+  cl-clarify-text .clarify-icon {
     color: $error-color !important;
   }
 }
-
-// Prevent native form controls from showing validation styles
-@mixin prevent-native-validation {
-  input,
-  textarea,
-  select {
-    border: none !important;
-    outline: none !important;
-    box-shadow: none !important;
-  }
-}
-
-// Complete error styling for form field
-@mixin form-field-error-complete {
-  @include form-field-error-base;
-  @include form-field-error-icons;
-  @include prevent-native-validation;
-}
-
-/* ==========================================================================
-   SHARED ERROR CLASSES
-   ========================================================================== */
-
-// Base error class that can be used by any component
-.shared-form-error {
-  @include form-field-error-complete;
-}
-
-// Specific component error classes (for backward compatibility)
-.ng-custom-error,
-.ng-textarea-error,
-.ng-select-error,
-.ng-datepicker-error,
-.ng-checkbox-error,
-.ng-toggle-error {
-  @include form-field-error-complete;
-}
-
-/* ==========================================================================
-   GLOBAL DEEP STYLING
-   ========================================================================== */
-
-// Global deep styling for better error border visibility across all components
-::ng-deep {
-  .shared-form-error,
-  .ng-custom-error,
-  .ng-textarea-error,
-  .ng-select-error,
-  .ng-datepicker-error,
-  .ng-checkbox-error,
-  .ng-toggle-error {
-    .mdc-notched-outline__leading,
-    .mdc-notched-outline__notch,
-    .mdc-notched-outline__trailing {
-      border-color: $error-color !important;
-     
-    }
-    
-    .mat-mdc-form-field-outline,
-    .mat-mdc-form-field-outline-thick {
-      color: $error-color !important;
-    }
-    
-    // Target all icons including clarify-text
-    .mat-icon,
-    .clarify-icon,
-    ng-clarify-text .clarify-icon,
-    .mat-mdc-form-field-icon-suffix,
-    .mat-mdc-form-field-icon-prefix {
-      color: $error-color !important;
-    }
-    
-    // Prevent native controls from showing validation styles
-    input,
-    textarea,
-    select {
-      border: none !important;
-      outline: none !important;
-      box-shadow: none !important;
-    }
-  }
-}
-
-/* ==========================================================================
-   ANGULAR FORM VALIDATION CLASSES
-   ========================================================================== */
-
-// Support for Angular's built-in validation classes
-.mat-mdc-form-field.ng-invalid:not(.ng-pristine) {
-  @include form-field-error-base;
-  @include form-field-error-icons;
-}
-
-.ng-invalid:not(.ng-pristine) .mat-mdc-form-field {
-  .mdc-notched-outline__leading,
-  .mdc-notched-outline__notch,
-  .mdc-notched-outline__trailing {
-    border-color: $error-color !important;
-   
-  }
-  
-  .mat-icon,
-  .clarify-icon {
-    color: $error-color !important;
-  }
-}
-
-/* ==========================================================================
-   ERROR MESSAGE STYLING
-   ========================================================================== */
 
 .mat-mdc-form-field-error {
   color: $error-color !important;
@@ -169,21 +51,13 @@ $error-line-height: 1.2;
   line-height: $error-line-height !important;
 }
 
-/* ==========================================================================
-   FORM FIELD SPACING
-   ========================================================================== */
-
 .mat-mdc-form-field {
   margin-bottom: 16px;
-  
+
   &:last-child {
     margin-bottom: 0;
   }
 }
-
-/* ==========================================================================
-   PREVENT NATIVE FORM CONTROLS VALIDATION STYLES
-   ========================================================================== */
 
 .mat-mdc-form-field {
   input,
@@ -195,88 +69,38 @@ $error-line-height: 1.2;
   }
 }
 
-/* ==========================================================================
-   COMPONENT-SPECIFIC OVERRIDES (if needed)
-   ========================================================================== */
-
-// Textarea specific styles
-.ng-textarea-field {
-  width: 100%;
-  
-  textarea {
-    resize: vertical;
-    min-height: 60px;
-  }
-}
-
-// Select specific styles
-.ng-select-field {
-  width: 100%;
-}
-
-// Datepicker specific styles
-.ng-datepicker-field {
-  width: 100%;
-}
-
-// Input specific styles
+// Form field width styling
+.ng-textarea-field,
+.ng-select-field,
+.ng-datepicker-field,
 .full-width-input {
   width: 100%;
 }
 
-// Checkbox specific styles
+// Textarea specific behavior
+.ng-textarea-field textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+// Checkbox/Toggle styling (using individual validation now)
 .ng-checkbox-wrapper,
 .ng-toggle-wrapper {
   display: block;
   margin-bottom: 16px;
-  
+
   &:last-child {
     margin-bottom: 0;
   }
-  
-  // Error state styling for checkbox/toggle
-  &.ng-checkbox-error,
-  &.ng-toggle-error {
-    .mat-mdc-checkbox,
-    .mat-mdc-slide-toggle {
-      .mdc-checkbox,
-      .mdc-switch {
-        border-color: $error-color !important;
-      }
-      
-      .mdc-checkbox__native-control:checked + .mdc-checkbox__background,
-      .mdc-switch__track {
-        background-color: $error-color !important;
-        border-color: $error-color !important;
-      }
-      
-      .mdc-checkbox__background {
-        border-color: $error-color !important;
-      }
-      
-      .mat-mdc-checkbox-touch-target,
-      .mat-mdc-slide-toggle-touch-target {
-        border-color: $error-color !important;
-      }
-    }
-    
-    // Error styling for labels and icons
-    .mat-mdc-checkbox .mdc-form-field label,
-    .mat-mdc-slide-toggle .mdc-form-field label,
-    ng-label,
-    cl-label {
-      color: $error-color !important;
-    }
-    
+
+  // Error styling applied when wrapper has ng-invalid class
+  &.ng-invalid {
     .mat-icon,
     .clarify-icon,
     ng-clarify-text .clarify-icon,
-    cl-clarify-text .clarify-icon {
-      color: $error-color !important;
-    }
-    
-    // Required asterisk color
-    .required-asterisk {
+    cl-clarify-text .clarify-icon,
+    ng-label,
+    cl-label {
       color: $error-color !important;
     }
   }
@@ -293,46 +117,54 @@ $error-line-height: 1.2;
   padding-left: 32px; // Align with checkbox/toggle
 }
 
-// Global deep styling for checkboxes and toggles
+// Deep styling to ensure validation works in dynamically positioned components
 ::ng-deep {
-  .ng-checkbox-error,
-  .ng-toggle-error {
-    .mat-mdc-checkbox,
-    .mat-mdc-slide-toggle {
-      // Override Material's default colors
-      &.mat-warn {
-        .mdc-checkbox__native-control:enabled:checked + .mdc-checkbox__background,
-        .mdc-checkbox__native-control:enabled:indeterminate + .mdc-checkbox__background,
-        .mdc-switch__track {
-          background-color: $error-color !important;
-          border-color: $error-color !important;
-        }
-        
-        .mdc-checkbox__background {
-          border-color: $error-color !important;
-        }
-        
-        .mdc-checkbox__checkmark-path,
-        .mdc-switch__thumb {
-          stroke: white !important;
-          fill: white !important;
-        }
+  .property-add-container,
+  .form-container,
+  .form-card {
+    .mat-mdc-form-field.ng-invalid.ng-touched {
+      .mat-mdc-form-field-outline,
+      .mat-mdc-form-field-outline-thick {
+        color: $error-color !important;
+      }
+
+      .mdc-notched-outline__leading,
+      .mdc-notched-outline__notch,
+      .mdc-notched-outline__trailing {
+        border-color: $error-color !important;
+        border-width: $error-border-width !important;
+      }
+
+      .mat-mdc-form-field-label {
+        color: $error-color !important;
+      }
+
+      .mat-icon,
+      .clarify-icon,
+      .mat-mdc-form-field-icon-suffix,
+      .mat-mdc-form-field-icon-prefix {
+        color: $error-color !important;
+      }
+
+      ng-clarify-text .clarify-icon,
+      cl-clarify-text .clarify-icon {
+        color: $error-color !important;
       }
     }
-    
-    // Label text color
-    .mdc-form-field > label,
-    ng-label,
-    cl-label {
-      color: $error-color !important;
-    }
-    
-    // Icon colors
-    .mat-icon,
-    .clarify-icon,
-    ng-clarify-text .clarify-icon,
-    cl-clarify-text .clarify-icon {
-      color: $error-color !important;
-    }
+  }
+}
+
+// Additional debugging styles - force red border for testing
+.debug-force-error {
+  .mat-mdc-form-field-outline,
+  .mat-mdc-form-field-outline-thick {
+    color: $error-color !important;
+  }
+
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-color: $error-color !important;
+    border-width: 2px !important;
   }
 }

@@ -1,10 +1,13 @@
 @if (!isToggle()) {
-<div class="ng-checkbox-wrapper" [class.ng-checkbox-error]="hasValidationError">
+<div class="ng-checkbox-wrapper" 
+  [class.ng-invalid]="internalControl.invalid || (ngControl?.control?.invalid && ngControl?.control?.touched)"
+  [class.ng-touched]="internalControl.touched || ngControl?.control?.touched"
+>
 <mat-checkbox
   [name]="uniqueId() || checkboxName() || 'inputCheck'"
   [aria-label]="label() || toolTip() || ''"
   [checked]="value"
-  [color]="hasValidationError ? 'warn' : color()"
+  [color]="color()"
   [disabled]="disabled()"
   [id]="uniqueId() || ''"
   [labelPosition]="labelPosition() || 'after'"
@@ -26,17 +29,20 @@
   />
   }
 </mat-checkbox>
-@if (hasValidationError && displayErrorMessage) {
-  <div class="ng-checkbox-error-message">{{ displayErrorMessage }}</div>
+@if (errorMessage() || validationMessage()) {
+  <div class="ng-checkbox-error-message">{{ errorMessage() || validationMessage() }}</div>
 }
 </div>
 } @else {
-<div class="ng-toggle-wrapper" [class.ng-toggle-error]="hasValidationError">
+<div class="ng-toggle-wrapper"
+  [class.ng-invalid]="internalControl.invalid || (ngControl?.control?.invalid && ngControl?.control?.touched)"
+  [class.ng-touched]="internalControl.touched || ngControl?.control?.touched"
+>
 <mat-slide-toggle
   [name]="uniqueId() || checkboxName() || 'inputCheck'"
   [aria-label]="label()"
   [checked]="value"
-  [color]="hasValidationError ? 'warn' : color()"
+  [color]="color()"
   [disabled]="disabled()"
   [id]="uniqueId() || ''"
   [labelPosition]="labelPosition() || 'after'"
@@ -57,8 +63,8 @@
   />
   }
 </mat-slide-toggle>
-@if (hasValidationError && displayErrorMessage) {
-  <div class="ng-toggle-error-message">{{ displayErrorMessage }}</div>
+@if (errorMessage() || validationMessage()) {
+  <div class="ng-toggle-error-message">{{ errorMessage() || validationMessage() }}</div>
 }
 </div>
 }

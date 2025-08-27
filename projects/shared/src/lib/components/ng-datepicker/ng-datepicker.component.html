@@ -1,4 +1,9 @@
-<mat-form-field [appearance]="appearance()" class="ng-datepicker-field" [class.ng-datepicker-error]="hasValidationError">
+<mat-form-field 
+  [appearance]="appearance()" 
+  class="ng-datepicker-field"
+  [class.ng-invalid]="internalControl.invalid || (ngControl?.control?.invalid && ngControl?.control?.touched)"
+  [class.ng-touched]="internalControl.touched || ngControl?.control?.touched"
+>
   @if (label()) {
     <mat-label>
       <ng-label [label]="label()" [required]="required()" [toolTip]="toolTip()" />
@@ -36,8 +41,8 @@
     </div>
   }
   
-  @if (hasValidationError && displayErrorMessage) {
-    <mat-error>{{ displayErrorMessage }}</mat-error>
+  @if (errorMessage() || validationMessage()) {
+    <mat-error>{{ errorMessage() || validationMessage() }}</mat-error>
   }
   
   @if (hint()) {

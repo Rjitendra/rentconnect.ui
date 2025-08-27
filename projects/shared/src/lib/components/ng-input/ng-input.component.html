@@ -1,8 +1,9 @@
 <mat-form-field
-  appearance="outline"
+  [appearance]="appearance()"
   [floatLabel]="floatLabel()"
   class="full-width-input"
-  [class.ng-custom-error]="hasValidationError"
+  [class.ng-invalid]="hasValidationError"
+  [class.ng-touched]="isTouched"
 >
   @if (label()) {
     <mat-label>{{ label() }}</mat-label>
@@ -19,11 +20,16 @@
     matInput
     [type]="type()"
     [placeholder]="placeholder()"
-   
+    [value]="internalControl.value || ''"
     [disabled]="disabled"
+    [readonly]="readonly()"
+    [required]="required()"
+    [attr.maxlength]="maxlength()"
+    [attr.minlength]="minlength()"
+    [attr.aria-label]="ariaLabel()"
+    [attr.autocomplete]="autocomplete()"
     (input)="handleInput($event)"
     (blur)="handleBlur()"
-    [readonly]="readonly()"
   />
 
   @if (suffixText()) {
@@ -33,4 +39,11 @@
     <mat-icon matSuffix>{{ suffixIcon() }}</mat-icon>
   }
 
+  @if (hasValidationError) {
+    <mat-error>{{ displayErrorMessage }}</mat-error>
+  }
+
+  @if (hint() && !hasValidationError) {
+    <mat-hint>{{ hint() }}</mat-hint>
+  }
 </mat-form-field>

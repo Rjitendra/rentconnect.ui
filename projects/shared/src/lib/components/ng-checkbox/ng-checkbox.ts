@@ -5,7 +5,9 @@ import {
   inject,
   forwardRef,
   output,
-  input
+  input,
+  Injector,
+  OnInit
 } from '@angular/core';
 import {
   FormBuilder,
@@ -15,6 +17,7 @@ import {
   ReactiveFormsModule,
   ControlValueAccessor,
   NG_VALUE_ACCESSOR,
+  NgControl,
 } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -47,7 +50,9 @@ import { ClClarifyTextComponent } from '../cl-clarify-text/cl-clarify-text.compo
     },
   ],
 })
-export class NgCheckbox implements ControlValueAccessor {
+export class NgCheckbox implements ControlValueAccessor, OnInit {
+  private injector = inject(Injector);
+  public ngControl: NgControl | null = null;
   /** Label for the checkbox */
   readonly label = input<string>('Checkbox');
   /** Whether the checkbox is checked */
@@ -94,12 +99,39 @@ export class NgCheckbox implements ControlValueAccessor {
   readonly changed = output<boolean>();
 
   value: boolean = false;
+  internalControl = new FormControl();
   private onChange = (value: boolean) => {};
   private onTouched = () => {};
+
+  ngOnInit() {
+    this.tryGetNgControl();
+    this.setupValidationSync();
+  }
+
+  private tryGetNgControl() {
+    try {
+      this.ngControl = this.injector.get(NgControl, null);
+    } catch (error) {
+      this.ngControl = null;
+    }
+  }
+
+  private setupValidationSync() {
+    // Sync validation from external control to internal control
+    if (this.ngControl?.control) {
+      // Copy validators from external control
+      this.internalControl.setValidators(this.ngControl.control.validator);
+      // Sync validation state changes
+      this.ngControl.control.statusChanges?.subscribe(() => {
+        this.internalControl.updateValueAndValidity({ emitEvent: false });
+      });
+    }
+  }
 
   /** Handle change */
   onCheckboxChange(event: any) {
     this.value = event.checked;
+    this.internalControl.setValue(event.checked);
     this.onChange(this.value);
     this.changed.emit(this.value);
   }
@@ -107,11 +139,15 @@ export class NgCheckbox implements ControlValueAccessor {
   // ControlValueAccessor implementation
   writeValue(value: boolean): void {
     this.value = value || false;
-   // this.checked = this.value;
+    this.internalControl.setValue(value, { emitEvent: false });
   }
 
   registerOnChange(fn: (value: boolean) => void): void {
     this.onChange = fn;
+    this.internalControl.valueChanges.subscribe(value => {
+      this.value = value;
+      fn(value);
+    });
   }
 
   registerOnTouched(fn: () => void): void {
@@ -119,20 +155,22 @@ export class NgCheckbox implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-   // this.disabled = isDisabled;
+    if (isDisabled) {
+      this.internalControl.disable();
+    } else {
+      this.internalControl.enable();
+    }
   }
 
   onBlur(): void {
+    this.internalControl.markAsTouched();
+    // Also mark external control as touched if it exists
+    if (this.ngControl?.control) {
+      this.ngControl.control.markAsTouched();
+    }
     this.onTouched();
   }
 
-  // Check if field has validation errors
-  get hasValidationError(): boolean {
-    return this.hasError() || this.isInvalid();
-  }
-
-  // Get error message
-  get displayErrorMessage(): string {
-    return this.errorMessage() || this.validationMessage() || '';
-  }
+  // Note: Validation is now handled automatically by Angular Material
+  // No custom validation logic needed - Angular handles invalid/touched states
 }

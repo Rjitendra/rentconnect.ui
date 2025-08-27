@@ -69,6 +69,10 @@ export class NgInputComponent implements ControlValueAccessor, OnInit, OnDestroy
   readonly maxlength = input<number | null>(null);
   readonly readonly = input(false);
   floatLabel = input<FloatLabelType>('auto');
+  readonly appearance = input<'fill' | 'outline'>('outline');
+  readonly hint = input<string>('');
+  readonly ariaLabel = input<string>('');
+  readonly autocomplete = input<string>('');
 
   // Manual validation signals
   hasError = signal(false);
@@ -132,6 +136,28 @@ export class NgInputComponent implements ControlValueAccessor, OnInit, OnDestroy
     }
 
     this.internalControl.setValidators(validators);
+    this.syncValidationWithExternalControl();
+  }
+
+  private syncValidationWithExternalControl() {
+    // Sync validation from external control to internal control
+    if (this.ngControl?.control) {
+      // Copy validators from external control if they exist
+      const externalValidators = this.ngControl.control.validator;
+      if (externalValidators) {
+        const currentValidators = this.internalControl.validator;
+        const combinedValidators = [currentValidators, externalValidators].filter(v => v !== null);
+        if (combinedValidators.length > 0) {
+          this.internalControl.setValidators(combinedValidators);
+        }
+      }
+      
+      // Sync validation state changes
+      this.ngControl.control.statusChanges?.pipe(takeUntil(this.destroyed$))
+        .subscribe(() => {
+          this.internalControl.updateValueAndValidity({ emitEvent: false });
+        });
+    }
   }
 
   private setupControlMonitoring() {
@@ -185,6 +211,10 @@ export class NgInputComponent implements ControlValueAccessor, OnInit, OnDestroy
 
   handleBlur() {
     this.internalControl.markAsTouched();
+    // Also mark external control as touched if it exists
+    if (this.ngControl?.control) {
+      this.ngControl.control.markAsTouched();
+    }
     this.onTouched();
   }
 
@@ -204,6 +234,10 @@ export class NgInputComponent implements ControlValueAccessor, OnInit, OnDestroy
 
     // Fallback to manual template-driven signals
     return this.hasError() || this.isInvalid();
+  }
+
+  get isTouched(): boolean {
+    return this.internalControl.touched || (this.ngControl?.control?.touched === true);
   }
 
   get displayErrorMessage(): string {

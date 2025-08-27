@@ -1,7 +1,8 @@
 <mat-form-field 
   [appearance]="appearance()" 
   class="ng-select-field"
-  [class.ng-select-error]="hasValidationError">
+  [class.ng-invalid]="hasValidationError"
+  [class.ng-touched]="isTouched">
   @if (label()) {
     <mat-label>
       <ng-label [label]="label()" [required]="required()" [toolTip]="toolTip()" />
@@ -13,7 +14,7 @@
   }
   
   <mat-select
-    [value]="value"
+    [value]="internalControl.value"
     [placeholder]="placeholder()"
     [multiple]="multiple()"
     [disabled]="disabled()"
@@ -41,11 +42,11 @@
     </div>
   }
   
-  @if (hint()) {
-    <mat-hint>{{ hint() }}</mat-hint>
+  @if (hasValidationError) {
+    <mat-error>{{ displayErrorMessage }}</mat-error>
   }
   
-  @if (hasValidationError && displayErrorMessage) {
-    <mat-error>{{ displayErrorMessage }}</mat-error>
+  @if (hint() && !hasValidationError) {
+    <mat-hint>{{ hint() }}</mat-hint>
   }
 </mat-form-field>

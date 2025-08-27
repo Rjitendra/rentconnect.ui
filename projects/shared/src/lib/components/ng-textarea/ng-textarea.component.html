@@ -1,4 +1,9 @@
-<mat-form-field [appearance]="appearance()" class="ng-textarea-field" [class.ng-textarea-error]="hasValidationError">
+<mat-form-field 
+  [appearance]="appearance()" 
+  class="ng-textarea-field"
+  [class.ng-invalid]="internalControl.invalid || (ngControl?.control?.invalid && ngControl?.control?.touched)"
+  [class.ng-touched]="internalControl.touched || ngControl?.control?.touched"
+>
   @if (label()) {
     <mat-label>
       <ng-label [label]="label()" [required]="required()" [toolTip]="toolTip()" />
@@ -11,7 +16,7 @@
   
   <textarea
     matInput
-    [value]="value || ''"
+    [value]="internalControl.value || ''"
     [placeholder]="placeholder()"
     [disabled]="disabled()"
     [required]="required()"
@@ -41,8 +46,8 @@
     </div>
   }
   
-  @if (hasValidationError && displayErrorMessage) {
-    <mat-error>{{ displayErrorMessage }}</mat-error>
+  @if (validationMessage()) {
+    <mat-error>{{ validationMessage() }}</mat-error>
   }
   
   @if (showCharacterCount() && maxLength()) {

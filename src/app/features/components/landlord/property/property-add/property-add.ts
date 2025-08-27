@@ -185,7 +185,7 @@ export class PropertyAdd implements OnInit {
   }
 
   onSubmit() {
-    this.propertyForm.markAllAsDirty();
+   // this.propertyForm.markAllAsDirty();
     //  if (this.isSaving) return; // Prevent double submission
 
     // Clear previous validation errors
@@ -199,7 +199,7 @@ export class PropertyAdd implements OnInit {
       return;
     }
     if (this.propertyForm.invalid) { return; }
-    this.isSaving = true;
+   // this.isSaving = true;
 
     try {
       // Create property object with form data and documents

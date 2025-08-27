@@ -1,5 +1,5 @@
-import { Component, forwardRef, output, input } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Component, forwardRef, output, input, Injector, inject, OnInit } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, NgControl, FormControl } from '@angular/forms';
 
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -31,7 +31,9 @@ import { NgClarifyTextComponent } from '../ng-clarify-text/ng-clarify-text.compo
     },
   ],
 })
-export class NgDatepickerComponent implements ControlValueAccessor {
+export class NgDatepickerComponent implements ControlValueAccessor, OnInit {
+  private injector = inject(Injector);
+  public ngControl: NgControl | null = null;
   readonly label = input<string>('');
   readonly placeholder = input('');
   readonly disabled = input(false);
@@ -60,16 +62,47 @@ export class NgDatepickerComponent implements ControlValueAccessor {
   readonly pickerClosed = output<void>();
 
   value: Date | null = null;
+  internalControl = new FormControl();
 
   private onChange = (value: Date | null) => {};
   private onTouched = () => {};
 
+  ngOnInit() {
+    this.tryGetNgControl();
+    this.setupValidationSync();
+  }
+
+  private tryGetNgControl() {
+    try {
+      this.ngControl = this.injector.get(NgControl, null);
+    } catch (error) {
+      this.ngControl = null;
+    }
+  }
+
+  private setupValidationSync() {
+    // Sync validation from external control to internal control
+    if (this.ngControl?.control) {
+      // Copy validators from external control
+      this.internalControl.setValidators(this.ngControl.control.validator);
+      // Sync validation state changes
+      this.ngControl.control.statusChanges?.subscribe(() => {
+        this.internalControl.updateValueAndValidity({ emitEvent: false });
+      });
+    }
+  }
+
   writeValue(value: Date | null): void {
     this.value = value;
+    this.internalControl.setValue(value, { emitEvent: false });
   }
 
   registerOnChange(fn: (value: Date | null) => void): void {
     this.onChange = fn;
+    this.internalControl.valueChanges.subscribe(value => {
+      this.value = value;
+      fn(value);
+    });
   }
 
   registerOnTouched(fn: () => void): void {
@@ -77,17 +110,23 @@ export class NgDatepickerComponent implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-   // this.disabled = isDisabled;
+    if (isDisabled) {
+      this.internalControl.disable();
+    } else {
+      this.internalControl.enable();
+    }
   }
 
   onDateInput(event: any): void {
     this.value = event.value;
+    this.internalControl.setValue(event.value);
     this.onChange(this.value);
     this.dateInput.emit(event);
   }
 
   onDateChange(event: any): void {
     this.value = event.value;
+    this.internalControl.setValue(event.value);
     this.onChange(this.value);
     this.dateChange.emit(event);
   }
@@ -98,22 +137,25 @@ export class NgDatepickerComponent implements ControlValueAccessor {
   }
 
   onBlur(): void {
+    this.internalControl.markAsTouched();
+    // Also mark external control as touched if it exists
+    if (this.ngControl?.control) {
+      this.ngControl.control.markAsTouched();
+    }
     this.onTouched();
   }
 
   onClosed(): void {
+    this.internalControl.markAsTouched();
+    // Also mark external control as touched if it exists
+    if (this.ngControl?.control) {
+      this.ngControl.control.markAsTouched();
+    }
     this.onTouched();
     // TODO: The 'emit' function requires a mandatory void argument
     this.pickerClosed.emit();
   }
 
-  // Check if field has validation errors
-  get hasValidationError(): boolean {
-    return this.hasError() || this.isInvalid();
-  }
-
-  // Get error message
-  get displayErrorMessage(): string {
-    return this.errorMessage() || this.validationMessage() || '';
-  }
+  // Note: Validation is now handled automatically by Angular Material
+  // No custom validation logic needed - Angular handles invalid/touched states
 }
