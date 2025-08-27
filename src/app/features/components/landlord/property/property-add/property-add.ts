@@ -186,7 +186,7 @@ export class PropertyAdd implements OnInit {
   }
 
   onSubmit() {
-   // this.propertyForm.markAllAsDirty();
+    // this.propertyForm.markAllAsDirty();
     //  if (this.isSaving) return; // Prevent double submission
 
     // Clear previous validation errors
@@ -200,7 +200,7 @@ export class PropertyAdd implements OnInit {
       return;
     }
     if (this.propertyForm.invalid) { return; }
-   // this.isSaving = true;
+    // this.isSaving = true;
 
     try {
       // Create property object with form data and documents
@@ -353,7 +353,7 @@ export class PropertyAdd implements OnInit {
   }
 
   showValidationErrors() {
-    if (this.validationErrors.length > 0 ) {
+    if (this.validationErrors.length > 0) {
       this.isShowingValidationErrors = true;
 
       // Clear any existing alerts first
@@ -636,11 +636,11 @@ export class PropertyAdd implements OnInit {
     return formData;
   }
 
-    private populateTestDefaults() {
+  private populateTestDefaults() {
     // Get next month's date for availableFrom field
     const today = new Date();
     const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, today.getDate());
-    
+
     this.propertyForm.patchValue({
       // Basic Information
       title: 'Beautiful 2BHK Apartment with Modern Amenities',
