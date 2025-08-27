@@ -135,13 +135,14 @@ export class PropertyAdd implements OnInit {
 
   ngOnInit() {
     this.initializeForm();
+    this.populateTestDefaults();
   }
 
   private initializeForm() {
     this.propertyForm = this.fb.group({
       // Basic Information
-      title: ['', [Validators.required, Validators.minLength(5)]],
-      description: ['', [Validators.required, Validators.minLength(20)]],
+      title: ['test jitendra', [Validators.required, Validators.minLength(5)]],
+      description: ['test jitendratest jitendratest jitendra', [Validators.required, Validators.minLength(20)]],
       propertyType: ['', Validators.required],
       bhkConfiguration: ['', Validators.required],
       floorNumber: ['', [Validators.required, Validators.min(0)]],
@@ -633,6 +634,54 @@ export class PropertyAdd implements OnInit {
     });
 
     return formData;
+  }
+
+    private populateTestDefaults() {
+    // Get next month's date for availableFrom field
+    const today = new Date();
+    const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, today.getDate());
+    
+    this.propertyForm.patchValue({
+      // Basic Information
+      title: 'Beautiful 2BHK Apartment with Modern Amenities',
+      description: 'Spacious and well-ventilated 2BHK apartment located in a prime location with excellent connectivity to IT hubs and shopping centers. The property features modern amenities and is perfect for families.',
+      propertyType: PropertyType.Apartment,
+      bhkConfiguration: '2BHK',
+      floorNumber: 2,
+      totalFloors: 5,
+      numberOfBathrooms: 2,
+      numberOfBalconies: 1,
+
+      // Area & Furnishing
+      carpetAreaSqFt: 850,
+      builtUpAreaSqFt: 1200,
+      furnishingType: FurnishingType.SemiFurnished,
+
+      // Location
+      addressLine1: '123 Green Valley Apartments, MG Road',
+      addressLine2: 'Near Metro Station',
+      landmark: 'Opposite City Mall',
+      locality: 'Koramangala',
+      city: 'Bangalore',
+      state: 'Karnataka',
+      pinCode: '560095',
+
+      // Rent Details
+      monthlyRent: 25000,
+      securityDeposit: 50000,
+      availableFrom: nextMonth.toISOString().split('T')[0],
+      leaseType: LeaseType.LongTerm,
+      isNegotiable: true,
+
+      // Amenities
+      hasLift: true,
+      hasParking: true,
+      hasPowerBackup: true,
+      hasWaterSupply: true,
+      hasGasPipeline: false,
+      hasSecurity: true,
+      hasInternet: true
+    });
   }
 
 }
