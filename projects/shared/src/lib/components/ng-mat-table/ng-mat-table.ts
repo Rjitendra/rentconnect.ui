@@ -64,8 +64,9 @@ export class NgMatTable {
   selectedRow: model | null = null;
   expandedRows: Set<any> = new Set(); // Track expanded rows
 
-  readonly paginator = viewChild.required(MatPaginator);
-  readonly sort = viewChild.required(MatSort);
+readonly paginator = viewChild(MatPaginator);
+readonly sort = viewChild(MatSort);
+
 
   ngOnInit() {
     // Setup columns
@@ -84,13 +85,13 @@ export class NgMatTable {
   }
 
   ngAfterViewInit() {
-    const options = this.options();
-    if (!options.serverSide) {
-      this.dataSource.paginator = this.paginator();
-    }
-    if (options.sortable) {
-      this.dataSource.sort = this.sort();
-    }
+  //  const options = this.options();
+  // if (!options.serverSide && this.paginator()) {
+  //   this.dataSource.paginator = this.paginator();
+  // }
+  // if (options.sortable && this.sort()) {
+  //   this.dataSource.sort = this.sort();
+  // }
   }
 
   /** Checkbox logic */

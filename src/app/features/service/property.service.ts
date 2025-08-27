@@ -163,9 +163,7 @@ export class PropertyService {
    */
   getProperties(landlordId: number): Observable<IProperty[]> {
     const url = `${environment.apiBaseUrl}Property/landlord/${landlordId}`;
-    return this._http.get<IProperty[]>(`${url}Property/getall`);
-
-    // return of(this.properties).pipe(delay(300));
+    return this._http.get<IProperty[]>(`${url}`);
   }
 
   /**

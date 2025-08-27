@@ -5,504 +5,505 @@
       <h1>Property Management</h1>
       <p>Manage your property portfolio with advanced features</p>
     </div>
-    @if (currentView === 'table') {
+    @if (currentView === "table") {
       <div class="header-actions">
-        <ng-button buttonType="button"
+        <ng-button
+          buttonType="button"
           type="filled"
           label="Add New Property"
           icon="add"
           cssClass="create-btn"
           (buttonClick)="onCreateProperty()"
-          />
-        </div>
-      }
-    </div>
-    <!-- Breadcrumb Navigation -->
-    @if (currentView !== 'table') {
-      <div class="breadcrumb">
-        <ng-button buttonType="button"
-          type="text"
-          label="Back to Properties"
-          icon="arrow_back"
-          (buttonClick)="showTable()"
-          />
-          <span class="divider">/</span>
-          <span class="current-view">
-            {{
-            currentView === "detail"
+        />
+      </div>
+    }
+  </div>
+  <!-- Breadcrumb Navigation -->
+  @if (currentView !== "table") {
+    <div class="breadcrumb">
+      <ng-button
+        buttonType="button"
+        type="text"
+        label="Back to Properties"
+        icon="arrow_back"
+        (buttonClick)="showTable()"
+      />
+      <span class="divider">/</span>
+      <span class="current-view">
+        {{
+          currentView === "detail"
             ? "Property Details"
             : currentView === "create"
-            ? "Create Property"
-            : "Edit Property"
-            }}
-          </span>
+              ? "Create Property"
+              : "Edit Property"
+        }}
+      </span>
+    </div>
+  }
+  <!-- Table View -->
+  @if (currentView === "table") {
+    <div class="table-view">
+      <!-- Table Statistics -->
+      <div class="stats-cards">
+        <div class="stat-card">
+          <ng-icon name="home" class="stat-icon" />
+          <div class="stat-content">
+            <span class="stat-number">{{ properties.length }}</span>
+            <span class="stat-label">Total Properties</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <ng-icon name="check_circle" class="stat-icon available" />
+          <div class="stat-content">
+            <span class="stat-number">{{ getAvailablePropertiesCount() }}</span>
+            <span class="stat-label">Available</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <ng-icon name="people" class="stat-icon occupied" />
+          <div class="stat-content">
+            <span class="stat-number">{{ getOccupiedPropertiesCount() }}</span>
+            <span class="stat-label">Occupied</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <ng-icon name="attach_money" class="stat-icon revenue" />
+          <div class="stat-content">
+            <span class="stat-number"
+              >₹{{ getTotalRevenue() || 0 | number: "1.0-0" }}</span
+            >
+            <span class="stat-label">Monthly Revenue</span>
+          </div>
+        </div>
+      </div>
+      <!-- Property Table -->
+      <div class="table-section">
+        <div class="table-container">
+          <ng-mat-table
+            [data]="properties"
+            [columns]="tableColumns"
+            [options]="tableOptions"
+            [isPaginator]="true"
+            class="property-table"
+          />
+        </div>
+      </div>
+    </div>
+  }
+  <!-- Property Detail Component -->
+  @if (currentView === "detail") {
+    <div>
+      <app-property-detail (backToList)="showTable()" />
+    </div>
+  }
+  <!-- Property Add/Edit Component -->
+  @if (currentView === "create" || currentView === "edit") {
+    <div>
+      <app-property-add (backToList)="showTable()" />
+    </div>
+  }
+
+  <!-- Document Upload Modal -->
+  @if (showUploadModal) {
+    <div class="upload-modal-overlay" (click)="onCloseUploadModal()">
+      <div class="upload-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Upload Document</h3>
+          <ng-button
+            buttonType="button"
+            type="icon"
+            icon="close"
+            cssClass="close-btn"
+            (buttonClick)="onCloseUploadModal()"
+          />
+        </div>
+        <div class="modal-content">
+          @if (selectedPropertyForUpload) {
+            <div class="property-info">
+              <ng-icon name="home" />
+              <div class="property-details">
+                <span class="property-title">{{
+                  selectedPropertyForUpload.title
+                }}</span>
+                <span class="property-address"
+                  >{{ selectedPropertyForUpload.city }},
+                  {{ selectedPropertyForUpload.state }}</span
+                >
+              </div>
+            </div>
+          }
+          <div class="upload-section">
+            <!-- Document Category Selection -->
+            <div class="category-selection">
+              <ng-select
+                label="Document Category"
+                [(ngModel)]="selectedDocumentCategory"
+                [options]="documentCategories"
+                placeholder="Select the appropriate document category"
+                class="category-field"
+                [required]="true"
+              />
+            </div>
+            <div class="upload-area">
+              <input
+                type="file"
+                id="fileInput"
+                (change)="onFileSelected($event)"
+                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                style="display: none"
+              />
+              <div class="upload-content" (click)="triggerFileInput()">
+                <ng-icon name="cloud_upload" class="upload-icon" />
+                <h4>Choose file to upload</h4>
+                <p>Drag and drop files here or click to browse</p>
+                <span class="file-types"
+                  >Supported: PDF, DOC, DOCX, JPG, PNG</span
+                >
+              </div>
+            </div>
+            <div class="upload-instructions">
+              <h5>Upload Guidelines:</h5>
+              <ul>
+                <li><strong>File Size:</strong> Maximum 10MB per file</li>
+                <li>
+                  <strong>File Types:</strong> PDF, DOC, DOCX, JPG, PNG only
+                </li>
+                <li>
+                  <strong>Quality:</strong> Ensure documents are clear and
+                  readable
+                </li>
+                <li>
+                  <strong>Category:</strong> Select the correct category for
+                  better organization
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <ng-button
+            buttonType="button"
+            type="text"
+            label="Cancel"
+            (buttonClick)="onCloseUploadModal()"
+          />
+          <ng-button
+            buttonType="button"
+            type="filled"
+            label="Select File"
+            icon="add"
+            (buttonClick)="triggerFileInput()"
+          />
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Document Download Category Modal -->
+  @if (showDownloadModal) {
+    <div class="download-modal-overlay" (click)="onCloseDownloadModal()">
+      <div class="download-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Download Documents</h3>
+          <ng-button
+            buttonType="button"
+            type="icon"
+            icon="close"
+            cssClass="close-btn"
+            (buttonClick)="onCloseDownloadModal()"
+          />
+        </div>
+        <div class="modal-content">
+          @if (selectedPropertyForDownload) {
+            <div class="property-info">
+              <ng-icon name="home" />
+              <div class="property-details">
+                <span class="property-title">{{
+                  selectedPropertyForDownload.title
+                }}</span>
+                <span class="property-address"
+                  >{{ selectedPropertyForDownload.city }},
+                  {{ selectedPropertyForDownload.state }}</span
+                >
+              </div>
+            </div>
+          }
+          <div class="download-section">
+            <!-- Document Category Selection -->
+            <div class="category-selection">
+              <ng-select
+                label="Select Download Category"
+                [(ngModel)]="selectedDownloadCategory"
+                [options]="downloadCategories"
+                placeholder="Choose which category of documents to download"
+                class="category-field"
+                [required]="true"
+              />
+            </div>
+            @if (selectedDownloadCategory) {
+              <div class="download-preview">
+                <div class="preview-info">
+                  <ng-icon name="download" class="preview-icon" />
+                  <div class="preview-details">
+                    <h4>Download Preview</h4>
+                    @if (selectedDownloadCategory === "all") {
+                      <p>
+                        You will download all
+                        {{ getAllDocumentsCount() }} documents for this
+                        property.
+                      </p>
+                    }
+                    @if (selectedDownloadCategory !== "all") {
+                      <p>
+                        You will download {{ getSelectedCategoryCount() }}
+                        {{ getSelectedCategoryLabel() }} documents.
+                      </p>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+            <div class="download-instructions">
+              <h5>Download Information:</h5>
+              <ul>
+                <li>
+                  <strong>Multiple Downloads:</strong> Files will be downloaded
+                  one by one
+                </li>
+                <li>
+                  <strong>File Names:</strong> Original file names will be
+                  preserved
+                </li>
+                <li>
+                  <strong>File Types:</strong> PDF, DOC, DOCX, JPG, PNG
+                  supported
+                </li>
+                <li>
+                  <strong>Download Location:</strong> Files will be saved to
+                  your default downloads folder
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <ng-button
+            buttonType="button"
+            type="text"
+            label="Cancel"
+            (buttonClick)="onCloseDownloadModal()"
+          />
+          <ng-button
+            buttonType="button"
+            type="filled"
+            [label]="
+              'Download ' +
+              (selectedDownloadCategory === 'all' ? 'All' : '') +
+              ' Documents'
+            "
+            icon="download"
+            [disabled]="isDownloadDisabled()"
+            (buttonClick)="onDownloadSelectedCategory()"
+          />
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- Property Name Template -->
+<ng-template #propertyNameTemplate let-property>
+  <a
+    href="javascript:void(0)"
+    class="property-link"
+    (click)="onViewProperty(property)"
+  >
+    <ng-icon
+      name="home"
+      class="property-icon"
+      style="color: #3949ab !important"
+    />
+    {{ property.title }}
+  </a>
+</ng-template>
+
+<!-- Tenant Template -->
+<ng-template #tenantTemplate let-property>
+  <div class="tenants-cell">
+    @if (getTenantsList(property).length > 0) {
+      <!-- Show first tenant with profile -->
+      @for (tenant of getTenantsList(property) | slice: 0 : 1; track tenant) {
+        <div class="tenant-profile">
+          <div class="tenant-avatar">
+            <ng-icon
+              name="person"
+              class="tenant-icon"
+              style="color: #6d4c41 !important"
+            />
+          </div>
+          <div class="tenant-info">
+            <span class="tenant-name">{{ tenant.name }}</span>
+            @if (getTenantsList(property).length > 1) {
+              <span class="more-tenants"
+                >+{{ getTenantsList(property).length - 1 }} more</span
+              >
+            }
+          </div>
         </div>
       }
-      <!-- Table View -->
-      @if (currentView === 'table') {
-        <div class="table-view">
-          <!-- Table Statistics -->
-          <div class="stats-cards">
-            <div class="stat-card">
-              <ng-icon name="home" class="stat-icon" />
-              <div class="stat-content">
-                <span class="stat-number">{{ properties.length }}</span>
-                <span class="stat-label">Total Properties</span>
-              </div>
-            </div>
-            <div class="stat-card">
-              <ng-icon name="check_circle" class="stat-icon available" />
-              <div class="stat-content">
-                <span class="stat-number">{{ getAvailablePropertiesCount() }}</span>
-                <span class="stat-label">Available</span>
-              </div>
-            </div>
-            <div class="stat-card">
-              <ng-icon name="people" class="stat-icon occupied" />
-              <div class="stat-content">
-                <span class="stat-number">{{ getOccupiedPropertiesCount() }}</span>
-                <span class="stat-label">Occupied</span>
-              </div>
-            </div>
-            <div class="stat-card">
-              <ng-icon name="attach_money" class="stat-icon revenue" />
-              <div class="stat-content">
-                <span class="stat-number"
-                  >₹{{ getTotalRevenue() || 0 | number: "1.0-0" }}</span
-                  >
-                  <span class="stat-label">Monthly Revenue</span>
-                </div>
-              </div>
-            </div>
-            <!-- Property Table -->
-            <div class="table-section">
-              <div class="table-container">
-                <ng-mat-table [data]="properties"
-                  [columns]="tableColumns"
-                  [options]="tableOptions"
-                  [isPaginator]="true"
-                  class="property-table"
-                  />
-                </div>
-              </div>
-            </div>
-          }
-          <!-- Property Detail Component -->
-          @if (currentView === 'detail') {
-            <div>
-              <app-property-detail (backToList)="showTable()" />
-            </div>
-          }
-          <!-- Property Add/Edit Component -->
-          @if (currentView === 'create' || currentView === 'edit') {
-            <div>
-              <app-property-add (backToList)="showTable()" />
-            </div>
-          }
 
-          <!-- Document Upload Modal -->
-          @if (showUploadModal) {
+      <!-- View all button -->
+      <ng-icon
+        name="visibility"
+        [matMenuTriggerFor]="tenantMenu"
+        matTooltip="View All Tenants"
+        class="tenant-view-icon"
+        style="color: #1976d2 !important; cursor: pointer"
+      />
+    } @else {
+      <!-- No tenants -->
+      <div class="no-tenants">
+        <ng-icon name="person_off" class="no-tenant-icon" />
+        <span class="no-tenant-text">No Tenants</span>
+      </div>
+    }
+
+    <!-- Tenant Menu -->
+    <mat-menu
+      #tenantMenu="matMenu"
+      class="tenant-menu"
+      panelClass="tenant-menu-panel"
+    >
+      <div class="tenant-menu-header">
+        <h4>Tenants for {{ property.title }}</h4>
+      </div>
+      <div class="tenant-list">
+        @for (tenant of getTenantsList(property); track tenant) {
+          <div class="tenant-item">
             <div
-              class="upload-modal-overlay"
-              (click)="onCloseUploadModal()"
-              >
-              <div class="upload-modal" (click)="$event.stopPropagation()">
-                <div class="modal-header">
-                  <h3>Upload Document</h3>
-                  <ng-button buttonType="button"
-                    type="icon"
-                    icon="close"
-                    cssClass="close-btn"
-                    (buttonClick)="onCloseUploadModal()"
-                    />
+              class="tenant-info"
+              (click)="onTenantSelect(tenant); $event.stopPropagation()"
+            >
+              <div class="tenant-primary">
+                <ng-icon name="person" class="tenant-icon" />
+                <div class="tenant-details">
+                  <span class="tenant-name">{{ tenant.name }}</span>
+                  @if (tenant.age) {
+                    <span class="tenant-meta">{{ tenant.age }} years old</span>
+                  }
+                  <div class="tenant-badges">
+                    @if (tenant.isPrimary) {
+                      <span class="badge primary">Primary</span>
+                    }
+                    @if (tenant.isActive) {
+                      <span class="badge active">Active</span>
+                    }
+                    @if (tenant.isVerified) {
+                      <span class="badge verified">Verified</span>
+                    }
                   </div>
-                  <div class="modal-content">
-                    @if (selectedPropertyForUpload) {
-                      <div class="property-info">
-                        <ng-icon name="home" />
-                        <div class="property-details">
-                          <span class="property-title">{{
-                            selectedPropertyForUpload.title
-                          }}</span>
-                          <span class="property-address"
-                            >{{ selectedPropertyForUpload.city }},
-                            {{ selectedPropertyForUpload.state }}</span
-                            >
-                          </div>
-                        </div>
-                      }
-                      <div class="upload-section">
-                        <!-- Document Category Selection -->
-                        <div class="category-selection">
-                          <ng-select label="Document Category"
-                            [(ngModel)]="selectedDocumentCategory"
-                            [options]="documentCategories"
-                            placeholder="Select the appropriate document category"
-                            class="category-field"
-                            [required]="true"
-                            />
-                          </div>
-                          <div class="upload-area">
-                            <input
-                              type="file"
-                              id="fileInput"
-                              (change)="onFileSelected($event)"
-                              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                              style="display: none"
-                              />
-                              <div class="upload-content" (click)="triggerFileInput()">
-                                <ng-icon name="cloud_upload" class="upload-icon" />
-                                <h4>Choose file to upload</h4>
-                                <p>Drag and drop files here or click to browse</p>
-                                <span class="file-types"
-                                  >Supported: PDF, DOC, DOCX, JPG, PNG</span
-                                  >
-                                </div>
-                              </div>
-                              <div class="upload-instructions">
-                                <h5>Upload Guidelines:</h5>
-                                <ul>
-                                  <li><strong>File Size:</strong> Maximum 10MB per file</li>
-                                  <li>
-                                    <strong>File Types:</strong> PDF, DOC, DOCX, JPG, PNG only
-                                  </li>
-                                  <li>
-                                    <strong>Quality:</strong> Ensure documents are clear and
-                                    readable
-                                  </li>
-                                  <li>
-                                    <strong>Category:</strong> Select the correct category for
-                                    better organization
-                                  </li>
-                                </ul>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="modal-footer">
-                            <ng-button buttonType="button"
-                              type="text"
-                              label="Cancel"
-                              (buttonClick)="onCloseUploadModal()"
-                              />
-                              <ng-button buttonType="button"
-                                type="filled"
-                                label="Select File"
-                                icon="add"
-                                (buttonClick)="triggerFileInput()"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        }
+                </div>
+              </div>
+              <!-- Tenant Children -->
+              @if (getTenantChildren(tenant).length > 0) {
+                <div class="tenant-children">
+                  <div class="children-header">
+                    <ng-icon name="child_care" />
+                    <span>Family Members</span>
+                  </div>
+                  @for (child of getTenantChildren(tenant); track child) {
+                    <div class="child-item">
+                      <ng-icon name="person" class="child-icon" />
+                      <span class="child-name">{{ child.name }}</span>
+                      <span class="child-relation"
+                        >({{ child.relation }}, {{ child.age }} years)</span
+                      >
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+            <mat-divider />
+          </div>
+        }
+      </div>
+    </mat-menu>
+  </div>
+</ng-template>
 
-                        <!-- Document Download Category Modal -->
-                        @if (showDownloadModal) {
-                          <div
-                            class="download-modal-overlay"
-                            (click)="onCloseDownloadModal()"
-                            >
-                            <div class="download-modal" (click)="$event.stopPropagation()">
-                              <div class="modal-header">
-                                <h3>Download Documents</h3>
-                                <ng-button buttonType="button"
-                                  type="icon"
-                                  icon="close"
-                                  cssClass="close-btn"
-                                  (buttonClick)="onCloseDownloadModal()"
-                                  />
-                                </div>
-                                <div class="modal-content">
-                                  @if (selectedPropertyForDownload) {
-                                    <div class="property-info">
-                                      <ng-icon name="home" />
-                                      <div class="property-details">
-                                        <span class="property-title">{{
-                                          selectedPropertyForDownload.title
-                                        }}</span>
-                                        <span class="property-address"
-                                          >{{ selectedPropertyForDownload.city }},
-                                          {{ selectedPropertyForDownload.state }}</span
-                                          >
-                                        </div>
-                                      </div>
-                                    }
-                                    <div class="download-section">
-                                      <!-- Document Category Selection -->
-                                      <div class="category-selection">
-                                        <ng-select label="Select Download Category"
-                                          [(ngModel)]="selectedDownloadCategory"
-                                          [options]="downloadCategories"
-                                          placeholder="Choose which category of documents to download"
-                                          class="category-field"
-                                          [required]="true"
-                                          />
-                                        </div>
-                                        @if (selectedDownloadCategory) {
-                                          <div class="download-preview">
-                                            <div class="preview-info">
-                                              <ng-icon name="download" class="preview-icon" />
-                                              <div class="preview-details">
-                                                <h4>Download Preview</h4>
-                                                @if (selectedDownloadCategory === 'all') {
-                                                  <p>
-                                                    You will download all {{ getAllDocumentsCount() }} documents
-                                                    for this property.
-                                                  </p>
-                                                }
-                                                @if (selectedDownloadCategory !== 'all') {
-                                                  <p>
-                                                    You will download {{ getSelectedCategoryCount() }}
-                                                    {{ getSelectedCategoryLabel() }} documents.
-                                                  </p>
-                                                }
-                                              </div>
-                                            </div>
-                                          </div>
-                                        }
-                                        <div class="download-instructions">
-                                          <h5>Download Information:</h5>
-                                          <ul>
-                                            <li>
-                                              <strong>Multiple Downloads:</strong> Files will be downloaded
-                                              one by one
-                                            </li>
-                                            <li>
-                                              <strong>File Names:</strong> Original file names will be
-                                              preserved
-                                            </li>
-                                            <li>
-                                              <strong>File Types:</strong> PDF, DOC, DOCX, JPG, PNG supported
-                                            </li>
-                                            <li>
-                                              <strong>Download Location:</strong> Files will be saved to your
-                                              default downloads folder
-                                            </li>
-                                          </ul>
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                      <ng-button buttonType="button"
-                                        type="text"
-                                        label="Cancel"
-                                        (buttonClick)="onCloseDownloadModal()"
-                                        />
-                                        <ng-button buttonType="button"
-                                          type="filled"
-          [label]="
-            'Download ' +
-            (selectedDownloadCategory === 'all' ? 'All' : '') +
-            ' Documents'
-          "
-                                          icon="download"
-                                          [disabled]="isDownloadDisabled()"
-                                          (buttonClick)="onDownloadSelectedCategory()"
-                                          />
-                                        </div>
-                                      </div>
-                                    </div>
-                                  }
-                                </div>
+<!-- Document Template -->
+<ng-template #documentTemplate let-property>
+  <div class="documents-cell">
+    <div class="document-actions">
+      <div class="document-info-wrapper">
+        <ng-icon
+          name="description"
+          class="document-main-icon"
+          style="color: #f4511e !important"
+        />
+        <span class="document-count-text"
+          >{{ getPropertyDocuments(property).length }} docs</span
+        >
+      </div>
 
-                                <!-- Property Name Template -->
-                                <ng-template #propertyNameTemplate let-property>
-                                  <a
-                                    href="javascript:void(0)"
-                                    class="property-link"
-                                    (click)="onViewProperty(property)"
-                                    >
-                                    <ng-icon name="home"
-                                      class="property-icon"
-                                      style="color: #3949ab !important"
-                                      />
-                                      {{ property.title }}
-                                    </a>
-                                  </ng-template>
+      <!-- Download Documents -->
+      @if (getPropertyDocuments(property).length > 0) {
+        <ng-icon
+          name="download"
+          matTooltip="Download Documents"
+          class="document-download-icon"
+          style="color: #8e24aa !important; cursor: pointer"
+          (click)="handleDownloadClick(property)"
+        />
+      }
 
-                                  <!-- Tenant Template -->
-                                  <ng-template #tenantTemplate let-property>
-                                    <div class="tenants-cell">
-                                      @if (getTenantsList(property).length > 0) {
-                                        <!-- Show first tenant with profile -->
-                                        @for (tenant of getTenantsList(property) | slice: 0 : 1; track tenant) {
-                                          <div
-                                            class="tenant-profile"
-                                            >
-                                            <div class="tenant-avatar">
-                                              <ng-icon name="person"
-                                                class="tenant-icon"
-                                                style="color: #6d4c41 !important"
-                                                />
-                                              </div>
-                                              <div class="tenant-info">
-                                                <span class="tenant-name">{{ tenant.name }}</span>
-                                                @if (getTenantsList(property).length > 1) {
-                                                  <span class="more-tenants"
-                                                    >+{{ getTenantsList(property).length - 1 }} more</span
-                                                    >
-                                                  }
-                                                </div>
-                                              </div>
-                                            }
+      <!-- Upload Documents -->
+      <ng-icon
+        name="upload"
+        matTooltip="Upload Document"
+        class="document-upload-icon"
+        style="color: #43a047 !important; cursor: pointer"
+        (click)="handleUploadClick(property)"
+      />
+    </div>
+  </div>
+</ng-template>
 
-                                            <!-- View all button -->
-                                            <ng-icon name="visibility"
-                                              [matMenuTriggerFor]="tenantMenu"
-                                              matTooltip="View All Tenants"
-                                              class="tenant-view-icon"
-                                              style="color: #1976d2 !important; cursor: pointer"
-                                              />
-                                            } @else {
-                                              <!-- No tenants -->
-                                              <div class="no-tenants">
-                                                <ng-icon name="person_off" class="no-tenant-icon" />
-                                                <span class="no-tenant-text">No Tenants</span>
-                                              </div>
-                                            }
+<!-- Status Template -->
+<ng-template #statusTemplate let-property>
+  <div
+    class="status-chip"
+    [ngClass]="'status-' + getSimplifiedStatus(property.status).toLowerCase()"
+  >
+    <ng-icon
+      [name]="getStatusIcon(property.status)"
+      class="status-icon"
+      style="color: #00acc1 !important"
+    />
+    {{ getSimplifiedStatus(property.status) }}
+  </div>
+</ng-template>
 
-                                            <!-- Tenant Menu -->
-                                            <mat-menu
-                                              #tenantMenu="matMenu"
-                                              class="tenant-menu"
-                                              panelClass="tenant-menu-panel"
-                                              >
-                                              <div class="tenant-menu-header">
-                                                <h4>Tenants for {{ property.title }}</h4>
-                                              </div>
-                                              <div class="tenant-list">
-                                                @for (tenant of getTenantsList(property); track tenant) {
-                                                  <div
-                                                    class="tenant-item"
-                                                    >
-                                                    <div
-                                                      class="tenant-info"
-                                                      (click)="onTenantSelect(tenant); $event.stopPropagation()"
-                                                      >
-                                                      <div class="tenant-primary">
-                                                        <ng-icon name="person" class="tenant-icon" />
-                                                        <div class="tenant-details">
-                                                          <span class="tenant-name">{{ tenant.name }}</span>
-                                                          @if (tenant.age) {
-                                                            <span class="tenant-meta"
-                                                              >{{ tenant.age }} years old</span
-                                                              >
-                                                          }
-                                                          <div class="tenant-badges">
-                                                            @if (tenant.isPrimary) {
-                                                              <span class="badge primary"
-                                                                >Primary</span
-                                                                >
-                                                              }
-                                                              @if (tenant.isActive) {
-                                                                <span class="badge active"
-                                                                  >Active</span
-                                                                  >
-                                                                }
-                                                                @if (tenant.isVerified) {
-                                                                  <span class="badge verified"
-                                                                    >Verified</span
-                                                                    >
-                                                                  }
-                                                                </div>
-                                                              </div>
-                                                            </div>
-                                                            <!-- Tenant Children -->
-                                                            @if (getTenantChildren(tenant).length > 0) {
-                                                              <div
-                                                                class="tenant-children"
-                                                                >
-                                                                <div class="children-header">
-                                                                  <ng-icon name="child_care" />
-                                                                  <span>Family Members</span>
-                                                                </div>
-                                                                @for (child of getTenantChildren(tenant); track child) {
-                                                                  <div
-                                                                    class="child-item"
-                                                                    >
-                                                                    <ng-icon name="person" class="child-icon" />
-                                                                    <span class="child-name">{{ child.name }}</span>
-                                                                    <span class="child-relation"
-                                                                      >({{ child.relation }}, {{ child.age }} years)</span
-                                                                      >
-                                                                    </div>
-                                                                  }
-                                                                </div>
-                                                              }
-                                                            </div>
-                                                            <mat-divider />
-                                                          </div>
-                                                        }
-                                                      </div>
-                                                    </mat-menu>
-                                                  </div>
-                                                </ng-template>
-
-                                                <!-- Document Template -->
-                                                <ng-template #documentTemplate let-property>
-                                                  <div class="documents-cell">
-                                                    <div class="document-actions">
-                                                      <div class="document-info-wrapper">
-                                                        <ng-icon name="description"
-                                                          class="document-main-icon"
-                                                          style="color: #f4511e !important"
-                                                          />
-                                                          <span class="document-count-text"
-                                                            >{{ getPropertyDocuments(property).length }} docs</span
-                                                            >
-                                                          </div>
-
-                                                          <!-- Download Documents -->
-                                                          @if (getPropertyDocuments(property).length > 0) {
-                                                            <ng-icon name="download"
-                                                              matTooltip="Download Documents"
-                                                              class="document-download-icon"
-                                                              style="color: #8e24aa !important; cursor: pointer"
-                                                              (click)="handleDownloadClick(property)"
-                                                              />
-                                                          }
-
-                                                          <!-- Upload Documents -->
-                                                          <ng-icon name="upload"
-                                                            matTooltip="Upload Document"
-                                                            class="document-upload-icon"
-                                                            style="color: #43a047 !important; cursor: pointer"
-                                                            (click)="handleUploadClick(property)"
-                                                            />
-                                                          </div>
-                                                        </div>
-                                                      </ng-template>
-
-                                                      <!-- Status Template -->
-                                                      <ng-template #statusTemplate let-property>
-                                                        <div
-                                                          class="status-chip"
-                                                          [ngClass]="'status-' + getSimplifiedStatus(property.status).toLowerCase()"
-                                                          >
-                                                          <ng-icon [name]="getStatusIcon(property.status)"
-                                                            class="status-icon"
-                                                            style="color: #00acc1 !important"
-                                                            />
-                                                            {{ getSimplifiedStatus(property.status) }}
-                                                          </div>
-                                                        </ng-template>
-
-                                                        <!-- Actions Template -->
-                                                        <ng-template #actionTemplate let-property>
-                                                          <div class="action-container">
-                                                            <ng-icon name="visibility"
-                                                              matTooltip="View Details"
-                                                              style="color: #673ab7 !important; cursor: pointer"
-                                                              (click)="onViewProperty(property)"
-                                                              />
-                                                              <ng-icon name="edit"
-                                                                matTooltip="Edit Property"
-                                                                style="color: #ff9800 !important; cursor: pointer"
-                                                                (click)="onEditProperty(property)"
-                                                                />
-                                                                <ng-icon name="delete"
-                                                                  matTooltip="Delete Property"
-                                                                  style="color: #e53935 !important; cursor: pointer"
-                                                                  (click)="onDeleteProperty(property)"
-                                                                  />
-                                                                </div>
-                                                              </ng-template>
+<!-- Actions Template -->
+<ng-template #actionTemplate let-property>
+  <div class="action-container">
+    <ng-icon
+      name="visibility"
+      matTooltip="View Details"
+      style="color: #673ab7 !important; cursor: pointer"
+      (click)="onViewProperty(property)"
+    />
+    <ng-icon
+      name="edit"
+      matTooltip="Edit Property"
+      style="color: #ff9800 !important; cursor: pointer"
+      (click)="onEditProperty(property)"
+    />
+    <ng-icon
+      name="delete"
+      matTooltip="Delete Property"
+      style="color: #e53935 !important; cursor: pointer"
+      (click)="onDeleteProperty(property)"
+    />
+  </div>
+</ng-template>

@@ -1,4 +1,4 @@
-import { Component, OnInit, TemplateRef, AfterViewInit, viewChild, inject } from '@angular/core';
+import { Component, OnInit, TemplateRef, AfterViewInit, viewChild, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatMenuModule } from '@angular/material/menu';
@@ -24,6 +24,7 @@ import { PropertyDetail } from '../property-detail/property-detail';
 import { NgButton, NgIconComponent, NgSelectComponent, NgMatTable, TableColumn, TableOptions } from '../../../../../../../projects/shared/src/public-api';
 import { PropertyAdd } from '../property-add/property-add';
 import { IUserDetail, OauthService } from '../../../../../oauth/service/oauth.service';
+import { PropertyService } from '../../../../service/property.service';
 
 @Component({
   selector: 'app-property-dashboard',
@@ -48,6 +49,8 @@ import { IUserDetail, OauthService } from '../../../../../oauth/service/oauth.se
 export class PropertyDashboard implements OnInit {
   private dialog = inject(MatDialog);
   private userService = inject(OauthService);
+  private propertyService = inject(PropertyService);
+  private $cdr=inject(ChangeDetectorRef);
   // Template references for dynamic content
   readonly propertyNameTemplate = viewChild.required<TemplateRef<unknown>>('propertyNameTemplate');
   readonly tenantTemplate = viewChild.required<TemplateRef<unknown>>('tenantTemplate');
@@ -73,8 +76,12 @@ export class PropertyDashboard implements OnInit {
     stickyPaginator: true
   };
 
-  // Mock Property Data
+  // Property Data (includes both mock and API data)
   properties: IProperty[] = [];
+  
+  // Loading and error states
+  isLoading = false;
+  loadingError: string | null = null;
 
   // Mock tenant data for testing
   private mockTenants: ITenant[] = [
@@ -251,7 +258,7 @@ export class PropertyDashboard implements OnInit {
 
   ngOnInit() {
     this.initializeTableColumns();
-    this.loadMockData();
+    this.loadData();
   }
 
   private initializeTableColumns() {
@@ -322,6 +329,21 @@ export class PropertyDashboard implements OnInit {
         headerAlign: 'center'
       }
     ];
+  }
+
+  private loadData() {
+    this.isLoading = true;
+    this.loadingError = null;
+    
+    // First load mock data
+   // this.loadMockData();
+    
+    // Then fetch data from API if user is available
+    if (this.userdetail?.userId) {
+      this.loadApiData();
+    } else {
+      this.isLoading = false;
+    }
   }
 
   private loadMockData() {
@@ -605,6 +627,42 @@ export class PropertyDashboard implements OnInit {
 
   }
 
+  private loadApiData() {
+    const landlordId = Number(this.userdetail.userId);
+    
+    this.propertyService.getProperties(landlordId).subscribe({
+      next: (apiProperties: IProperty[]) => {
+        this.isLoading = false;
+        
+        if (apiProperties && apiProperties.length > 0) {
+          // Transform API properties and merge with existing mock data
+          const transformedApiProperties = apiProperties.map((property) => 
+            this.transformPropertyForTable(property)
+          );
+          
+          // Combine mock properties with API properties
+          // Remove duplicates based on ID (API data takes precedence)
+       
+         
+          
+          this.properties = [...transformedApiProperties];
+          this.$cdr.detectChanges();
+          console.log(`Loaded ${apiProperties.length} properties from API`);
+        } else {
+          console.log('No properties found in API, using mock data only');
+        }
+      },
+      error: (error) => {
+        this.isLoading = false;
+        this.loadingError = 'Failed to load properties from server. Showing mock data only.';
+        console.error('Error loading properties from API:', error);
+        
+        // Continue with mock data only
+        console.log('Using mock data due to API error');
+      }
+    });
+  }
+
   private transformPropertyForTable(property: IProperty): any {
     return {
       ...property,
@@ -654,6 +712,15 @@ export class PropertyDashboard implements OnInit {
   showTable(): void {
     this.currentView = 'table';
     this.selectedProperty = null;
+    // Refresh data when returning to table view
+    this.refreshData();
+  }
+
+  private refreshData(): void {
+    // Only reload API data to get latest properties
+    if (this.userdetail?.userId) {
+      this.loadApiData();
+    }
   }
 
   // Simple Property Actions
@@ -669,10 +736,36 @@ export class PropertyDashboard implements OnInit {
 
   onDeleteProperty(property: any): void {
     if (confirm(`Are you sure you want to delete "${property.title}"?`)) {
-      this.properties = this.properties.filter(
-        (item) => item.id !== property.id
-      );
-      console.log('Deleted property:', property);
+      // Check if this is a mock property (ID <= 10) or API property
+      const isMockProperty = property.id <= 10;
+      
+      if (isMockProperty) {
+        // For mock properties, just remove from local array
+        this.properties = this.properties.filter(
+          (item) => item.id !== property.id
+        );
+        console.log('Deleted mock property:', property);
+      } else {
+        // For API properties, call the API to delete
+        this.propertyService.deleteProperty(property.id).subscribe({
+          next: (success: boolean) => {
+            if (success) {
+              // Remove from local array after successful API deletion
+              this.properties = this.properties.filter(
+                (item) => item.id !== property.id
+              );
+              console.log('Successfully deleted property from API:', property);
+              alert('Property deleted successfully!');
+            } else {
+              alert('Failed to delete property. Please try again.');
+            }
+          },
+          error: (error) => {
+            console.error('Error deleting property:', error);
+            alert('An error occurred while deleting the property. Please try again.');
+          }
+        });
+      }
     }
   }
 
