@@ -1,14 +1,16 @@
+import { model } from '../../../../projects/shared/src/lib/models/view-model';
 import {
   FurnishingType,
   LeaseType,
   PropertyStatus,
   PropertyType,
 } from '../enums/view.enum';
+
 import { IDocument } from './document';
 import { ILandlord } from './landlord';
 import { ITenant } from './tenant';
 
-export interface IProperty {
+export interface IProperty extends model {
   id?: number; // from BaseEntity
   landlordId: number;
   landlord?: ILandlord;
@@ -65,7 +67,6 @@ export interface IProperty {
   // Documents
   documents?: IDocument[];
 }
-
 
 export interface PropertyValidationError {
   field: string;

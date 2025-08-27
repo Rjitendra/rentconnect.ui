@@ -1,34 +1,42 @@
-import { Component, OnInit, TemplateRef, AfterViewInit, viewChild, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatDividerModule } from '@angular/material/divider';
-
-
-
-import { IProperty } from '../../../../models/property';
-import { ITenant } from '../../../../models/tenant';
-import { IDocument } from '../../../../models/document';
 import {
-  PropertyType,
-  PropertyStatus,
-  FurnishingType,
-  LeaseType,
-  DocumentCategory,
-} from '../../../../enums/view.enum';
-import { ITicket, TicketStatus } from '../../../../models/tickets';
-import { PropertyDetail } from '../property-detail/property-detail';
-import { NgButton, NgIconComponent, NgSelectComponent, NgMatTable, TableColumn, TableOptions } from '../../../../../../../projects/shared/src/public-api';
-import { PropertyAdd } from '../property-add/property-add';
-import { IUserDetail, OauthService } from '../../../../../oauth/service/oauth.service';
-import { PropertyService } from '../../../../service/property.service';
+  ChangeDetectorRef,
+  Component,
+  inject,
+  OnInit,
+  TemplateRef,
+  viewChild,
+} from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Observable, of } from 'rxjs';
 
+import {
+  NgButton,
+  NgIconComponent,
+  NgMatTable,
+  NgSelectComponent,
+  TableColumn,
+  TableOptions,
+} from '../../../../../../../projects/shared/src/public-api';
+import {
+  IUserDetail,
+  OauthService,
+} from '../../../../../oauth/service/oauth.service';
+import { DocumentCategory, PropertyStatus } from '../../../../enums/view.enum';
+import { IDocument } from '../../../../models/document';
+import { IProperty } from '../../../../models/property';
+import { ITenant } from '../../../../models/tenant';
+import { PropertyService } from '../../../../service/property.service';
+import { PropertyAdd } from '../property-add/property-add';
+import { PropertyDetail } from '../property-detail/property-detail';
+
 @Component({
-  selector: 'app-property-dashboard',
+  selector: 'ng-property-dashboard',
   imports: [
     CommonModule,
     FormsModule,
@@ -45,19 +53,21 @@ import { Observable, of } from 'rxjs';
     PropertyDetail,
   ],
   templateUrl: './property-dashboard.html',
-  styleUrl: './property-dashboard.scss',
+  styleUrls: ['./property-dashboard.scss'],
 })
 export class PropertyDashboard implements OnInit {
-  private dialog = inject(MatDialog);
-  private userService = inject(OauthService);
-  private propertyService = inject(PropertyService);
-  private $cdr = inject(ChangeDetectorRef);
   // Template references for dynamic content
-  readonly propertyNameTemplate = viewChild.required<TemplateRef<unknown>>('propertyNameTemplate');
-  readonly tenantTemplate = viewChild.required<TemplateRef<unknown>>('tenantTemplate');
-  readonly documentTemplate = viewChild.required<TemplateRef<unknown>>('documentTemplate');
-  readonly actionTemplate = viewChild.required<TemplateRef<unknown>>('actionTemplate');
-  readonly statusTemplate = viewChild.required<TemplateRef<unknown>>('statusTemplate');
+  readonly propertyNameTemplate = viewChild.required<TemplateRef<unknown>>(
+    'propertyNameTemplate',
+  );
+  readonly tenantTemplate =
+    viewChild.required<TemplateRef<unknown>>('tenantTemplate');
+  readonly documentTemplate =
+    viewChild.required<TemplateRef<unknown>>('documentTemplate');
+  readonly actionTemplate =
+    viewChild.required<TemplateRef<unknown>>('actionTemplate');
+  readonly statusTemplate =
+    viewChild.required<TemplateRef<unknown>>('statusTemplate');
 
   // State Management
   currentView: 'table' | 'detail' | 'create' | 'edit' = 'table';
@@ -74,7 +84,7 @@ export class PropertyDashboard implements OnInit {
     responsive: true,
     autoWidth: true,
     stickyHeader: true,
-    stickyPaginator: true
+    stickyPaginator: true,
   };
 
   // Property Data (includes both mock and API data)
@@ -83,6 +93,57 @@ export class PropertyDashboard implements OnInit {
   // Loading and error states
   isLoading = false;
   loadingError: string | null = null;
+
+  properties$!: Observable<IProperty[]>;
+  // Dialog and menu state
+  showUploadModal = false;
+  showDownloadModal = false;
+  selectedPropertyForUpload: IProperty | null = null;
+  selectedPropertyForDownload: IProperty | null = null;
+  selectedDocumentCategory: DocumentCategory = DocumentCategory.OwnershipProof;
+  selectedDownloadCategory: DocumentCategory | 'all' = 'all';
+
+  // Document categories for dropdown
+  documentCategories = [
+    {
+      value: DocumentCategory.OwnershipProof,
+      label: 'Ownership Proof',
+      description: 'Property ownership certificates',
+    },
+    {
+      value: DocumentCategory.UtilityBill,
+      label: 'Utility Bills',
+      description: 'Electricity, water, gas bills',
+    },
+    {
+      value: DocumentCategory.PropertyImages,
+      label: 'Property Photos',
+      description: 'Property images and videos',
+    },
+  ];
+
+  downloadCategories = [
+    {
+      value: 'all',
+      label: 'All Documents',
+      count: 0,
+      description: 'Download all available documents',
+    },
+    {
+      value: DocumentCategory.OwnershipProof,
+      label: 'Ownership Proof',
+      count: 0,
+      description: 'Property ownership certificates',
+    },
+    {
+      value: DocumentCategory.UtilityBill,
+      label: 'Utility Bills',
+      count: 0,
+      description: 'Electricity, water, gas bills',
+    },
+  ];
+
+  userdetail: Partial<IUserDetail> = {};
 
   // Mock tenant data for testing
   private mockTenants: ITenant[] = [
@@ -220,31 +281,11 @@ export class PropertyDashboard implements OnInit {
       tickets: [],
     },
   ];
-  properties$!: Observable<IProperty[]>;
-  // Dialog and menu state
-  showUploadModal = false;
-  showDownloadModal = false;
-  selectedPropertyForUpload: IProperty | null = null;
-  selectedPropertyForDownload: IProperty | null = null;
-  selectedDocumentCategory: DocumentCategory = DocumentCategory.OwnershipProof;
-  selectedDownloadCategory: DocumentCategory | 'all' = 'all';
 
-  // Document categories for dropdown
-  documentCategories = [
-    { value: DocumentCategory.OwnershipProof, label: 'Ownership Proof', description: 'Property ownership certificates' },
-    { value: DocumentCategory.UtilityBill, label: 'Utility Bills', description: 'Electricity, water, gas bills' },
-    { value: DocumentCategory.PropertyImages, label: 'Property Photos', description: 'Property images and videos' },
-  ];
-
-  downloadCategories = [
-    { value: 'all', label: 'All Documents', count: 0, description: 'Download all available documents' },
-    { value: DocumentCategory.OwnershipProof, label: 'Ownership Proof', count: 0, description: 'Property ownership certificates' },
-    { value: DocumentCategory.UtilityBill, label: 'Utility Bills', count: 0, description: 'Electricity, water, gas bills' },
-  ];
-
-  userdetail: Partial<IUserDetail> = {};
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
+  private dialog = inject(MatDialog);
+  private userService = inject(OauthService);
+  private propertyService = inject(PropertyService);
+  private $cdr = inject(ChangeDetectorRef);
 
   constructor() {
     this.userdetail = this.userService.getUserInfo();
@@ -253,160 +294,6 @@ export class PropertyDashboard implements OnInit {
   ngOnInit() {
     this.initializeTableColumns();
     this.loadData();
-  }
-
-  private initializeTableColumns() {
-    // Initialize table columns with templates
-    this.tableColumns = [
-      {
-        key: 'id',
-        label: 'ID',
-        width: '80px',
-        align: 'center',
-        headerAlign: 'center'
-      },
-      {
-        key: 'title',
-        label: 'Property Name',
-        width: 'auto',
-        type: 'custom',
-        template: this.propertyNameTemplate(),
-        align: 'left'
-      },
-      {
-        key: 'fullAddress',
-        label: 'Address',
-        width: 'auto',
-        align: 'left'
-      },
-      {
-        key: 'mappedTenants',
-        label: 'Tenants',
-        width: '300px',
-        type: 'custom',
-        template: this.tenantTemplate(),
-        align: 'center',
-        headerAlign: 'center'
-      },
-      {
-        key: 'documentsActions',
-        label: 'Documents',
-        width: '150px',
-        type: 'custom',
-        template: this.documentTemplate(),
-        align: 'center',
-        headerAlign: 'center'
-      },
-      {
-        key: 'monthlyRent',
-        label: 'Monthly Rent',
-        width: '120px',
-        align: 'right',
-        headerAlign: 'right'
-      },
-      {
-        key: 'status',
-        label: 'Status',
-        width: '150px',
-        type: 'custom',
-        template: this.statusTemplate(),
-        align: 'center',
-        headerAlign: 'center'
-      },
-      {
-        key: 'actions',
-        label: 'Actions',
-        width: '200px',
-        type: 'custom',
-        template: this.actionTemplate(),
-        align: 'center',
-        headerAlign: 'center'
-      }
-    ];
-  }
-
-  private loadData() {
-    this.isLoading = true;
-    this.loadingError = null;
-    // Then fetch data from API if user is available
-    if (this.userdetail?.userId) {
-      this.loadApiData();
-    } else {
-      this.isLoading = false;
-    }
-  }
-
-
-
-  private loadApiData() {
-    const landlordId = Number(this.userdetail.userId);
-
-    this.propertyService.getProperties(landlordId).subscribe({
-      next: (apiProperties: IProperty[]) => {
-        this.isLoading = false;
-
-        if (apiProperties && apiProperties.length > 0) {
-          // Transform API properties and merge with existing mock data
-          const transformedApiProperties = apiProperties.map((property) =>
-            this.transformPropertyForTable(property)
-          );
-
-          this.properties = [...transformedApiProperties];
-          this.properties$ = of(this.properties)
-          this.$cdr.markForCheck();
-
-        }
-      },
-      error: (error) => {
-        this.isLoading = false;
-        this.loadingError = 'Failed to load properties from server. Showing mock data only.';
-        console.error('Error loading properties from API:', error);
-
-        // Continue with mock data only
-        console.log('Using mock data due to API error');
-      }
-    });
-  }
-
-  private transformPropertyForTable(property: IProperty): any {
-    return {
-      ...property,
-      fullAddress: this.getFullAddress(property),
-      mappedTenants: this.getMappedTenantsDisplay(property.tenants || []),
-      documentsCount: this.getDocumentsDisplay(property.documents || []),
-      latitude: property.latitude || -1,
-      longitude: property.longitude || -1,
-      monthlyRent: property.monthlyRent
-        ? `₹${property.monthlyRent.toLocaleString()}`
-        : 'Not Set',
-      createdOn: property.createdOn
-        ? new Date(property.createdOn).toLocaleDateString()
-        : 'N/A',
-    };
-  }
-
-  private getFullAddress(property: IProperty): string {
-    const parts = [
-      property.addressLine1,
-      property.addressLine2,
-      property.locality,
-      property.city,
-      property.state,
-      property.pinCode,
-    ].filter((part) => part && part.trim());
-
-    return parts.join(', ');
-  }
-
-  private getMappedTenantsDisplay(tenants: ITenant[]): string {
-    if (!tenants || tenants.length === 0) return 'No tenants';
-    if (tenants.length === 1) return tenants[0].name || 'Unnamed Tenant';
-    return `${tenants.length} tenants`;
-  }
-
-  private getDocumentsDisplay(documents: IDocument[]): string {
-    if (!documents || documents.length === 0) return 'No documents';
-    return `${documents.length} document${documents.length === 1 ? '' : 's'}`;
   }
 
   // CRUD Operations
@@ -423,43 +310,36 @@ export class PropertyDashboard implements OnInit {
     this.refreshData();
   }
 
-  private refreshData(): void {
-    // Only reload API data to get latest properties
-    if (this.userdetail?.userId) {
-      this.loadApiData();
-    }
-  }
-
   // Simple Property Actions
-  onViewProperty(property: any): void {
+  onViewProperty(property: IProperty): void {
     this.selectedProperty = property;
     this.currentView = 'detail';
   }
 
-  onEditProperty(property: any): void {
+  onEditProperty(property: IProperty): void {
     this.selectedProperty = property;
     this.currentView = 'edit';
   }
 
-  onDeleteProperty(property: any): void {
+  onDeleteProperty(property: IProperty): void {
     if (confirm(`Are you sure you want to delete "${property.title}"?`)) {
       // Check if this is a mock property (ID <= 10) or API property
-      const isMockProperty = property.id <= 10;
+      const isMockProperty = property.id! <= 10;
 
       if (isMockProperty) {
         // For mock properties, just remove from local array
         this.properties = this.properties.filter(
-          (item) => item.id !== property.id
+          (item) => item.id !== property.id,
         );
         console.log('Deleted mock property:', property);
       } else {
         // For API properties, call the API to delete
-        this.propertyService.deleteProperty(property.id).subscribe({
+        this.propertyService.deleteProperty(property.id!).subscribe({
           next: (success: boolean) => {
             if (success) {
               // Remove from local array after successful API deletion
               this.properties = this.properties.filter(
-                (item) => item.id !== property.id
+                (item) => item.id !== property.id,
               );
               console.log('Successfully deleted property from API:', property);
               alert('Property deleted successfully!');
@@ -469,8 +349,10 @@ export class PropertyDashboard implements OnInit {
           },
           error: (error) => {
             console.error('Error deleting property:', error);
-            alert('An error occurred while deleting the property. Please try again.');
-          }
+            alert(
+              'An error occurred while deleting the property. Please try again.',
+            );
+          },
         });
       }
     }
@@ -503,21 +385,25 @@ export class PropertyDashboard implements OnInit {
     return property.tenants || [];
   }
 
-  getTenantChildren(tenant: ITenant): any[] {
+  getTenantChildren(tenant: ITenant): unknown[] {
     // Return family members (non-primary tenants) from the same tenant group
-    const familyMembers = this.mockTenants.filter((t: ITenant) =>
-      t.tenantGroup === tenant.tenantGroup &&
-      t.id !== tenant.id &&
-      !t.isPrimary
+    const familyMembers = this.mockTenants.filter(
+      (t: ITenant) =>
+        t.tenantGroup === tenant.tenantGroup &&
+        t.id !== tenant.id &&
+        !t.isPrimary,
     );
 
     return familyMembers.map((member: ITenant) => ({
       id: member.id,
       name: member.name,
       age: member.age,
-      relation: member.age && member.age < 18 ?
-        (member.name.includes('Sarah') ? 'Daughter' : 'Son') :
-        'Spouse'
+      relation:
+        member.age && member.age < 18
+          ? member.name.includes('Sarah')
+            ? 'Daughter'
+            : 'Son'
+          : 'Spouse',
     }));
   }
 
@@ -541,21 +427,6 @@ export class PropertyDashboard implements OnInit {
     this.updateDownloadCategoryCounts(property);
     this.showDownloadModal = true;
   }
-
-  private updateDownloadCategoryCounts(property: IProperty): void {
-    const documents = property.documents || [];
-
-    // Update download categories with actual document counts
-    this.downloadCategories = this.downloadCategories.map(category => {
-      if (category.value === 'all') {
-        return { ...category, count: documents.length };
-      } else {
-        const count = documents.filter(doc => doc.category === category.value).length;
-        return { ...category, count: count };
-      }
-    });
-  }
-
   onCloseUploadModal(): void {
     this.showUploadModal = false;
     this.selectedPropertyForUpload = null;
@@ -583,11 +454,13 @@ export class PropertyDashboard implements OnInit {
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         'image/jpeg',
         'image/jpg',
-        'image/png'
+        'image/png',
       ];
 
       if (!allowedTypes.includes(file.type)) {
-        alert('Invalid file type. Please upload PDF, DOC, DOCX, JPG, or PNG files only.');
+        alert(
+          'Invalid file type. Please upload PDF, DOC, DOCX, JPG, or PNG files only.',
+        );
         return;
       }
 
@@ -596,8 +469,379 @@ export class PropertyDashboard implements OnInit {
   }
 
   triggerFileInput(): void {
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const fileInput = document.querySelector(
+      'input[type="file"]',
+    ) as HTMLInputElement;
     fileInput?.click();
+  }
+
+  onDownloadDocument(doc: IDocument): void {
+    console.log('Downloading document:', doc.name);
+
+    // Create a temporary link element for download
+    if (doc.url) {
+      const link = document.createElement('a');
+      link.href = doc.url;
+      link.download = doc.name || 'document';
+      link.target = '_blank';
+
+      // Append to body, click, and remove
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      console.log(`Downloaded: ${doc.name}`);
+    } else {
+      alert('Document file not available for download.');
+    }
+  }
+
+  getAllDocumentsCount(): number {
+    return this.selectedPropertyForDownload?.documents?.length || 0;
+  }
+
+  getSelectedCategoryCount(): number {
+    if (!this.selectedPropertyForDownload?.documents) return 0;
+    return this.selectedPropertyForDownload.documents.filter(
+      (doc) => doc.category === this.selectedDownloadCategory,
+    ).length;
+  }
+
+  getSelectedCategoryLabel(): string {
+    const category = this.documentCategories.find(
+      (cat) => cat.value === this.selectedDownloadCategory,
+    );
+    return category?.label || '';
+  }
+
+  isDownloadDisabled(): boolean {
+    return this.selectedDownloadCategory === 'all'
+      ? this.getAllDocumentsCount() === 0
+      : this.getSelectedCategoryCount() === 0;
+  }
+
+  onDownloadSelectedCategory(): void {
+    if (!this.selectedPropertyForDownload?.documents) {
+      alert('No documents available for download.');
+      return;
+    }
+
+    let documentsToDownload: IDocument[] = [];
+
+    if (this.selectedDownloadCategory === 'all') {
+      documentsToDownload = this.selectedPropertyForDownload.documents;
+    } else {
+      documentsToDownload = this.selectedPropertyForDownload.documents.filter(
+        (doc) => doc.category === this.selectedDownloadCategory,
+      );
+    }
+
+    if (documentsToDownload.length === 0) {
+      alert('No documents found for the selected category.');
+      return;
+    }
+
+    console.log(
+      'Downloading documents for category:',
+      this.selectedDownloadCategory,
+    );
+
+    // If only one document, download directly
+    if (documentsToDownload.length === 1) {
+      this.onDownloadDocument(documentsToDownload[0]);
+      this.onCloseDownloadModal();
+      return;
+    }
+
+    // Multiple documents - create a zip-like download experience
+    const confirmDownload = confirm(
+      `This will download ${documentsToDownload.length} documents. Continue?`,
+    );
+
+    if (confirmDownload) {
+      // Download each document with a small delay
+      documentsToDownload.forEach((doc, index) => {
+        setTimeout(() => {
+          this.onDownloadDocument(doc);
+        }, index * 500); // 500ms delay between downloads
+      });
+
+      // Show success message
+      setTimeout(() => {
+        const categoryName =
+          this.selectedDownloadCategory === 'all'
+            ? 'All Documents'
+            : this.getSelectedCategoryLabel();
+        alert(
+          `${documentsToDownload.length} documents from "${categoryName}" category have been downloaded.`,
+        );
+        this.onCloseDownloadModal();
+      }, documentsToDownload.length * 500);
+    }
+  }
+
+  onTenantSelect(tenant: ITenant): void {
+    console.log('Selected tenant:', tenant.name);
+    // Handle tenant selection logic here
+  }
+
+  // Navigation method for property details
+  navigateToDetail(property: IProperty): void {
+    this.selectedProperty = property;
+    this.currentView = 'detail';
+  }
+
+  // Get status icon based on property status
+  getStatusIcon(status: string): string {
+    switch (status) {
+      case 'available':
+      case 'listed':
+        return 'check_circle';
+      case 'rented':
+      case 'occupied':
+        return 'people';
+      case 'undermaintenance':
+      case 'maintenance':
+        return 'build';
+      case 'draft':
+        return 'edit';
+      default:
+        return 'info';
+    }
+  }
+
+  // Handle document download click without row navigation
+  handleDownloadClick(property: IProperty): void {
+    this.onOpenDownloadModal(property);
+  }
+
+  // Handle document upload click without row navigation
+  handleUploadClick(property: IProperty): void {
+    this.onUploadDocument(property);
+  }
+  getSimplifiedStatus(status: string): string {
+    switch (status) {
+      case 'available':
+      case 'listed':
+        return 'LISTED';
+      case 'rented':
+      case 'occupied':
+        return 'RENTED';
+      case 'undermaintenance':
+        return 'RENTED';
+      case 'draft':
+        return 'LISTED';
+      default:
+        return 'LISTED';
+    }
+  }
+  private exportPropertiesToCSV(properties: IProperty[]): void {
+    const headers = [
+      'ID',
+      'Property Name',
+      'Address',
+      'Rent',
+      'Status',
+      'Tenants',
+      'Documents',
+    ];
+
+    const csvContent = [
+      headers.join(','),
+      ...properties.map((p) =>
+        [
+          p.id,
+          `"${p.title}"`,
+          `"${p.fullAddress}"`,
+          p.monthlyRent,
+          p.status,
+          `"${p.mappedTenants}"`,
+          `"${p.documentsCount}"`,
+        ].join(','),
+      ),
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'properties.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  private updateDownloadCategoryCounts(property: IProperty): void {
+    const documents = property.documents || [];
+
+    // Update download categories with actual document counts
+    this.downloadCategories = this.downloadCategories.map((category) => {
+      if (category.value === 'all') {
+        return { ...category, count: documents.length };
+      } else {
+        const count = documents.filter(
+          (doc) => doc.category === category.value,
+        ).length;
+        return { ...category, count: count };
+      }
+    });
+  }
+
+  private refreshData(): void {
+    // Only reload API data to get latest properties
+    if (this.userdetail?.userId) {
+      this.loadApiData();
+    }
+  }
+  private initializeTableColumns() {
+    // Initialize table columns with templates
+    this.tableColumns = [
+      {
+        key: 'id',
+        label: 'ID',
+        width: '80px',
+        align: 'center',
+        headerAlign: 'center',
+      },
+      {
+        key: 'title',
+        label: 'Property Name',
+        width: 'auto',
+        type: 'custom',
+        template: this.propertyNameTemplate(),
+        align: 'left',
+      },
+      {
+        key: 'fullAddress',
+        label: 'Address',
+        width: 'auto',
+        align: 'left',
+      },
+      {
+        key: 'mappedTenants',
+        label: 'Tenants',
+        width: '300px',
+        type: 'custom',
+        template: this.tenantTemplate(),
+        align: 'center',
+        headerAlign: 'center',
+      },
+      {
+        key: 'documentsActions',
+        label: 'Documents',
+        width: '150px',
+        type: 'custom',
+        template: this.documentTemplate(),
+        align: 'center',
+        headerAlign: 'center',
+      },
+      {
+        key: 'monthlyRent',
+        label: 'Monthly Rent',
+        width: '120px',
+        align: 'right',
+        headerAlign: 'right',
+      },
+      {
+        key: 'status',
+        label: 'Status',
+        width: '150px',
+        type: 'custom',
+        template: this.statusTemplate(),
+        align: 'center',
+        headerAlign: 'center',
+      },
+      {
+        key: 'actions',
+        label: 'Actions',
+        width: '200px',
+        type: 'custom',
+        template: this.actionTemplate(),
+        align: 'center',
+        headerAlign: 'center',
+      },
+    ];
+  }
+
+  private loadData() {
+    this.isLoading = true;
+    this.loadingError = null;
+    // Then fetch data from API if user is available
+    if (this.userdetail?.userId) {
+      this.loadApiData();
+    } else {
+      this.isLoading = false;
+    }
+  }
+
+  private loadApiData() {
+    const landlordId = Number(this.userdetail.userId);
+
+    this.propertyService.getProperties(landlordId).subscribe({
+      next: (apiProperties: IProperty[]) => {
+        this.isLoading = false;
+
+        if (apiProperties && apiProperties.length > 0) {
+          // Transform API properties and merge with existing mock data
+          const transformedApiProperties = apiProperties.map((property) =>
+            this.transformPropertyForTable(property),
+          );
+
+          this.properties = [...transformedApiProperties];
+          this.properties$ = of(this.properties);
+          this.$cdr.markForCheck();
+        }
+      },
+      error: (error) => {
+        this.isLoading = false;
+        this.loadingError =
+          'Failed to load properties from server. Showing mock data only.';
+        console.error('Error loading properties from API:', error);
+
+        // Continue with mock data only
+        console.log('Using mock data due to API error');
+      },
+    });
+  }
+
+  private transformPropertyForTable(property: IProperty): IProperty {
+    return {
+      ...property,
+      fullAddress: this.getFullAddress(property),
+      mappedTenants: this.getMappedTenantsDisplay(property.tenants || []),
+      documentsCount: this.getDocumentsDisplay(property.documents || []),
+
+      monthlyRent: property.monthlyRent ? 10 : 0,
+      createdOn: property.createdOn
+        ? new Date(property.createdOn).toLocaleDateString()
+        : 'N/A',
+    };
+  }
+
+  private getFullAddress(property: IProperty): string {
+    const parts = [
+      property.addressLine1,
+      property.addressLine2,
+      property.locality,
+      property.city,
+      property.state,
+      property.pinCode,
+    ].filter((part) => part && part.trim());
+
+    return parts.join(', ');
+  }
+
+  private getMappedTenantsDisplay(tenants: ITenant[]): string {
+    if (!tenants || tenants.length === 0) return 'No tenants';
+    if (tenants.length === 1) return tenants[0].name || 'Unnamed Tenant';
+    return `${tenants.length} tenants`;
+  }
+
+  private getDocumentsDisplay(documents: IDocument[]): string {
+    if (!documents || documents.length === 0) return 'No documents';
+    return `${documents.length} document${documents.length === 1 ? '' : 's'}`;
   }
 
   private uploadFile(file: File, property: IProperty): void {
@@ -665,11 +909,15 @@ export class PropertyDashboard implements OnInit {
 
         // Show success message
         setTimeout(() => {
-          alert(`File "${file.name}" uploaded successfully as ${this.getSelectedCategoryName()}`);
+          alert(
+            `File "${file.name}" uploaded successfully as ${this.getSelectedCategoryName()}`,
+          );
           this.onCloseUploadModal();
 
           // Reset file input
-          const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+          const fileInput = document.querySelector(
+            'input[type="file"]',
+          ) as HTMLInputElement;
           if (fileInput) {
             fileInput.value = '';
           }
@@ -679,208 +927,16 @@ export class PropertyDashboard implements OnInit {
   }
 
   private getSelectedCategoryName(): string {
-    const category = this.documentCategories.find(cat => cat.value === this.selectedDocumentCategory);
+    const category = this.documentCategories.find(
+      (cat) => cat.value === this.selectedDocumentCategory,
+    );
     return category?.label || 'Document';
   }
 
   private updatePropertyInList(updatedProperty: IProperty): void {
-    const index = this.properties.findIndex(p => p.id === updatedProperty.id);
+    const index = this.properties.findIndex((p) => p.id === updatedProperty.id);
     if (index !== -1) {
       this.properties[index] = this.transformPropertyForTable(updatedProperty);
-    }
-  }
-
-  onDownloadDocument(doc: IDocument): void {
-    console.log('Downloading document:', doc.name);
-
-    // Create a temporary link element for download
-    if (doc.url) {
-      const link = document.createElement('a');
-      link.href = doc.url;
-      link.download = doc.name || 'document';
-      link.target = '_blank';
-
-      // Append to body, click, and remove
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      console.log(`Downloaded: ${doc.name}`);
-    } else {
-      alert('Document file not available for download.');
-    }
-  }
-
-  getAllDocumentsCount(): number {
-    return this.selectedPropertyForDownload?.documents?.length || 0;
-  }
-
-  getSelectedCategoryCount(): number {
-    if (!this.selectedPropertyForDownload?.documents) return 0;
-    return this.selectedPropertyForDownload.documents.filter(
-      doc => doc.category === this.selectedDownloadCategory
-    ).length;
-  }
-
-  getSelectedCategoryLabel(): string {
-    const category = this.documentCategories.find(
-      cat => cat.value === this.selectedDownloadCategory
-    );
-    return category?.label || '';
-  }
-
-  isDownloadDisabled(): boolean {
-    return this.selectedDownloadCategory === 'all'
-      ? this.getAllDocumentsCount() === 0
-      : this.getSelectedCategoryCount() === 0;
-  }
-
-  onDownloadSelectedCategory(): void {
-    if (!this.selectedPropertyForDownload?.documents) {
-      alert('No documents available for download.');
-      return;
-    }
-
-    let documentsToDownload: IDocument[] = [];
-
-    if (this.selectedDownloadCategory === 'all') {
-      documentsToDownload = this.selectedPropertyForDownload.documents;
-    } else {
-      documentsToDownload = this.selectedPropertyForDownload.documents.filter(
-        doc => doc.category === this.selectedDownloadCategory
-      );
-    }
-
-    if (documentsToDownload.length === 0) {
-      alert('No documents found for the selected category.');
-      return;
-    }
-
-    console.log('Downloading documents for category:', this.selectedDownloadCategory);
-
-    // If only one document, download directly
-    if (documentsToDownload.length === 1) {
-      this.onDownloadDocument(documentsToDownload[0]);
-      this.onCloseDownloadModal();
-      return;
-    }
-
-    // Multiple documents - create a zip-like download experience
-    const confirmDownload = confirm(
-      `This will download ${documentsToDownload.length} documents. Continue?`
-    );
-
-    if (confirmDownload) {
-      // Download each document with a small delay
-      documentsToDownload.forEach((doc, index) => {
-        setTimeout(() => {
-          this.onDownloadDocument(doc);
-        }, index * 500); // 500ms delay between downloads
-      });
-
-      // Show success message
-      setTimeout(() => {
-        const categoryName = this.selectedDownloadCategory === 'all'
-          ? 'All Documents'
-          : this.getSelectedCategoryLabel();
-        alert(`${documentsToDownload.length} documents from "${categoryName}" category have been downloaded.`);
-        this.onCloseDownloadModal();
-      }, documentsToDownload.length * 500);
-    }
-  }
-
-  onTenantSelect(tenant: ITenant): void {
-    console.log('Selected tenant:', tenant.name);
-    // Handle tenant selection logic here
-  }
-
-  // Navigation method for property details
-  navigateToDetail(property: IProperty): void {
-    this.selectedProperty = property;
-    this.currentView = 'detail';
-  }
-
-  // Get status icon based on property status
-  getStatusIcon(status: string): string {
-    switch (status) {
-      case 'available':
-      case 'listed':
-        return 'check_circle';
-      case 'rented':
-      case 'occupied':
-        return 'people';
-      case 'undermaintenance':
-      case 'maintenance':
-        return 'build';
-      case 'draft':
-        return 'edit';
-      default:
-        return 'info';
-    }
-  }
-
-  // Handle document download click without row navigation
-  handleDownloadClick(property: IProperty): void {
-    this.onOpenDownloadModal(property);
-  }
-
-  // Handle document upload click without row navigation
-  handleUploadClick(property: IProperty): void {
-    this.onUploadDocument(property);
-  }
-
-  private exportPropertiesToCSV(properties: any[]): void {
-    const headers = [
-      'ID',
-      'Property Name',
-      'Address',
-      'Rent',
-      'Status',
-      'Tenants',
-      'Documents',
-    ];
-
-    const csvContent = [
-      headers.join(','),
-      ...properties.map((p) =>
-        [
-          p.id,
-          `"${p.title}"`,
-          `"${p.fullAddress}"`,
-          p.monthlyRent,
-          p.status,
-          `"${p.mappedTenants}"`,
-          `"${p.documentsCount}"`,
-        ].join(',')
-      ),
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-
-    link.setAttribute('href', url);
-    link.setAttribute('download', 'properties.csv');
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-
-  getSimplifiedStatus(status: string): string {
-    switch (status) {
-      case 'available':
-      case 'listed':
-        return 'LISTED';
-      case 'rented':
-      case 'occupied':
-        return 'RENTED';
-      case 'undermaintenance':
-        return 'RENTED';
-      case 'draft':
-        return 'LISTED';
-      default:
-        return 'LISTED';
     }
   }
 }

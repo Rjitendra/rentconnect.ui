@@ -1,10 +1,7 @@
-import { IDocument } from "./document";
-import { ILandlord } from "./landlord";
-import { IProperty } from "./property";
-import { ITicket } from "./tickets";
-
-
-
+import { IDocument } from './document';
+import { ILandlord } from './landlord';
+import { IProperty } from './property';
+import { ITicket } from './tickets';
 
 export interface ITenant {
   id?: number; // BaseEntity
@@ -54,7 +51,7 @@ export interface ITenant {
   maintenanceCharges?: number;
   leaseDuration?: number; // in months
   noticePeriod?: number; // in days
-  
+
   // Agreement details
   agreementSigned?: boolean;
   agreementDate?: Date | string;
@@ -107,4 +104,3 @@ export interface TenantChildren {
   occupation: string;
   relation?: string; // Relationship to main tenant (e.g., Son, Daughter, etc.)
 }
-
