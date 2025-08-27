@@ -1,47 +1,48 @@
-import { Component, OnInit, output, inject } from '@angular/core';
+import { Component, inject, OnInit, output } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
-  Validators,
   ReactiveFormsModule,
+  Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
-
 
 // Import shared library components
 
 import {
-  IProperty,
-  PropertyFormData,
-  PropertySaveResponse,
-  PropertyValidationError,
-} from '../../../../models/property';
-import {
-  PropertyType,
-  FurnishingType,
-  LeaseType,
-  PropertyStatus,
-  DocumentCategory,
-} from '../../../../enums/view.enum';
-import { PropertyService } from '../../../../service/property.service';
-import {
   AlertService,
   FileUploadConfig,
   InputType,
-  NgIconComponent,
   NgCardComponent,
   NgCheckbox,
   NgDatepickerComponent,
   NgFileUploadComponent,
+  NgIconComponent,
   NgInputComponent,
   NgSelectComponent,
   NgTextareaComponent,
   SelectOption,
   UploadedFile,
 } from '../../../../../../../projects/shared/src/public-api';
-import { IDocument } from '../../../../models/document';
-import { IUserDetail, OauthService } from '../../../../../oauth/service/oauth.service';
+import {
+  IUserDetail,
+  OauthService,
+} from '../../../../../oauth/service/oauth.service';
 import { OwnerType } from '../../../../constants/owner-type.constants';
+import {
+  DocumentCategory,
+  FurnishingType,
+  LeaseType,
+  PropertyStatus,
+  PropertyType,
+} from '../../../../enums/view.enum';
+import { IDocument } from '../../../../models/document';
+import {
+  IProperty,
+  PropertySaveResponse,
+  PropertyValidationError,
+} from '../../../../models/property';
+import { PropertyService } from '../../../../service/property.service';
 
 @Component({
   selector: 'app-property-add',
@@ -55,7 +56,7 @@ import { OwnerType } from '../../../../constants/owner-type.constants';
     NgCheckbox,
     NgTextareaComponent,
     NgDatepickerComponent,
-    NgFileUploadComponent
+    NgFileUploadComponent,
   ],
   templateUrl: './property-add.html',
   styleUrl: './property-add.scss',
@@ -131,7 +132,9 @@ export class PropertyAdd implements OnInit {
   isShowingValidationErrors = false;
   userdetail: Partial<IUserDetail> = {};
 
-  constructor() { this.userdetail = this.userService.getUserInfo(); }
+  constructor() {
+    this.userdetail = this.userService.getUserInfo();
+  }
 
   ngOnInit() {
     this.initializeForm();
@@ -142,7 +145,10 @@ export class PropertyAdd implements OnInit {
     this.propertyForm = this.fb.group({
       // Basic Information
       title: ['test jitendra', [Validators.required, Validators.minLength(5)]],
-      description: ['test jitendratest jitendratest jitendra', [Validators.required, Validators.minLength(20)]],
+      description: [
+        'test jitendratest jitendratest jitendra',
+        [Validators.required, Validators.minLength(20)],
+      ],
       propertyType: ['', Validators.required],
       bhkConfiguration: ['', Validators.required],
       floorNumber: ['', [Validators.required, Validators.min(0)]],
@@ -199,18 +205,22 @@ export class PropertyAdd implements OnInit {
       this.showValidationErrors();
       return;
     }
-    if (this.propertyForm.invalid) { return; }
+    if (this.propertyForm.invalid) {
+      return;
+    }
     // this.isSaving = true;
 
     try {
       // Create property object with form data and documents
       const propertyData: IProperty = {
         ...this.propertyForm.value,
-        landlordId: this.userdetail?.userId ? Number(this.userdetail.userId) : 0,
+        landlordId: this.userdetail?.userId
+          ? Number(this.userdetail.userId)
+          : 0,
         documents: this.convertImagesToDocuments(),
         status: PropertyStatus.Listed,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       // Convert to FormData for file upload support
@@ -264,7 +274,8 @@ export class PropertyAdd implements OnInit {
       this.alertService.error({
         errors: [
           {
-            message: 'Failed to prepare property data for saving. Please check your input and try again.',
+            message:
+              'Failed to prepare property data for saving. Please check your input and try again.',
             errorType: 'error',
           },
         ],
@@ -288,7 +299,7 @@ export class PropertyAdd implements OnInit {
         documents: this.convertImagesToDocuments(),
         status: PropertyStatus.Draft,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       // Convert to FormData for file upload support
@@ -337,7 +348,8 @@ export class PropertyAdd implements OnInit {
       this.alertService.error({
         errors: [
           {
-            message: 'Failed to prepare draft data for saving. Please check your input and try again.',
+            message:
+              'Failed to prepare draft data for saving. Please check your input and try again.',
             errorType: 'error',
           },
         ],
@@ -440,11 +452,13 @@ export class PropertyAdd implements OnInit {
 
     if (validFiles.length !== files.length) {
       this.alertService.error({
-        errors: [{
-          message: `${files.length - validFiles.length} file(s) were rejected due to validation errors.`,
-          errorType: 'error'
-        }],
-        timeout: 5000
+        errors: [
+          {
+            message: `${files.length - validFiles.length} file(s) were rejected due to validation errors.`,
+            errorType: 'error',
+          },
+        ],
+        timeout: 5000,
       });
     }
 
@@ -469,11 +483,13 @@ export class PropertyAdd implements OnInit {
 
   onImageUploadError(error: { file: UploadedFile; error: string }): void {
     this.alertService.error({
-      errors: [{
-        message: `Error uploading ${error.file.name}: ${error.error}`,
-        errorType: 'error'
-      }],
-      timeout: 5000
+      errors: [
+        {
+          message: `Error uploading ${error.file.name}: ${error.error}`,
+          errorType: 'error',
+        },
+      ],
+      timeout: 5000,
     });
   }
 
@@ -524,11 +540,13 @@ export class PropertyAdd implements OnInit {
       // Check file size
       if (file.size > this.maxFileSize) {
         this.alertService.error({
-          errors: [{
-            message: `File "${file.name}" is too large. Maximum size is ${this.maxFileSize / 1024 / 1024}MB.`,
-            errorType: 'error'
-          }],
-          timeout: 5000
+          errors: [
+            {
+              message: `File "${file.name}" is too large. Maximum size is ${this.maxFileSize / 1024 / 1024}MB.`,
+              errorType: 'error',
+            },
+          ],
+          timeout: 5000,
         });
         isValid = false;
       }
@@ -536,11 +554,13 @@ export class PropertyAdd implements OnInit {
       // Check file type
       if (!this.acceptedTypes.includes(file.type)) {
         this.alertService.error({
-          errors: [{
-            message: `File "${file.name}" has an unsupported format. Only ${this.acceptedTypes.join(', ')} are allowed.`,
-            errorType: 'error'
-          }],
-          timeout: 5000
+          errors: [
+            {
+              message: `File "${file.name}" has an unsupported format. Only ${this.acceptedTypes.join(', ')} are allowed.`,
+              errorType: 'error',
+            },
+          ],
+          timeout: 5000,
         });
         isValid = false;
       }
@@ -548,11 +568,13 @@ export class PropertyAdd implements OnInit {
       // Check total number of files
       if (validFiles.length >= this.maxFiles) {
         this.alertService.error({
-          errors: [{
-            message: `Maximum ${this.maxFiles} files allowed. Additional files will be ignored.`,
-            errorType: 'error'
-          }],
-          timeout: 5000
+          errors: [
+            {
+              message: `Maximum ${this.maxFiles} files allowed. Additional files will be ignored.`,
+              errorType: 'error',
+            },
+          ],
+          timeout: 5000,
         });
         break;
       }
@@ -567,7 +589,9 @@ export class PropertyAdd implements OnInit {
 
   // Helper method to convert uploaded files to documents for the property model
   private convertImagesToDocuments(): IDocument[] {
-    const ownerId = this.userdetail?.userId ? Number(this.userdetail.userId) : 0;
+    const ownerId = this.userdetail?.userId
+      ? Number(this.userdetail.userId)
+      : 0;
     return this.uploadedImages.map((image, index) => ({
       ownerId: ownerId, // Will be set when property is saved
       ownerType: OwnerType.LANDLORD,
@@ -579,14 +603,13 @@ export class PropertyAdd implements OnInit {
       file: image.file, // Include the actual File object
       uploadedOn: new Date().toISOString(),
       isVerified: false,
-      description: index === 0 ? 'Primary property image' : `Property image ${index + 1}`
+      description:
+        index === 0 ? 'Primary property image' : `Property image ${index + 1}`,
     }));
   }
 
   private convertPropertyToFormData(property: IProperty): FormData {
     const formData = new FormData();
-
-
 
     // Handle documents (files + metadata)
     if (property.documents && Array.isArray(property.documents)) {
@@ -599,11 +622,22 @@ export class PropertyAdd implements OnInit {
         // Append metadata fields individually (so .NET model binder can map)
         if (doc.name) formData.append(`documents[${index}].name`, doc.name);
         if (doc.type) formData.append(`documents[${index}].type`, doc.type);
-        if (doc.size) formData.append(`documents[${index}].size`, doc.size.toString());
-        if (doc.category) formData.append(`documents[${index}].category`, doc.category.toString());
-        if (doc.description) formData.append(`documents[${index}].description`, doc.description);
-        if (doc.ownerId) formData.append(`documents[${index}].ownerId`, doc.ownerId.toString());
-        if (doc.ownerType) formData.append(`documents[${index}].ownerType`, doc.ownerType);
+        if (doc.size)
+          formData.append(`documents[${index}].size`, doc.size.toString());
+        if (doc.category)
+          formData.append(
+            `documents[${index}].category`,
+            doc.category.toString(),
+          );
+        if (doc.description)
+          formData.append(`documents[${index}].description`, doc.description);
+        if (doc.ownerId)
+          formData.append(
+            `documents[${index}].ownerId`,
+            doc.ownerId.toString(),
+          );
+        if (doc.ownerType)
+          formData.append(`documents[${index}].ownerType`, doc.ownerType);
       });
     }
 
@@ -639,12 +673,17 @@ export class PropertyAdd implements OnInit {
   private populateTestDefaults() {
     // Get next month's date for availableFrom field
     const today = new Date();
-    const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, today.getDate());
+    const nextMonth = new Date(
+      today.getFullYear(),
+      today.getMonth() + 1,
+      today.getDate(),
+    );
 
     this.propertyForm.patchValue({
       // Basic Information
       title: 'Beautiful 2BHK Apartment with Modern Amenities',
-      description: 'Spacious and well-ventilated 2BHK apartment located in a prime location with excellent connectivity to IT hubs and shopping centers. The property features modern amenities and is perfect for families.',
+      description:
+        'Spacious and well-ventilated 2BHK apartment located in a prime location with excellent connectivity to IT hubs and shopping centers. The property features modern amenities and is perfect for families.',
       propertyType: PropertyType.Apartment,
       bhkConfiguration: '2BHK',
       floorNumber: 2,
@@ -680,8 +719,7 @@ export class PropertyAdd implements OnInit {
       hasWaterSupply: true,
       hasGasPipeline: false,
       hasSecurity: true,
-      hasInternet: true
+      hasInternet: true,
     });
   }
-
 }
