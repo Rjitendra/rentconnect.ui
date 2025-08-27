@@ -78,6 +78,7 @@
       </div>
       <!-- Property Table -->
       <div class="table-section">
+        @if(properties$ | async){
         <div class="table-container">
           <ng-mat-table
             [data]="properties"
@@ -87,6 +88,7 @@
             class="property-table"
           />
         </div>
+      }
       </div>
     </div>
   }

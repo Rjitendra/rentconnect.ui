@@ -25,6 +25,7 @@ import { NgButton, NgIconComponent, NgSelectComponent, NgMatTable, TableColumn, 
 import { PropertyAdd } from '../property-add/property-add';
 import { IUserDetail, OauthService } from '../../../../../oauth/service/oauth.service';
 import { PropertyService } from '../../../../service/property.service';
+import { Observable, of } from 'rxjs';
 
 @Component({
   selector: 'app-property-dashboard',
@@ -219,7 +220,7 @@ export class PropertyDashboard implements OnInit {
       tickets: [],
     },
   ];
-
+  properties$!: Observable<IProperty[]>;
   // Dialog and menu state
   showUploadModal = false;
   showDownloadModal = false;
@@ -230,16 +231,16 @@ export class PropertyDashboard implements OnInit {
 
   // Document categories for dropdown
   documentCategories = [
-   { value: DocumentCategory.OwnershipProof, label: 'Ownership Proof', description: 'Property ownership certificates' },
+    { value: DocumentCategory.OwnershipProof, label: 'Ownership Proof', description: 'Property ownership certificates' },
     { value: DocumentCategory.UtilityBill, label: 'Utility Bills', description: 'Electricity, water, gas bills' },
     { value: DocumentCategory.PropertyImages, label: 'Property Photos', description: 'Property images and videos' },
   ];
 
   downloadCategories = [
     { value: 'all', label: 'All Documents', count: 0, description: 'Download all available documents' },
-   { value: DocumentCategory.OwnershipProof, label: 'Ownership Proof', count: 0, description: 'Property ownership certificates' },
+    { value: DocumentCategory.OwnershipProof, label: 'Ownership Proof', count: 0, description: 'Property ownership certificates' },
     { value: DocumentCategory.UtilityBill, label: 'Utility Bills', count: 0, description: 'Electricity, water, gas bills' },
-   ];
+  ];
 
   userdetail: Partial<IUserDetail> = {};
   /** Inserted by Angular inject() migration for backwards compatibility */
@@ -423,7 +424,8 @@ export class PropertyDashboard implements OnInit {
 
 
           this.properties = [...transformedApiProperties];
-          this.$cdr.detectChanges();
+          this.properties$ = of(this.properties)
+         this.$cdr.markForCheck();
           console.log(`Loaded ${apiProperties.length} properties from API`);
         } else {
           console.log('No properties found in API, using mock data only');
@@ -446,6 +448,8 @@ export class PropertyDashboard implements OnInit {
       fullAddress: this.getFullAddress(property),
       mappedTenants: this.getMappedTenantsDisplay(property.tenants || []),
       documentsCount: this.getDocumentsDisplay(property.documents || []),
+      latitude: property.latitude || -1,
+      longitude: property.longitude || -1,
       monthlyRent: property.monthlyRent
         ? `₹${property.monthlyRent.toLocaleString()}`
         : 'Not Set',
@@ -872,7 +876,7 @@ export class PropertyDashboard implements OnInit {
 
   // Get status icon based on property status
   getStatusIcon(status: string): string {
-    switch (status?.toLowerCase()) {
+    switch (status) {
       case 'available':
       case 'listed':
         return 'check_circle';

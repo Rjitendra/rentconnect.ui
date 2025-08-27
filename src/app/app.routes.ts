@@ -1,7 +1,8 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './auth-guard';
+import { authGuard } from './core/guards/auth-guard';
 import { SigninCallback } from './oauth/components/signin-callback/signin-callback';
 import { SignoutCallback } from './oauth/components/signout-callback/signout-callback';
+import { userGuard } from './core/guards/user-guard';
 
 export const routes: Routes = [
   {
@@ -41,6 +42,7 @@ export const routes: Routes = [
 
 
     ],
+    canActivate: [userGuard],
   },
   { path: 'signin-callback', component: SigninCallback },
   { path: 'signout-callback', component: SignoutCallback },
