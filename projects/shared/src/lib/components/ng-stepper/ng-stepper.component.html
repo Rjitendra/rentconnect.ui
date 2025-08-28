@@ -1,28 +1,33 @@
-<mat-stepper 
+<mat-stepper
   [orientation]="orientation()"
   [linear]="linear()"
   [selectedIndex]="selectedIndex()"
   [labelPosition]="labelPosition()"
-  (selectionChange)="onSelectionChange($event)">
-  
+  (selectionChange)="onSelectionChange($event)"
+>
   @for (step of steps(); track $index; let i = $index) {
-    <mat-step 
+    <mat-step
       [label]="step.label"
       [completed]="step.completed"
       [editable]="step.editable"
       [optional]="step.optional"
       [hasError]="step.hasError"
-      [stepControl]="stepControls() && stepControls()[i]">
-      
+      [stepControl]="stepControls() && stepControls()[i]"
+    >
       @if (step.content) {
-        <ng-container *ngTemplateOutlet="step.content; context: { $implicit: step.data, step: step, index: i }" />
+        <ng-container
+          *ngTemplateOutlet="
+            step.content;
+            context: { $implicit: step.data, step: step, index: i }
+          "
+        />
       } @else {
         <div class="step-content-slot">
           <!-- Content will be projected here or defined dynamically -->
           <ng-content />
         </div>
       }
-      
+
       @if (showNavigation()) {
         <div class="step-navigation">
           @if (i > 0) {
@@ -31,9 +36,9 @@
               {{ backText() }}
             </button>
           }
-          
+
           <div class="spacer"></div>
-          
+
           @if (i < steps().length - 1) {
             <button mat-flat-button color="primary" (click)="goForward()">
               {{ nextText() }}

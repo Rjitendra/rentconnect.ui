@@ -1,10 +1,8 @@
 import { Injectable } from '@angular/core';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CommonService {
-
-constructor() { }
-
+  constructor() {}
 }

@@ -15,7 +15,6 @@ export interface IDocument {
   propertyId?: number; // Optional, if linked to a property
   tenantId?: number; // Optional, if linked to a tenant
 
-
   documentIdentifier?: string; // Unique identifier, optional
   uploadedOn?: string; // Use string for Date serialization (ISO format)
   isVerified?: boolean; // Default false

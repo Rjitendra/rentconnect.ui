@@ -4,7 +4,7 @@ import { OauthService } from '../../service/oauth.service';
 @Component({
   selector: 'app-signin-callback',
   imports: [],
- template: `<div></div>`,
+  template: `<div></div>`,
 })
 export class SigninCallback implements OnInit {
   private authService = inject(OauthService);

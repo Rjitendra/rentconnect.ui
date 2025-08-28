@@ -8,30 +8,33 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   standalone: true,
   imports: [MatIconModule, MatTooltipModule],
   template: `
-    <mat-icon 
+    <mat-icon
       class="clarify-icon"
       [class.disabled]="isIconDisabled()"
       [matTooltip]="clarifyText()"
-      matTooltipPosition="above">
+      matTooltipPosition="above"
+    >
       help_outline
     </mat-icon>
   `,
-  styles: [`
-    .clarify-icon {
-      font-size: 16px;
-      width: 16px;
-      height: 16px;
-      margin-left: 4px;
-      color: #666;
-      cursor: help;
-      vertical-align: middle;
-    }
-    
-    .clarify-icon.disabled {
-      color: #ccc;
-      cursor: not-allowed;
-    }
-  `]
+  styles: [
+    `
+      .clarify-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        margin-left: 4px;
+        color: #666;
+        cursor: help;
+        vertical-align: middle;
+      }
+
+      .clarify-icon.disabled {
+        color: #ccc;
+        cursor: not-allowed;
+      }
+    `,
+  ],
 })
 export class ClClarifyTextComponent {
   readonly clarifyText = input.required<string>();

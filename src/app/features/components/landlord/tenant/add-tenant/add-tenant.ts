@@ -4,8 +4,6 @@ import { Component } from '@angular/core';
   selector: 'app-add-tenant',
   imports: [],
   templateUrl: './add-tenant.html',
-  styleUrl: './add-tenant.scss'
+  styleUrl: './add-tenant.scss',
 })
-export class AddTenant {
-
-}
+export class AddTenant {}

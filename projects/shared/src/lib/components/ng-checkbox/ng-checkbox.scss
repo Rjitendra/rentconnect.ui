@@ -3,29 +3,29 @@
 
 :host {
   display: block;
-  
+
   .mat-mdc-checkbox,
   .mat-mdc-slide-toggle {
     width: 100%;
   }
-  
+
   .mat-mdc-checkbox .mdc-form-field,
   .mat-mdc-slide-toggle .mdc-form-field {
     align-items: flex-start;
   }
-  
+
   ng-label,
   cl-label {
     display: inline-block;
     margin-right: 8px;
   }
-  
+
   ng-clarify-text,
   cl-clarify-text {
     display: inline-block;
     vertical-align: middle;
   }
-  
+
   // Icon styling for checkbox
   mat-icon {
     display: inline-block;
@@ -36,7 +36,7 @@
     width: 20px;
     height: 20px;
   }
-  
+
   // Special styling for amenity checkboxes
   &.amenity-checkbox {
     .mat-mdc-checkbox .mdc-form-field,
@@ -45,7 +45,7 @@
       align-items: center;
       gap: 8px;
     }
-    
+
     mat-icon {
       color: #667eea;
       font-size: 20px;

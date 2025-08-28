@@ -1,5 +1,19 @@
-import { Component, forwardRef, output, input, Injector, inject, OnInit } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR, NgControl, FormControl, ReactiveFormsModule } from '@angular/forms';
+import {
+  Component,
+  forwardRef,
+  output,
+  input,
+  Injector,
+  inject,
+  OnInit,
+} from '@angular/core';
+import {
+  ControlValueAccessor,
+  NG_VALUE_ACCESSOR,
+  NgControl,
+  FormControl,
+  ReactiveFormsModule,
+} from '@angular/forms';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -16,8 +30,8 @@ import { NgClarifyTextComponent } from '../ng-clarify-text/ng-clarify-text.compo
     MatIconModule,
     NgLabelComponent,
     NgClarifyTextComponent,
-    ReactiveFormsModule
-],
+    ReactiveFormsModule,
+  ],
   templateUrl: './ng-textarea.component.html',
   styleUrl: './ng-textarea.component.scss',
   providers: [
@@ -52,7 +66,7 @@ export class NgTextareaComponent implements ControlValueAccessor, OnInit {
   readonly showCharacterCount = input(false);
   readonly isInvalid = input(false);
   readonly validationMessage = input('');
-  
+
   readonly inputChange = output<string>();
   readonly focusEvent = output<FocusEvent>();
 
@@ -94,7 +108,7 @@ export class NgTextareaComponent implements ControlValueAccessor, OnInit {
 
   registerOnChange(fn: (value: string) => void): void {
     this.onChange = fn;
-    this.internalControl.valueChanges.subscribe(value => {
+    this.internalControl.valueChanges.subscribe((value) => {
       this.value = value;
       fn(value);
     });

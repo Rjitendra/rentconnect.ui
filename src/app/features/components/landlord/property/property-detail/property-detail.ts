@@ -37,9 +37,6 @@ import { IProperty } from '../../../../models/property';
   styleUrl: './property-detail.scss',
 })
 export class PropertyDetail implements OnInit {
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
-
   readonly backToList = output<void>();
 
   property: IProperty | null = null;
@@ -55,68 +52,14 @@ export class PropertyDetail implements OnInit {
     'https://via.placeholder.com/800x400/667eea/ffffff?text=Bathroom',
   ];
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   constructor() {}
 
   ngOnInit() {
     this.loadProperty();
     this.selectedImage = this.propertyImages[0] || this.defaultImage;
-  }
-
-  private loadProperty() {
-    // Get property ID from route
-    const propertyId = this.route.snapshot.paramMap.get('id');
-
-    // Mock property data - in real app, this would come from a service
-    this.property = {
-      id: 1,
-      landlordId: 1,
-      title: 'Luxurious 3BHK Apartment in Prime Location',
-      description:
-        'This beautiful 3BHK apartment is located in the heart of the city with excellent connectivity to metro stations, shopping malls, and schools. The apartment features modern amenities, spacious rooms, and a stunning view of the city skyline. Perfect for families looking for a comfortable and convenient lifestyle.',
-      propertyType: PropertyType.Apartment,
-      bhkConfiguration: '3BHK',
-      isFurnished: true,
-      floorNumber: 5,
-      totalFloors: 12,
-      carpetAreaSqFt: 1200,
-      builtUpAreaSqFt: 1450,
-      furnishingType: FurnishingType.SemiFurnished,
-      numberOfBathrooms: 2,
-      numberOfBalconies: 2,
-
-      // Location
-      addressLine1: 'Tower A, Skyline Residency',
-      addressLine2: 'Sector 18, Noida Extension',
-      landmark: 'Metro Station',
-      locality: 'Noida Extension',
-      city: 'Noida',
-      state: 'Uttar Pradesh',
-      pinCode: '201009',
-
-      // Rent Details
-      monthlyRent: 28000,
-      securityDeposit: 56000,
-      isNegotiable: true,
-      availableFrom: new Date('2024-02-01'),
-      leaseType: LeaseType.LongTerm,
-
-      // Amenities
-      hasLift: true,
-      hasParking: true,
-      hasPowerBackup: true,
-      hasWaterSupply: true,
-      hasGasPipeline: false,
-      hasSecurity: true,
-      hasInternet: true,
-
-      // Status
-      status: PropertyStatus.Listed,
-      createdOn: new Date('2024-01-15'),
-      updatedOn: new Date('2024-01-20'),
-    };
   }
 
   selectImage(image: string) {
@@ -224,5 +167,56 @@ export class PropertyDetail implements OnInit {
     // Implement map functionality
     console.log('Opening map view...');
     alert('Map view coming soon!');
+  }
+
+  private loadProperty() {
+    // Mock property data - in real app, this would come from a service
+    this.property = {
+      id: 1,
+      landlordId: 1,
+      title: 'Luxurious 3BHK Apartment in Prime Location',
+      description:
+        'This beautiful 3BHK apartment is located in the heart of the city with excellent connectivity to metro stations, shopping malls, and schools. The apartment features modern amenities, spacious rooms, and a stunning view of the city skyline. Perfect for families looking for a comfortable and convenient lifestyle.',
+      propertyType: PropertyType.Apartment,
+      bhkConfiguration: '3BHK',
+      isFurnished: true,
+      floorNumber: 5,
+      totalFloors: 12,
+      carpetAreaSqFt: 1200,
+      builtUpAreaSqFt: 1450,
+      furnishingType: FurnishingType.SemiFurnished,
+      numberOfBathrooms: 2,
+      numberOfBalconies: 2,
+
+      // Location
+      addressLine1: 'Tower A, Skyline Residency',
+      addressLine2: 'Sector 18, Noida Extension',
+      landmark: 'Metro Station',
+      locality: 'Noida Extension',
+      city: 'Noida',
+      state: 'Uttar Pradesh',
+      pinCode: '201009',
+
+      // Rent Details
+      monthlyRent: 28000,
+      securityDeposit: 56000,
+      isNegotiable: true,
+      availableFrom: new Date('2024-02-01'),
+      leaseType: LeaseType.LongTerm,
+
+      // Amenities
+      hasLift: true,
+      hasParking: true,
+      hasPowerBackup: true,
+      hasWaterSupply: true,
+      hasGasPipeline: false,
+      hasSecurity: true,
+      hasInternet: true,
+
+      // Status
+      status: PropertyStatus.Listed,
+      createdOn: new Date('2024-01-15'),
+      updatedOn: new Date('2024-01-20'),
+    };
   }
 }

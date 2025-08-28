@@ -11,8 +11,8 @@ export const userGuard: CanActivateFn = async (route, state) => {
     if (user && user.access_token) {
       var res = user.profile['roleName'];
       if (res == 'Landlord') {
-         authService.setUserInfo(user.profile);
-        return true
+        authService.setUserInfo(user.profile);
+        return true;
       }
 
       return false;

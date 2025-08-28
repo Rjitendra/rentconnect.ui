@@ -8,11 +8,7 @@ import { NgClarifyTextComponent } from '../ng-clarify-text/ng-clarify-text.compo
 @Component({
   selector: 'ng-slider',
   standalone: true,
-  imports: [
-    MatSliderModule,
-    NgLabelComponent,
-    NgClarifyTextComponent
-],
+  imports: [MatSliderModule, NgLabelComponent, NgClarifyTextComponent],
   templateUrl: './ng-slider.component.html',
   styleUrl: './ng-slider.component.scss',
   providers: [
@@ -42,7 +38,7 @@ export class NgSliderComponent implements ControlValueAccessor {
   readonly hint = input.required<string>();
   readonly valueUnit = input('');
   readonly displayValue = input.required<string | number>();
-  
+
   readonly valueChange = output<number>();
   readonly dragEnd = output<any>();
 
@@ -64,7 +60,7 @@ export class NgSliderComponent implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-  //  this.disabled = isDisabled;
+    //  this.disabled = isDisabled;
   }
 
   onValueChange(newValue: number): void {

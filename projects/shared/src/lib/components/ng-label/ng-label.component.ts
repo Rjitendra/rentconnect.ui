@@ -1,6 +1,5 @@
 import { Component, input } from '@angular/core';
 
-
 @Component({
   selector: 'ng-label',
   standalone: true,
@@ -13,17 +12,19 @@ import { Component, input } from '@angular/core';
       }
     </span>
   `,
-  styles: [`
-    .ng-label {
-      display: inline-block;
-      font-weight: 500;
-    }
-    
-    .required-asterisk {
-      color: #f44336;
-      margin-left: 2px;
-    }
-  `]
+  styles: [
+    `
+      .ng-label {
+        display: inline-block;
+        font-weight: 500;
+      }
+
+      .required-asterisk {
+        color: #f44336;
+        margin-left: 2px;
+      }
+    `,
+  ],
 })
 export class NgLabelComponent {
   readonly label = input.required<string>();

@@ -1,4 +1,9 @@
-import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpHeaders,
+  HttpParams,
+} from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { catchError, Observable, of, throwError } from 'rxjs';
 import { AlertService } from './alert.service';
@@ -75,7 +80,12 @@ export class CommonService {
     return (error: HttpErrorResponse): Observable<T> => {
       console.error(`❌ ${operation} failed:`, error.message);
       this.alertService.error({
-        errors: [{ message: `Error during ${operation}: ${error.message}`, errorType: 'error' }],
+        errors: [
+          {
+            message: `Error during ${operation}: ${error.message}`,
+            errorType: 'error',
+          },
+        ],
         timeout: 5000,
       });
       // You can add logging to external service here

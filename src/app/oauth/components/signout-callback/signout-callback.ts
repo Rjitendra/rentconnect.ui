@@ -4,7 +4,7 @@ import { OauthService } from '../../service/oauth.service';
 
 @Component({
   selector: 'app-signout-callback',
-  template: `<div></div>`
+  template: `<div></div>`,
 })
 export class SignoutCallback implements OnInit {
   private authService = inject(OauthService);
@@ -13,13 +13,11 @@ export class SignoutCallback implements OnInit {
   /** Inserted by Angular inject() migration for backwards compatibility */
   constructor(...args: unknown[]);
 
-
-  constructor() { }
+  constructor() {}
 
   ngOnInit(): void {
-    this.authService.finishLogout()
-    .then(_ => {
+    this.authService.finishLogout().then((_) => {
       this._router.navigate(['/'], { replaceUrl: true });
-    })
+    });
   }
 }

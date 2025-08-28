@@ -1,49 +1,55 @@
 <div class="ng-slider">
   @if (label()) {
     <div class="slider-label">
-      <ng-label [label]="label()" [required]="required()" [toolTip]="toolTip()" />
+      <ng-label
+        [label]="label()"
+        [required]="required()"
+        [toolTip]="toolTip()"
+      />
       @if (clarifyText()) {
-        <ng-clarify-text 
-          [clarifyText]="clarifyText()" 
-          [isIconDisabled]="disabled()" />
+        <ng-clarify-text
+          [clarifyText]="clarifyText()"
+          [isIconDisabled]="disabled()"
+        />
       }
     </div>
   }
-  
+
   <div class="slider-container">
     @if (showMinMax()) {
       <span class="min-value">{{ min() }}</span>
     }
-    
-    <mat-slider 
+
+    <mat-slider
       [min]="min()"
       [max]="max()"
       [step]="step()"
       [disabled]="disabled()"
       [discrete]="discrete()"
       [showTickMarks]="showTickMarks()"
-      [class]="'slider-' + color()">
-      
-      <input 
+      [class]="'slider-' + color()"
+    >
+      <input
         matSliderThumb
         [value]="value || min()"
         [id]="uniqueId()"
         [name]="name()"
         (valueChange)="onValueChange($event)"
-        (dragEnd)="onDragEnd($event)">
+        (dragEnd)="onDragEnd($event)"
+      />
     </mat-slider>
-    
+
     @if (showMinMax()) {
       <span class="max-value">{{ max() }}</span>
     }
   </div>
-  
+
   @if (showValue()) {
     <div class="current-value">
       {{ displayValue() || value || min() }}{{ valueUnit() }}
     </div>
   }
-  
+
   @if (hint()) {
     <div class="hint-text">{{ hint() }}</div>
   }

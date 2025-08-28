@@ -17,11 +17,15 @@
     <!-- Right Side: Additional Content -->
     <div class="right-content">
       <span class="brand-name">v1</span>
-      <button mat-icon-button [matMenuTriggerFor]="profileMenu" class="profile-menu-button">
+      <button
+        mat-icon-button
+        [matMenuTriggerFor]="profileMenu"
+        class="profile-menu-button"
+      >
         <mat-icon>account_circle</mat-icon>
       </button>
       <mat-menu #profileMenu="matMenu" class="profile-menu">
-         <button mat-menu-item (click)="onLogout()">
+        <button mat-menu-item (click)="onLogout()">
           <div class="toolbar-list-item">
             <mat-icon class="small-icon">logout</mat-icon>
             <span>Logout</span>
@@ -35,26 +39,43 @@
         </button>
       </mat-menu>
     </div>
-</div>
+  </div>
 </mat-toolbar>
 
 <mat-sidenav-container class="container">
-  <mat-sidenav #sidenav mode="side" class="sidenav" [opened]="true" [class.collapsed]="!isExpanded">
+  <mat-sidenav
+    #sidenav
+    mode="side"
+    class="sidenav"
+    [opened]="true"
+    [class.collapsed]="!isExpanded"
+  >
     <div class="mat-nav-list">
       <mat-nav-list>
         @for (item of navItems(); track item) {
-          <ng-container *ngTemplateOutlet="itemTemplate; context: { $implicit: item }" />
+          <ng-container
+            *ngTemplateOutlet="itemTemplate; context: { $implicit: item }"
+          />
         }
       </mat-nav-list>
     </div>
-    <div #toggleButton class="toggle-button-container" [class.expanded]="isExpanded" [class.collapsed]="!isExpanded" (click)="toggleSidenav()">
+    <div
+      #toggleButton
+      class="toggle-button-container"
+      [class.expanded]="isExpanded"
+      [class.collapsed]="!isExpanded"
+      (click)="toggleSidenav()"
+    >
       <span></span>
     </div>
   </mat-sidenav>
   <mat-sidenav-content
     class="content"
-    [ngClass]="{ 'content-expanded': isExpanded, 'content-collapsed': !isExpanded }"
-    >
+    [ngClass]="{
+      'content-expanded': isExpanded,
+      'content-collapsed': !isExpanded,
+    }"
+  >
     <ng-content select="ng-alert" />
     <div class="content-body"><router-outlet /></div>
   </mat-sidenav-content>
@@ -75,22 +96,22 @@
           [matMenuTriggerFor]="appMenu"
           [matMenuTriggerData]="{ menudata: item }"
           place
-          >
-          <mat-icon class="small-icon">{{ item.icon || 'help_outline' }}</mat-icon>
+        >
+          <mat-icon class="small-icon">{{
+            item.icon || "help_outline"
+          }}</mat-icon>
         </button>
       </div>
     }
 
     <!-- Menu item link when expanded -->
     @if (isExpanded && !item.children) {
-      <a
-        mat-list-item
-        [routerLink]="item.url"
-        [routerLinkActive]="['active']"
-        >
+      <a mat-list-item [routerLink]="item.url" [routerLinkActive]="['active']">
         <div class="list-item">
           @if (isExpanded) {
-            <mat-icon class="small-icon">{{ item.icon || 'help_outline' }}</mat-icon>
+            <mat-icon class="small-icon">{{
+              item.icon || "help_outline"
+            }}</mat-icon>
           }
           @if (isExpanded) {
             <span>{{ item.name }}</span>
@@ -109,8 +130,10 @@
             mat-icon-button
             [matMenuTriggerFor]="appMenu"
             [matMenuTriggerData]="{ menudata: item }"
-            >
-            <mat-icon class="small-icon">{{ item.icon || 'help_outline' }}</mat-icon>
+          >
+            <mat-icon class="small-icon">{{
+              item.icon || "help_outline"
+            }}</mat-icon>
           </button>
         </div>
       }
@@ -120,9 +143,11 @@
           mat-list-item
           [class.expanded]="item.expanded"
           (click)="toggleSubMenu(item)"
-          >
+        >
           <div class="list-item">
-            <mat-icon class="small-icon">{{ item.icon || 'help_outline' }}</mat-icon>
+            <mat-icon class="small-icon">{{
+              item.icon || "help_outline"
+            }}</mat-icon>
             @if (isExpanded) {
               <span>{{ item.name }}</span>
             }
@@ -137,7 +162,9 @@
       }
     </div>
     @if (item.expanded && isExpanded) {
-      <ng-container *ngTemplateOutlet="childTemplate; context: { children: item.children }" />
+      <ng-container
+        *ngTemplateOutlet="childTemplate; context: { children: item.children }"
+      />
     }
   }
 </ng-template>
@@ -150,59 +177,65 @@
         [routerLink]="child.url"
         [routerLinkActive]="['active']"
         (click)="toggleSubMenu(child)"
-        >
+      >
         <div class="list-item">
           <mat-icon class="small-icon">{{ child.icon }}</mat-icon>
           <span>{{ child.name }}</span>
           @if (child.expanded && child.children && isExpanded) {
-            <mat-icon class="small-icon"
-              >expand_less</mat-icon
-              >
-            }
-            @if (!child.expanded && child.children && isExpanded) {
-              <mat-icon class="small-icon"
-                >expand_more</mat-icon
-                >
-              }
-            </div>
-          </a>
-        </div>
-        @if (child.children && child.expanded) {
-          <ng-container *ngTemplateOutlet="childTemplate; context: { children: child.children }" />
-        }
-      }
-    </ng-template>
-
-    <mat-menu #appMenu="matMenu" class="custom-menu">
-      <ng-template matMenuContent let-menudata="menudata">
-        @if (!menudata.children) {
-          <a mat-list-item [routerLink]="menudata.url" [routerLinkActive]="['active']">
-            <span class="custom-menu-list-item"> {{ menudata.name }}</span>
-          </a>
-        }
-        @if (menudata.children) {
-          <button
-            class="custom-menu-list-item"
-            mat-menu-item
-            [matMenuTriggerFor]="subMenu"
-            [matMenuTriggerData]="{ menudata: menudata }"
-            >
-            {{ menudata.name }}
-          </button>
-        }
-      </ng-template>
-    </mat-menu>
-    <mat-menu #subMenu="matMenu" class="custom-menu-submenu">
-      <ng-template matMenuContent let-menudata="menudata">
-        @for (child of menudata.children; track child) {
-          @if (!child.children) {
-            <a mat-menu-item [routerLink]="child?.url" [routerLinkActive]="['active']">
-              <div class="custom-menu-list-item">
-                <!-- <mat-icon class="small-icon">{{ child.icon }}</mat-icon> -->
-                <span> {{ child.name }}</span>
-              </div>
-            </a>
+            <mat-icon class="small-icon">expand_less</mat-icon>
           }
-        }
-      </ng-template>
-    </mat-menu>
+          @if (!child.expanded && child.children && isExpanded) {
+            <mat-icon class="small-icon">expand_more</mat-icon>
+          }
+        </div>
+      </a>
+    </div>
+    @if (child.children && child.expanded) {
+      <ng-container
+        *ngTemplateOutlet="childTemplate; context: { children: child.children }"
+      />
+    }
+  }
+</ng-template>
+
+<mat-menu #appMenu="matMenu" class="custom-menu">
+  <ng-template matMenuContent let-menudata="menudata">
+    @if (!menudata.children) {
+      <a
+        mat-list-item
+        [routerLink]="menudata.url"
+        [routerLinkActive]="['active']"
+      >
+        <span class="custom-menu-list-item"> {{ menudata.name }}</span>
+      </a>
+    }
+    @if (menudata.children) {
+      <button
+        class="custom-menu-list-item"
+        mat-menu-item
+        [matMenuTriggerFor]="subMenu"
+        [matMenuTriggerData]="{ menudata: menudata }"
+      >
+        {{ menudata.name }}
+      </button>
+    }
+  </ng-template>
+</mat-menu>
+<mat-menu #subMenu="matMenu" class="custom-menu-submenu">
+  <ng-template matMenuContent let-menudata="menudata">
+    @for (child of menudata.children; track child) {
+      @if (!child.children) {
+        <a
+          mat-menu-item
+          [routerLink]="child?.url"
+          [routerLinkActive]="['active']"
+        >
+          <div class="custom-menu-list-item">
+            <!-- <mat-icon class="small-icon">{{ child.icon }}</mat-icon> -->
+            <span> {{ child.name }}</span>
+          </div>
+        </a>
+      }
+    }
+  </ng-template>
+</mat-menu>

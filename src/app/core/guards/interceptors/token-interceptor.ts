@@ -1,16 +1,28 @@
-import { HttpEvent, HttpHandler, HttpHandlerFn, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
+import {
+  HttpEvent,
+  HttpHandler,
+  HttpHandlerFn,
+  HttpInterceptorFn,
+  HttpRequest,
+} from '@angular/common/http';
 import { inject } from '@angular/core';
 import { User } from 'oidc-client';
 import { Observable, from, switchMap } from 'rxjs';
 import { OauthService } from '../../../oauth/service/oauth.service';
 
-export const tokenInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: HttpHandlerFn): Observable<HttpEvent<any>> => {
+export const tokenInterceptor: HttpInterceptorFn = (
+  req: HttpRequest<any>,
+  next: HttpHandlerFn,
+): Observable<HttpEvent<any>> => {
   const oauthService = inject(OauthService);
 
   return from(getCurrentUserValue()).pipe(
     switchMap((token: User) => {
       // Set Authorization header
-      let headers = req.headers.set('Authorization', 'Bearer ' + token.access_token);
+      let headers = req.headers.set(
+        'Authorization',
+        'Bearer ' + token.access_token,
+      );
 
       // Only set content-type if body is NOT FormData
       if (!(req.body instanceof FormData)) {
@@ -22,7 +34,7 @@ export const tokenInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next:
 
       // Pass cloned request to next handler
       return next(requestClone);
-    })
+    }),
   );
 
   async function getCurrentUserValue(): Promise<User> {

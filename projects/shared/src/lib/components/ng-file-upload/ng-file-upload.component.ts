@@ -1,4 +1,12 @@
-import { Component, forwardRef, ElementRef, AfterViewInit, viewChild, output, input } from '@angular/core';
+import {
+  Component,
+  forwardRef,
+  ElementRef,
+  AfterViewInit,
+  viewChild,
+  output,
+  input,
+} from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -34,8 +42,8 @@ export interface UploadedFile {
     MatProgressBarModule,
     MatFormFieldModule,
     NgLabelComponent,
-    NgClarifyTextComponent
-],
+    NgClarifyTextComponent,
+  ],
   templateUrl: './ng-file-upload.component.html',
   styleUrl: './ng-file-upload.component.scss',
   providers: [
@@ -46,9 +54,12 @@ export interface UploadedFile {
     },
   ],
 })
-export class NgFileUploadComponent implements ControlValueAccessor, AfterViewInit {
-  readonly fileInputRef = viewChild.required<ElementRef<HTMLInputElement>>('fileInput');
-  
+export class NgFileUploadComponent
+  implements ControlValueAccessor, AfterViewInit
+{
+  readonly fileInputRef =
+    viewChild.required<ElementRef<HTMLInputElement>>('fileInput');
+
   readonly label = input<string>('');
   readonly config = input<FileUploadConfig>({});
   readonly disabled = input(false);
@@ -64,11 +75,11 @@ export class NgFileUploadComponent implements ControlValueAccessor, AfterViewIni
   readonly uploadProgress = output<{
     file: UploadedFile;
     progress: number;
-}>();
+  }>();
   readonly uploadError = output<{
     file: UploadedFile;
     error: string;
-}>();
+  }>();
 
   uploadedFiles: UploadedFile[] = [];
   isDragOver = false;
@@ -97,7 +108,7 @@ export class NgFileUploadComponent implements ControlValueAccessor, AfterViewIni
   }
 
   setDisabledState(isDisabled: boolean): void {
-   // this.disabled = isDisabled;
+    // this.disabled = isDisabled;
   }
 
   onDragOver(event: DragEvent): void {
@@ -115,9 +126,9 @@ export class NgFileUploadComponent implements ControlValueAccessor, AfterViewIni
   onDrop(event: DragEvent): void {
     event.preventDefault();
     this.isDragOver = false;
-    
+
     if (this.disabled()) return;
-    
+
     const files = Array.from(event.dataTransfer?.files || []);
     this.processFiles(files);
   }
@@ -144,33 +155,33 @@ export class NgFileUploadComponent implements ControlValueAccessor, AfterViewIni
     if (this.disabled()) {
       return;
     }
-    
+
     event.stopPropagation();
-    
+
     // Create a temporary file input element
     const tempInput = document.createElement('input');
     tempInput.type = 'file';
     tempInput.multiple = this.config().allowMultiple || false;
     tempInput.accept = this.acceptedTypesString;
     tempInput.style.display = 'none';
-    
+
     // Add event listener for file selection
     tempInput.addEventListener('change', (e: Event) => {
       const target = e.target as HTMLInputElement;
       if (target.files) {
         const files = Array.from(target.files);
         this.processFiles(files);
-        
+
         // Update the main form control
         this.onChange(this.uploadedFiles);
         this.filesSelected.emit(this.uploadedFiles);
         this.onTouched();
       }
-      
+
       // Clean up
       document.body.removeChild(tempInput);
     });
-    
+
     // Add to DOM and trigger click
     document.body.appendChild(tempInput);
     tempInput.click();
@@ -186,7 +197,7 @@ export class NgFileUploadComponent implements ControlValueAccessor, AfterViewIni
   openFileDialog(event: Event): void {
     event.preventDefault();
     event.stopPropagation();
-    
+
     // Use the same temporary input approach
     this.onUploadAreaClick(event);
   }
@@ -199,9 +210,9 @@ export class NgFileUploadComponent implements ControlValueAccessor, AfterViewIni
           name: file.name,
           size: file.size,
           type: file.type,
-          url: this.createFileUrl(file)
+          url: this.createFileUrl(file),
         };
-        
+
         const config = this.config();
         if (!config.allowMultiple) {
           this.uploadedFiles = [uploadedFile];
@@ -212,7 +223,7 @@ export class NgFileUploadComponent implements ControlValueAccessor, AfterViewIni
         }
       }
     }
-    
+
     this.onChange(this.uploadedFiles);
     this.filesSelected.emit(this.uploadedFiles);
     this.onTouched();
@@ -224,29 +235,29 @@ export class NgFileUploadComponent implements ControlValueAccessor, AfterViewIni
     if (config.maxFileSize && file.size > config.maxFileSize) {
       this.uploadError.emit({
         file: { file, name: file.name, size: file.size, type: file.type },
-        error: `File size exceeds ${this.formatFileSize(config.maxFileSize)}`
+        error: `File size exceeds ${this.formatFileSize(config.maxFileSize)}`,
       });
       return false;
     }
-    
+
     // Check file type
     if (config.acceptedTypes && config.acceptedTypes.length > 0) {
-      const isAccepted = config.acceptedTypes.some(type => {
+      const isAccepted = config.acceptedTypes.some((type) => {
         if (type.startsWith('.')) {
           return file.name.toLowerCase().endsWith(type.toLowerCase());
         }
         return file.type.match(type.replace('*', '.*'));
       });
-      
+
       if (!isAccepted) {
         this.uploadError.emit({
           file: { file, name: file.name, size: file.size, type: file.type },
-          error: 'File type not accepted'
+          error: 'File type not accepted',
         });
         return false;
       }
     }
-    
+
     return true;
   }
 
@@ -270,14 +281,18 @@ export class NgFileUploadComponent implements ControlValueAccessor, AfterViewIni
     if (type.startsWith('video/')) return 'video_file';
     if (type.startsWith('audio/')) return 'audio_file';
     if (type.includes('pdf')) return 'picture_as_pdf';
-    if (type.includes('word') || type.includes('document')) return 'description';
+    if (type.includes('word') || type.includes('document'))
+      return 'description';
     if (type.includes('sheet') || type.includes('excel')) return 'table_chart';
-    if (type.includes('presentation') || type.includes('powerpoint')) return 'slideshow';
+    if (type.includes('presentation') || type.includes('powerpoint'))
+      return 'slideshow';
     return 'insert_drive_file';
   }
 
   areFilesImages(): boolean {
-    return this.uploadedFiles.length > 0 && 
-           this.uploadedFiles.every(file => file.type.startsWith('image/'));
+    return (
+      this.uploadedFiles.length > 0 &&
+      this.uploadedFiles.every((file) => file.type.startsWith('image/'))
+    );
   }
 }

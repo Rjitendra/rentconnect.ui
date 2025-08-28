@@ -1,7 +1,13 @@
 import { Observable } from 'rxjs';
 
 export type AlertType = 'info' | 'error' | 'warning' | 'success';
-export type ButtonType = 'primary' | 'secondary' | 'tertiary' | 'danger' | 'link' | 'text';
+export type ButtonType =
+  | 'primary'
+  | 'secondary'
+  | 'tertiary'
+  | 'danger'
+  | 'link'
+  | 'text';
 
 export interface MessageButton {
   label: string;

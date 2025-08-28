@@ -1,18 +1,23 @@
-<mat-form-field 
-  [appearance]="appearance()" 
+<mat-form-field
+  [appearance]="appearance()"
   class="ng-select-field"
   [class.ng-invalid]="hasValidationError"
-  [class.ng-touched]="isTouched">
+  [class.ng-touched]="isTouched"
+>
   @if (label()) {
     <mat-label>
-      <ng-label [label]="label()" [required]="required()" [toolTip]="toolTip()" />
+      <ng-label
+        [label]="label()"
+        [required]="required()"
+        [toolTip]="toolTip()"
+      />
     </mat-label>
   }
-  
+
   @if (prefixIcon()) {
     <mat-icon matPrefix>{{ prefixIcon() }}</mat-icon>
   }
-  
+
   <mat-select
     [value]="internalControl.value"
     [placeholder]="placeholder()"
@@ -21,31 +26,32 @@
     [required]="required()"
     [id]="uniqueId()"
     (selectionChange)="onSelectionChange($event)"
-    (openedChange)="onOpenedChange($event)">
-    
+    (openedChange)="onOpenedChange($event)"
+  >
     @for (option of options(); track option.value) {
       <mat-option [value]="option.value" [disabled]="option.disabled">
         {{ option.label }}
       </mat-option>
     }
   </mat-select>
-  
+
   @if (suffixIcon()) {
     <mat-icon matSuffix>{{ suffixIcon() }}</mat-icon>
   }
-  
+
   @if (clarifyText()) {
     <div matTextSuffix>
-      <ng-clarify-text 
-        [clarifyText]="clarifyText()" 
-        [isIconDisabled]="disabled()" />
+      <ng-clarify-text
+        [clarifyText]="clarifyText()"
+        [isIconDisabled]="disabled()"
+      />
     </div>
   }
-  
+
   @if (hasValidationError) {
     <mat-error>{{ displayErrorMessage }}</mat-error>
   }
-  
+
   @if (hint() && !hasValidationError) {
     <mat-hint>{{ hint() }}</mat-hint>
   }

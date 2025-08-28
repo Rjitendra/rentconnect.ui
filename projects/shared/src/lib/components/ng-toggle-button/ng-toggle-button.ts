@@ -3,7 +3,7 @@ import {
   Component,
   forwardRef,
   output,
-  input
+  input,
 } from '@angular/core';
 import {
   ControlValueAccessor,
@@ -28,10 +28,12 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 })
 export class NgToggleButton implements ControlValueAccessor {
   /** Inputs for full control */
-  readonly options = input<{
-    label: string;
-    value: any;
-}[]>([]); // toggle items
+  readonly options = input<
+    {
+      label: string;
+      value: any;
+    }[]
+  >([]); // toggle items
   readonly appearance = input<'standard' | 'legacy'>('standard');
   readonly disabled = input(false);
   readonly multiple = input(false);

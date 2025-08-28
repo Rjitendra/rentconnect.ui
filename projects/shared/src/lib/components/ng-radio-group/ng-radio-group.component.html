@@ -1,15 +1,20 @@
 <div class="ng-radio-group">
   @if (groupLabel()) {
     <div class="group-label">
-      <ng-label [label]="groupLabel()" [required]="required()" [toolTip]="toolTip()" />
+      <ng-label
+        [label]="groupLabel()"
+        [required]="required()"
+        [toolTip]="toolTip()"
+      />
       @if (clarifyText()) {
-        <ng-clarify-text 
-          [clarifyText]="clarifyText()" 
-          [isIconDisabled]="disabled()" />
+        <ng-clarify-text
+          [clarifyText]="clarifyText()"
+          [isIconDisabled]="disabled()"
+        />
       }
     </div>
   }
-  
+
   <mat-radio-group
     [value]="value"
     [disabled]="disabled()"
@@ -17,18 +22,19 @@
     [name]="name()"
     [attr.aria-label]="ariaLabel()"
     [attr.aria-labelledby]="ariaLabelledBy()"
-    (change)="onSelectionChange($event)">
-    
+    (change)="onSelectionChange($event)"
+  >
     @for (option of options(); track option.value) {
-      <mat-radio-button 
-        [value]="option.value" 
+      <mat-radio-button
+        [value]="option.value"
         [disabled]="option.disabled || disabled()"
-        [class]="'radio-option ' + (vertical() ? 'vertical' : 'horizontal')">
+        [class]="'radio-option ' + (vertical() ? 'vertical' : 'horizontal')"
+      >
         {{ option.label }}
       </mat-radio-button>
     }
   </mat-radio-group>
-  
+
   @if (hint()) {
     <div class="hint-text">{{ hint() }}</div>
   }

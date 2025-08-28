@@ -27,11 +27,15 @@ export class ProductService {
   }
 
   save(product: IProductDto): Observable<IProductDto> {
-    return this.http.post<IProductDto>('https://localhost:5000/api/product/save', product, {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-      }),
-    });
+    return this.http.post<IProductDto>(
+      'https://localhost:5000/api/product/save',
+      product,
+      {
+        headers: new HttpHeaders({
+          'Content-Type': 'application/json',
+        }),
+      },
+    );
   }
 
   discardDraft(product: IProductDto): Observable<IProductDto> {

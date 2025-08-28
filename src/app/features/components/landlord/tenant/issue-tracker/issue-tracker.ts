@@ -4,8 +4,6 @@ import { Component } from '@angular/core';
   selector: 'app-issue-tracker',
   imports: [],
   templateUrl: './issue-tracker.html',
-  styleUrl: './issue-tracker.scss'
+  styleUrl: './issue-tracker.scss',
 })
-export class IssueTracker {
-
-}
+export class IssueTracker {}

@@ -2,7 +2,12 @@ import { inject, Injectable } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 import { delay, map } from 'rxjs/operators';
 import { FormGroup } from '@angular/forms';
-import { IProperty, PropertyFormData, PropertySaveResponse, PropertyValidationError } from '../models/property';
+import {
+  IProperty,
+  PropertyFormData,
+  PropertySaveResponse,
+  PropertyValidationError,
+} from '../models/property';
 import { IDocument } from '../models/document';
 import {
   PropertyStatus,
@@ -14,7 +19,6 @@ import {
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
-
 @Injectable({
   providedIn: 'root',
 })
@@ -25,19 +29,16 @@ export class PropertyService {
 
   constructor() {
     // Initialize with some mock data if needed
-   
   }
 
   /**
    * Save property as published listing
    */
-  saveProperty(
-    formData: FormData,
-  ): Observable<any> {
-
-    return this._http.post<any>(`${environment.apiBaseUrl}Property/create`, formData);
-
-
+  saveProperty(formData: FormData): Observable<any> {
+    return this._http.post<any>(
+      `${environment.apiBaseUrl}Property/create`,
+      formData,
+    );
   }
 
   /**
@@ -90,19 +91,22 @@ export class PropertyService {
           return {
             success: true,
             propertyId: property.id,
-            message: 'Draft saved successfully! You can continue editing later.',
+            message:
+              'Draft saved successfully! You can continue editing later.',
           };
-        };
+        }
       });
     } catch (error) {
       return of({
         success: false,
         message: 'Invalid data format. Please try again.',
-        errors: [{
-          field: 'general',
-          displayName: 'General',
-          message: 'Failed to process draft data'
-        }],
+        errors: [
+          {
+            field: 'general',
+            displayName: 'General',
+            message: 'Failed to process draft data',
+          },
+        ],
       }).pipe(delay(300));
     }
   }
@@ -416,7 +420,10 @@ export class PropertyService {
         data[key] = new Date(value as string);
       }
       // Handle JSON values
-      else if (typeof value === 'string' && (value.startsWith('{') || value.startsWith('['))) {
+      else if (
+        typeof value === 'string' &&
+        (value.startsWith('{') || value.startsWith('['))
+      ) {
         try {
           data[key] = JSON.parse(value);
         } catch {
@@ -464,7 +471,7 @@ export class PropertyService {
         file: file, // Keep the actual File object
         uploadedOn: new Date().toISOString(),
         isVerified: false,
-        description: metadata.description || `Property image ${index + 1}`
+        description: metadata.description || `Property image ${index + 1}`,
       };
 
       documents.push(document);
@@ -472,6 +479,4 @@ export class PropertyService {
 
     return documents;
   }
-
-
 }

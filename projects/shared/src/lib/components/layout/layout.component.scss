@@ -100,15 +100,15 @@
       display: flex;
       align-items: center;
       gap: 16px; /* Adjust spacing between right-side elements */
-      
+
       .profile-menu-button {
         color: white;
-        
+
         mat-icon {
           font-size: 24px;
           color: white;
         }
-        
+
         &:hover {
           background-color: rgba(255, 255, 255, 0.1);
         }
@@ -133,36 +133,36 @@
     flex-direction: column;
     box-shadow: 2px 0 8px rgba(102, 126, 234, 0.1);
     border-right: 1px solid #d6dcef;
-    
+
     &.collapsed {
       width: 60px;
-      
+
       .list-item {
         justify-content: center;
         padding: 4px 2px;
         margin: 1px 2px;
         min-height: 36px;
-        
+
         .small-icon {
           margin: 0 auto;
         }
-        
+
         span {
           display: none;
         }
       }
-      
+
       .mat-list-item {
         padding: 0 !important;
         height: 40px !important;
         min-height: 40px !important;
-        
+
         .list-item {
           width: 100%;
           justify-content: center;
         }
       }
-      
+
       button[mat-icon-button] {
         width: 44px;
         height: 40px;
@@ -172,7 +172,7 @@
         justify-content: center;
       }
     }
-    
+
     .list-item {
       display: flex;
       flex-direction: row;
@@ -190,20 +190,21 @@
       position: relative;
       border-left: 3px solid transparent;
       text-shadow: 0 1px 2px rgba(26, 32, 44, 0.1);
-      
+
       &:hover {
         background-color: rgba(255, 255, 255, 0.8);
         color: #000000;
         text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
       }
-      
-      &:active, &.active {
+
+      &:active,
+      &.active {
         background-color: rgba(102, 126, 234, 0.15);
         color: #2b6cb0;
         border-left: 3px solid #2b6cb0;
         text-shadow: 0 1px 3px rgba(43, 108, 176, 0.2);
       }
-      
+
       .small-icon {
         font-size: 18px;
         color: #2d3748;
@@ -214,7 +215,7 @@
         transition: color 0.2s ease-in-out;
         text-shadow: 0 1px 2px rgba(45, 55, 72, 0.2);
       }
-      
+
       span {
         white-space: nowrap;
         overflow: hidden;
@@ -222,19 +223,19 @@
         font-weight: 500;
         color: inherit;
       }
-      
+
       &:hover .small-icon {
         color: #1a202c;
         text-shadow: 0 2px 4px rgba(26, 32, 44, 0.3);
       }
-      
+
       &:active .small-icon,
       &.active .small-icon {
         color: #2b6cb0;
         text-shadow: 0 2px 4px rgba(43, 108, 176, 0.3);
       }
     }
-    
+
     .mat-list-item {
       height: 48px !important;
       min-height: 48px !important;
@@ -245,26 +246,26 @@
       overflow-x: hidden;
       padding: 8px 0 0 0;
       margin-bottom: 48px;
-      
+
       // Custom scrollbar styling
       &::-webkit-scrollbar {
         width: 4px;
       }
-      
+
       &::-webkit-scrollbar-track {
         background: transparent;
       }
-      
+
       &::-webkit-scrollbar-thumb {
         background: rgba(0, 0, 0, 0.2);
         border-radius: 2px;
       }
-      
+
       &::-webkit-scrollbar-thumb:hover {
         background: rgba(0, 0, 0, 0.3);
       }
     }
-    
+
     .mat-nav-list .mat-list {
       padding-top: 0 !important;
       padding-bottom: 0 !important;
@@ -285,24 +286,24 @@
       background: linear-gradient(180deg, #e8ebf7 0%, #d6dcef 100%);
       border-top: 1px solid #d6dcef;
       transition: all 0.2s ease-in-out;
-      
+
       &:hover {
         background: rgba(255, 255, 255, 0.7);
         color: #2d3748;
       }
-      
+
       &:active {
         transform: translateY(0);
       }
-      
+
       span {
         position: relative;
         display: flex;
         align-items: center;
         gap: 8px;
-        
+
         &::before {
-          content: '';
+          content: "";
           width: 20px;
           height: 20px;
           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -312,9 +313,9 @@
           justify-content: center;
           transition: all 0.3s ease-in-out;
         }
-        
+
         &::after {
-          content: '>>'; 
+          content: ">>";
           position: absolute;
           left: 2px;
           color: white;
@@ -323,30 +324,30 @@
           transition: all 0.3s ease-in-out;
         }
       }
-      
+
       // When collapsed, show expand arrows (>>)
       &.collapsed {
         span::after {
-          content: '>>';
+          content: ">>";
           left: 2px;
           font-size: 14px;
         }
       }
-      
+
       // When expanded, show collapse arrows (<<)
       &.expanded {
         span::after {
-          content: '<<';
+          content: "<<";
           left: 3px;
           font-size: 14px;
         }
       }
-      
+
       &:hover span::before {
         transform: scale(1.15);
         box-shadow: 0 3px 12px rgba(102, 126, 234, 0.4);
       }
-      
+
       &:hover span::after {
         transform: scale(1.1);
       }
@@ -358,7 +359,7 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    
+
     &.content-expanded {
       margin-left: 240px !important;
     }
@@ -373,21 +374,21 @@
     font-size: 0.95rem;
     overflow-y: auto;
     overflow-x: hidden;
-    
+
     // Custom scrollbar for content
     &::-webkit-scrollbar {
       width: 6px;
     }
-    
+
     &::-webkit-scrollbar-track {
       background: rgba(0, 0, 0, 0.05);
     }
-    
+
     &::-webkit-scrollbar-thumb {
       background: rgba(102, 126, 234, 0.3);
       border-radius: 3px;
     }
-    
+
     &::-webkit-scrollbar-thumb:hover {
       background: rgba(102, 126, 234, 0.5);
     }
@@ -421,12 +422,12 @@
     &.content-expanded {
       margin-left: 240px !important;
     }
-    
+
     &.content-collapsed {
       margin-left: 0 !important;
     }
   }
-  
+
   .container .sidenav {
     &.collapsed {
       width: 0px;
@@ -439,14 +440,14 @@
     .brand-name {
       font-size: 16px !important;
     }
-    
+
     .center-content {
       font-size: 14px !important;
     }
   }
 }
 
-.mat-toolbar-row, 
+.mat-toolbar-row,
 .mat-toolbar-single-row {
   padding: 0 0px !important;
 }
@@ -460,31 +461,31 @@
   min-width: 160px !important;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  
+
   .mat-menu-content {
     padding: 8px 0;
   }
-  
+
   .mat-menu-item {
     height: 44px;
     line-height: 44px;
-    
+
     &:hover {
       background-color: rgba(102, 126, 234, 0.1);
     }
-    
+
     .toolbar-list-item {
       width: 100%;
       display: flex;
       align-items: center;
       gap: 12px;
-      
+
       .small-icon {
         font-size: 18px;
         width: 18px;
         height: 18px;
       }
-      
+
       span {
         font-size: 14px;
         font-weight: 500;
@@ -500,7 +501,7 @@
     padding-right: 0 !important;
     height: 40px !important;
     min-height: 40px !important;
-    
+
     .mat-list-item-content {
       display: flex !important;
       justify-content: center !important;
@@ -509,7 +510,7 @@
       height: 40px !important;
     }
   }
-  
+
   .mat-icon-button {
     margin: 0 auto !important;
     display: block !important;
@@ -521,15 +522,15 @@
   .mat-list-item {
     height: 46px !important;
     min-height: 46px !important;
-    
+
     .mat-list-item-content {
       padding: 0 !important;
       height: 46px !important;
       gap: 2px !important;
-      
+
       .list-item {
         gap: 2px !important;
-        
+
         .small-icon {
           margin: 0 !important;
           padding: 0 !important;
@@ -537,34 +538,34 @@
       }
     }
   }
-  
+
   .mat-nav-list {
     .mat-list {
       padding-top: 0 !important;
       padding-bottom: 0 !important;
     }
-    
+
     .mat-list-item:first-child {
       margin-top: 0 !important;
     }
-    
+
     .mat-list-item:last-child {
       margin-bottom: 0 !important;
     }
   }
-  
+
   // Prevent nested content from creating additional scrollbars
   .mat-nav-list,
   .mat-list {
     overflow: visible !important;
   }
-  
+
   // Ensure tight spacing between icon and text
   .mat-icon {
     margin: 0 !important;
     padding: 0 !important;
   }
-  
+
   // Remove any default spacing from mat-icon elements
   mat-icon {
     margin: 0 !important;
@@ -588,18 +589,18 @@
     margin: 0 !important;
     padding: 0 !important;
   }
-  
+
   .mat-list-item-content {
     gap: 2px !important;
   }
-  
+
   .list-item {
     gap: 2px !important;
-    
+
     * {
       margin: 0 !important;
     }
-    
+
     .small-icon,
     .mat-icon {
       margin: 0 !important;

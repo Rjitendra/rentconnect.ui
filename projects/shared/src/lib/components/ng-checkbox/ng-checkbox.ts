@@ -1,4 +1,3 @@
-
 import {
   ChangeDetectionStrategy,
   Component,
@@ -7,7 +6,7 @@ import {
   output,
   input,
   Injector,
-  OnInit
+  OnInit,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -38,8 +37,8 @@ import { ClClarifyTextComponent } from '../cl-clarify-text/cl-clarify-text.compo
     NgLabelComponent,
     NgClarifyTextComponent,
     ClLabelComponent,
-    ClClarifyTextComponent
-],
+    ClClarifyTextComponent,
+  ],
   templateUrl: './ng-checkbox.html',
   styleUrl: './ng-checkbox.scss',
   providers: [
@@ -144,7 +143,7 @@ export class NgCheckbox implements ControlValueAccessor, OnInit {
 
   registerOnChange(fn: (value: boolean) => void): void {
     this.onChange = fn;
-    this.internalControl.valueChanges.subscribe(value => {
+    this.internalControl.valueChanges.subscribe((value) => {
       this.value = value;
       fn(value);
     });

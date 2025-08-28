@@ -1,4 +1,11 @@
-import { Component, OnInit, AfterViewInit, OnDestroy, DOCUMENT, Inject } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  OnDestroy,
+  DOCUMENT,
+  Inject,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { environment } from '../../../../environments/environment';
@@ -9,12 +16,16 @@ import { OauthService } from '../../../oauth/service/oauth.service';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './landing.html',
-  styleUrls: ['./landing.scss']
+  styleUrls: ['./landing.scss'],
 })
 export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   isMobileMenuOpen = false;
 
-  constructor(private router: Router, private authService: OauthService, @Inject(DOCUMENT) private document: Document) { }
+  constructor(
+    private router: Router,
+    private authService: OauthService,
+    @Inject(DOCUMENT) private document: Document,
+  ) {}
 
   ngOnInit(): void {
     // Smooth scroll behavior for page
@@ -32,7 +43,10 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     // Ensure DOM is ready for scroll operations
-    console.log('Landing page loaded, content height:', document.body.scrollHeight);
+    console.log(
+      'Landing page loaded, content height:',
+      document.body.scrollHeight,
+    );
     console.log('Viewport height:', window.innerHeight);
   }
 
@@ -67,7 +81,7 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
 
         window.scrollTo({
           top: offsetPosition,
-          behavior: 'smooth'
+          behavior: 'smooth',
         });
 
         // Add a temporary highlight effect
@@ -133,7 +147,7 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   openWhatsApp(): void {
     // Replace with your actual WhatsApp number
     const phoneNumber = '+1234567890';
-    const message = 'Hi! I\'m interested in RentConnect.';
+    const message = "Hi! I'm interested in RentConnect.";
     const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
   }

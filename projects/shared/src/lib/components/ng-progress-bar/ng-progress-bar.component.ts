@@ -7,17 +7,15 @@ import { NgClarifyTextComponent } from '../ng-clarify-text/ng-clarify-text.compo
 @Component({
   selector: 'ng-progress-bar',
   standalone: true,
-  imports: [
-    MatProgressBarModule,
-    NgLabelComponent,
-    NgClarifyTextComponent
-],
+  imports: [MatProgressBarModule, NgLabelComponent, NgClarifyTextComponent],
   templateUrl: './ng-progress-bar.component.html',
-  styleUrl: './ng-progress-bar.component.scss'
+  styleUrl: './ng-progress-bar.component.scss',
 })
 export class NgProgressBarComponent {
   readonly label = input.required<string>();
-  readonly mode = input<'determinate' | 'indeterminate' | 'buffer' | 'query'>('determinate');
+  readonly mode = input<'determinate' | 'indeterminate' | 'buffer' | 'query'>(
+    'determinate',
+  );
   readonly value = input(0);
   readonly bufferValue = input(0);
   readonly color = input<'primary' | 'accent' | 'warn'>('primary');

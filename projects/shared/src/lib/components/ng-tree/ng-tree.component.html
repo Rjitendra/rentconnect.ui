@@ -3,10 +3,14 @@
     {{ node.item }}
   </mat-tree-node>
 
-  <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding matTreeNodeToggle>
+  <mat-tree-node
+    *matTreeNodeDef="let node; when: hasChild"
+    matTreeNodePadding
+    matTreeNodeToggle
+  >
     <button mat-icon-button [attr.aria-label]="'toggle ' + node.item">
       <mat-icon>
-        {{ treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right' }}
+        {{ treeControl.isExpanded(node) ? "expand_more" : "chevron_right" }}
       </mat-icon>
     </button>
     {{ node.item }}

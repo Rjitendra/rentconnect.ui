@@ -10,7 +10,12 @@ import { NgAlertMessageComponent } from '../ng-alert-message/ng-alert-message.co
 import { v4 as uuidv4 } from 'uuid';
 @Component({
   selector: 'ng-alert',
-  imports: [MatCardModule, MatButtonModule, MatIconModule, NgAlertMessageComponent],
+  imports: [
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    NgAlertMessageComponent,
+  ],
   templateUrl: './ng-alert.component.html',
   styleUrl: './ng-alert.component.scss',
 })
@@ -47,17 +52,17 @@ export class NgAlertComponent implements OnInit, OnDestroy {
     if (!alert.errors || alert.errors.length === 0) {
       return 'Invalid alert message';
     }
-    
+
     // If there's only one error, return it directly
     if (alert.errors.length === 1) {
       const msg = alert.errors[0]?.message;
       return typeof msg === 'string' ? msg : 'Invalid alert message';
     }
-    
+
     // If there are multiple errors, format them as a list
     return alert.errors
-      .map(error => error.message)
-      .filter(msg => typeof msg === 'string')
+      .map((error) => error.message)
+      .filter((msg) => typeof msg === 'string')
       .join('\n');
   }
 

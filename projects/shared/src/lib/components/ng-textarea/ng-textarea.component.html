@@ -1,19 +1,26 @@
-<mat-form-field 
-  [appearance]="appearance()" 
+<mat-form-field
+  [appearance]="appearance()"
   class="ng-textarea-field"
-  [class.ng-invalid]="internalControl.invalid || (ngControl?.control?.invalid && ngControl?.control?.touched)"
+  [class.ng-invalid]="
+    internalControl.invalid ||
+    (ngControl?.control?.invalid && ngControl?.control?.touched)
+  "
   [class.ng-touched]="internalControl.touched || ngControl?.control?.touched"
 >
   @if (label()) {
     <mat-label>
-      <ng-label [label]="label()" [required]="required()" [toolTip]="toolTip()" />
+      <ng-label
+        [label]="label()"
+        [required]="required()"
+        [toolTip]="toolTip()"
+      />
     </mat-label>
   }
-  
+
   @if (prefixIcon()) {
     <mat-icon matPrefix>{{ prefixIcon() }}</mat-icon>
   }
-  
+
   <textarea
     matInput
     [value]="internalControl.value || ''"
@@ -31,28 +38,30 @@
     (focus)="onFocus($event)"
     cdkTextareaAutosize
     [cdkAutosizeMinRows]="minRows()"
-    [cdkAutosizeMaxRows]="maxRows()">
+    [cdkAutosizeMaxRows]="maxRows()"
+  >
   </textarea>
-  
+
   @if (suffixIcon()) {
     <mat-icon matSuffix>{{ suffixIcon() }}</mat-icon>
   }
-  
+
   @if (clarifyText()) {
     <div matTextSuffix>
-      <ng-clarify-text 
-        [clarifyText]="clarifyText()" 
-        [isIconDisabled]="disabled()" />
+      <ng-clarify-text
+        [clarifyText]="clarifyText()"
+        [isIconDisabled]="disabled()"
+      />
     </div>
   }
-  
+
   @if (validationMessage()) {
     <mat-error>{{ validationMessage() }}</mat-error>
   }
-  
+
   @if (showCharacterCount() && maxLength()) {
     <mat-hint align="end">
-      {{ (value || '').length }} / {{ maxLength() }}
+      {{ (value || "").length }} / {{ maxLength() }}
     </mat-hint>
   } @else if (hint()) {
     <mat-hint>{{ hint() }}</mat-hint>

@@ -1,4 +1,4 @@
 export const OwnerType = {
-    LANDLORD: 'Landlord',
-    TENANT: 'Tenant'
-}
+  LANDLORD: 'Landlord',
+  TENANT: 'Tenant',
+};

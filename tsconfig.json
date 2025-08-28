@@ -12,9 +12,7 @@
     "isolatedModules": true,
     "experimentalDecorators": true,
     "paths": {
-      "shared": [
-        "./dist/shared"
-      ]
+      "shared": ["./dist/shared"]
     },
     "importHelpers": true,
     "target": "ES2022",

@@ -1,4 +1,12 @@
-import { Component, forwardRef, ElementRef, OnInit, viewChild, output, input } from '@angular/core';
+import {
+  Component,
+  forwardRef,
+  ElementRef,
+  OnInit,
+  viewChild,
+  output,
+  input,
+} from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatChipsModule } from '@angular/material/chips';
@@ -31,7 +39,7 @@ export interface ChipOption {
     MatIconModule,
     MatAutocompleteModule,
     NgLabelComponent,
-    NgClarifyTextComponent
+    NgClarifyTextComponent,
   ],
   templateUrl: './ng-chips.component.html',
   styleUrl: './ng-chips.component.scss',
@@ -56,12 +64,13 @@ export class NgChipsComponent implements ControlValueAccessor, OnInit {
   readonly clarifyText = input.required<string>();
   readonly hint = input.required<string>();
   readonly maxChips = input.required<number>();
-  
+
   readonly chipAdded = output<ChipOption>();
   readonly chipRemoved = output<ChipOption>();
   readonly selectionChange = output<ChipOption[]>();
 
-  readonly chipInput = viewChild.required<ElementRef<HTMLInputElement>>('chipInput');
+  readonly chipInput =
+    viewChild.required<ElementRef<HTMLInputElement>>('chipInput');
 
   selectedChips: ChipOption[] = [];
   inputControl = new FormControl('');
@@ -73,7 +82,7 @@ export class NgChipsComponent implements ControlValueAccessor, OnInit {
   ngOnInit(): void {
     this.filteredOptions = this.inputControl.valueChanges.pipe(
       startWith(''),
-      map(value => this._filterOptions(value || ''))
+      map((value) => this._filterOptions(value || '')),
     );
   }
 
@@ -90,7 +99,7 @@ export class NgChipsComponent implements ControlValueAccessor, OnInit {
   }
 
   setDisabledState(isDisabled: boolean): void {
-   // this.disabled = isDisabled;
+    // this.disabled = isDisabled;
     if (isDisabled) {
       this.inputControl.disable();
     } else {
@@ -105,7 +114,7 @@ export class NgChipsComponent implements ControlValueAccessor, OnInit {
         value: value,
         label: value,
         removable: true,
-        selectable: true
+        selectable: true,
       };
       this._addChip(newChip);
       event.chipInput.clear();
@@ -133,10 +142,11 @@ export class NgChipsComponent implements ControlValueAccessor, OnInit {
 
   private _addChip(chip: ChipOption): void {
     // Check if chip already exists
-    const exists = this.selectedChips.some(existing => 
-      existing.value === chip.value || existing.label === chip.label
+    const exists = this.selectedChips.some(
+      (existing) =>
+        existing.value === chip.value || existing.label === chip.label,
     );
-    
+
     if (!exists) {
       this.selectedChips.push(chip);
       this.onChange(this.selectedChips);
@@ -152,9 +162,9 @@ export class NgChipsComponent implements ControlValueAccessor, OnInit {
 
   private _filterOptions(value: string): ChipOption[] {
     const filterValue = typeof value === 'string' ? value.toLowerCase() : '';
-    return this.availableOptions().filter(option => {
-      const isNotSelected = !this.selectedChips.some(selected => 
-        selected.value === option.value
+    return this.availableOptions().filter((option) => {
+      const isNotSelected = !this.selectedChips.some(
+        (selected) => selected.value === option.value,
       );
       const matchesFilter = option.label.toLowerCase().includes(filterValue);
       return isNotSelected && matchesFilter;

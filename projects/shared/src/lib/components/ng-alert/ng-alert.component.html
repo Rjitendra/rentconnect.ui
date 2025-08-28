@@ -1,10 +1,11 @@
 @for (alert of alerts; track $index; let i = $index) {
-  <ng-alert-message class="ng-alert-message"
+  <ng-alert-message
+    class="ng-alert-message"
     [messageText]="getMessageText(alert)"
     [alertType]="getAlertType(alert)"
     [buttons]="alert.errors[0].buttons || []"
     [hideCloseButton]="alert.errors[0].hideCloseButton ?? false"
     [id]="i"
     (clearAlert)="removeAlert($event)"
-   />
+  />
 }

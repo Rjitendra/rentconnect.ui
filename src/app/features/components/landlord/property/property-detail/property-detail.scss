@@ -190,7 +190,7 @@
     ng-card {
       // Card styling is handled by ng-card component
       // Custom content styling only
-      
+
       ::ng-deep mat-card {
         border-radius: 16px;
         background: white;
@@ -286,7 +286,11 @@
 
           .negotiable {
             mat-chip {
-              background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+              background: linear-gradient(
+                135deg,
+                rgba(102, 126, 234, 0.1) 0%,
+                rgba(118, 75, 162, 0.1) 100%
+              );
               color: #667eea;
               border: 1px solid rgba(102, 126, 234, 0.3);
             }
@@ -509,7 +513,7 @@
   .danger-item {
     color: #f44336 !important;
 
-              ng-icon {
+    ng-icon {
       color: #f44336 !important;
     }
   }

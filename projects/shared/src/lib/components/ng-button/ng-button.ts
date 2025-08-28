@@ -2,7 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   input,
-  output
+  output,
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
@@ -38,7 +38,7 @@ export class NgButton {
   /** Additional CSS classes */
   readonly cssClass = input<string>();
 
-    readonly buttonType = input<'button' | 'submit' | 'reset'>('button');
+  readonly buttonType = input<'button' | 'submit' | 'reset'>('button');
 
   /** Event emitter for button click */
   readonly buttonClick = output<void>();

@@ -14,11 +14,7 @@ export interface RadioOption {
 @Component({
   selector: 'ng-radio-group',
   standalone: true,
-  imports: [
-    MatRadioModule,
-    NgLabelComponent,
-    NgClarifyTextComponent
-],
+  imports: [MatRadioModule, NgLabelComponent, NgClarifyTextComponent],
   templateUrl: './ng-radio-group.component.html',
   styleUrl: './ng-radio-group.component.scss',
   providers: [
@@ -41,7 +37,7 @@ export class NgRadioGroupComponent implements ControlValueAccessor {
   readonly hint = input.required<string>();
   readonly ariaLabel = input.required<string>();
   readonly ariaLabelledBy = input.required<string>();
-  
+
   readonly selectionChange = output<any>();
 
   value: any = null;
@@ -62,7 +58,7 @@ export class NgRadioGroupComponent implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-   // this.disabled = isDisabled;
+    // this.disabled = isDisabled;
   }
 
   onSelectionChange(event: any): void {

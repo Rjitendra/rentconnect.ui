@@ -5,8 +5,6 @@ import { RouterOutlet } from '@angular/router';
   selector: 'app-tenant-manager',
   imports: [RouterOutlet],
   templateUrl: './tenant-manager.html',
-  styleUrl: './tenant-manager.scss'
+  styleUrl: './tenant-manager.scss',
 })
-export class TenantManager {
-
-}
+export class TenantManager {}

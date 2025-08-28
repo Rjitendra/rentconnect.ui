@@ -79,12 +79,13 @@ button[mat-icon-button]:hover:not(:disabled) {
 }
 
 /* FAB button styling */
-button[mat-fab], button[mat-mini-fab] {
+button[mat-fab],
+button[mat-mini-fab] {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
   color: white !important;
 }
 
-button[mat-fab]:hover:not(:disabled), 
+button[mat-fab]:hover:not(:disabled),
 button[mat-mini-fab]:hover:not(:disabled) {
   transform: scale(1.1) !important;
   box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4) !important;

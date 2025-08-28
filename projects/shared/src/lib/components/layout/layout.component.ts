@@ -6,7 +6,7 @@ import {
   ElementRef,
   input,
   output,
-  viewChild
+  viewChild,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -42,7 +42,9 @@ export class LibLayoutComponent implements AfterViewInit {
   user: IUserDetail | null = null;
 
   readonly sidenav = viewChild.required<MatSidenav>('sidenav');
-  readonly toggleButton = viewChild.required('toggleButton', { read: ElementRef });
+  readonly toggleButton = viewChild.required('toggleButton', {
+    read: ElementRef,
+  });
   readonly navItems = input<INav[]>([]);
 
   currentYear: number = new Date().getFullYear();

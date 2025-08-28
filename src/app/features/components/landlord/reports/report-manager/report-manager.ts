@@ -5,8 +5,6 @@ import { RouterOutlet } from '@angular/router';
   selector: 'app-report-manager',
   imports: [RouterOutlet],
   templateUrl: './report-manager.html',
-  styleUrl: './report-manager.scss'
+  styleUrl: './report-manager.scss',
 })
-export class ReportManager {
-
-}
+export class ReportManager {}

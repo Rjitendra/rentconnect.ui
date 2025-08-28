@@ -3,8 +3,12 @@
 <!-- Recursive Menu Structure -->
 @if (item().children) {
   <!-- Button to trigger submenu -->
-  <button mat-menu-item [matMenuTriggerFor]="subMenu" [matMenuTriggerData]="{ menudata: item() }">
-    <mat-icon class="small-icon">{{ item().icon || 'help_outline' }}</mat-icon>
+  <button
+    mat-menu-item
+    [matMenuTriggerFor]="subMenu"
+    [matMenuTriggerData]="{ menudata: item() }"
+  >
+    <mat-icon class="small-icon">{{ item().icon || "help_outline" }}</mat-icon>
     {{ item().name }}
     <mat-icon class="small-icon">chevron_right</mat-icon>
   </button>
@@ -15,8 +19,14 @@
         @if (child.children) {
           <lib-menu [item]="child" />
         } @else {
-          <a mat-menu-item [routerLink]="child.url" [routerLinkActive]="['active']">
-            <mat-icon class="small-icon">{{ child.icon || 'help_outline' }}</mat-icon>
+          <a
+            mat-menu-item
+            [routerLink]="child.url"
+            [routerLinkActive]="['active']"
+          >
+            <mat-icon class="small-icon">{{
+              child.icon || "help_outline"
+            }}</mat-icon>
             {{ child.name }}
           </a>
         }
@@ -25,7 +35,7 @@
   </mat-menu>
 } @else {
   <a mat-menu-item [routerLink]="child.url" [routerLinkActive]="['active']">
-    <mat-icon class="small-icon">{{ child.icon || 'help_outline' }}</mat-icon>
+    <mat-icon class="small-icon">{{ child.icon || "help_outline" }}</mat-icon>
     {{ child.name }}
   </a>
 }

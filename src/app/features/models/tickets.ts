@@ -1,5 +1,5 @@
-import { IProperty } from "./property";
-import { ITenant } from "./tenant";
+import { IProperty } from './property';
+import { ITenant } from './tenant';
 
 export interface ITicket {
   id?: number; // BaseEntity

@@ -1,28 +1,28 @@
-import { 
-  Component, 
-  forwardRef, 
-  OnDestroy, 
-  Input, 
-  Optional, 
+import {
+  Component,
+  forwardRef,
+  OnDestroy,
+  Input,
+  Optional,
   Self,
   signal,
   OnInit,
   Injector,
   inject,
   AfterViewInit,
-  input
+  input,
 } from '@angular/core';
-import { 
-  ControlValueAccessor, 
-  NG_VALUE_ACCESSOR, 
-  NgControl, 
-  FormControl, 
+import {
+  ControlValueAccessor,
+  NG_VALUE_ACCESSOR,
+  NgControl,
+  FormControl,
   Validators,
-  ReactiveFormsModule 
+  ReactiveFormsModule,
 } from '@angular/forms';
-import { 
-  MatFormFieldModule, 
-  FloatLabelType 
+import {
+  MatFormFieldModule,
+  FloatLabelType,
 } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
@@ -31,7 +31,6 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { InputType } from '../../enums/input-type';
 
-
 @Component({
   selector: 'ng-input',
   standalone: true,
@@ -39,8 +38,8 @@ import { InputType } from '../../enums/input-type';
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
-    ReactiveFormsModule
-],
+    ReactiveFormsModule,
+  ],
   templateUrl: './ng-input.component.html',
   styleUrl: './ng-input.component.scss',
   providers: [
@@ -51,11 +50,12 @@ import { InputType } from '../../enums/input-type';
     },
   ],
 })
-export class NgInputComponent implements ControlValueAccessor, OnInit, OnDestroy {
+export class NgInputComponent
+  implements ControlValueAccessor, OnInit, OnDestroy
+{
   private injector = inject(Injector);
 
   // Input signals with default values
- 
 
   readonly label = input('');
   readonly placeholder = input('');
@@ -82,7 +82,7 @@ export class NgInputComponent implements ControlValueAccessor, OnInit, OnDestroy
 
   // Internal form control for validation
   internalControl = new FormControl();
-  
+
   value: any = null;
   disabled = false;
   private destroyed$ = new Subject<void>();
@@ -90,9 +90,8 @@ export class NgInputComponent implements ControlValueAccessor, OnInit, OnDestroy
 
   ngOnInit() {
     // Use setTimeout to avoid circular dependency during initialization
-   this.tryGetNgControl();
-    
-    
+    this.tryGetNgControl();
+
     this.setupValidations();
     this.setupControlMonitoring();
   }
@@ -101,7 +100,7 @@ export class NgInputComponent implements ControlValueAccessor, OnInit, OnDestroy
     try {
       // Try to get NgControl from injector without causing circular dependency
       this.ngControl = this.injector.get(NgControl, null);
-      
+
       if (this.ngControl && this.ngControl.valueAccessor === this) {
         // We are the value accessor, this is expected
       }
@@ -146,14 +145,18 @@ export class NgInputComponent implements ControlValueAccessor, OnInit, OnDestroy
       const externalValidators = this.ngControl.control.validator;
       if (externalValidators) {
         const currentValidators = this.internalControl.validator;
-        const combinedValidators = [currentValidators, externalValidators].filter(v => v !== null);
+        const combinedValidators = [
+          currentValidators,
+          externalValidators,
+        ].filter((v) => v !== null);
         if (combinedValidators.length > 0) {
           this.internalControl.setValidators(combinedValidators);
         }
       }
-      
+
       // Sync validation state changes
-      this.ngControl.control.statusChanges?.pipe(takeUntil(this.destroyed$))
+      this.ngControl.control.statusChanges
+        ?.pipe(takeUntil(this.destroyed$))
         .subscribe(() => {
           this.internalControl.updateValueAndValidity({ emitEvent: false });
         });
@@ -164,7 +167,7 @@ export class NgInputComponent implements ControlValueAccessor, OnInit, OnDestroy
     // Monitor internal control changes
     this.internalControl.valueChanges
       .pipe(takeUntil(this.destroyed$))
-      .subscribe(value => {
+      .subscribe((value) => {
         this.value = value;
         this.onChange(value);
       });
@@ -180,7 +183,7 @@ export class NgInputComponent implements ControlValueAccessor, OnInit, OnDestroy
   writeValue(value: any): void {
     this.value = value;
     this.internalControl.setValue(value, { emitEvent: false });
-    
+
     // Also update external control if it exists
     if (this.ngControl?.control && value !== this.ngControl.control.value) {
       this.ngControl.control.setValue(value, { emitEvent: false });
@@ -228,7 +231,8 @@ export class NgInputComponent implements ControlValueAccessor, OnInit, OnDestroy
     // Check external ngControl if available (safe check)
     if (this.ngControl?.control) {
       const isInvalid = this.ngControl.invalid === true;
-      const isTouchedOrDirty = (this.ngControl.touched === true) || (this.ngControl.dirty === true);
+      const isTouchedOrDirty =
+        this.ngControl.touched === true || this.ngControl.dirty === true;
       return isInvalid && isTouchedOrDirty;
     }
 
@@ -237,7 +241,9 @@ export class NgInputComponent implements ControlValueAccessor, OnInit, OnDestroy
   }
 
   get isTouched(): boolean {
-    return this.internalControl.touched || (this.ngControl?.control?.touched === true);
+    return (
+      this.internalControl.touched || this.ngControl?.control?.touched === true
+    );
   }
 
   get displayErrorMessage(): string {
@@ -248,7 +254,9 @@ export class NgInputComponent implements ControlValueAccessor, OnInit, OnDestroy
 
     // Check external ngControl errors (safe check)
     if (this.ngControl?.control?.errors) {
-      return this.getErrorMessageFromControl(this.ngControl.control as FormControl);
+      return this.getErrorMessageFromControl(
+        this.ngControl.control as FormControl,
+      );
     }
 
     // Fallback to manual error messages
@@ -260,11 +268,13 @@ export class NgInputComponent implements ControlValueAccessor, OnInit, OnDestroy
     if (!errors) return '';
 
     if (errors['required']) return 'This field is required.';
-    if (errors['minlength']) return `Minimum ${errors['minlength'].requiredLength} characters.`;
-    if (errors['maxlength']) return `Maximum ${errors['maxlength'].requiredLength} characters.`;
+    if (errors['minlength'])
+      return `Minimum ${errors['minlength'].requiredLength} characters.`;
+    if (errors['maxlength'])
+      return `Maximum ${errors['maxlength'].requiredLength} characters.`;
     if (errors['email']) return 'Invalid email address.';
     if (errors['pattern']) return 'Invalid format.';
-    
+
     return 'Invalid input.';
   }
 

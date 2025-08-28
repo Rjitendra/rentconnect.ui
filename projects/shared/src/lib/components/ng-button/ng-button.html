@@ -1,134 +1,134 @@
 <!-- Text Button -->
-@if (type() === 'text') {
-<button
-  mat-button
-  [type]="buttonType()"
-  [matTooltip]="tooltip()"
-  [disabled]="disabled()"
-  [class]="cssClass()"
-  (click)="onClick()"
->
-  {{ label() }}
-</button>
+@if (type() === "text") {
+  <button
+    mat-button
+    [type]="buttonType()"
+    [matTooltip]="tooltip()"
+    [disabled]="disabled()"
+    [class]="cssClass()"
+    (click)="onClick()"
+  >
+    {{ label() }}
+  </button>
 }
 
 <!-- Elevated Button -->
-@if (type() === 'elevated') {
-<button
-  mat-button="elevated"
-  [type]="buttonType()"
-  [matTooltip]="tooltip()"
-  [disabled]="disabled()"
-  [class]="cssClass()"
-  (click)="onClick()"
->
-  {{ label() }}
-</button>
+@if (type() === "elevated") {
+  <button
+    mat-button="elevated"
+    [type]="buttonType()"
+    [matTooltip]="tooltip()"
+    [disabled]="disabled()"
+    [class]="cssClass()"
+    (click)="onClick()"
+  >
+    {{ label() }}
+  </button>
 }
 
 <!-- Outlined Button -->
-@if (type() === 'outlined') {
-<button
-  mat-stroked-button
-  [type]="buttonType()"
-  [matTooltip]="tooltip()"
-  [disabled]="disabled()"
-  [class]="cssClass()"
-  (click)="onClick()"
->
-  @if (icon()) {
-    <mat-icon>{{ icon() }}</mat-icon>
-  }
-  {{ label() }}
-</button>
+@if (type() === "outlined") {
+  <button
+    mat-stroked-button
+    [type]="buttonType()"
+    [matTooltip]="tooltip()"
+    [disabled]="disabled()"
+    [class]="cssClass()"
+    (click)="onClick()"
+  >
+    @if (icon()) {
+      <mat-icon>{{ icon() }}</mat-icon>
+    }
+    {{ label() }}
+  </button>
 }
 
 <!-- Filled Button -->
-@if (type() === 'filled') {
-<button
-  mat-raised-button
-  [type]="buttonType()"
-  [matTooltip]="tooltip()"
-  [disabled]="disabled()"
-  [class]="cssClass()"
-  (click)="onClick()"
->
-  @if (icon()) {
-    <mat-icon>{{ icon() }}</mat-icon>
-  }
-  {{ label() }}
-</button>
+@if (type() === "filled") {
+  <button
+    mat-raised-button
+    [type]="buttonType()"
+    [matTooltip]="tooltip()"
+    [disabled]="disabled()"
+    [class]="cssClass()"
+    (click)="onClick()"
+  >
+    @if (icon()) {
+      <mat-icon>{{ icon() }}</mat-icon>
+    }
+    {{ label() }}
+  </button>
 }
 
 <!-- Tonal Button -->
-@if (type() === 'tonal') {
-<button
-  mat-button="tonal"
-  [type]="buttonType()"
-  [matTooltip]="tooltip()"
-  [disabled]="disabled()"
-  [class]="cssClass()"
-  (click)="onClick()"
->
-  {{ label() }}
-</button>
+@if (type() === "tonal") {
+  <button
+    mat-button="tonal"
+    [type]="buttonType()"
+    [matTooltip]="tooltip()"
+    [disabled]="disabled()"
+    [class]="cssClass()"
+    (click)="onClick()"
+  >
+    {{ label() }}
+  </button>
 }
 
 <!-- Icon Button -->
-@if (type() === 'icon') {
-<button
-  mat-icon-button
-  [type]="buttonType()"
-  [matTooltip]="tooltip()"
-  [disabled]="disabled()"
-  [class]="cssClass()"
-  (click)="onClick()"
-  [attr.aria-label]="label()"
->
-  <mat-icon>{{ icon() }}</mat-icon>
-</button>
+@if (type() === "icon") {
+  <button
+    mat-icon-button
+    [type]="buttonType()"
+    [matTooltip]="tooltip()"
+    [disabled]="disabled()"
+    [class]="cssClass()"
+    (click)="onClick()"
+    [attr.aria-label]="label()"
+  >
+    <mat-icon>{{ icon() }}</mat-icon>
+  </button>
 }
 
 <!-- FAB Button -->
-@if (type() === 'fab') {
-<button
-  mat-fab
-  [matTooltip]="tooltip()"
-  [disabled]="disabled()"
-  [class]="cssClass()"
-  (click)="onClick()"
-  [attr.aria-label]="label()"
->
-  <mat-icon>{{ icon() }}</mat-icon>
-</button>
+@if (type() === "fab") {
+  <button
+    mat-fab
+    [matTooltip]="tooltip()"
+    [disabled]="disabled()"
+    [class]="cssClass()"
+    (click)="onClick()"
+    [attr.aria-label]="label()"
+  >
+    <mat-icon>{{ icon() }}</mat-icon>
+  </button>
 }
 
 <!-- Mini FAB Button -->
-@if (type() === 'mini-fab') {
-<button
-  mat-mini-fab
-  [matTooltip]="tooltip()"
-  [disabled]="disabled()"
-  [class]="cssClass()"
-  (click)="onClick()"
-  [attr.aria-label]="label()"
->
-  <mat-icon>{{ icon() }}</mat-icon>
-</button>
+@if (type() === "mini-fab") {
+  <button
+    mat-mini-fab
+    [matTooltip]="tooltip()"
+    [disabled]="disabled()"
+    [class]="cssClass()"
+    (click)="onClick()"
+    [attr.aria-label]="label()"
+  >
+    <mat-icon>{{ icon() }}</mat-icon>
+  </button>
 }
 
 <!-- Extended FAB Button -->
-@if (type() === 'extended') {
-<button
-  mat-fab
-  extended
-  [type]="buttonType()"
-  [matTooltip]="tooltip()"
-  [disabled]="disabled()"
-  [class]="cssClass()"
-  (click)="onClick()"
->
-  <mat-icon>{{ icon() }}</mat-icon>
-  {{ label() }}
-</button>
+@if (type() === "extended") {
+  <button
+    mat-fab
+    extended
+    [type]="buttonType()"
+    [matTooltip]="tooltip()"
+    [disabled]="disabled()"
+    [class]="cssClass()"
+    (click)="onClick()"
+  >
+    <mat-icon>{{ icon() }}</mat-icon>
+    {{ label() }}
+  </button>
 }

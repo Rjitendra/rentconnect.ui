@@ -1,5 +1,21 @@
-import { Component, forwardRef, output, input, Injector, inject, OnInit, OnDestroy } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule, NgControl, FormControl, Validators } from '@angular/forms';
+import {
+  Component,
+  forwardRef,
+  output,
+  input,
+  Injector,
+  inject,
+  OnInit,
+  OnDestroy,
+} from '@angular/core';
+import {
+  ControlValueAccessor,
+  NG_VALUE_ACCESSOR,
+  ReactiveFormsModule,
+  NgControl,
+  FormControl,
+  Validators,
+} from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -26,8 +42,8 @@ export interface SelectOption {
     MatOptionModule,
     MatIconModule,
     NgLabelComponent,
-    NgClarifyTextComponent
-],
+    NgClarifyTextComponent,
+  ],
   templateUrl: './ng-select.component.html',
   styleUrl: './ng-select.component.scss',
   providers: [
@@ -38,7 +54,9 @@ export interface SelectOption {
     },
   ],
 })
-export class NgSelectComponent implements ControlValueAccessor, OnInit, OnDestroy {
+export class NgSelectComponent
+  implements ControlValueAccessor, OnInit, OnDestroy
+{
   private injector = inject(Injector);
   public ngControl: NgControl | null = null;
   readonly label = input.required<string>();
@@ -58,7 +76,7 @@ export class NgSelectComponent implements ControlValueAccessor, OnInit, OnDestro
   readonly errorMessage = input('');
   readonly isInvalid = input(false);
   readonly validationMessage = input('');
-  
+
   readonly selectionChange = output<any>();
   readonly openedChange = output<boolean>();
 
@@ -106,14 +124,18 @@ export class NgSelectComponent implements ControlValueAccessor, OnInit, OnDestro
       const externalValidators = this.ngControl.control.validator;
       if (externalValidators) {
         const currentValidators = this.internalControl.validator;
-        const combinedValidators = [currentValidators, externalValidators].filter(v => v !== null);
+        const combinedValidators = [
+          currentValidators,
+          externalValidators,
+        ].filter((v) => v !== null);
         if (combinedValidators.length > 0) {
           this.internalControl.setValidators(combinedValidators);
         }
       }
-      
+
       // Sync validation state changes
-      this.ngControl.control.statusChanges?.pipe(takeUntil(this.destroyed$))
+      this.ngControl.control.statusChanges
+        ?.pipe(takeUntil(this.destroyed$))
         .subscribe(() => {
           this.internalControl.updateValueAndValidity({ emitEvent: false });
         });
@@ -124,7 +146,7 @@ export class NgSelectComponent implements ControlValueAccessor, OnInit, OnDestro
     // Monitor internal control changes
     this.internalControl.valueChanges
       .pipe(takeUntil(this.destroyed$))
-      .subscribe(value => {
+      .subscribe((value) => {
         this.value = value;
         this.onChange(value);
       });
@@ -143,7 +165,7 @@ export class NgSelectComponent implements ControlValueAccessor, OnInit, OnDestro
 
   registerOnChange(fn: (value: any) => void): void {
     this.onChange = fn;
-    this.internalControl.valueChanges.subscribe(value => {
+    this.internalControl.valueChanges.subscribe((value) => {
       this.value = value;
       fn(value);
     });
@@ -196,7 +218,8 @@ export class NgSelectComponent implements ControlValueAccessor, OnInit, OnDestro
     // Check external ngControl if available (safe check)
     if (this.ngControl?.control) {
       const isInvalid = this.ngControl.invalid === true;
-      const isTouchedOrDirty = (this.ngControl.touched === true) || (this.ngControl.dirty === true);
+      const isTouchedOrDirty =
+        this.ngControl.touched === true || this.ngControl.dirty === true;
       return isInvalid && isTouchedOrDirty;
     }
 
@@ -205,7 +228,9 @@ export class NgSelectComponent implements ControlValueAccessor, OnInit, OnDestro
   }
 
   get isTouched(): boolean {
-    return this.internalControl.touched || (this.ngControl?.control?.touched === true);
+    return (
+      this.internalControl.touched || this.ngControl?.control?.touched === true
+    );
   }
 
   get displayErrorMessage(): string {
@@ -216,11 +241,15 @@ export class NgSelectComponent implements ControlValueAccessor, OnInit, OnDestro
 
     // Check external ngControl errors (safe check)
     if (this.ngControl?.control?.errors) {
-      return this.getErrorMessageFromControl(this.ngControl.control as FormControl);
+      return this.getErrorMessageFromControl(
+        this.ngControl.control as FormControl,
+      );
     }
 
     // Fallback to manual error messages
-    return this.errorMessage() || this.validationMessage() || 'Invalid selection.';
+    return (
+      this.errorMessage() || this.validationMessage() || 'Invalid selection.'
+    );
   }
 
   private getErrorMessageFromControl(control: FormControl): string {
@@ -228,7 +257,7 @@ export class NgSelectComponent implements ControlValueAccessor, OnInit, OnDestro
     if (!errors) return '';
 
     if (errors['required']) return 'This field is required.';
-    
+
     return 'Invalid selection.';
   }
 }

@@ -4,8 +4,6 @@ import { Component } from '@angular/core';
   selector: 'app-view-rent-report',
   imports: [],
   templateUrl: './view-rent-report.html',
-  styleUrl: './view-rent-report.scss'
+  styleUrl: './view-rent-report.scss',
 })
-export class ViewRentReport {
-
-}
+export class ViewRentReport {}

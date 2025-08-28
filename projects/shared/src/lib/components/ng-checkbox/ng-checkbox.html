@@ -1,70 +1,92 @@
 @if (!isToggle()) {
-<div class="ng-checkbox-wrapper" 
-  [class.ng-invalid]="internalControl.invalid || (ngControl?.control?.invalid && ngControl?.control?.touched)"
-  [class.ng-touched]="internalControl.touched || ngControl?.control?.touched"
->
-<mat-checkbox
-  [name]="uniqueId() || checkboxName() || 'inputCheck'"
-  [aria-label]="label() || toolTip() || ''"
-  [checked]="value"
-  [color]="color()"
-  [disabled]="disabled()"
-  [id]="uniqueId() || ''"
-  [labelPosition]="labelPosition() || 'after'"
-  [required]="isRequired()"
-  [indeterminate]="indeterminate()"
-  (change)="onCheckboxChange($event)"
-  (blur)="onBlur()"
->
-  @if (icon()) {
-    <mat-icon>{{ icon() }}</mat-icon>
-  }
-  @if (!hideLabel()) {
-  <ng-label [label]="label()" [required]="isRequired()" [toolTip]="toolTip() || ''" />
-  } @if (clarifyText()){
-  <ng-clarify-text
-    matSuffix
-    [clarifyText]="clarifyText() || ''"
-    [isIconDisabled]="disabled()"
-  />
-  }
-</mat-checkbox>
-@if (errorMessage() || validationMessage()) {
-  <div class="ng-checkbox-error-message">{{ errorMessage() || validationMessage() }}</div>
-}
-</div>
+  <div
+    class="ng-checkbox-wrapper"
+    [class.ng-invalid]="
+      internalControl.invalid ||
+      (ngControl?.control?.invalid && ngControl?.control?.touched)
+    "
+    [class.ng-touched]="internalControl.touched || ngControl?.control?.touched"
+  >
+    <mat-checkbox
+      [name]="uniqueId() || checkboxName() || 'inputCheck'"
+      [aria-label]="label() || toolTip() || ''"
+      [checked]="value"
+      [color]="color()"
+      [disabled]="disabled()"
+      [id]="uniqueId() || ''"
+      [labelPosition]="labelPosition() || 'after'"
+      [required]="isRequired()"
+      [indeterminate]="indeterminate()"
+      (change)="onCheckboxChange($event)"
+      (blur)="onBlur()"
+    >
+      @if (icon()) {
+        <mat-icon>{{ icon() }}</mat-icon>
+      }
+      @if (!hideLabel()) {
+        <ng-label
+          [label]="label()"
+          [required]="isRequired()"
+          [toolTip]="toolTip() || ''"
+        />
+      }
+      @if (clarifyText()) {
+        <ng-clarify-text
+          matSuffix
+          [clarifyText]="clarifyText() || ''"
+          [isIconDisabled]="disabled()"
+        />
+      }
+    </mat-checkbox>
+    @if (errorMessage() || validationMessage()) {
+      <div class="ng-checkbox-error-message">
+        {{ errorMessage() || validationMessage() }}
+      </div>
+    }
+  </div>
 } @else {
-<div class="ng-toggle-wrapper"
-  [class.ng-invalid]="internalControl.invalid || (ngControl?.control?.invalid && ngControl?.control?.touched)"
-  [class.ng-touched]="internalControl.touched || ngControl?.control?.touched"
->
-<mat-slide-toggle
-  [name]="uniqueId() || checkboxName() || 'inputCheck'"
-  [aria-label]="label()"
-  [checked]="value"
-  [color]="color()"
-  [disabled]="disabled()"
-  [id]="uniqueId() || ''"
-  [labelPosition]="labelPosition() || 'after'"
-  [required]="isRequired()"
-  (change)="onCheckboxChange($event)"
-  (blur)="onBlur()"
->
-  @if (icon()) {
-    <mat-icon>{{ icon() }}</mat-icon>
-  }
-  @if (!hideLabel()) {
-  <cl-label [label]="label()" [required]="isRequired()" [toolTip]="toolTip() || ''" />
-  } @if (clarifyText()) {
-  <cl-clarify-text
-    matSuffix
-   [clarifyText]="clarifyText() || ''"
-    [isIconDisabled]="disabled()"
-  />
-  }
-</mat-slide-toggle>
-@if (errorMessage() || validationMessage()) {
-  <div class="ng-toggle-error-message">{{ errorMessage() || validationMessage() }}</div>
-}
-</div>
+  <div
+    class="ng-toggle-wrapper"
+    [class.ng-invalid]="
+      internalControl.invalid ||
+      (ngControl?.control?.invalid && ngControl?.control?.touched)
+    "
+    [class.ng-touched]="internalControl.touched || ngControl?.control?.touched"
+  >
+    <mat-slide-toggle
+      [name]="uniqueId() || checkboxName() || 'inputCheck'"
+      [aria-label]="label()"
+      [checked]="value"
+      [color]="color()"
+      [disabled]="disabled()"
+      [id]="uniqueId() || ''"
+      [labelPosition]="labelPosition() || 'after'"
+      [required]="isRequired()"
+      (change)="onCheckboxChange($event)"
+      (blur)="onBlur()"
+    >
+      @if (icon()) {
+        <mat-icon>{{ icon() }}</mat-icon>
+      }
+      @if (!hideLabel()) {
+        <cl-label
+          [label]="label()"
+          [required]="isRequired()"
+          [toolTip]="toolTip() || ''"
+        />
+      }
+      @if (clarifyText()) {
+        <cl-clarify-text
+          matSuffix
+          [clarifyText]="clarifyText() || ''"
+          [isIconDisabled]="disabled()"
+        />
+      }
+    </mat-slide-toggle>
+    @if (errorMessage() || validationMessage()) {
+      <div class="ng-toggle-error-message">
+        {{ errorMessage() || validationMessage() }}
+      </div>
+    }
+  </div>
 }

@@ -39,12 +39,10 @@ export const routes: Routes = [
             './features/components/landlord/tenant/tenant-dashboard/tenant-dashboard'
           ).then((m) => m.TenantDashboard),
       },
-
-
     ],
     canActivate: [userGuard],
   },
   { path: 'signin-callback', component: SigninCallback },
   { path: 'signout-callback', component: SignoutCallback },
-  { path: '**', redirectTo: '' }
+  { path: '**', redirectTo: '' },
 ];

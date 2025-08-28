@@ -70,6 +70,7 @@
         ],
         "@typescript-eslint/no-unsafe-assignment": "off",
         "@typescript-eslint/unbound-method": "off",
+        "@typescript-eslint/no-floating-promises": "off",
 
         // 🔥 General ESLint rules
         "eqeqeq": "error",

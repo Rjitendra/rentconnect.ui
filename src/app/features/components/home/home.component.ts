@@ -17,9 +17,9 @@ interface User {
   styleUrl: './home.component.scss',
 })
 export class HomeComponent implements OnInit {
-   readonly emailTemplate = viewChild.required<TemplateRef<unknown>>('emailTemplate');
+  readonly emailTemplate =
+    viewChild.required<TemplateRef<unknown>>('emailTemplate');
   columns: TableColumn[] = [];
-    
 
   users: User[] = [
     {
@@ -38,14 +38,19 @@ export class HomeComponent implements OnInit {
     multiSelect: true,
     serverSide: false,
   };
-ngOnInit(): void {
+  ngOnInit(): void {
     this.columns = [
-    { key: 'id', label: 'ID', width: '60px' },
-    { key: 'name', label: 'Name', width: '150px' },
-    { key: 'email', label: 'Email', type: 'custom', template: this.emailTemplate() },
-    { key: 'role', label: 'Role' },
-  ];
-}
+      { key: 'id', label: 'ID', width: '60px' },
+      { key: 'name', label: 'Name', width: '150px' },
+      {
+        key: 'email',
+        label: 'Email',
+        type: 'custom',
+        template: this.emailTemplate(),
+      },
+      { key: 'role', label: 'Role' },
+    ];
+  }
   onRowClick(row: unknown) {
     console.log('Row clicked:', row);
   }

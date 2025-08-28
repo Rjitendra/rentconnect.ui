@@ -6,7 +6,7 @@
   [hideMultipleSelectionIndicator]="hideMultipleSelectionIndicator()"
   [(ngModel)]="value"
   (change)="onToggleChange($event)"
-  >
+>
   @for (option of options(); track option) {
     <mat-button-toggle [value]="option.value">
       {{ option.label }}

@@ -1,4 +1,11 @@
-import { Component, ContentChildren, QueryList, TemplateRef, output, input } from '@angular/core';
+import {
+  Component,
+  ContentChildren,
+  QueryList,
+  TemplateRef,
+  output,
+  input,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatButtonModule } from '@angular/material/button';
@@ -18,14 +25,9 @@ export interface StepConfig {
 @Component({
   selector: 'ng-stepper',
   standalone: true,
-  imports: [
-    CommonModule,
-    MatStepperModule,
-    MatButtonModule,
-    MatIconModule
-  ],
+  imports: [CommonModule, MatStepperModule, MatButtonModule, MatIconModule],
   templateUrl: './ng-stepper.component.html',
-  styleUrl: './ng-stepper.component.scss'
+  styleUrl: './ng-stepper.component.scss',
 })
 export class NgStepperComponent {
   readonly steps = input<StepConfig[]>([]);
@@ -38,29 +40,29 @@ export class NgStepperComponent {
   readonly backText = input('Back');
   readonly completeText = input('Complete');
   readonly stepControls = input<any[]>([]);
-  
+
   readonly selectionChange = output<any>();
   readonly stepCompleted = output<{
     step: StepConfig;
     index: number;
-}>();
+  }>();
   readonly stepperCompleted = output<void>();
 
   onSelectionChange(event: any): void {
-   // this.selectedIndex = event.selectedIndex;
+    // this.selectedIndex = event.selectedIndex;
     this.selectionChange.emit(event);
   }
 
   goForward(): void {
     if (this.selectedIndex() < this.steps().length - 1) {
-     // selectedIndex++;
-     // this.markStepCompleted(selectedIndex - 1);
+      // selectedIndex++;
+      // this.markStepCompleted(selectedIndex - 1);
     }
   }
 
   goBack(): void {
     if (this.selectedIndex() > 0) {
-    //  this.selectedIndex()--;
+      //  this.selectedIndex()--;
     }
   }
 
@@ -76,7 +78,7 @@ export class NgStepperComponent {
       steps[index].completed = true;
       this.stepCompleted.emit({
         step: steps[index],
-        index: index
+        index: index,
       });
     }
   }
@@ -91,8 +93,8 @@ export class NgStepperComponent {
   }
 
   reset(): void {
-   // this.selectedIndex = 0;
-    this.steps().forEach(step => {
+    // this.selectedIndex = 0;
+    this.steps().forEach((step) => {
       step.completed = false;
       step.hasError = false;
     });
@@ -100,7 +102,7 @@ export class NgStepperComponent {
 
   goToStep(index: number): void {
     if (index >= 0 && index < this.steps().length) {
-     // this.selectedIndex = index;
+      // this.selectedIndex = index;
     }
   }
 }

@@ -1,5 +1,10 @@
 import { Component, forwardRef, OnInit, output, input } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormControl, ReactiveFormsModule } from '@angular/forms';
+import {
+  ControlValueAccessor,
+  NG_VALUE_ACCESSOR,
+  FormControl,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -26,7 +31,7 @@ export interface AutocompleteOption {
     MatInputModule,
     MatOptionModule,
     NgLabelComponent,
-    NgClarifyTextComponent
+    NgClarifyTextComponent,
   ],
   templateUrl: './ng-autocomplete.component.html',
   styleUrl: './ng-autocomplete.component.scss',
@@ -49,7 +54,7 @@ export class NgAutocompleteComponent implements ControlValueAccessor, OnInit {
   readonly toolTip = input.required<string>();
   readonly clarifyText = input.required<string>();
   readonly hint = input.required<string>();
-  
+
   readonly optionSelected = output<AutocompleteOption>();
   readonly inputChange = output<string>();
 
@@ -63,7 +68,7 @@ export class NgAutocompleteComponent implements ControlValueAccessor, OnInit {
   ngOnInit(): void {
     this.filteredOptions = this.inputControl.valueChanges.pipe(
       startWith(''),
-      map(value => this._filter(value || ''))
+      map((value) => this._filter(value || '')),
     );
   }
 
@@ -87,7 +92,7 @@ export class NgAutocompleteComponent implements ControlValueAccessor, OnInit {
   }
 
   setDisabledState(isDisabled: boolean): void {
-   // this.disabled = isDisabled;
+    // this.disabled = isDisabled;
     if (isDisabled) {
       this.inputControl.disable();
     } else {
@@ -104,7 +109,7 @@ export class NgAutocompleteComponent implements ControlValueAccessor, OnInit {
   onInputChange(event: any): void {
     const inputValue = event.target.value;
     this.inputChange.emit(inputValue);
-    
+
     // If user types something that doesn't match any option, emit the string value
     if (typeof this.value === 'object' && this.value?.label !== inputValue) {
       this.value = inputValue;
@@ -122,8 +127,8 @@ export class NgAutocompleteComponent implements ControlValueAccessor, OnInit {
 
   private _filter(value: string): AutocompleteOption[] {
     const filterValue = typeof value === 'string' ? value.toLowerCase() : '';
-    return this.options().filter(option =>
-      option.label.toLowerCase().includes(filterValue)
+    return this.options().filter((option) =>
+      option.label.toLowerCase().includes(filterValue),
     );
   }
 }

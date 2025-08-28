@@ -1,6 +1,6 @@
 :host {
   display: block;
-  
+
   mat-card {
     border-radius: 16px;
     background: white;
@@ -15,7 +15,11 @@
     }
 
     mat-card-header {
-      background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+      background: linear-gradient(
+        135deg,
+        rgba(102, 126, 234, 0.05) 0%,
+        rgba(118, 75, 162, 0.05) 100%
+      );
       padding: 24px;
       border-bottom: 1px solid rgba(102, 126, 234, 0.1);
 

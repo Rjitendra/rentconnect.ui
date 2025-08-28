@@ -3,7 +3,6 @@ import * as Oidc from 'oidc-client';
 import { User, UserManager, Profile } from 'oidc-client';
 import { environment } from '../../../environments/environment';
 
-
 export interface IUserDetail {
   userId: number;
   firstName?: string;
@@ -44,7 +43,10 @@ export class OauthService {
   }
 
   public login(): Promise<void> {
-    return this.userManager.signinRedirect({ state: window.location.href, prompt: 'login' });
+    return this.userManager.signinRedirect({
+      state: window.location.href,
+      prompt: 'login',
+    });
   }
 
   public renewToken(): Promise<User> {

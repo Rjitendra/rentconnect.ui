@@ -1,6 +1,5 @@
 import { Component, input } from '@angular/core';
 
-
 @Component({
   selector: 'cl-label',
   standalone: true,
@@ -13,18 +12,20 @@ import { Component, input } from '@angular/core';
       }
     </span>
   `,
-  styles: [`
-    .cl-label {
-      display: inline-block;
-      font-weight: 500;
-      color: inherit;
-    }
-    
-    .required-asterisk {
-      color: #f44336;
-      margin-left: 2px;
-    }
-  `]
+  styles: [
+    `
+      .cl-label {
+        display: inline-block;
+        font-weight: 500;
+        color: inherit;
+      }
+
+      .required-asterisk {
+        color: #f44336;
+        margin-left: 2px;
+      }
+    `,
+  ],
 })
 export class ClLabelComponent {
   readonly label = input.required<string>();

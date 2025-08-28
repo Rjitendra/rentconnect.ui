@@ -62,11 +62,6 @@ import { PropertyService } from '../../../../service/property.service';
   styleUrl: './property-add.scss',
 })
 export class PropertyAdd implements OnInit {
-  private fb = inject(FormBuilder);
-  private router = inject(Router);
-  private propertyService = inject(PropertyService);
-  private alertService = inject(AlertService);
-  private userService = inject(OauthService);
   readonly backToList = output<void>();
 
   propertyForm!: FormGroup;
@@ -132,6 +127,11 @@ export class PropertyAdd implements OnInit {
   isShowingValidationErrors = false;
   userdetail: Partial<IUserDetail> = {};
 
+  private fb = inject(FormBuilder);
+  private router = inject(Router);
+  private propertyService = inject(PropertyService);
+  private alertService = inject(AlertService);
+  private userService = inject(OauthService);
   constructor() {
     this.userdetail = this.userService.getUserInfo();
   }
@@ -139,56 +139,6 @@ export class PropertyAdd implements OnInit {
   ngOnInit() {
     this.initializeForm();
     this.populateTestDefaults();
-  }
-
-  private initializeForm() {
-    this.propertyForm = this.fb.group({
-      // Basic Information
-      title: ['test jitendra', [Validators.required, Validators.minLength(5)]],
-      description: [
-        'test jitendratest jitendratest jitendra',
-        [Validators.required, Validators.minLength(20)],
-      ],
-      propertyType: ['', Validators.required],
-      bhkConfiguration: ['', Validators.required],
-      floorNumber: ['', [Validators.required, Validators.min(0)]],
-      totalFloors: ['', [Validators.required, Validators.min(1)]],
-      numberOfBathrooms: ['', [Validators.required, Validators.min(1)]],
-      numberOfBalconies: ['', [Validators.min(0)]],
-
-      // Area & Furnishing
-      carpetAreaSqFt: ['', [Validators.required, Validators.min(50)]],
-      builtUpAreaSqFt: ['', [Validators.required, Validators.min(100)]],
-      furnishingType: ['', Validators.required],
-
-      // Location
-      addressLine1: ['', Validators.required],
-      addressLine2: [''],
-      landmark: [''],
-      locality: ['', Validators.required],
-      city: ['', Validators.required],
-      state: ['', Validators.required],
-      pinCode: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]],
-
-      // Rent Details
-      monthlyRent: ['', [Validators.required, Validators.min(1000)]],
-      securityDeposit: ['', [Validators.required, Validators.min(0)]],
-      availableFrom: ['', Validators.required],
-      leaseType: ['', Validators.required],
-      isNegotiable: [false],
-
-      // Amenities
-      hasLift: [false],
-      hasParking: [false],
-      hasPowerBackup: [false],
-      hasWaterSupply: [false],
-      hasGasPipeline: [false],
-      hasSecurity: [false],
-      hasInternet: [false],
-
-      // Property Images
-      propertyImages: [null], // Remove required validation for images
-    });
   }
 
   onSubmit() {
@@ -254,7 +204,7 @@ export class PropertyAdd implements OnInit {
             this.showValidationErrors();
           }
         },
-        error: (error: Error) => {
+        error: () => {
           this.isSaving = false;
 
           this.alertService.error({
@@ -328,7 +278,7 @@ export class PropertyAdd implements OnInit {
             this.showValidationErrors();
           }
         },
-        error: (error: Error) => {
+        error: () => {
           this.isSavingDraft = false;
 
           this.alertService.error({
@@ -403,46 +353,51 @@ export class PropertyAdd implements OnInit {
   }
 
   // Helper method to get field error message
+  // Helper method to get field error message
   getFieldErrorMessage(fieldName: string): string {
     const control = this.propertyForm.get(fieldName);
     if (control && control.errors && control.touched) {
       const errors = control.errors;
-      if (errors['required'])
+
+      if (errors['required']) {
         return `${this.getFieldDisplayName(fieldName)} is required`;
-      if (errors['email']) return 'Please enter a valid email address';
-      if (errors['min']) return `Minimum value is ${errors['min'].min}`;
-      if (errors['max']) return `Maximum value is ${errors['max'].max}`;
-      if (errors['minlength'])
-        return `Minimum length is ${errors['minlength'].requiredLength}`;
-      if (errors['maxlength'])
-        return `Maximum length is ${errors['maxlength'].requiredLength}`;
-      if (errors['pattern']) return 'Invalid format';
+      }
+
+      if (errors['email']) {
+        return 'Please enter a valid email address';
+      }
+
+      if (errors['min']) {
+        const minError = errors['min'] as { min: number; actual: number };
+        return `Minimum value is ${minError.min}`;
+      }
+
+      if (errors['max']) {
+        const maxError = errors['max'] as { max: number; actual: number };
+        return `Maximum value is ${maxError.max}`;
+      }
+
+      if (errors['minlength']) {
+        const minLenError = errors['minlength'] as {
+          requiredLength: number;
+          actualLength: number;
+        };
+        return `Minimum length is ${minLenError.requiredLength}`;
+      }
+
+      if (errors['maxlength']) {
+        const maxLenError = errors['maxlength'] as {
+          requiredLength: number;
+          actualLength: number;
+        };
+        return `Maximum length is ${maxLenError.requiredLength}`;
+      }
+
+      if (errors['pattern']) {
+        return 'Invalid format';
+      }
     }
     return '';
-  }
-
-  // Helper method to get user-friendly field names
-  private getFieldDisplayName(fieldName: string): string {
-    const fieldNames: { [key: string]: string } = {
-      propertyTitle: 'Property Title',
-      propertyType: 'Property Type',
-      monthlyRent: 'Monthly Rent',
-      securityDeposit: 'Security Deposit',
-      bedrooms: 'Bedrooms',
-      bathrooms: 'Bathrooms',
-      area: 'Area',
-
-      city: 'City',
-      state: 'State',
-      zipCode: 'Zip Code',
-      description: 'Description',
-      furnishingType: 'Furnishing Type',
-      leaseType: 'Lease Type',
-      availableFrom: 'Available From',
-      contactEmail: 'Contact Email',
-      contactPhone: 'Contact Phone',
-    };
-    return fieldNames[fieldName] || fieldName;
   }
 
   // Image upload handlers for shared component
@@ -495,18 +450,6 @@ export class PropertyAdd implements OnInit {
 
   removeImage(image: UploadedFile): void {
     this.removeImageFromList(image);
-  }
-
-  // Helper method to debug form errors
-  private getFormErrors(): any {
-    const formErrors: any = {};
-    Object.keys(this.propertyForm.controls).forEach((key) => {
-      const controlErrors = this.propertyForm.get(key)?.errors;
-      if (controlErrors) {
-        formErrors[key] = controlErrors;
-      }
-    });
-    return formErrors;
   }
 
   private removeImageFromList(image: UploadedFile): void {
@@ -663,7 +606,7 @@ export class PropertyAdd implements OnInit {
       }
       // Handle primitives (string, number, boolean)
       else {
-        formData.append(key, value.toString());
+        formData.append(key, String(value));
       }
     });
 
@@ -720,6 +663,79 @@ export class PropertyAdd implements OnInit {
       hasGasPipeline: false,
       hasSecurity: true,
       hasInternet: true,
+    });
+  }
+
+  // Helper method to get user-friendly field names
+  private getFieldDisplayName(fieldName: string): string {
+    const fieldNames: { [key: string]: string } = {
+      propertyTitle: 'Property Title',
+      propertyType: 'Property Type',
+      monthlyRent: 'Monthly Rent',
+      securityDeposit: 'Security Deposit',
+      bedrooms: 'Bedrooms',
+      bathrooms: 'Bathrooms',
+      area: 'Area',
+
+      city: 'City',
+      state: 'State',
+      zipCode: 'Zip Code',
+      description: 'Description',
+      furnishingType: 'Furnishing Type',
+      leaseType: 'Lease Type',
+      availableFrom: 'Available From',
+      contactEmail: 'Contact Email',
+      contactPhone: 'Contact Phone',
+    };
+    return fieldNames[fieldName] || fieldName;
+  }
+  private initializeForm() {
+    this.propertyForm = this.fb.group({
+      // Basic Information
+      title: ['test jitendra', [Validators.required, Validators.minLength(5)]],
+      description: [
+        'test jitendratest jitendratest jitendra',
+        [Validators.required, Validators.minLength(20)],
+      ],
+      propertyType: ['', Validators.required],
+      bhkConfiguration: ['', Validators.required],
+      floorNumber: ['', [Validators.required, Validators.min(0)]],
+      totalFloors: ['', [Validators.required, Validators.min(1)]],
+      numberOfBathrooms: ['', [Validators.required, Validators.min(1)]],
+      numberOfBalconies: ['', [Validators.min(0)]],
+
+      // Area & Furnishing
+      carpetAreaSqFt: ['', [Validators.required, Validators.min(50)]],
+      builtUpAreaSqFt: ['', [Validators.required, Validators.min(100)]],
+      furnishingType: ['', Validators.required],
+
+      // Location
+      addressLine1: ['', Validators.required],
+      addressLine2: [''],
+      landmark: [''],
+      locality: ['', Validators.required],
+      city: ['', Validators.required],
+      state: ['', Validators.required],
+      pinCode: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]],
+
+      // Rent Details
+      monthlyRent: ['', [Validators.required, Validators.min(1000)]],
+      securityDeposit: ['', [Validators.required, Validators.min(0)]],
+      availableFrom: ['', Validators.required],
+      leaseType: ['', Validators.required],
+      isNegotiable: [false],
+
+      // Amenities
+      hasLift: [false],
+      hasParking: [false],
+      hasPowerBackup: [false],
+      hasWaterSupply: [false],
+      hasGasPipeline: [false],
+      hasSecurity: [false],
+      hasInternet: [false],
+
+      // Property Images
+      propertyImages: [null], // Remove required validation for images
     });
   }
 }

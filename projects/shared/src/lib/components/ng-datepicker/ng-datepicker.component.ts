@@ -1,5 +1,18 @@
-import { Component, forwardRef, output, input, Injector, inject, OnInit } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR, NgControl, FormControl } from '@angular/forms';
+import {
+  Component,
+  forwardRef,
+  output,
+  input,
+  Injector,
+  inject,
+  OnInit,
+} from '@angular/core';
+import {
+  ControlValueAccessor,
+  NG_VALUE_ACCESSOR,
+  NgControl,
+  FormControl,
+} from '@angular/forms';
 
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -19,8 +32,8 @@ import { NgClarifyTextComponent } from '../ng-clarify-text/ng-clarify-text.compo
     MatNativeDateModule,
     MatIconModule,
     NgLabelComponent,
-    NgClarifyTextComponent
-],
+    NgClarifyTextComponent,
+  ],
   templateUrl: './ng-datepicker.component.html',
   styleUrl: './ng-datepicker.component.scss',
   providers: [
@@ -55,7 +68,7 @@ export class NgDatepickerComponent implements ControlValueAccessor, OnInit {
   readonly errorMessage = input('');
   readonly isInvalid = input(false);
   readonly validationMessage = input('');
-  
+
   readonly dateInput = output<any>();
   readonly dateChange = output<any>();
   readonly pickerOpened = output<void>();
@@ -99,7 +112,7 @@ export class NgDatepickerComponent implements ControlValueAccessor, OnInit {
 
   registerOnChange(fn: (value: Date | null) => void): void {
     this.onChange = fn;
-    this.internalControl.valueChanges.subscribe(value => {
+    this.internalControl.valueChanges.subscribe((value) => {
       this.value = value;
       fn(value);
     });

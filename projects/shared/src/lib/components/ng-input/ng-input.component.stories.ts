@@ -8,7 +8,13 @@ const meta: Meta = {
   title: 'Form Controls/Material Input',
   decorators: [
     moduleMetadata({
-      imports: [CommonModule, FormsModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule],
+      imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+      ],
     }),
   ],
   tags: ['autodocs'],

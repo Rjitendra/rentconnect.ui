@@ -4,8 +4,6 @@ import { Component } from '@angular/core';
   selector: 'app-ongoing-tenancy',
   imports: [],
   templateUrl: './ongoing-tenancy.html',
-  styleUrl: './ongoing-tenancy.scss'
+  styleUrl: './ongoing-tenancy.scss',
 })
-export class OngoingTenancy {
-
-}
+export class OngoingTenancy {}

@@ -5,7 +5,9 @@
       <mat-card-actions class="alert-actions">
         @for (btn of buttons(); track $index; let i = $index) {
           @if (!btn.isButton) {
-            <span class="link-button" (click)="btn.click()">{{ btn.label }}</span>
+            <span class="link-button" (click)="btn.click()">{{
+              btn.label
+            }}</span>
           }
           @if (btn.isButton) {
             <button

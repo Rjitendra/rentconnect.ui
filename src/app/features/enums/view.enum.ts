@@ -4,9 +4,8 @@ export enum PropertyType {
   IndependentHouse = 2,
   RowHouse = 3,
   Plot = 4,
-  Studio = 5
+  Studio = 5,
 }
-
 
 export enum FurnishingType {
   Unfurnished = 0,
@@ -49,5 +48,3 @@ export enum TenantStatus {
   Rejected = 'Rejected',
   Blacklisted = 'Blacklisted',
 }
-
-

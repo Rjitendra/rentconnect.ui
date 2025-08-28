@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 
 import { NAVITEMS } from '../app.nav';
-import { LibLayoutComponent, NgAlertComponent } from '../../../projects/shared/src/public-api';
+import {
+  LibLayoutComponent,
+  NgAlertComponent,
+} from '../../../projects/shared/src/public-api';
 import { OauthService } from '../oauth/service/oauth.service';
 
 @Component({
@@ -11,8 +14,9 @@ import { OauthService } from '../oauth/service/oauth.service';
   styleUrl: './layout.component.scss',
 })
 export class LayoutComponent implements OnInit {
-  navItes = NAVITEMS; isLogIn = false;
-  constructor(private authService: OauthService) { }
+  navItes = NAVITEMS;
+  isLogIn = false;
+  constructor(private authService: OauthService) {}
 
   ngOnInit() {
     this.getAsyncGetUserData();
@@ -24,9 +28,9 @@ export class LayoutComponent implements OnInit {
   async onLogout(): Promise<void> {
     try {
       this.authService.logout();
-    } catch (err) { }
+    } catch (err) {}
   }
-  loginStatus(): void { }
+  loginStatus(): void {}
 
   async getAsyncGetUserData(): Promise<boolean> {
     try {
