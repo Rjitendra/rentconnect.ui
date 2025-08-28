@@ -13,7 +13,7 @@
           matTooltip="Add New Tenant"
           (click)="onAddTenant()"
         >
-          <ng-icon name="person_add" style="color: white !important" />
+          <ng-icon name="person_add" class="icon-white" />
           Add New Tenant
         </button>
       </div>
@@ -72,27 +72,12 @@
 
         <!-- Template for expanded row content -->
         <ng-template #expandedRowTemplate let-tenant>
-          <div
-            class="expanded-content"
-            style="
-              background: #ffeb3b;
-              padding: 20px;
-              margin: 10px;
-              border: 2px solid #f57c00;
-            "
-          >
-            <h4 style="color: #e65100">
-              <ng-icon name="people" style="color: #2196f3" />
+          <div class="expanded-content">
+            <h4>
+              <ng-icon name="people" class="icon-info" />
               🔄 EXPANDED ROW - Tenant Group Details ({{ tenant.tenantGroup }})
             </h4>
-            <div
-              style="
-                background: #4caf50;
-                color: white;
-                padding: 10px;
-                margin: 10px 0;
-              "
-            >
+            <div class="property-info">
               ✅ EXPANSION IS WORKING! Tenant ID: {{ tenant.id }}
             </div>
 
@@ -106,7 +91,7 @@
                     <div class="tenant-avatar">
                       <ng-icon
                         [name]="member.isPrimary ? 'star' : 'person'"
-                        [style.color]="member.isPrimary ? '#ffc107' : '#666'"
+                        [class]="member.isPrimary ? 'icon-warning' : ''"
                       />
                     </div>
                     <div class="tenant-name">
@@ -120,7 +105,7 @@
                   <div class="tenant-details">
                     <div class="detail-row">
                       <ng-icon
-                        style="font-size: 14px"
+                        class="icon-small"
                         [name]="getStatusIcon(member)"
                       />
                       <span [class]="getStatusClass(member)">{{

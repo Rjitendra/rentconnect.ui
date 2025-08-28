@@ -96,6 +96,10 @@
 
           ng-icon {
             font-size: 24px;
+
+            &.icon-primary {
+              color: #2196f3 !important;
+            }
           }
         }
 
@@ -119,6 +123,10 @@
 
           ng-icon {
             font-size: 16px;
+
+            &.icon-white {
+              color: white !important;
+            }
           }
         }
       }
@@ -313,5 +321,18 @@
         }
       }
     }
+  }
+
+  // Icon color classes
+  .icon-warning {
+    color: #ffc107 !important;
+  }
+
+  .icon-danger {
+    color: #f44336 !important;
+  }
+
+  .icon-secondary {
+    color: #666 !important;
   }
 }

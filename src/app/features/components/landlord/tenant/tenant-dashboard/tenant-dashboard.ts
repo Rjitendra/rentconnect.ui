@@ -160,15 +160,19 @@ export class TenantDashboard implements OnInit {
   }
 
   // NgMatTable event handlers
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onRowClick(tenant: any): void {
-    console.log('Row clicked:', tenant);
-    console.log('Tenant ID:', tenant.id);
+    const typedTenant = tenant as ITenant;
+    console.log('Row clicked:', typedTenant);
+    console.log('Tenant ID:', typedTenant.id);
     console.log('Row click event triggered');
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onRowExpand(tenant: any): void {
-    console.log('Row expand event triggered for tenant:', tenant);
-    console.log('Expand key (ID):', tenant.id);
+    const typedTenant = tenant as ITenant;
+    console.log('Row expand event triggered for tenant:', typedTenant);
+    console.log('Expand key (ID):', typedTenant.id);
   }
 
   // Helper methods for expanded content
@@ -293,7 +297,8 @@ export class TenantDashboard implements OnInit {
     this.selectedTenant = tenant;
   }
 
-  onEditTenant(tenant: ITenant) {
+  onEditTenant(tenant: ITenant): void {
+    console.log('Edit tenant:', tenant);
     this.showInfo('Edit functionality will be implemented soon');
     // TODO: Implement edit functionality
   }

@@ -6,6 +6,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
 
 // Shared library imports
 
@@ -24,8 +25,37 @@ import {
   UploadedFile,
 } from '../../../../../../../projects/shared/src/public-api';
 import { DocumentCategory } from '../../../../enums/view.enum';
+import { IDocument } from '../../../../models/document';
 import { ITenant } from '../../../../models/tenant';
 import { TenantService } from '../../../../service/tenant.service';
+
+// Form data interfaces for type safety
+interface TenantFormData {
+  name: string;
+  email: string;
+  phoneNumber: string;
+  dob: string;
+  occupation: string;
+  documents: UploadedFile[];
+}
+
+interface TenantAddFormData {
+  propertyId: number;
+  rentAmount: number;
+  securityDeposit: number;
+  maintenanceCharges: number;
+  tenancyStartDate: string;
+  tenancyEndDate: string;
+  rentDueDate: string;
+  leaseDuration: number;
+  noticePeriod: number;
+  tenants: TenantFormData[];
+}
+
+interface TenantSaveResponse {
+  success: boolean;
+  message: string;
+}
 
 @Component({
   selector: 'app-tenant-add',
@@ -115,11 +145,11 @@ export class TenantAddComponent implements OnInit {
     if (this.tenantForm.valid && !this.isSaving) {
       this.isSaving = true;
 
-      const formData = this.tenantForm.value;
-      const tenantPromises: Promise<any>[] = [];
+      const formData = this.tenantForm.value as TenantAddFormData;
+      const tenantPromises: Promise<TenantSaveResponse>[] = [];
 
       // Create tenant save requests for each tenant
-      formData.tenants.forEach((tenantData: any) => {
+      formData.tenants.forEach((tenantData: TenantFormData) => {
         const tenantToSave: Partial<ITenant> = {
           ...tenantData,
           // Copy shared property/tenancy details to each tenant
@@ -136,6 +166,9 @@ export class TenantAddComponent implements OnInit {
           // Calculate age from DOB
           age: this.calculateAge(tenantData.dob),
 
+          // Convert documents to proper format
+          documents: this.convertToDocuments(tenantData.documents),
+
           // Set default values
           landlordId: 1, // TODO: Get from auth service
           tenantGroup: Date.now(), // Use timestamp as group ID for now
@@ -151,13 +184,13 @@ export class TenantAddComponent implements OnInit {
         };
 
         tenantPromises.push(
-          this.tenantService.saveTenant(tenantToSave).toPromise(),
+          firstValueFrom(this.tenantService.saveTenant(tenantToSave)),
         );
       });
 
       // Execute all tenant save operations
       Promise.all(tenantPromises)
-        .then((responses) => {
+        .then((responses: TenantSaveResponse[]) => {
           this.isSaving = false;
 
           const successCount = responses.filter((r) => r.success).length;
@@ -214,10 +247,11 @@ export class TenantAddComponent implements OnInit {
 
   onTenantDocumentDeleted(file: UploadedFile, tenantIndex: number) {
     const tenantFormGroup = this.getTenantFormGroup(tenantIndex);
-    const currentDocuments = tenantFormGroup.get('documents')?.value || [];
+    const currentDocuments =
+      (tenantFormGroup.get('documents')?.value as UploadedFile[]) || [];
 
     const updatedDocuments = currentDocuments.filter(
-      (doc: any) => doc.fileUrl !== file.url,
+      (doc: UploadedFile) => doc.url !== file.url,
     );
 
     tenantFormGroup.patchValue({
@@ -303,6 +337,21 @@ export class TenantAddComponent implements OnInit {
       age--;
     }
     return age;
+  }
+
+  private convertToDocuments(uploadedFiles: UploadedFile[]): IDocument[] {
+    return uploadedFiles.map((file) => ({
+      ownerId: 1, // TODO: Get tenant ID after creation
+      ownerType: 'tenant',
+      category: this.getDocumentCategory(file.name || ''),
+      file: file.file,
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      url: file.url,
+      uploadedOn: new Date().toISOString(),
+      isVerified: false,
+    }));
   }
 
   private getDocumentCategory(fileName: string): DocumentCategory {

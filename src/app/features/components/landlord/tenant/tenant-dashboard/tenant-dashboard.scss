@@ -992,4 +992,47 @@
       }
     }
   }
+
+  // Icon color utility classes
+  .icon-white {
+    color: white !important;
+  }
+
+  .icon-warning {
+    color: #ffc107 !important;
+  }
+
+  .icon-info {
+    color: #2196f3 !important;
+  }
+
+  .icon-success {
+    color: #4caf50 !important;
+  }
+
+  .icon-small {
+    font-size: 14px;
+  }
+
+  // Expanded content styling
+  .expanded-content {
+    background: #ffeb3b;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 10px 0;
+    border: 2px solid #ffc107;
+
+    h4 {
+      margin: 0 0 12px 0;
+      color: #333;
+      font-size: 16px;
+    }
+
+    .property-info {
+      background: white;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+    }
+  }
 }

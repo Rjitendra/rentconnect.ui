@@ -86,11 +86,11 @@
       <div class="tenants-section">
         <div class="tenants-header">
           <h2>
-            <ng-icon name="people" style="color: #2196f3 !important" />
+            <ng-icon name="people" class="icon-primary" />
             Tenants ({{ tenantsFormArray.length }})
           </h2>
           <button type="button" class="add-tenant-btn" (click)="addTenant()">
-            <ng-icon name="person_add" style="color: white !important" />
+            <ng-icon name="person_add" class="icon-white" />
             Add Tenant
           </button>
         </div>
@@ -113,10 +113,10 @@
                           ? 'star'
                           : 'person'
                       "
-                      [style.color]="
+                      [class]="
                         getTenantFormGroup(i).get('isPrimary')?.value
-                          ? '#ffc107'
-                          : '#666'
+                          ? 'icon-warning'
+                          : 'icon-secondary'
                       "
                     />
                     Tenant {{ i + 1 }}
@@ -133,7 +133,7 @@
                       title="Set as primary tenant"
                       (click)="setPrimaryTenant(i)"
                     >
-                      <ng-icon name="star" style="color: #ffc107 !important" />
+                      <ng-icon name="star" class="icon-warning" />
                     </button>
                   }
                   @if (tenantsFormArray.length > 1) {
@@ -143,10 +143,7 @@
                       title="Remove tenant"
                       (click)="removeTenant(i)"
                     >
-                      <ng-icon
-                        name="person_remove"
-                        style="color: #f44336 !important"
-                      />
+                      <ng-icon name="person_remove" class="icon-danger" />
                     </button>
                   }
                 </div>
@@ -253,12 +250,13 @@
               </ng-card>
               <!-- Document Upload for this tenant -->
               <ng-card
-                title="Documents for {{
-                  getTenantFormGroup(i).get('name')?.value ||
-                    'Tenant ' + (i + 1)
-                }}"
                 icon="upload_file"
                 class="tenant-card"
+                [title]="
+                  'Documents for ' +
+                  (getTenantFormGroup(i).get('name')?.value ||
+                    'Tenant ' + (i + 1))
+                "
               >
                 <div class="document-upload-section">
                   <ng-file-upload
@@ -281,7 +279,7 @@
           title="Cancel and go back"
           (click)="onCancel()"
         >
-          <ng-icon name="cancel" style="color: #666 !important" />
+          <ng-icon name="cancel" class="icon-secondary" />
           Cancel
         </button>
 
@@ -292,7 +290,7 @@
           [disabled]="tenantForm.invalid || isSaving"
         >
           <ng-icon
-            style="color: white !important"
+            class="icon-white"
             [name]="isSaving ? 'hourglass_empty' : 'save'"
           />
           {{
