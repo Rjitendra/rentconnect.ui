@@ -8,17 +8,17 @@ import {
   viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatTooltipModule } from '@angular/material/tooltip';
+// Removed direct Material imports - using shared library instead
 import { Observable, of } from 'rxjs';
 
 import {
   NgButton,
+  NgDialogService,
+  NgDivider,
   NgIconComponent,
   NgMatTable,
+  NgMenuComponent,
+  NgMenuTriggerDirective,
   NgSelectComponent,
   TableColumn,
   TableOptions,
@@ -35,20 +35,34 @@ import { PropertyService } from '../../../../service/property.service';
 import { PropertyAdd } from '../property-add/property-add';
 import { PropertyDetail } from '../property-detail/property-detail';
 
+// Type for transformed property with additional display fields
+type TransformedProperty = IProperty & {
+  fullAddress: string;
+  mappedTenants: string;
+  documentsCount: string;
+};
+
+// Type for tenant children/family members
+interface TenantChild {
+  id: number;
+  name: string;
+  age: number;
+  relation: string;
+}
+
 @Component({
-  selector: 'ng-property-dashboard',
+  selector: 'app-property-dashboard',
   imports: [
     CommonModule,
     FormsModule,
-    MatMenuModule,
-    MatDialogModule,
-    MatTooltipModule,
-    MatChipsModule,
-    MatDividerModule,
     NgButton,
     NgIconComponent,
     NgSelectComponent,
     NgMatTable,
+    NgMenuComponent,
+    NgDivider,
+    NgMenuTriggerDirective,
+
     PropertyAdd,
     PropertyDetail,
   ],
@@ -88,13 +102,13 @@ export class PropertyDashboard implements OnInit {
   };
 
   // Property Data (includes both mock and API data)
-  properties: IProperty[] = [];
+  properties: TransformedProperty[] = [];
 
   // Loading and error states
   isLoading = false;
   loadingError: string | null = null;
 
-  properties$!: Observable<IProperty[]>;
+  properties$!: Observable<TransformedProperty[]>;
   // Dialog and menu state
   showUploadModal = false;
   showDownloadModal = false;
@@ -282,9 +296,13 @@ export class PropertyDashboard implements OnInit {
     },
   ];
 
-  private dialog = inject(MatDialog);
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+  private dialogService = inject(NgDialogService);
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   private userService = inject(OauthService);
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   private propertyService = inject(PropertyService);
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   private $cdr = inject(ChangeDetectorRef);
 
   constructor() {
@@ -385,7 +403,7 @@ export class PropertyDashboard implements OnInit {
     return property.tenants || [];
   }
 
-  getTenantChildren(tenant: ITenant): unknown[] {
+  getTenantChildren(tenant: ITenant): TenantChild[] {
     // Return family members (non-primary tenants) from the same tenant group
     const familyMembers = this.mockTenants.filter(
       (t: ITenant) =>
@@ -395,12 +413,12 @@ export class PropertyDashboard implements OnInit {
     );
 
     return familyMembers.map((member: ITenant) => ({
-      id: member.id,
-      name: member.name,
-      age: member.age,
+      id: member.id || 0,
+      name: member.name || 'Unknown',
+      age: member.age || 0,
       relation:
         member.age && member.age < 18
-          ? member.name.includes('Sarah')
+          ? member.name?.includes('Sarah')
             ? 'Daughter'
             : 'Son'
           : 'Spouse',
@@ -437,8 +455,9 @@ export class PropertyDashboard implements OnInit {
     this.selectedPropertyForDownload = null;
   }
 
-  onFileSelected(event: any): void {
-    const file = event.target.files?.[0];
+  onFileSelected(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const file = target.files?.[0];
     if (file && this.selectedPropertyForUpload) {
       // Validate file size (10MB limit)
       const maxSize = 10 * 1024 * 1024; // 10MB in bytes
@@ -635,7 +654,7 @@ export class PropertyDashboard implements OnInit {
         return 'LISTED';
     }
   }
-  private exportPropertiesToCSV(properties: IProperty[]): void {
+  private exportPropertiesToCSV(properties: TransformedProperty[]): void {
     const headers = [
       'ID',
       'Property Name',
@@ -806,13 +825,12 @@ export class PropertyDashboard implements OnInit {
     });
   }
 
-  private transformPropertyForTable(property: IProperty): IProperty {
+  private transformPropertyForTable(property: IProperty): TransformedProperty {
     return {
       ...property,
       fullAddress: this.getFullAddress(property),
       mappedTenants: this.getMappedTenantsDisplay(property.tenants || []),
       documentsCount: this.getDocumentsDisplay(property.documents || []),
-
       monthlyRent: property.monthlyRent ? 10 : 0,
       createdOn: property.createdOn
         ? new Date(property.createdOn).toLocaleDateString()

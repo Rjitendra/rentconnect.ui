@@ -1,17 +1,15 @@
 import { Component, input } from '@angular/core';
 
 import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
+// Import shared library components
+import { NgIconComponent } from '../ng-icon/ng-icon';
 
 @Component({
   selector: 'ng-card',
   standalone: true,
-  imports: [
-    MatCardModule,
-    MatIconModule
-],
+  imports: [MatCardModule, NgIconComponent],
   templateUrl: './ng-card.component.html',
-  styleUrl: './ng-card.component.scss'
+  styleUrl: './ng-card.component.scss',
 })
 export class NgCardComponent {
   readonly title = input<string>();

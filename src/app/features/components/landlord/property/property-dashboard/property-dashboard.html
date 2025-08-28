@@ -151,7 +151,7 @@
                 type="file"
                 id="fileInput"
                 accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                style="display: none"
+                class="hidden-input"
                 (change)="onFileSelected($event)"
               />
               <div class="upload-content" (click)="triggerFileInput()">
@@ -320,11 +320,7 @@
     class="property-link"
     (click)="onViewProperty(property)"
   >
-    <ng-icon
-      name="home"
-      class="property-icon"
-      style="color: #3949ab !important"
-    />
+    <ng-icon name="home" class="property-icon icon-primary" />
     {{ property.title }}
   </a>
 </ng-template>
@@ -337,11 +333,7 @@
       @for (tenant of getTenantsList(property) | slice: 0 : 1; track tenant) {
         <div class="tenant-profile">
           <div class="tenant-avatar">
-            <ng-icon
-              name="person"
-              class="tenant-icon"
-              style="color: #6d4c41 !important"
-            />
+            <ng-icon name="person" class="tenant-icon icon-secondary" />
           </div>
           <div class="tenant-info">
             <span class="tenant-name">{{ tenant.name }}</span>
@@ -357,10 +349,9 @@
       <!-- View all button -->
       <ng-icon
         name="visibility"
-        matTooltip="View All Tenants"
-        class="tenant-view-icon"
-        style="color: #1976d2 !important; cursor: pointer"
-        [matMenuTriggerFor]="tenantMenu"
+        tooltip="View All Tenants"
+        class="tenant-view-icon icon-info icon-clickable"
+        [ngMenuTriggerFor]="tenantMenu"
       />
     } @else {
       <!-- No tenants -->
@@ -371,11 +362,7 @@
     }
 
     <!-- Tenant Menu -->
-    <mat-menu
-      #tenantMenu="matMenu"
-      class="tenant-menu"
-      panelClass="tenant-menu-panel"
-    >
+    <ng-menu #tenantMenu panelClass="tenant-menu-panel">
       <div class="tenant-menu-header">
         <h4>Tenants for {{ property.title }}</h4>
       </div>
@@ -425,11 +412,11 @@
                 </div>
               }
             </div>
-            <mat-divider />
+            <ng-divider />
           </div>
         }
       </div>
-    </mat-menu>
+    </ng-menu>
   </div>
 </ng-template>
 
@@ -438,11 +425,7 @@
   <div class="documents-cell">
     <div class="document-actions">
       <div class="document-info-wrapper">
-        <ng-icon
-          name="description"
-          class="document-main-icon"
-          style="color: #f4511e !important"
-        />
+        <ng-icon name="description" class="document-main-icon icon-warning" />
         <span class="document-count-text"
           >{{ getPropertyDocuments(property).length }} docs</span
         >
@@ -452,9 +435,8 @@
       @if (getPropertyDocuments(property).length > 0) {
         <ng-icon
           name="download"
-          matTooltip="Download Documents"
-          class="document-download-icon"
-          style="color: #8e24aa !important; cursor: pointer"
+          tooltip="Download Documents"
+          class="document-download-icon icon-accent icon-clickable"
           (click)="handleDownloadClick(property)"
         />
       }
@@ -462,9 +444,8 @@
       <!-- Upload Documents -->
       <ng-icon
         name="upload"
-        matTooltip="Upload Document"
-        class="document-upload-icon"
-        style="color: #43a047 !important; cursor: pointer"
+        tooltip="Upload Document"
+        class="document-upload-icon icon-success icon-clickable"
         (click)="handleUploadClick(property)"
       />
     </div>
@@ -478,8 +459,7 @@
     [ngClass]="'status-' + getSimplifiedStatus(property.status).toLowerCase()"
   >
     <ng-icon
-      class="status-icon"
-      style="color: #00acc1 !important"
+      class="status-icon icon-teal"
       [name]="getStatusIcon(property.status)"
     />
     {{ getSimplifiedStatus(property.status) }}
@@ -491,20 +471,20 @@
   <div class="action-container">
     <ng-icon
       name="visibility"
-      matTooltip="View Details"
-      style="color: #673ab7 !important; cursor: pointer"
+      tooltip="View Details"
+      class="icon-purple icon-clickable"
       (click)="onViewProperty(property)"
     />
     <ng-icon
       name="edit"
-      matTooltip="Edit Property"
-      style="color: #ff9800 !important; cursor: pointer"
+      tooltip="Edit Property"
+      class="icon-orange icon-clickable"
       (click)="onEditProperty(property)"
     />
     <ng-icon
       name="delete"
-      matTooltip="Delete Property"
-      style="color: #e53935 !important; cursor: pointer"
+      tooltip="Delete Property"
+      class="icon-error icon-clickable"
       (click)="onDeleteProperty(property)"
     />
   </div>

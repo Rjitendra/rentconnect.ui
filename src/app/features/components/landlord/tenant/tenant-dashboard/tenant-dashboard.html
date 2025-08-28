@@ -1,3 +1,4 @@
+<!-- eslint-disable @angular-eslint/template/no-inline-styles -->
 <div class="tenant-dashboard">
   <!-- Page Header -->
   <div class="dashboard-header">
@@ -56,281 +57,123 @@
           </div>
         </div>
       </div>
-      <!-- Tenant Table -->
+      <!-- Tenant Table with NgMatTable -->
       <div class="table-section">
-        <div class="table-container">
-          <table
-            mat-table
-            multiTemplateDataRows
-            class="tenant-table mat-elevation-z8"
-            [dataSource]="primaryTenants"
+        <ng-mat-table
+          [columns]="tableColumns"
+          [data]="primaryTenants"
+          [options]="tableOptions"
+          [expandableRows]="true"
+          [expandedRowTemplate]="expandedRowTemplate"
+          [expandKey]="'id'"
+          [isPaginator]="true"
+          (rowClick)="onRowClick($event)"
+          (rowExpand)="onRowExpand($event)"
+        />
+
+        <!-- Template for expanded row content -->
+        <ng-template #expandedRowTemplate let-tenant>
+          <div
+            class="expanded-content"
+            style="
+              background: #ffeb3b;
+              padding: 20px;
+              margin: 10px;
+              border: 2px solid #f57c00;
+            "
           >
-            <!-- Expand Column -->
-            <ng-container matColumnDef="expand">
-              <th *matHeaderCellDef mat-header-cell aria-label="row actions">
-                &nbsp;
-              </th>
-              <td *matCellDef="let tenant" mat-cell>
-                <button
-                  mat-icon-button
-                  aria-label="expand row"
-                  class="expand-toggle-button"
-                  [class.expand-toggle-button-expanded]="isExpanded(tenant)"
-                  (click)="toggleExpansion(tenant); $event.stopPropagation()"
-                >
-                  <mat-icon>keyboard_arrow_down</mat-icon>
-                </button>
-              </td>
-            </ng-container>
-            <!-- ID Column -->
-            <ng-container matColumnDef="id">
-              <th *matHeaderCellDef mat-header-cell>ID</th>
-              <td *matCellDef="let tenant" mat-cell>{{ tenant.id }}</td>
-            </ng-container>
-            <!-- Primary Tenant Column -->
-            <ng-container matColumnDef="name">
-              <th *matHeaderCellDef mat-header-cell>Primary Tenant</th>
-              <td *matCellDef="let tenant" mat-cell>
-                <div class="tenant-name-cell">
-                  <div class="tenant-avatar">
-                    <mat-icon style="color: #ffc107">star</mat-icon>
-                  </div>
-                  <div class="tenant-info">
-                    <span class="name">{{ tenant.name }}</span>
-                    <span class="email">{{ tenant.email }}</span>
-                    @if (getGroupMemberCount(tenant.tenantGroup) > 1) {
-                      <span class="group-info">
-                        + {{ getGroupMemberCount(tenant.tenantGroup) - 1 }} more
-                        tenant{{
-                          getGroupMemberCount(tenant.tenantGroup) > 2 ? "s" : ""
-                        }}
-                      </span>
-                    }
-                  </div>
-                </div>
-              </td>
-            </ng-container>
-            <!-- Property Column -->
-            <ng-container matColumnDef="property">
-              <th *matHeaderCellDef mat-header-cell>Property</th>
-              <td *matCellDef="let tenant" mat-cell>
-                <div class="property-cell">
-                  <mat-icon style="color: #4caf50">home</mat-icon>
-                  <span>{{ getPropertyName(tenant.propertyId) }}</span>
-                </div>
-              </td>
-            </ng-container>
-            <!-- Phone Column -->
-            <ng-container matColumnDef="phone">
-              <th *matHeaderCellDef mat-header-cell>Phone</th>
-              <td *matCellDef="let tenant" mat-cell>
-                {{ tenant.phoneNumber }}
-              </td>
-            </ng-container>
-            <!-- Rent Amount Column -->
-            <ng-container matColumnDef="rentAmount">
-              <th *matHeaderCellDef mat-header-cell>Rent Amount</th>
-              <td *matCellDef="let tenant" mat-cell>{{ tenant.rentAmount }}</td>
-            </ng-container>
-            <!-- Tenants Count Column -->
-            <ng-container matColumnDef="tenantCount">
-              <th *matHeaderCellDef mat-header-cell>Tenants</th>
-              <td *matCellDef="let tenant" mat-cell>
-                {{ getGroupMemberCount(tenant.tenantGroup) }}
-              </td>
-            </ng-container>
-            <!-- Status Column -->
-            <ng-container matColumnDef="status">
-              <th *matHeaderCellDef mat-header-cell>Status</th>
-              <td *matCellDef="let tenant" mat-cell>
-                <span class="status-chip" [ngClass]="getStatusClass(tenant)">
-                  <mat-icon style="font-size: 14px">{{
-                    getStatusIcon(tenant)
-                  }}</mat-icon>
-                  {{ getStatusText(tenant) }}
-                </span>
-              </td>
-            </ng-container>
-            <!-- Actions Column -->
-            <ng-container matColumnDef="actions">
-              <th *matHeaderCellDef mat-header-cell>Actions</th>
-              <td *matCellDef="let tenant" mat-cell>
-                <div class="actions-cell">
-                  <mat-icon
-                    matTooltip="View Details"
-                    style="color: #2196f3; cursor: pointer"
-                    (click)="onViewTenant(tenant)"
-                  >
-                    visibility
-                  </mat-icon>
-                  <mat-icon
-                    matTooltip="Edit Tenant"
-                    style="color: #ff9800; cursor: pointer"
-                    (click)="onEditTenant(tenant)"
-                  >
-                    edit
-                  </mat-icon>
-                  <mat-icon
-                    matTooltip="Create Agreement"
-                    style="color: #9c27b0; cursor: pointer"
-                    (click)="onCreateAgreement(tenant)"
-                  >
-                    description
-                  </mat-icon>
-                  @if (tenant.needsOnboarding) {
-                    <mat-icon
-                      matTooltip="Send Onboarding Email"
-                      style="color: #4caf50; cursor: pointer"
-                      (click)="onSendOnboardingEmail(tenant)"
-                    >
-                      email
-                    </mat-icon>
-                  }
-                  <mat-icon
-                    matTooltip="Delete Tenant"
-                    style="color: #f44336; cursor: pointer"
-                    (click)="onDeleteTenant(tenant)"
-                  >
-                    delete
-                  </mat-icon>
-                </div>
-              </td>
-            </ng-container>
-            <!-- Expanded Detail Column -->
-            <ng-container matColumnDef="expandedDetail">
-              <td
-                *matCellDef="let tenant"
-                mat-cell
-                [attr.colspan]="displayedColumnsWithExpand.length"
-              >
-                <div
-                  class="tenant-detail-wrapper"
-                  [class.tenant-detail-wrapper-expanded]="isExpanded(tenant)"
-                >
-                  <div class="tenant-detail">
-                    <div class="expanded-header">
-                      <h3>
-                        <mat-icon style="color: #2196f3">people</mat-icon>
-                        All Tenants in {{ getPropertyName(tenant.propertyId) }}
-                        <span class="tenant-count"
-                          >({{
-                            getGroupMemberCount(tenant.tenantGroup)
-                          }}
-                          tenants)</span
-                        >
-                      </h3>
+            <h4 style="color: #e65100">
+              <ng-icon name="people" style="color: #2196f3" />
+              🔄 EXPANDED ROW - Tenant Group Details ({{ tenant.tenantGroup }})
+            </h4>
+            <div
+              style="
+                background: #4caf50;
+                color: white;
+                padding: 10px;
+                margin: 10px 0;
+              "
+            >
+              ✅ EXPANSION IS WORKING! Tenant ID: {{ tenant.id }}
+            </div>
+
+            <div class="tenant-grid">
+              @for (
+                member of getGroupMembers(tenant.tenantGroup);
+                track member.id
+              ) {
+                <div class="tenant-card">
+                  <div class="tenant-header">
+                    <div class="tenant-avatar">
+                      <ng-icon
+                        [name]="member.isPrimary ? 'star' : 'person'"
+                        [style.color]="member.isPrimary ? '#ffc107' : '#666'"
+                      />
                     </div>
-                    <div class="tenant-cards">
-                      @for (
-                        member of getGroupMembers(tenant.tenantGroup);
-                        track member
-                      ) {
-                        <div
-                          class="tenant-card"
-                          [class.primary-tenant]="member.isPrimary"
-                        >
-                          <div class="tenant-card-header">
-                            <div class="tenant-info">
-                              <div class="tenant-avatar">
-                                <mat-icon
-                                  [style.color]="
-                                    member.isPrimary ? '#ffc107' : '#2196f3'
-                                  "
-                                >
-                                  {{ member.isPrimary ? "star" : "person" }}
-                                </mat-icon>
-                              </div>
-                              <div class="tenant-details">
-                                <h4>
-                                  {{ member.name }}
-                                  @if (member.isPrimary) {
-                                    <span class="primary-badge">Primary</span>
-                                  }
-                                </h4>
-                                <p>{{ member.email }}</p>
-                                <p>{{ member.phoneNumber }}</p>
-                                <p>{{ member.occupation }}</p>
-                              </div>
-                            </div>
-                            <div class="tenant-status">
-                              <span
-                                class="status-chip"
-                                [ngClass]="getStatusClass(member)"
-                              >
-                                <mat-icon style="font-size: 14px">{{
-                                  getStatusIcon(member)
-                                }}</mat-icon>
-                                {{ getStatusText(member) }}
-                              </span>
-                            </div>
-                          </div>
-                          <div class="tenant-card-actions">
-                            <mat-icon
-                              matTooltip="View Details"
-                              style="color: #2196f3; cursor: pointer"
-                              (click)="onViewTenant(member)"
-                            >
-                              visibility
-                            </mat-icon>
-                            <mat-icon
-                              matTooltip="Edit Tenant"
-                              style="color: #ff9800; cursor: pointer"
-                              (click)="onEditTenant(member)"
-                            >
-                              edit
-                            </mat-icon>
-                            <mat-icon
-                              matTooltip="Create Agreement"
-                              style="color: #9c27b0; cursor: pointer"
-                              (click)="onCreateAgreement(member)"
-                            >
-                              description
-                            </mat-icon>
-                            @if (member.needsOnboarding) {
-                              <mat-icon
-                                matTooltip="Send Onboarding Email"
-                                style="color: #4caf50; cursor: pointer"
-                                (click)="onSendOnboardingEmail(member)"
-                              >
-                                email
-                              </mat-icon>
-                            }
-                            <mat-icon
-                              matTooltip="Delete Tenant"
-                              style="color: #f44336; cursor: pointer"
-                              (click)="onDeleteTenant(member)"
-                            >
-                              delete
-                            </mat-icon>
-                          </div>
-                        </div>
+                    <div class="tenant-name">
+                      <span>{{ member.name }}</span>
+                      @if (member.isPrimary) {
+                        <span class="primary-badge">Primary</span>
                       }
                     </div>
                   </div>
+
+                  <div class="tenant-details">
+                    <div class="detail-row">
+                      <ng-icon
+                        style="font-size: 14px"
+                        [name]="getStatusIcon(member)"
+                      />
+                      <span [class]="getStatusClass(member)">{{
+                        getStatusText(member)
+                      }}</span>
+                    </div>
+
+                    <div class="detail-row">
+                      <span class="label">Email:</span>
+                      <span>{{ member.email }}</span>
+                    </div>
+
+                    <div class="detail-row">
+                      <span class="label">Phone:</span>
+                      <span>{{ member.phoneNumber }}</span>
+                    </div>
+
+                    <div class="detail-row">
+                      <span class="label">Rent:</span>
+                      <span>₹{{ member.rentAmount | number }}</span>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="tenant-actions">
+                      <ng-button
+                        buttonType="button"
+                        type="icon"
+                        icon="description"
+                        tooltip="Create Agreement"
+                        (buttonClick)="onCreateAgreement(member)"
+                      />
+                      <ng-button
+                        buttonType="button"
+                        type="icon"
+                        icon="edit"
+                        tooltip="Edit"
+                        (buttonClick)="onEditTenant(member)"
+                      />
+                      <ng-button
+                        buttonType="button"
+                        type="icon"
+                        icon="delete"
+                        tooltip="Delete"
+                        (buttonClick)="onDeleteTenant(member)"
+                      />
+                    </div>
+                  </div>
                 </div>
-              </td>
-            </ng-container>
-            <!-- Header Row -->
-            <tr
-              *matHeaderRowDef="displayedColumnsWithExpand"
-              mat-header-row
-            ></tr>
-            <!-- Data Rows -->
-            <tr
-              *matRowDef="let tenant; columns: displayedColumnsWithExpand"
-              mat-row
-              class="tenant-element-row"
-              [class.tenant-expanded-row]="isExpanded(tenant)"
-              (click)="toggleExpansion(tenant)"
-            ></tr>
-            <!-- Expanded Detail Rows -->
-            <tr
-              *matRowDef="let row; columns: ['expandedDetail']"
-              mat-row
-              class="tenant-detail-row"
-            ></tr>
-          </table>
-        </div>
+              }
+            </div>
+          </div>
+        </ng-template>
       </div>
     </div>
   }

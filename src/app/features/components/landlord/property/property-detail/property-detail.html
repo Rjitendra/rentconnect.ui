@@ -13,10 +13,10 @@
         <h1>{{ property?.title || "Property Details" }}</h1>
         <div class="header-meta">
           <span class="property-id">ID: #{{ property?.id }}</span>
-          <mat-chip [ngClass]="getStatusClass()">
+          <div class="status-chip" [ngClass]="getStatusClass()">
             <ng-icon [name]="getStatusIcon()" />
             {{ property?.status }}
-          </mat-chip>
+          </div>
         </div>
       </div>
       <div class="header-actions">
@@ -42,7 +42,7 @@
           icon="more_vert"
           class="action-btn"
           tooltip="More Options"
-          [matMenuTriggerFor]="moreMenu"
+          [ngMenuTriggerFor]="moreMenu"
         />
         />
       </div>
@@ -144,7 +144,7 @@
           </div>
           @if (property?.isNegotiable) {
             <div class="negotiable">
-              <mat-chip color="accent">Negotiable</mat-chip>
+              <span class="negotiable-chip">Negotiable</span>
             </div>
           }
         </div>
@@ -327,22 +327,22 @@
 </div>
 
 <!-- More Options Menu -->
-<mat-menu #moreMenu="matMenu">
-  <button mat-menu-item (click)="markAsFavorite()">
+<ng-menu #moreMenu="ngMenu">
+  <button ng-menu-item (click)="markAsFavorite()">
     <ng-icon name="favorite_border" />
     <span>Add to Favorites</span>
   </button>
-  <button mat-menu-item (click)="reportProperty()">
+  <button ng-menu-item (click)="reportProperty()">
     <ng-icon name="report" />
     <span>Report Property</span>
   </button>
-  <button mat-menu-item (click)="downloadDetails()">
+  <button ng-menu-item (click)="downloadDetails()">
     <ng-icon name="download" />
     <span>Download Details</span>
   </button>
-  <mat-divider />
-  <button mat-menu-item class="danger-item" (click)="deleteProperty()">
+  <ng-divider />
+  <button ng-menu-item class="danger-item" (click)="deleteProperty()">
     <ng-icon name="delete" />
     <span>Delete Property</span>
   </button>
-</mat-menu>
+</ng-menu>

@@ -1,17 +1,18 @@
-import { Component, OnInit, inject } from '@angular/core';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatTableModule } from '@angular/material/table';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
+import { Component, OnInit, inject } from '@angular/core';
 
-// Shared library imports
 import {
+  AlertService,
+  NgButton,
   NgIconComponent,
+  NgMatTable,
   SelectOption,
-  AlertService
+  TableColumn,
+  TableOptions,
 } from '../../../../../../../projects/shared/src/public-api';
-
 // Models and enums
 import { ITenant } from '../../../../models/tenant';
 import { TenantService } from '../../../../service/tenant.service';
@@ -24,33 +25,79 @@ type ViewType = 'table' | 'add' | 'edit' | 'detail';
   standalone: true,
   imports: [
     CommonModule,
-    MatTooltipModule,
-    MatTableModule,
-    MatIconModule,
-    MatButtonModule,
     NgIconComponent,
-    TenantAddComponent
+    NgMatTable,
+    NgButton,
+    TenantAddComponent,
   ],
   templateUrl: './tenant-dashboard.html',
-  styleUrl: './tenant-dashboard.scss'
+  styleUrl: './tenant-dashboard.scss',
 })
 export class TenantDashboard implements OnInit {
-  private alertService = inject(AlertService);
-  private tenantService = inject(TenantService);
-
   // View management
   currentView: ViewType = 'table';
   selectedTenant: ITenant | null = null;
-  
+
   // Data
   tenants: ITenant[] = [];
   primaryTenants: ITenant[] = []; // Only primary tenants for table display
   tenantGroups: Map<number, ITenant[]> = new Map(); // Grouped tenants by tenantGroup
-  
-  // Table configuration for Material Table
-  displayedColumns = ['id', 'name', 'property', 'phone', 'rentAmount', 'tenantCount', 'status', 'actions'];
-  displayedColumnsWithExpand = ['expand', ...this.displayedColumns];
-  expandedElement: ITenant | null = null;
+
+  // NgMatTable configuration
+  tableColumns: TableColumn[] = [
+    {
+      key: 'id',
+      label: 'ID',
+      width: '80px',
+      sortable: true,
+    },
+    {
+      key: 'name',
+      label: 'Primary Tenant',
+      sortable: true,
+    },
+    {
+      key: 'propertyName',
+      label: 'Property',
+      sortable: true,
+    },
+    {
+      key: 'phoneNumber',
+      label: 'Phone',
+      width: '150px',
+    },
+    {
+      key: 'rentAmount',
+      label: 'Rent Amount',
+      width: '120px',
+      align: 'right',
+    },
+    {
+      key: 'tenantCount',
+      label: 'Tenants',
+      width: '100px',
+      align: 'center',
+    },
+    {
+      key: 'statusDisplay',
+      label: 'Status',
+      width: '120px',
+    },
+    {
+      key: 'actions',
+      label: 'Actions',
+      width: '200px',
+      sortable: false,
+    },
+  ];
+
+  tableOptions: TableOptions = {
+    sortable: true,
+    responsive: true,
+    stickyHeader: true,
+    pageSize: 10,
+    pageSizeOptions: [5, 10, 20],
+  };
 
   // Select options for tenant-add component
   propertyOptions: SelectOption[] = [
@@ -61,11 +108,11 @@ export class TenantDashboard implements OnInit {
     { value: 5, label: '3BHK Villa - Koramangala, Bangalore' },
     { value: 6, label: '4BHK House - Satellite, Ahmedabad' },
     { value: 7, label: '1BHK Apartment - Bandra West, Mumbai' },
-    { value: 8, label: '2BHK Apartment - Jayanagar, Bangalore' }
+    { value: 8, label: '2BHK Apartment - Jayanagar, Bangalore' },
   ];
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
+  private alertService = inject(AlertService);
+  private tenantService = inject(TenantService);
 
   constructor() {}
 
@@ -73,61 +120,24 @@ export class TenantDashboard implements OnInit {
     this.loadTenants();
   }
 
-  private loadTenants() {
-    this.tenantService.getAllTenants().subscribe({
-      next: (tenants: ITenant[]) => {
-        this.tenants = tenants;
-        this.processTenantData();
-      },
-      error: (error: any) => {
-        this.showError('Failed to load tenants');
-        console.error('Error loading tenants:', error);
-      }
-    });
-  }
-
-  private processTenantData() {
-    // Clear existing data
-    this.tenantGroups.clear();
-    this.primaryTenants = [];
-
-    // Group tenants by tenantGroup
-    this.tenants.forEach(tenant => {
-      const groupId = tenant.tenantGroup;
-      if (!this.tenantGroups.has(groupId)) {
-        this.tenantGroups.set(groupId, []);
-      }
-      this.tenantGroups.get(groupId)!.push(tenant);
-    });
-
-    // Extract primary tenants for table display
-    this.tenantGroups.forEach(group => {
-      const primaryTenant = group.find(t => t.isPrimary);
-      if (primaryTenant) {
-        // Add group count to primary tenant for display
-        (primaryTenant as any).groupCount = group.length;
-        (primaryTenant as any).groupMembers = group;
-        this.primaryTenants.push(primaryTenant);
-      }
-    });
-  }
-
   // Statistics methods
   getActiveTenants(): number {
-    return this.tenants.filter(t => t.isActive).length;
+    return this.tenants.filter((t) => t.isActive).length;
   }
 
   getPendingOnboarding(): number {
-    return this.tenants.filter(t => t.needsOnboarding).length;
+    return this.tenants.filter((t) => t.needsOnboarding).length;
   }
 
   getTotalRentAmount(): number {
-    return this.tenants.filter(t => t.isActive).reduce((sum, t) => sum + t.rentAmount, 0);
+    return this.tenants
+      .filter((t) => t.isActive)
+      .reduce((sum, t) => sum + t.rentAmount, 0);
   }
 
   // Table helper methods
   getPropertyName(propertyId: number): string {
-    const property = this.propertyOptions.find(p => p.value === propertyId);
+    const property = this.propertyOptions.find((p) => p.value === propertyId);
     return property ? property.label : 'Unknown Property';
   }
 
@@ -152,15 +162,16 @@ export class TenantDashboard implements OnInit {
     return 'Active';
   }
 
-  // Row expansion methods (Simple Material Table approach)
-  /** Checks whether an element is expanded. */
-  isExpanded(tenant: ITenant): boolean {
-    return this.expandedElement === tenant;
+  // NgMatTable event handlers
+  onRowClick(tenant: any): void {
+    console.log('Row clicked:', tenant);
+    console.log('Tenant ID:', tenant.id);
+    console.log('Row click event triggered');
   }
 
-  /** Toggles the expanded state of an element. */
-  toggleExpansion(tenant: ITenant): void {
-    this.expandedElement = this.isExpanded(tenant) ? null : tenant;
+  onRowExpand(tenant: any): void {
+    console.log('Row expand event triggered for tenant:', tenant);
+    console.log('Expand key (ID):', tenant.id);
   }
 
   // Helper methods for expanded content
@@ -195,19 +206,28 @@ export class TenantDashboard implements OnInit {
   // Action methods
   onCreateAgreement(tenant: ITenant) {
     this.showInfo(`Creating agreement for ${tenant.name}...`);
-    
+
     const agreementRequest = {
       tenantId: tenant.id!,
-      startDate: typeof tenant.tenancyStartDate === 'string' ? tenant.tenancyStartDate : tenant.tenancyStartDate.toString(),
-      endDate: tenant.tenancyEndDate ? 
-        (typeof tenant.tenancyEndDate === 'string' ? tenant.tenancyEndDate : tenant.tenancyEndDate.toString()) :
-        new Date(new Date(tenant.tenancyStartDate).setFullYear(new Date(tenant.tenancyStartDate).getFullYear() + 1)).toISOString(),
+      startDate:
+        typeof tenant.tenancyStartDate === 'string'
+          ? tenant.tenancyStartDate
+          : tenant.tenancyStartDate.toString(),
+      endDate: tenant.tenancyEndDate
+        ? typeof tenant.tenancyEndDate === 'string'
+          ? tenant.tenancyEndDate
+          : tenant.tenancyEndDate.toString()
+        : new Date(
+            new Date(tenant.tenancyStartDate).setFullYear(
+              new Date(tenant.tenancyStartDate).getFullYear() + 1,
+            ),
+          ).toISOString(),
       rentAmount: tenant.rentAmount,
-      securityDeposit: tenant.securityDeposit
+      securityDeposit: tenant.securityDeposit,
     };
 
     this.tenantService.createAgreement(agreementRequest).subscribe({
-      next: (response: any) => {
+      next: (response: { success: boolean; message: string }) => {
         if (response.success) {
           this.showSuccess(response.message);
           this.loadTenants(); // Reload to get updated tenant data
@@ -215,23 +235,23 @@ export class TenantDashboard implements OnInit {
           this.showError(response.message);
         }
       },
-      error: (error: any) => {
+      error: (error: unknown) => {
         this.showError('Failed to create agreement');
         console.error('Error creating agreement:', error);
-      }
+      },
     });
   }
 
   onSendOnboardingEmail(tenant: ITenant) {
     this.showInfo(`Sending onboarding email to ${tenant.email}...`);
-    
+
     const emailRequest = {
       tenantId: tenant.id!,
-      templateType: 'welcome' as const
+      templateType: 'welcome' as const,
     };
 
     this.tenantService.sendOnboardingEmail(emailRequest).subscribe({
-      next: (response: any) => {
+      next: (response: { success: boolean; message: string }) => {
         if (response.success) {
           this.showSuccess(response.message);
           this.loadTenants(); // Reload to get updated tenant data
@@ -239,31 +259,34 @@ export class TenantDashboard implements OnInit {
           this.showError(response.message);
         }
       },
-      error: (error: any) => {
+      error: (error: unknown) => {
         this.showError('Failed to send onboarding email');
         console.error('Error sending onboarding email:', error);
-      }
+      },
     });
   }
 
   onDeleteTenant(tenant: ITenant) {
     if (confirm(`Are you sure you want to delete tenant ${tenant.name}?`)) {
       this.tenantService.deleteTenant(tenant.id!).subscribe({
-        next: (response: any) => {
+        next: (response: { success: boolean; message: string }) => {
           if (response.success) {
             this.showSuccess(response.message);
             this.loadTenants(); // Reload the tenant list
-            if (this.currentView === 'detail' && this.selectedTenant?.id === tenant.id) {
+            if (
+              this.currentView === 'detail' &&
+              this.selectedTenant?.id === tenant.id
+            ) {
               this.showTable();
             }
           } else {
             this.showError(response.message);
           }
         },
-        error: (error: any) => {
+        error: (error: unknown) => {
           this.showError('Failed to delete tenant');
           console.error('Error deleting tenant:', error);
-        }
+        },
       });
     }
   }
@@ -282,21 +305,66 @@ export class TenantDashboard implements OnInit {
   private showSuccess(message: string) {
     this.alertService.success({
       errors: [{ message, errorType: 'success' }],
-      timeout: 3000
+      timeout: 3000,
     });
   }
 
   private showError(message: string) {
     this.alertService.error({
       errors: [{ message, errorType: 'error' }],
-      timeout: 5000
+      timeout: 5000,
     });
   }
 
   private showInfo(message: string) {
     this.alertService.info({
       errors: [{ message, errorType: 'info' }],
-      timeout: 3000
+      timeout: 3000,
+    });
+  }
+  private processTenantData() {
+    // Clear existing data
+    this.tenantGroups.clear();
+    this.primaryTenants = [];
+
+    // Group tenants by tenantGroup
+    this.tenants.forEach((tenant) => {
+      const groupId = tenant.tenantGroup;
+      if (!this.tenantGroups.has(groupId)) {
+        this.tenantGroups.set(groupId, []);
+      }
+      this.tenantGroups.get(groupId)!.push(tenant);
+    });
+
+    // Extract primary tenants for table display and prepare for NgMatTable
+    this.tenantGroups.forEach((group) => {
+      const primaryTenant = group.find((t) => t.isPrimary);
+      if (primaryTenant) {
+        // Enhance tenant data for table display
+        const enhancedTenant = {
+          ...primaryTenant,
+          groupCount: group.length,
+          groupMembers: group,
+          propertyName: this.getPropertyName(primaryTenant.propertyId),
+          tenantCount: group.length,
+          statusDisplay: this.getStatusText(primaryTenant),
+          statusClass: this.getStatusClass(primaryTenant),
+          statusIcon: this.getStatusIcon(primaryTenant),
+        };
+        this.primaryTenants.push(enhancedTenant as ITenant);
+      }
+    });
+  }
+  private loadTenants() {
+    this.tenantService.getAllTenants().subscribe({
+      next: (tenants: ITenant[]) => {
+        this.tenants = tenants;
+        this.processTenantData();
+      },
+      error: (error: unknown) => {
+        this.showError('Failed to load tenants');
+        console.error('Error loading tenants:', error);
+      },
     });
   }
 }

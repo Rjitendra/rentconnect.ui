@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { Observable, of, delay, throwError } from 'rxjs';
-import { ITenant, TenantChildren } from '../models/tenant';
-import { IDocument } from '../models/document';
+import { Observable, of } from 'rxjs';
+
 import { DocumentCategory } from '../enums/view.enum';
+import { IDocument } from '../models/document';
+import { ITenant, TenantChildren } from '../models/tenant';
 
 export interface TenantSaveResponse {
   success: boolean;
@@ -33,7 +34,7 @@ export interface AgreementCreateRequest {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TenantService {
   private tenants: ITenant[] = [
@@ -99,7 +100,7 @@ export class TenantService {
           size: 1024000,
           uploadedOn: '2023-12-15T10:00:00Z',
           isVerified: true,
-          verifiedBy: 'System Admin'
+          verifiedBy: 'System Admin',
         },
         {
           ownerId: 1,
@@ -111,8 +112,8 @@ export class TenantService {
           size: 512000,
           uploadedOn: '2023-12-15T10:05:00Z',
           isVerified: true,
-          verifiedBy: 'System Admin'
-        }
+          verifiedBy: 'System Admin',
+        },
       ],
       children: [
         {
@@ -123,9 +124,9 @@ export class TenantService {
           dob: '2015-03-10',
           age: 9,
           occupation: 'Student',
-          relation: 'Son'
-        }
-      ]
+          relation: 'Son',
+        },
+      ],
     },
     {
       id: 2,
@@ -174,9 +175,9 @@ export class TenantService {
           size: 1024000,
           uploadedOn: '2024-01-15T10:00:00Z',
           isVerified: false,
-          verifiedBy: undefined
-        }
-      ]
+          verifiedBy: undefined,
+        },
+      ],
     },
     // Property 1 - Additional family members for Rajesh Kumar family
     {
@@ -226,7 +227,7 @@ export class TenantService {
           size: 1024000,
           uploadedOn: '2023-12-15T10:10:00Z',
           isVerified: true,
-          verifiedBy: 'System Admin'
+          verifiedBy: 'System Admin',
         },
         {
           ownerId: 3,
@@ -238,10 +239,10 @@ export class TenantService {
           size: 512000,
           uploadedOn: '2023-12-15T10:15:00Z',
           isVerified: true,
-          verifiedBy: 'System Admin'
-        }
+          verifiedBy: 'System Admin',
+        },
       ],
-      children: []
+      children: [],
     },
     {
       id: 4,
@@ -290,7 +291,7 @@ export class TenantService {
           size: 1024000,
           uploadedOn: '2023-12-15T10:20:00Z',
           isVerified: true,
-          verifiedBy: 'System Admin'
+          verifiedBy: 'System Admin',
         },
         {
           ownerId: 4,
@@ -302,10 +303,10 @@ export class TenantService {
           size: 512000,
           uploadedOn: '2023-12-15T10:25:00Z',
           isVerified: true,
-          verifiedBy: 'System Admin'
-        }
+          verifiedBy: 'System Admin',
+        },
       ],
-      children: []
+      children: [],
     },
     // Property 2 - Additional family members for Priya Sharma family
     {
@@ -355,7 +356,7 @@ export class TenantService {
           size: 1024000,
           uploadedOn: '2024-01-15T10:30:00Z',
           isVerified: false,
-          verifiedBy: undefined
+          verifiedBy: undefined,
         },
         {
           ownerId: 5,
@@ -367,11 +368,10 @@ export class TenantService {
           size: 512000,
           uploadedOn: '2024-01-15T10:35:00Z',
           isVerified: false,
-          verifiedBy: undefined
+          verifiedBy: undefined,
         },
-
       ],
-      children: []
+      children: [],
     },
     {
       id: 6,
@@ -420,7 +420,7 @@ export class TenantService {
           size: 1024000,
           uploadedOn: '2024-01-15T10:45:00Z',
           isVerified: false,
-          verifiedBy: undefined
+          verifiedBy: undefined,
         },
         {
           ownerId: 6,
@@ -432,10 +432,10 @@ export class TenantService {
           size: 512000,
           uploadedOn: '2024-01-15T10:50:00Z',
           isVerified: false,
-          verifiedBy: undefined
-        }
+          verifiedBy: undefined,
+        },
       ],
-      children: []
+      children: [],
     },
     // Property 3 - Vikram Singh Family (2 members)
     {
@@ -485,7 +485,7 @@ export class TenantService {
           size: 1024000,
           uploadedOn: '2024-02-15T10:00:00Z',
           isVerified: true,
-          verifiedBy: 'System Admin'
+          verifiedBy: 'System Admin',
         },
         {
           ownerId: 7,
@@ -497,11 +497,10 @@ export class TenantService {
           size: 512000,
           uploadedOn: '2024-02-15T10:05:00Z',
           isVerified: true,
-          verifiedBy: 'System Admin'
+          verifiedBy: 'System Admin',
         },
-
       ],
-      children: []
+      children: [],
     },
     {
       id: 8,
@@ -550,7 +549,7 @@ export class TenantService {
           size: 1024000,
           uploadedOn: '2024-02-15T10:15:00Z',
           isVerified: true,
-          verifiedBy: 'System Admin'
+          verifiedBy: 'System Admin',
         },
         {
           ownerId: 8,
@@ -562,7 +561,7 @@ export class TenantService {
           size: 512000,
           uploadedOn: '2024-02-15T10:20:00Z',
           isVerified: true,
-          verifiedBy: 'System Admin'
+          verifiedBy: 'System Admin',
         },
         {
           ownerId: 8,
@@ -574,10 +573,10 @@ export class TenantService {
           size: 384000,
           uploadedOn: '2024-02-15T10:25:00Z',
           isVerified: true,
-          verifiedBy: 'System Admin'
-        }
+          verifiedBy: 'System Admin',
+        },
       ],
-      children: []
+      children: [],
     },
     // Property 4 - Neha Gupta (Single tenant)
     {
@@ -627,7 +626,7 @@ export class TenantService {
           size: 1024000,
           uploadedOn: '2024-03-20T10:00:00Z',
           isVerified: false,
-          verifiedBy: undefined
+          verifiedBy: undefined,
         },
         {
           ownerId: 9,
@@ -639,10 +638,10 @@ export class TenantService {
           size: 512000,
           uploadedOn: '2024-03-20T10:05:00Z',
           isVerified: false,
-          verifiedBy: undefined
-        }
+          verifiedBy: undefined,
+        },
       ],
-      children: []
+      children: [],
     },
     // Property 5 - Rohit Mehta Family (3 members)
     {
@@ -682,7 +681,7 @@ export class TenantService {
       tenantGroup: 5,
       dateCreated: '2024-04-10',
       documents: [],
-      children: []
+      children: [],
     },
     {
       id: 11,
@@ -721,7 +720,7 @@ export class TenantService {
       tenantGroup: 5,
       dateCreated: '2024-04-10',
       documents: [],
-      children: []
+      children: [],
     },
     {
       id: 12,
@@ -760,7 +759,7 @@ export class TenantService {
       tenantGroup: 5,
       dateCreated: '2024-04-10',
       documents: [],
-      children: []
+      children: [],
     },
     // Property 6 - Sanjay Patel Family (5 members - Large Joint Family)
     {
@@ -810,7 +809,7 @@ export class TenantService {
           size: 1024000,
           uploadedOn: '2024-05-15T10:00:00Z',
           isVerified: true,
-          verifiedBy: 'System Admin'
+          verifiedBy: 'System Admin',
         },
         {
           ownerId: 13,
@@ -822,10 +821,10 @@ export class TenantService {
           size: 512000,
           uploadedOn: '2024-05-15T10:05:00Z',
           isVerified: true,
-          verifiedBy: 'System Admin'
-        }
+          verifiedBy: 'System Admin',
+        },
       ],
-      children: []
+      children: [],
     },
     {
       id: 14,
@@ -874,10 +873,10 @@ export class TenantService {
           size: 1024000,
           uploadedOn: '2024-05-15T10:10:00Z',
           isVerified: true,
-          verifiedBy: 'System Admin'
-        }
+          verifiedBy: 'System Admin',
+        },
       ],
-      children: []
+      children: [],
     },
     {
       id: 15,
@@ -916,7 +915,7 @@ export class TenantService {
       tenantGroup: 6,
       dateCreated: '2024-05-15',
       documents: [],
-      children: []
+      children: [],
     },
     {
       id: 16,
@@ -955,7 +954,7 @@ export class TenantService {
       tenantGroup: 6,
       dateCreated: '2024-05-15',
       documents: [],
-      children: []
+      children: [],
     },
     {
       id: 17,
@@ -994,7 +993,7 @@ export class TenantService {
       tenantGroup: 6,
       dateCreated: '2024-05-15',
       documents: [],
-      children: []
+      children: [],
     },
     // Property 7 - Anita Joshi (Single Working Professional)
     {
@@ -1044,11 +1043,10 @@ export class TenantService {
           size: 1024000,
           uploadedOn: '2024-06-20T10:00:00Z',
           isVerified: false,
-          verifiedBy: undefined
+          verifiedBy: undefined,
         },
-
       ],
-      children: []
+      children: [],
     },
     // Property 8 - Ramesh Iyer Family (Multi-generational - 3 members)
     {
@@ -1098,10 +1096,10 @@ export class TenantService {
           size: 1024000,
           uploadedOn: '2024-07-10T10:00:00Z',
           isVerified: true,
-          verifiedBy: 'System Admin'
-        }
+          verifiedBy: 'System Admin',
+        },
       ],
-      children: []
+      children: [],
     },
     {
       id: 20,
@@ -1150,10 +1148,10 @@ export class TenantService {
           size: 1024000,
           uploadedOn: '2024-07-10T10:10:00Z',
           isVerified: true,
-          verifiedBy: 'System Admin'
-        }
+          verifiedBy: 'System Admin',
+        },
       ],
-      children: []
+      children: [],
     },
     {
       id: 21,
@@ -1202,16 +1200,16 @@ export class TenantService {
           size: 1024000,
           uploadedOn: '2024-07-10T10:20:00Z',
           isVerified: true,
-          verifiedBy: 'System Admin'
-        }
+          verifiedBy: 'System Admin',
+        },
       ],
-      children: []
-    }
+      children: [],
+    },
   ];
 
   private nextId = 22;
 
-  constructor() { }
+  constructor() {}
 
   // Get all tenants
   getAllTenants(): Observable<ITenant[]> {
@@ -1220,18 +1218,20 @@ export class TenantService {
 
   // Get tenant by ID
   getTenantById(id: number): Observable<ITenant | null> {
-    const tenant = this.tenants.find(t => t.id === id);
+    const tenant = this.tenants.find((t) => t.id === id);
     return of(tenant || null);
   }
 
   // Get tenants by property ID
   getTenantsByProperty(propertyId: number): Observable<ITenant[]> {
-    const propertyTenants = this.tenants.filter(t => t.propertyId === propertyId);
+    const propertyTenants = this.tenants.filter(
+      (t) => t.propertyId === propertyId,
+    );
     return of(propertyTenants);
   }
   // Save tenant (create or update)
   saveTenant(tenant: Partial<ITenant>): Observable<TenantSaveResponse> {
-    return new Observable(observer => {
+    return new Observable((observer) => {
       setTimeout(() => {
         try {
           // Validate tenant data
@@ -1240,7 +1240,7 @@ export class TenantService {
             observer.next({
               success: false,
               message: 'Validation failed',
-              errors: validationErrors.map(e => e.message)
+              errors: validationErrors.map((e) => e.message),
             });
             observer.complete();
             return;
@@ -1248,29 +1248,29 @@ export class TenantService {
 
           if (tenant.id) {
             // Update existing tenant
-            const index = this.tenants.findIndex(t => t.id === tenant.id);
+            const index = this.tenants.findIndex((t) => t.id === tenant.id);
             if (index !== -1) {
               this.tenants[index] = {
                 ...this.tenants[index],
                 ...tenant,
-                dateModified: new Date().toISOString()
+                dateModified: new Date().toISOString(),
               };
               observer.next({
                 success: true,
                 message: 'Tenant updated successfully',
-                tenant: this.tenants[index]
+                tenant: this.tenants[index],
               });
             } else {
               observer.next({
                 success: false,
                 message: 'Tenant not found',
-                errors: ['Tenant with the specified ID does not exist']
+                errors: ['Tenant with the specified ID does not exist'],
               });
             }
           } else {
             // Create new tenant
             const newTenant: ITenant = {
-              ...tenant as ITenant,
+              ...(tenant as ITenant),
               id: this.nextId++,
               landlordId: tenant.landlordId || 1,
               age: this.calculateAge(tenant.dob as string),
@@ -1278,20 +1278,20 @@ export class TenantService {
               dateCreated: new Date().toISOString(),
               dateModified: new Date().toISOString(),
               documents: tenant.documents || [],
-              children: tenant.children || []
+              children: tenant.children || [],
             };
             this.tenants.push(newTenant);
             observer.next({
               success: true,
               message: 'Tenant created successfully',
-              tenant: newTenant
+              tenant: newTenant,
             });
           }
         } catch (error) {
           observer.next({
             success: false,
             message: 'An error occurred while saving tenant',
-            errors: ['Internal server error']
+            errors: ['Internal server error'],
           });
         }
         observer.complete();
@@ -1301,19 +1301,19 @@ export class TenantService {
 
   // Delete tenant
   deleteTenant(id: number): Observable<{ success: boolean; message: string }> {
-    return new Observable(observer => {
+    return new Observable((observer) => {
       setTimeout(() => {
-        const index = this.tenants.findIndex(t => t.id === id);
+        const index = this.tenants.findIndex((t) => t.id === id);
         if (index !== -1) {
           const deletedTenant = this.tenants.splice(index, 1)[0];
           observer.next({
             success: true,
-            message: `Tenant ${deletedTenant.name} deleted successfully`
+            message: `Tenant ${deletedTenant.name} deleted successfully`,
           });
         } else {
           observer.next({
             success: false,
-            message: 'Tenant not found'
+            message: 'Tenant not found',
           });
         }
         observer.complete();
@@ -1322,10 +1322,12 @@ export class TenantService {
   }
 
   // Send onboarding email
-  sendOnboardingEmail(request: OnboardingEmailRequest): Observable<{ success: boolean; message: string }> {
-    return new Observable(observer => {
+  sendOnboardingEmail(
+    request: OnboardingEmailRequest,
+  ): Observable<{ success: boolean; message: string }> {
+    return new Observable((observer) => {
       setTimeout(() => {
-        const tenant = this.tenants.find(t => t.id === request.tenantId);
+        const tenant = this.tenants.find((t) => t.id === request.tenantId);
         if (tenant) {
           // Update tenant onboarding status
           tenant.onboardingEmailSent = true;
@@ -1334,12 +1336,12 @@ export class TenantService {
 
           observer.next({
             success: true,
-            message: `Onboarding email sent to ${tenant.email}`
+            message: `Onboarding email sent to ${tenant.email}`,
           });
         } else {
           observer.next({
             success: false,
-            message: 'Tenant not found'
+            message: 'Tenant not found',
           });
         }
         observer.complete();
@@ -1348,10 +1350,12 @@ export class TenantService {
   }
 
   // Create agreement
-  createAgreement(request: AgreementCreateRequest): Observable<{ success: boolean; message: string; agreementUrl?: string }> {
-    return new Observable(observer => {
+  createAgreement(
+    request: AgreementCreateRequest,
+  ): Observable<{ success: boolean; message: string; agreementUrl?: string }> {
+    return new Observable((observer) => {
       setTimeout(() => {
-        const tenant = this.tenants.find(t => t.id === request.tenantId);
+        const tenant = this.tenants.find((t) => t.id === request.tenantId);
         if (tenant) {
           // Update tenant agreement status
           tenant.agreementSigned = true;
@@ -1365,12 +1369,12 @@ export class TenantService {
           observer.next({
             success: true,
             message: `Agreement created for ${tenant.name}`,
-            agreementUrl: tenant.agreementUrl
+            agreementUrl: tenant.agreementUrl,
           });
         } else {
           observer.next({
             success: false,
-            message: 'Tenant not found'
+            message: 'Tenant not found',
           });
         }
         observer.complete();
@@ -1379,15 +1383,18 @@ export class TenantService {
   }
 
   // Add tenant child/family member
-  addTenantChild(tenantId: number, child: Omit<TenantChildren, 'id'>): Observable<{ success: boolean; message: string; child?: TenantChildren }> {
-    return new Observable(observer => {
+  addTenantChild(
+    tenantId: number,
+    child: Omit<TenantChildren, 'id'>,
+  ): Observable<{ success: boolean; message: string; child?: TenantChildren }> {
+    return new Observable((observer) => {
       setTimeout(() => {
-        const tenant = this.tenants.find(t => t.id === tenantId);
+        const tenant = this.tenants.find((t) => t.id === tenantId);
         if (tenant) {
           const newChild: TenantChildren = {
             ...child,
             id: Date.now(), // Simple ID generation
-            age: this.calculateAge(child.dob as string)
+            age: this.calculateAge(child.dob as string),
           };
 
           if (!tenant.children) {
@@ -1398,12 +1405,12 @@ export class TenantService {
           observer.next({
             success: true,
             message: `Family member ${child.name} added successfully`,
-            child: newChild
+            child: newChild,
           });
         } else {
           observer.next({
             success: false,
-            message: 'Tenant not found'
+            message: 'Tenant not found',
           });
         }
         observer.complete();
@@ -1412,33 +1419,39 @@ export class TenantService {
   }
 
   // Update tenant child
-  updateTenantChild(tenantId: number, childId: number, childData: Partial<TenantChildren>): Observable<{ success: boolean; message: string }> {
-    return new Observable(observer => {
+  updateTenantChild(
+    tenantId: number,
+    childId: number,
+    childData: Partial<TenantChildren>,
+  ): Observable<{ success: boolean; message: string }> {
+    return new Observable((observer) => {
       setTimeout(() => {
-        const tenant = this.tenants.find(t => t.id === tenantId);
+        const tenant = this.tenants.find((t) => t.id === tenantId);
         if (tenant && tenant.children) {
-          const childIndex = tenant.children.findIndex(c => c.id === childId);
+          const childIndex = tenant.children.findIndex((c) => c.id === childId);
           if (childIndex !== -1) {
             tenant.children[childIndex] = {
               ...tenant.children[childIndex],
               ...childData,
-              age: childData.dob ? this.calculateAge(childData.dob as string) : tenant.children[childIndex].age
+              age: childData.dob
+                ? this.calculateAge(childData.dob as string)
+                : tenant.children[childIndex].age,
             };
 
             observer.next({
               success: true,
-              message: 'Family member updated successfully'
+              message: 'Family member updated successfully',
             });
           } else {
             observer.next({
               success: false,
-              message: 'Family member not found'
+              message: 'Family member not found',
             });
           }
         } else {
           observer.next({
             success: false,
-            message: 'Tenant not found'
+            message: 'Tenant not found',
           });
         }
         observer.complete();
@@ -1447,28 +1460,31 @@ export class TenantService {
   }
 
   // Delete tenant child
-  deleteTenantChild(tenantId: number, childId: number): Observable<{ success: boolean; message: string }> {
-    return new Observable(observer => {
+  deleteTenantChild(
+    tenantId: number,
+    childId: number,
+  ): Observable<{ success: boolean; message: string }> {
+    return new Observable((observer) => {
       setTimeout(() => {
-        const tenant = this.tenants.find(t => t.id === tenantId);
+        const tenant = this.tenants.find((t) => t.id === tenantId);
         if (tenant && tenant.children) {
-          const childIndex = tenant.children.findIndex(c => c.id === childId);
+          const childIndex = tenant.children.findIndex((c) => c.id === childId);
           if (childIndex !== -1) {
             const deletedChild = tenant.children.splice(childIndex, 1)[0];
             observer.next({
               success: true,
-              message: `Family member ${deletedChild.name} removed successfully`
+              message: `Family member ${deletedChild.name} removed successfully`,
             });
           } else {
             observer.next({
               success: false,
-              message: 'Family member not found'
+              message: 'Family member not found',
             });
           }
         } else {
           observer.next({
             success: false,
-            message: 'Tenant not found'
+            message: 'Tenant not found',
           });
         }
         observer.complete();
@@ -1477,17 +1493,20 @@ export class TenantService {
   }
 
   // Upload tenant document
-  uploadTenantDocument(tenantId: number, document: Omit<IDocument, 'ownerId' | 'ownerType'>): Observable<{ success: boolean; message: string }> {
-    return new Observable(observer => {
+  uploadTenantDocument(
+    tenantId: number,
+    document: Omit<IDocument, 'ownerId' | 'ownerType'>,
+  ): Observable<{ success: boolean; message: string }> {
+    return new Observable((observer) => {
       setTimeout(() => {
-        const tenant = this.tenants.find(t => t.id === tenantId);
+        const tenant = this.tenants.find((t) => t.id === tenantId);
         if (tenant) {
           const newDocument: IDocument = {
             ...document,
             ownerId: tenantId,
             ownerType: 'Tenant',
             uploadedOn: new Date().toISOString(),
-            isVerified: false
+            isVerified: false,
           };
 
           if (!tenant.documents) {
@@ -1497,12 +1516,12 @@ export class TenantService {
 
           observer.next({
             success: true,
-            message: 'Document uploaded successfully'
+            message: 'Document uploaded successfully',
           });
         } else {
           observer.next({
             success: false,
-            message: 'Tenant not found'
+            message: 'Tenant not found',
           });
         }
         observer.complete();
@@ -1519,12 +1538,15 @@ export class TenantService {
     totalMonthlyRent: number;
     averageRent: number;
   }> {
-    return new Observable(observer => {
+    return new Observable((observer) => {
       setTimeout(() => {
-        const active = this.tenants.filter(t => t.isActive);
-        const inactive = this.tenants.filter(t => !t.isActive);
-        const pendingOnboarding = this.tenants.filter(t => t.needsOnboarding);
-        const totalMonthlyRent = active.reduce((sum, t) => sum + t.rentAmount, 0);
+        const active = this.tenants.filter((t) => t.isActive);
+        const inactive = this.tenants.filter((t) => !t.isActive);
+        const pendingOnboarding = this.tenants.filter((t) => t.needsOnboarding);
+        const totalMonthlyRent = active.reduce(
+          (sum, t) => sum + t.rentAmount,
+          0,
+        );
 
         observer.next({
           total: this.tenants.length,
@@ -1532,7 +1554,7 @@ export class TenantService {
           inactive: inactive.length,
           pendingOnboarding: pendingOnboarding.length,
           totalMonthlyRent,
-          averageRent: active.length > 0 ? totalMonthlyRent / active.length : 0
+          averageRent: active.length > 0 ? totalMonthlyRent / active.length : 0,
         });
         observer.complete();
       });
@@ -1544,15 +1566,24 @@ export class TenantService {
     const errors: TenantValidationError[] = [];
 
     if (!tenant.name || tenant.name.trim().length < 2) {
-      errors.push({ field: 'name', message: 'Name must be at least 2 characters long' });
+      errors.push({
+        field: 'name',
+        message: 'Name must be at least 2 characters long',
+      });
     }
 
     if (!tenant.email || !this.isValidEmail(tenant.email)) {
-      errors.push({ field: 'email', message: 'Valid email address is required' });
+      errors.push({
+        field: 'email',
+        message: 'Valid email address is required',
+      });
     }
 
     if (!tenant.phoneNumber || !this.isValidPhone(tenant.phoneNumber)) {
-      errors.push({ field: 'phoneNumber', message: 'Valid phone number is required' });
+      errors.push({
+        field: 'phoneNumber',
+        message: 'Valid phone number is required',
+      });
     }
 
     if (!tenant.dob) {
@@ -1564,27 +1595,45 @@ export class TenantService {
     }
 
     if (!tenant.aadhaarNumber || !this.isValidAadhaar(tenant.aadhaarNumber)) {
-      errors.push({ field: 'aadhaarNumber', message: 'Valid 12-digit Aadhaar number is required' });
+      errors.push({
+        field: 'aadhaarNumber',
+        message: 'Valid 12-digit Aadhaar number is required',
+      });
     }
 
     if (!tenant.panNumber || !this.isValidPAN(tenant.panNumber)) {
-      errors.push({ field: 'panNumber', message: 'Valid PAN number is required (e.g., ABCDE1234F)' });
+      errors.push({
+        field: 'panNumber',
+        message: 'Valid PAN number is required (e.g., ABCDE1234F)',
+      });
     }
 
     if (!tenant.propertyId) {
-      errors.push({ field: 'propertyId', message: 'Property selection is required' });
+      errors.push({
+        field: 'propertyId',
+        message: 'Property selection is required',
+      });
     }
 
     if (!tenant.rentAmount || tenant.rentAmount <= 0) {
-      errors.push({ field: 'rentAmount', message: 'Valid rent amount is required' });
+      errors.push({
+        field: 'rentAmount',
+        message: 'Valid rent amount is required',
+      });
     }
 
     if (!tenant.tenancyStartDate) {
-      errors.push({ field: 'tenancyStartDate', message: 'Tenancy start date is required' });
+      errors.push({
+        field: 'tenancyStartDate',
+        message: 'Tenancy start date is required',
+      });
     }
 
     if (!tenant.rentDueDate) {
-      errors.push({ field: 'rentDueDate', message: 'Rent due date is required' });
+      errors.push({
+        field: 'rentDueDate',
+        message: 'Rent due date is required',
+      });
     }
 
     return errors;
@@ -1615,7 +1664,10 @@ export class TenantService {
     const birthDate = new Date(dob);
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
       age--;
     }
     return age;

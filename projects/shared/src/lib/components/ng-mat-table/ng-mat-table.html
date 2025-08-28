@@ -1,123 +1,166 @@
 <div class="table-wrapper" [class.responsive]="options().responsive">
-  <table mat-table [dataSource]="dataSource" matSort 
-         class="mat-elevation-z8"
-         [class.auto-width]="options().autoWidth"
-         [class.fixed-layout]="options().fixedLayout">
-    <!-- ✅ Checkbox Column -->
+  <table
+    mat-table
+    [dataSource]="dataSource"
+    matSort
+    class="mat-elevation-z8"
+    [class.auto-width]="options().autoWidth"
+    [class.fixed-layout]="options().fixedLayout"
+    multiTemplateDataRows
+  >
+    <!-- Checkbox Column -->
     @if (headerCheckbox() || rowCheckbox()) {
-    <ng-container matColumnDef="select">
-      <!-- Header Checkbox -->
-      <th mat-header-cell *matHeaderCellDef 
-          [class.sticky-header]="options().stickyHeader"
-          style="width: 50px; min-width: 50px;">
-        @if (headerCheckbox()) {
-        <mat-checkbox (change)="toggleAllRows()"
-          [checked]="isAllSelected()"
-          [indeterminate]="selection.hasValue() && !isAllSelected()"
-          [aria-label]="checkboxLabel()"
-         />
-        }
-      </th>
-
-      <!-- Row Checkbox -->
-      <td mat-cell *matCellDef="let row" style="width: 50px; min-width: 50px;">
-        @if (rowCheckbox()) {
-        <mat-checkbox (click)="$event.stopPropagation()"
-          (change)="toggleRow(row)"
-          [checked]="selection.isSelected(row)"
-          [aria-label]="checkboxLabel(row)"
-         />
-        }
-      </td>
-    </ng-container>
+      <ng-container matColumnDef="select">
+        <th
+          mat-header-cell
+          *matHeaderCellDef
+          style="width: 50px; min-width: 50px"
+        >
+          @if (headerCheckbox()) {
+            <mat-checkbox
+              (change)="toggleAllRows()"
+              [checked]="isAllSelected()"
+              [indeterminate]="selection.hasValue() && !isAllSelected()"
+              [aria-label]="checkboxLabel()"
+            />
+          }
+        </th>
+        <td mat-cell *matCellDef="let row" style="width: 50px; min-width: 50px">
+          @if (rowCheckbox()) {
+            <mat-checkbox
+              (click)="$event.stopPropagation()"
+              (change)="toggleRow(row)"
+              [checked]="selection.isSelected(row)"
+              [aria-label]="checkboxLabel(row)"
+            />
+          }
+        </td>
+      </ng-container>
     }
-    <!-- ✅ Dynamic Columns -->
+
+    <!-- Expand/Collapse Column -->
+    @if (expandableRows()) {
+      <ng-container matColumnDef="expand">
+        <th
+          mat-header-cell
+          *matHeaderCellDef
+          aria-label="row actions"
+          style="width: 50px; min-width: 50px"
+        >
+          &nbsp;
+        </th>
+        <td mat-cell *matCellDef="let row" style="width: 50px; min-width: 50px">
+          <button
+            mat-icon-button
+            aria-label="expand row"
+            (click)="
+              toggleRowExpansion(row, expandKey()); $event.stopPropagation()
+            "
+            class="expand-toggle-button"
+            [class.expand-toggle-button-expanded]="
+              isRowExpanded(row, expandKey())
+            "
+          >
+            <mat-icon>keyboard_arrow_down</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+    }
+
+    <!-- Dynamic Columns -->
     @for (col of columns(); track col.key) {
-    <ng-container [matColumnDef]="col.key">
-      <!-- Header -->
-      <th mat-header-cell *matHeaderCellDef 
-          [class.sticky-header]="options().stickyHeader"
-          [style.width]="col.width"
-          [style.min-width]="col.minWidth"
-          [style.max-width]="col.maxWidth"
+      <ng-container [matColumnDef]="col.key">
+        <!-- Header -->
+        <th
+          mat-header-cell
+          *matHeaderCellDef
           [style.text-align]="col.headerAlign || col.align || 'left'"
-          [class.auto-width]="col.width === 'auto'"
           [class.column-selected]="selectedColumn === col.key"
           (click)="onColumnClick(col.key)"
-          [style.cursor]="'pointer'">
-        @if (col.headerTemplate !== undefined) {
-        <ng-container *ngTemplateOutlet="col.headerTemplate; context: { column: col }"
-         />
-        } @else {
-        {{ col.label }}
-        }
-      </th>
+        >
+          {{ col.label }}
+        </th>
 
-      <!-- Row -->
-      <td mat-cell *matCellDef="let element" 
+        <!-- Row -->
+        <td
+          mat-cell
+          *matCellDef="let element"
           (click)="onCellClick($event, element)"
-          [style.width]="col.width"
-          [style.min-width]="col.minWidth"
-          [style.max-width]="col.maxWidth"
           [style.text-align]="col.align || 'left'"
-          [class.wrap-text]="col.wrapText || col.width === 'auto'"
-          [class.truncate-text]="col.truncateText && col.width !== 'auto'"
-          [class.auto-width]="col.width === 'auto'"
-          [class.column-selected]="selectedColumn === col.key">
-        @if (col.template !== undefined) {
-        <ng-container *ngTemplateOutlet="
-            col.template;
-            context: { $implicit: element, row: element }
-          "
-         />
-        } @else {
-        <span [ngClass]="col.className" [style.color]="col.color || 'inherit'">
-          @if (col.type === 'link') {
-          <a [href]="element[col.key]">{{ element[col.key] }}</a>
+          [class.column-selected]="selectedColumn === col.key"
+        >
+          @if (col.template) {
+            <ng-container
+              *ngTemplateOutlet="
+                col.template;
+                context: { $implicit: element, row: element }
+              "
+            />
           } @else {
-          {{ element[col.key] }}
+            {{ element[col.key] }}
           }
-        </span>
-        }
-      </td>
-    </ng-container>
+        </td>
+      </ng-container>
     }
 
-    <!-- ✅ Expandable Row Content (if enabled) -->
-    @if (expandableRows() && expandedRowTemplate()) {
-    <ng-container matColumnDef="expandedDetail">
-      <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length">
-        <div class="expanded-row-content" 
-             [@detailExpand]="isRowExpanded(element) ? 'expanded' : 'collapsed'">
-          <ng-container *ngTemplateOutlet="expandedRowTemplate(); context: { $implicit: element, row: element }" />
-        </div>
-      </td>
-    </ng-container>
+    <!-- Expanded Detail Column -->
+    @if (expandableRows()) {
+      <ng-container matColumnDef="expandedDetail">
+        <td
+          mat-cell
+          *matCellDef="let element"
+          [attr.colspan]="displayedColumns.length"
+        >
+          <div
+            class="element-detail-wrapper"
+            [class.element-detail-wrapper-expanded]="
+              isRowExpanded(element, expandKey())
+            "
+          >
+            <div class="element-detail">
+              @if (expandedRowTemplate()) {
+                <ng-container
+                  *ngTemplateOutlet="
+                    expandedRowTemplate();
+                    context: { $implicit: element }
+                  "
+                />
+              }
+            </div>
+          </div>
+        </td>
+      </ng-container>
     }
 
-    <!-- ✅ Render header & rows -->
-    <tr mat-header-row *matHeaderRowDef="displayedColumns" 
-        [class.sticky-header]="options().stickyHeader"></tr>
-    
-    <!-- Regular rows -->
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"
-        [class.row-selected]="selectedRow === row"
-        [class.expanded-row]="expandableRows() && isRowExpanded(row)"
-        (click)="onRowSelect(row)"
-        [style.cursor]="'pointer'"></tr>
-    
-    <!-- Expanded detail rows (only when expandable rows are enabled) -->
-    @if (expandableRows() && expandedRowTemplate()) {
-    <tr mat-row *matRowDef="let row; columns: ['expandedDetail']; when: isRowExpandedFn" 
-        class="expanded-detail-row"></tr>
+    <!-- Header Row -->
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+
+    <!-- Regular Row -->
+    <tr
+      mat-row
+      *matRowDef="let row; columns: displayedColumns"
+      class="element-row"
+      [class.expanded-row]="expandableRows() && isRowExpanded(row, expandKey())"
+      [class.row-selected]="selectedRow === row"
+      [style.cursor]="expandableRows() ? 'pointer' : 'default'"
+      (click)="onRowSelect(row)"
+    ></tr>
+
+    <!-- Expanded Detail Row -->
+    @if (expandableRows()) {
+      <tr
+        mat-row
+        *matRowDef="let row; columns: ['expandedDetail']"
+        class="detail-row"
+      ></tr>
     }
   </table>
 </div>
 
-<!-- ✅ Paginator -->
+<!-- Paginator -->
 @if (isPaginator()) {
-<mat-paginator [class.sticky-paginator]="options().stickyPaginator"
-  [pageSize]="options().pageSize || 10"
-  [pageSizeOptions]="options().pageSizeOptions || [5, 10, 20]"
- />
+  <mat-paginator
+    [pageSize]="options().pageSize || 10"
+    [pageSizeOptions]="options().pageSizeOptions || [5, 10, 20]"
+  />
 }
