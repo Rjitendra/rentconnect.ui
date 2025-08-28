@@ -21,8 +21,15 @@
             label="Link Property"
             placeholder="Select property to link"
             suffixIcon="home"
-            [options]="propertyOptions()"
+            [options]="propertyOptions"
+            [disabled]="isLoadingProperties"
           />
+          @if (isLoadingProperties) {
+            <div class="loading-indicator">
+              <ng-icon name="hourglass_empty" class="icon-secondary" />
+              Loading properties...
+            </div>
+          }
         </div>
 
         <div class="form-row">
@@ -259,11 +266,92 @@
                 "
               >
                 <div class="document-upload-section">
-                  <ng-file-upload
-                    [config]="documentUploadConfig"
-                    (filesSelected)="onTenantDocumentsUploaded($event, i)"
-                    (fileRemoved)="onTenantDocumentDeleted($event, i)"
-                  />
+                  <!-- Upload Summary -->
+                  <div class="upload-summary">
+                    <div class="summary-stats">
+                      <div class="stat-item">
+                        <ng-icon name="description" class="stat-icon" />
+                        <span class="stat-text">
+                          {{ getUploadedDocumentsCount(i) }} documents uploaded
+                        </span>
+                      </div>
+                      @if (getUploadedDocumentsCount(i) > 0) {
+                        <div class="stat-item">
+                          <ng-icon name="category" class="stat-icon" />
+                          <span class="stat-text">
+                            {{ getUploadedCategories(i).length }} categories
+                          </span>
+                        </div>
+                      }
+                    </div>
+
+                    <!-- Upload Button -->
+                    <button
+                      type="button"
+                      class="upload-documents-btn"
+                      title="Upload documents"
+                      (click)="openDocumentUploadModal(i)"
+                    >
+                      <ng-icon name="add" class="btn-icon" />
+                      Add Documents
+                    </button>
+                  </div>
+
+                  <!-- Uploaded Categories Display -->
+                  @if (getUploadedDocumentsCount(i) > 0) {
+                    <div class="uploaded-categories">
+                      <h5>Uploaded Categories:</h5>
+                      <div class="categories-list">
+                        @for (
+                          category of documentCategories;
+                          track category.value
+                        ) {
+                          @if (
+                            getDocumentsByCategory(i, category.value).length > 0
+                          ) {
+                            <div class="category-item">
+                              <div class="category-badge">
+                                <ng-icon
+                                  class="category-icon"
+                                  [name]="getCategoryIcon(category.value)"
+                                />
+                                <span class="category-name">{{
+                                  category.label
+                                }}</span>
+                                <span class="file-count">
+                                  {{
+                                    getDocumentsByCategory(i, category.value)
+                                      .length
+                                  }}
+                                </span>
+                              </div>
+                              <button
+                                type="button"
+                                class="remove-category-btn"
+                                title="Remove all files from this category"
+                                (click)="
+                                  removeDocumentCategory(i, category.value)
+                                "
+                              >
+                                <ng-icon name="delete" />
+                              </button>
+                            </div>
+                          }
+                        }
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Upload Instructions -->
+                  @if (getUploadedDocumentsCount(i) === 0) {
+                    <div class="upload-instructions">
+                      <ng-icon name="info" class="info-icon" />
+                      <p>
+                        Click "Add Documents" to upload documents by category.
+                        Each category can have multiple files.
+                      </p>
+                    </div>
+                  }
                 </div>
               </ng-card>
             </div>
@@ -277,7 +365,7 @@
           type="button"
           class="cancel-btn"
           title="Cancel and go back"
-          (click)="onCancel()"
+          (click)="goBack()"
         >
           <ng-icon name="cancel" class="icon-secondary" />
           Cancel

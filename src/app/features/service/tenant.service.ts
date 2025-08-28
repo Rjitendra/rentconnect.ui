@@ -1,6 +1,13 @@
-import { Injectable } from '@angular/core';
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { HttpClient } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 import { Observable, of } from 'rxjs';
 
+import { environment } from '../../../environments/environment';
 import { DocumentCategory } from '../enums/view.enum';
 import { IDocument } from '../models/document';
 import { ITenant, TenantChildren } from '../models/tenant';
@@ -37,6 +44,7 @@ export interface AgreementCreateRequest {
   providedIn: 'root',
 })
 export class TenantService {
+  private _http = inject(HttpClient);
   private tenants: ITenant[] = [
     {
       id: 1,
@@ -1222,82 +1230,82 @@ export class TenantService {
     return of(tenant || null);
   }
 
-  // Get tenants by property ID
-  getTenantsByProperty(propertyId: number): Observable<ITenant[]> {
-    const propertyTenants = this.tenants.filter(
-      (t) => t.propertyId === propertyId,
-    );
-    return of(propertyTenants);
-  }
-  // Save tenant (create or update)
-  saveTenant(tenant: Partial<ITenant>): Observable<TenantSaveResponse> {
-    return new Observable((observer) => {
-      setTimeout(() => {
-        try {
-          // Validate tenant data
-          const validationErrors = this.validateTenant(tenant);
-          if (validationErrors.length > 0) {
-            observer.next({
-              success: false,
-              message: 'Validation failed',
-              errors: validationErrors.map((e) => e.message),
-            });
-            observer.complete();
-            return;
-          }
+  // // Get tenants by property ID
+  // getTenantsByProperty(propertyId: number): Observable<ITenant[]> {
+  //   const propertyTenants = this.tenants.filter(
+  //     (t) => t.propertyId === propertyId,
+  //   );
+  //   return of(propertyTenants);
+  // }
+  // // Save tenant (create or update)
+  // saveTenant(tenant: Partial<ITenant>): Observable<TenantSaveResponse> {
+  //   return new Observable((observer) => {
+  //     setTimeout(() => {
+  //       try {
+  //         // Validate tenant data
+  //         const validationErrors = this.validateTenant(tenant);
+  //         if (validationErrors.length > 0) {
+  //           observer.next({
+  //             success: false,
+  //             message: 'Validation failed',
+  //             errors: validationErrors.map((e) => e.message),
+  //           });
+  //           observer.complete();
+  //           return;
+  //         }
 
-          if (tenant.id) {
-            // Update existing tenant
-            const index = this.tenants.findIndex((t) => t.id === tenant.id);
-            if (index !== -1) {
-              this.tenants[index] = {
-                ...this.tenants[index],
-                ...tenant,
-                dateModified: new Date().toISOString(),
-              };
-              observer.next({
-                success: true,
-                message: 'Tenant updated successfully',
-                tenant: this.tenants[index],
-              });
-            } else {
-              observer.next({
-                success: false,
-                message: 'Tenant not found',
-                errors: ['Tenant with the specified ID does not exist'],
-              });
-            }
-          } else {
-            // Create new tenant
-            const newTenant: ITenant = {
-              ...(tenant as ITenant),
-              id: this.nextId++,
-              landlordId: tenant.landlordId || 1,
-              age: this.calculateAge(tenant.dob as string),
-              tenantGroup: this.nextId - 1,
-              dateCreated: new Date().toISOString(),
-              dateModified: new Date().toISOString(),
-              documents: tenant.documents || [],
-              children: tenant.children || [],
-            };
-            this.tenants.push(newTenant);
-            observer.next({
-              success: true,
-              message: 'Tenant created successfully',
-              tenant: newTenant,
-            });
-          }
-        } catch (error) {
-          observer.next({
-            success: false,
-            message: 'An error occurred while saving tenant',
-            errors: ['Internal server error'],
-          });
-        }
-        observer.complete();
-      });
-    });
-  }
+  //         if (tenant.id) {
+  //           // Update existing tenant
+  //           const index = this.tenants.findIndex((t) => t.id === tenant.id);
+  //           if (index !== -1) {
+  //             this.tenants[index] = {
+  //               ...this.tenants[index],
+  //               ...tenant,
+  //               dateModified: new Date().toISOString(),
+  //             };
+  //             observer.next({
+  //               success: true,
+  //               message: 'Tenant updated successfully',
+  //               tenant: this.tenants[index],
+  //             });
+  //           } else {
+  //             observer.next({
+  //               success: false,
+  //               message: 'Tenant not found',
+  //               errors: ['Tenant with the specified ID does not exist'],
+  //             });
+  //           }
+  //         } else {
+  //           // Create new tenant
+  //           const newTenant: ITenant = {
+  //             ...(tenant as ITenant),
+  //             id: this.nextId++,
+  //             landlordId: tenant.landlordId || 1,
+  //             age: this.calculateAge(tenant.dob as string),
+  //             tenantGroup: this.nextId - 1,
+  //             dateCreated: new Date().toISOString(),
+  //             dateModified: new Date().toISOString(),
+  //             documents: tenant.documents || [],
+  //             children: tenant.children || [],
+  //           };
+  //           this.tenants.push(newTenant);
+  //           observer.next({
+  //             success: true,
+  //             message: 'Tenant created successfully',
+  //             tenant: newTenant,
+  //           });
+  //         }
+  //       } catch (error) {
+  //         observer.next({
+  //           success: false,
+  //           message: 'An error occurred while saving tenant',
+  //           errors: ['Internal server error'],
+  //         });
+  //       }
+  //       observer.complete();
+  //     });
+  //   });
+  // }
 
   // Delete tenant
   deleteTenant(id: number): Observable<{ success: boolean; message: string }> {
@@ -1561,6 +1569,183 @@ export class TenantService {
     });
   }
 
+  // Get tenants by property ID using API
+  getTenantsByProperty(propertyId: number): Observable<ITenant[]> {
+    return this._http.get<ITenant[]>(
+      `${environment.apiBaseUrl}Tenant/property/${propertyId}`,
+    );
+  }
+
+  // Get tenants by landlord ID using API
+  getTenantsByLandlord(landlordId: number): Observable<ITenant[]> {
+    return this._http.get<ITenant[]>(
+      `${environment.apiBaseUrl}Tenant/landlord/${landlordId}`,
+    );
+  }
+  // Save tenant using real API
+  saveTenant(formData: FormData): Observable<TenantSaveResponse> {
+    return this._http.post<TenantSaveResponse>(
+      `${environment.apiBaseUrl}Tenant/create`,
+      formData,
+    );
+  }
+  // Convert tenant data to FormData for API submission
+  convertTenantToFormData(
+    tenants: any[],
+    propertyData: any,
+    landlordId: number,
+  ): FormData {
+    const formData = new FormData();
+
+    // Add shared property/tenancy details
+    Object.entries(propertyData).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        if (value instanceof Date) {
+          formData.append(key, value.toISOString());
+        } else if (typeof value === 'object') {
+          formData.append(key, JSON.stringify(value));
+        } else {
+          formData.append(key, String(value));
+        }
+      }
+    });
+
+    // Add landlord ID
+    formData.append('landlordId', landlordId.toString());
+
+    // Add tenant data
+    tenants.forEach((tenant, tenantIndex) => {
+      // Handle documents (files + metadata)
+      if (tenant.documents && Array.isArray(tenant.documents)) {
+        tenant.documents.forEach((doc: any, docIndex: number) => {
+          if (doc.file instanceof File) {
+            // Append the actual file
+            formData.append(
+              `tenants[${tenantIndex}].documents[${docIndex}].file`,
+              doc.file,
+              doc.file.name,
+            );
+          }
+
+          // Append metadata fields individually
+          if (doc.name)
+            formData.append(
+              `tenants[${tenantIndex}].documents[${docIndex}].name`,
+              doc.name,
+            );
+          if (doc.type)
+            formData.append(
+              `tenants[${tenantIndex}].documents[${docIndex}].type`,
+              doc.type,
+            );
+          if (doc.size)
+            formData.append(
+              `tenants[${tenantIndex}].documents[${docIndex}].size`,
+              doc.size.toString(),
+            );
+          if (doc.category)
+            formData.append(
+              `tenants[${tenantIndex}].documents[${docIndex}].category`,
+              doc.category.toString(),
+            );
+          if (doc.description)
+            formData.append(
+              `tenants[${tenantIndex}].documents[${docIndex}].description`,
+              doc.description,
+            );
+          if (doc.ownerId)
+            formData.append(
+              `tenants[${tenantIndex}].documents[${docIndex}].ownerId`,
+              doc.ownerId.toString(),
+            );
+          if (doc.ownerType)
+            formData.append(
+              `tenants[${tenantIndex}].documents[${docIndex}].ownerType`,
+              doc.ownerType,
+            );
+        });
+      }
+
+      // Handle other tenant fields
+      Object.entries(tenant).forEach(([key, value]) => {
+        // Skip documents as they're handled above
+        if (key === 'documents') return;
+
+        // Skip null/undefined values
+        if (value === null || value === undefined) return;
+
+        // Handle arrays (excluding documents)
+        if (Array.isArray(value)) {
+          formData.append(
+            `tenants[${tenantIndex}].${key}`,
+            JSON.stringify(value),
+          );
+        }
+        // Handle Date objects
+        else if (value instanceof Date) {
+          formData.append(
+            `tenants[${tenantIndex}].${key}`,
+            value.toISOString(),
+          );
+        }
+        // Handle nested objects
+        else if (typeof value === 'object') {
+          formData.append(
+            `tenants[${tenantIndex}].${key}`,
+            JSON.stringify(value),
+          );
+        }
+        // Handle primitives (string, number, boolean)
+        else {
+          formData.append(`tenants[${tenantIndex}].${key}`, String(value));
+        }
+      });
+    });
+
+    return formData;
+  }
+
+  // Validate form data using Angular FormGroup
+  validateForm(form: FormGroup): TenantValidationError[] {
+    const errors: TenantValidationError[] = [];
+
+    // Check each form control for errors
+    Object.keys(form.controls).forEach((key) => {
+      const control = form.get(key);
+      if (control && control.errors && control.touched) {
+        if (control.errors['required']) {
+          errors.push({
+            field: key,
+            message: `${this.getFieldDisplayName(key)} is required`,
+          });
+        }
+        if (control.errors['email']) {
+          errors.push({
+            field: key,
+            message: 'Please enter a valid email address',
+          });
+        }
+        if (control.errors['min']) {
+          const minError = control.errors['min'] as {
+            min: number;
+            actual: number;
+          };
+          errors.push({
+            field: key,
+            message: `Minimum value is ${minError.min}`,
+          });
+        }
+        if (control.errors['pattern']) {
+          errors.push({
+            field: key,
+            message: 'Invalid format',
+          });
+        }
+      }
+    });
+
+    return errors;
+  }
   // Private helper methods
   private validateTenant(tenant: Partial<ITenant>): TenantValidationError[] {
     const errors: TenantValidationError[] = [];
@@ -1671,5 +1856,27 @@ export class TenantService {
       age--;
     }
     return age;
+  }
+
+  // Helper method to get field display name
+  private getFieldDisplayName(fieldName: string): string {
+    const fieldNames: { [key: string]: string } = {
+      name: 'Full Name',
+      email: 'Email Address',
+      phoneNumber: 'Phone Number',
+      dob: 'Date of Birth',
+      occupation: 'Occupation',
+      aadhaarNumber: 'Aadhaar Number',
+      panNumber: 'PAN Number',
+      propertyId: 'Property',
+      rentAmount: 'Rent Amount',
+      securityDeposit: 'Security Deposit',
+      tenancyStartDate: 'Tenancy Start Date',
+      rentDueDate: 'Rent Due Date',
+      emergencyContactName: 'Emergency Contact Name',
+      emergencyContactPhone: 'Emergency Contact Phone',
+      emergencyContactRelation: 'Emergency Contact Relation',
+    };
+    return fieldNames[fieldName] || fieldName;
   }
 }

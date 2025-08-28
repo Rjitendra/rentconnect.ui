@@ -73,88 +73,161 @@
         <!-- Template for expanded row content -->
         <ng-template #expandedRowTemplate let-tenant>
           <div class="expanded-content">
-            <h4>
-              <ng-icon name="people" class="icon-info" />
-              🔄 EXPANDED ROW - Tenant Group Details ({{ tenant.tenantGroup }})
-            </h4>
-            <div class="property-info">
-              ✅ EXPANSION IS WORKING! Tenant ID: {{ tenant.id }}
-            </div>
-
-            <div class="tenant-grid">
-              @for (
-                member of getGroupMembers(tenant.tenantGroup);
-                track member.id
-              ) {
-                <div class="tenant-card">
-                  <div class="tenant-header">
-                    <div class="tenant-avatar">
-                      <ng-icon
-                        [name]="member.isPrimary ? 'star' : 'person'"
-                        [class]="member.isPrimary ? 'icon-warning' : ''"
-                      />
-                    </div>
-                    <div class="tenant-name">
-                      <span>{{ member.name }}</span>
-                      @if (member.isPrimary) {
-                        <span class="primary-badge">Primary</span>
-                      }
-                    </div>
+            <!-- Property Information Section -->
+            <div class="expanded-header">
+              <div class="property-section">
+                <div class="section-title">
+                  <ng-icon name="home" class="section-icon" />
+                  <h4>Property Information</h4>
+                </div>
+                <div class="property-details">
+                  <div class="detail-item">
+                    <span class="label">Property:</span>
+                    <span class="value">{{
+                      getPropertyName(tenant.propertyId)
+                    }}</span>
                   </div>
-
-                  <div class="tenant-details">
-                    <div class="detail-row">
-                      <ng-icon
-                        class="icon-small"
-                        [name]="getStatusIcon(member)"
-                      />
-                      <span [class]="getStatusClass(member)">{{
-                        getStatusText(member)
-                      }}</span>
-                    </div>
-
-                    <div class="detail-row">
-                      <span class="label">Email:</span>
-                      <span>{{ member.email }}</span>
-                    </div>
-
-                    <div class="detail-row">
-                      <span class="label">Phone:</span>
-                      <span>{{ member.phoneNumber }}</span>
-                    </div>
-
-                    <div class="detail-row">
-                      <span class="label">Rent:</span>
-                      <span>₹{{ member.rentAmount | number }}</span>
-                    </div>
-
-                    <!-- Quick Actions -->
-                    <div class="tenant-actions">
-                      <ng-button
-                        buttonType="button"
-                        type="icon"
-                        icon="description"
-                        tooltip="Create Agreement"
-                        (buttonClick)="onCreateAgreement(member)"
-                      />
-                      <ng-button
-                        buttonType="button"
-                        type="icon"
-                        icon="edit"
-                        tooltip="Edit"
-                        (buttonClick)="onEditTenant(member)"
-                      />
-                      <ng-button
-                        buttonType="button"
-                        type="icon"
-                        icon="delete"
-                        tooltip="Delete"
-                        (buttonClick)="onDeleteTenant(member)"
-                      />
-                    </div>
+                  <div class="detail-item">
+                    <span class="label">Rent Amount:</span>
+                    <span class="value highlight"
+                      >₹{{ tenant.rentAmount | number }}</span
+                    >
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">Security Deposit:</span>
+                    <span class="value"
+                      >₹{{ tenant.securityDeposit | number }}</span
+                    >
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">Lease Duration:</span>
+                    <span class="value"
+                      >{{ tenant.leaseDuration || "N/A" }} months</span
+                    >
                   </div>
                 </div>
-              }
+              </div>
+            </div>
+
+            <!-- Tenant Group Members Section -->
+            <div class="tenant-group-section">
+              <div class="section-title">
+                <ng-icon name="people" class="section-icon" />
+                <h4>
+                  Tenant Group Members ({{
+                    getGroupMemberCount(tenant.tenantGroup)
+                  }})
+                </h4>
+              </div>
+
+              <div class="tenant-members-grid">
+                @for (
+                  member of getGroupMembers(tenant.tenantGroup);
+                  track member.id
+                ) {
+                  <div
+                    class="member-card"
+                    [class.primary-member]="member.isPrimary"
+                  >
+                    <div class="member-header">
+                      <div class="member-avatar">
+                        <ng-icon
+                          [name]="member.isPrimary ? 'star' : 'person'"
+                          [class]="
+                            member.isPrimary ? 'icon-primary' : 'icon-secondary'
+                          "
+                        />
+                      </div>
+                      <div class="member-info">
+                        <div class="member-name">
+                          <span>{{ member.name }}</span>
+                          @if (member.isPrimary) {
+                            <span class="primary-badge">Primary</span>
+                          }
+                        </div>
+                        <div class="member-status">
+                          <ng-icon
+                            class="status-icon"
+                            [name]="getStatusIcon(member)"
+                          />
+                          <span [class]="getStatusClass(member)">{{
+                            getStatusText(member)
+                          }}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="member-details">
+                      <div class="contact-info">
+                        <div class="contact-item">
+                          <ng-icon name="email" class="contact-icon" />
+                          <span>{{ member.email || "N/A" }}</span>
+                        </div>
+                        <div class="contact-item">
+                          <ng-icon name="phone" class="contact-icon" />
+                          <span>{{ member.phoneNumber || "N/A" }}</span>
+                        </div>
+                        <div class="contact-item">
+                          <ng-icon name="work" class="contact-icon" />
+                          <span>{{ member.occupation || "N/A" }}</span>
+                        </div>
+                      </div>
+
+                      <!-- Member Actions -->
+                      <div class="member-actions">
+                        @if (!member.agreementSigned) {
+                          <ng-button
+                            buttonType="button"
+                            type="outlined"
+                            size="small"
+                            icon="description"
+                            tooltip="Create Agreement"
+                            (buttonClick)="onCreateAgreement(member)"
+                          >
+                            Agreement
+                          </ng-button>
+                        }
+                        @if (member.needsOnboarding) {
+                          <ng-button
+                            buttonType="button"
+                            type="filled"
+                            size="small"
+                            icon="send"
+                            tooltip="Send Onboarding Email"
+                            (buttonClick)="onSendOnboardingEmail(member)"
+                          >
+                            Onboard
+                          </ng-button>
+                        }
+                        <ng-button
+                          buttonType="button"
+                          type="icon"
+                          size="small"
+                          icon="visibility"
+                          tooltip="View Details"
+                          (buttonClick)="onViewTenant(member)"
+                        />
+                        <ng-button
+                          buttonType="button"
+                          type="icon"
+                          size="small"
+                          icon="edit"
+                          tooltip="Edit Tenant"
+                          (buttonClick)="onEditTenant(member)"
+                        />
+                        <ng-button
+                          buttonType="button"
+                          type="icon"
+                          size="small"
+                          icon="delete"
+                          tooltip="Delete Tenant"
+                          (buttonClick)="onDeleteTenant(member)"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
             </div>
           </div>
         </ng-template>
@@ -166,9 +239,8 @@
   @if (currentView === "add") {
     <div class="form-view">
       <app-tenant-add
-        [propertyOptions]="propertyOptions"
         (tenantAdded)="onTenantAdded()"
-        (cancel)="onTenantAddCancelled()"
+        (cancelled)="onTenantAddCancelled()"
       />
     </div>
   }

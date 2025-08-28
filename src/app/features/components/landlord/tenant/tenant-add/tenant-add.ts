@@ -1,4 +1,12 @@
-import { Component, inject, input, OnInit, output } from '@angular/core';
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+import {
+  ChangeDetectorRef,
+  Component,
+  inject,
+  OnInit,
+  output,
+} from '@angular/core';
 import {
   FormArray,
   FormBuilder,
@@ -6,56 +14,42 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { firstValueFrom } from 'rxjs';
+import { Router } from '@angular/router';
 
 // Shared library imports
-
-// Models and enums
 import {
   AlertService,
   FileUploadConfig,
   InputType,
   NgCardComponent,
   NgDatepickerComponent,
-  NgFileUploadComponent,
+  NgDialogService,
   NgIconComponent,
   NgInputComponent,
   NgSelectComponent,
   SelectOption,
   UploadedFile,
 } from '../../../../../../../projects/shared/src/public-api';
-import { DocumentCategory } from '../../../../enums/view.enum';
+import {
+  IUserDetail,
+  OauthService,
+} from '../../../../../oauth/service/oauth.service';
+import { OwnerType } from '../../../../constants/owner-type.constants';
+import { DocumentCategory, PropertyStatus } from '../../../../enums/view.enum';
 import { IDocument } from '../../../../models/document';
-import { ITenant } from '../../../../models/tenant';
+import { IProperty } from '../../../../models/property';
+import {
+  ITenant,
+  TenantSaveResponse,
+  TenantValidationError,
+} from '../../../../models/tenant';
+import { PropertyService } from '../../../../service/property.service';
 import { TenantService } from '../../../../service/tenant.service';
 
-// Form data interfaces for type safety
-interface TenantFormData {
-  name: string;
-  email: string;
-  phoneNumber: string;
-  dob: string;
-  occupation: string;
-  documents: UploadedFile[];
-}
-
-interface TenantAddFormData {
-  propertyId: number;
-  rentAmount: number;
-  securityDeposit: number;
-  maintenanceCharges: number;
-  tenancyStartDate: string;
-  tenancyEndDate: string;
-  rentDueDate: string;
-  leaseDuration: number;
-  noticePeriod: number;
-  tenants: TenantFormData[];
-}
-
-interface TenantSaveResponse {
-  success: boolean;
-  message: string;
-}
+import {
+  DocumentUploadModalComponent,
+  DocumentUploadResult,
+} from './document-upload-modal/document-upload-modal.component';
 
 @Component({
   selector: 'app-tenant-add',
@@ -66,14 +60,12 @@ interface TenantSaveResponse {
     NgInputComponent,
     NgSelectComponent,
     NgDatepickerComponent,
-    NgFileUploadComponent,
     NgIconComponent,
   ],
   templateUrl: './tenant-add.html',
   styleUrl: './tenant-add.scss',
 })
 export class TenantAddComponent implements OnInit {
-  readonly propertyOptions = input<SelectOption[]>([]);
   readonly tenantAdded = output<void>();
   readonly cancelled = output<void>();
 
@@ -81,39 +73,188 @@ export class TenantAddComponent implements OnInit {
   tenantForm!: FormGroup;
   isSaving = false;
 
+  // Property options for dropdown
+  propertyOptions: SelectOption[] = [];
+  isLoadingProperties = false;
+
   // Enums for template
   InputType = InputType;
+
+  // Validation errors
+  validationErrors: TenantValidationError[] = [];
+  isShowingValidationErrors = false;
+  userdetail: Partial<IUserDetail> = {};
 
   // Document upload configuration
   documentUploadConfig: FileUploadConfig = {
     maxFileSize: 5 * 1024 * 1024, // 5MB
-    maxFiles: 10,
+    maxFiles: 5,
     acceptedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'],
     allowMultiple: true,
   };
 
+  // Document categories for tenants
+  documentCategories: SelectOption[] = [
+    { value: DocumentCategory.Aadhaar, label: 'Aadhaar Card' },
+    { value: DocumentCategory.PAN, label: 'PAN Card' },
+    { value: DocumentCategory.AddressProof, label: 'Address Proof' },
+    { value: DocumentCategory.EmploymentProof, label: 'Employment Proof' },
+    { value: DocumentCategory.BankProof, label: 'Bank Statement' },
+    { value: DocumentCategory.ProfilePhoto, label: 'Profile Photo' },
+    { value: DocumentCategory.IdProof, label: 'ID Proof' },
+    {
+      value: DocumentCategory.RentalAgreement,
+      label: 'Previous Rental Agreement',
+    },
+  ];
+  // Categorized documents for each tenant
+  tenantDocuments: Map<number, Map<DocumentCategory, UploadedFile[]>> =
+    new Map();
+
   private fb = inject(FormBuilder);
+  private router = inject(Router);
   private alertService = inject(AlertService);
   private tenantService = inject(TenantService);
+  private propertyService = inject(PropertyService);
+  private userService = inject(OauthService);
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+  private dialogService = inject(NgDialogService);
+  private cdr = inject(ChangeDetectorRef);
   constructor() {
-    this.initializeForm();
+    this.userdetail = this.userService.getUserInfo();
   }
   // Form Array Helper Methods
   get tenantsFormArray(): FormArray {
     return this.tenantForm.get('tenants') as FormArray;
   }
+  // Get available categories for dropdown (excluding already used ones)
+  getAvailableCategories(tenantIndex: number): SelectOption[] {
+    const usedCategories = Array.from(
+      this.tenantDocuments.get(tenantIndex)?.keys() || [],
+    );
+    return this.documentCategories.filter(
+      (cat) => !usedCategories.includes(cat.value as DocumentCategory),
+    );
+  }
+
+  // Open document upload modal
+  openDocumentUploadModal(tenantIndex: number) {
+    const tenantName = this.getTenantFormGroup(tenantIndex).get('name')?.value;
+    const availableCategories = this.getAvailableCategories(tenantIndex);
+
+    if (availableCategories.length === 0) {
+      this.alertService.error({
+        errors: [
+          {
+            message:
+              'All document categories have been uploaded for this tenant.',
+            errorType: 'error',
+          },
+        ],
+        timeout: 3000,
+      });
+      return;
+    }
+
+    const dialogRef = this.dialogService.open(DocumentUploadModalComponent, {
+      data: {
+        availableCategories,
+        tenantName: tenantName || `Tenant ${tenantIndex + 1}`,
+        tenantIndex,
+      },
+      width: '600px',
+      maxWidth: '90vw',
+      maxHeight: '85vh',
+      height: 'auto',
+      disableClose: false,
+      hasBackdrop: true,
+      backdropClass: 'document-modal-backdrop',
+    });
+
+    dialogRef.afterClosed().subscribe((result: DocumentUploadResult | null) => {
+      if (result) {
+        this.onDocumentCategoryUploaded(
+          result.files,
+          tenantIndex,
+          result.category,
+        );
+        // Trigger change detection to update the UI immediately
+        setTimeout(() => {
+          this.cdr.detectChanges();
+        }, 0);
+      }
+    });
+  }
+
+  // Get uploaded documents count for a tenant
+  getUploadedDocumentsCount(tenantIndex: number): number {
+    const tenantDocs = this.tenantDocuments.get(tenantIndex);
+    if (!tenantDocs) return 0;
+
+    let count = 0;
+    tenantDocs.forEach((files) => (count += files.length));
+    return count;
+  }
+
+  // Get uploaded categories for a tenant
+  getUploadedCategories(tenantIndex: number): string[] {
+    const tenantDocs = this.tenantDocuments.get(tenantIndex);
+    if (!tenantDocs) return [];
+
+    // Create new array to ensure change detection triggers
+    return [...Array.from(tenantDocs.keys())].map((category) =>
+      this.getCategoryLabel(category),
+    );
+  }
+
+  // Remove all documents for a category
+  removeDocumentCategory(tenantIndex: number, category: DocumentCategory) {
+    if (!this.tenantDocuments.has(tenantIndex)) return;
+
+    const tenantDocs = this.tenantDocuments.get(tenantIndex)!;
+    tenantDocs.delete(category);
+
+    // Update form control with all documents
+    this.updateTenantFormDocuments(tenantIndex);
+
+    // Trigger change detection to update the UI immediately
+    this.cdr.detectChanges();
+  }
+
   ngOnInit() {
     this.initializeForm();
+    this.loadProperties();
+
+    // Initialize document storage for first tenant
+    this.tenantDocuments.set(0, new Map());
   }
 
   addTenant() {
     const newTenant = this.createTenantFormGroup();
+    const tenantIndex = this.tenantsFormArray.length;
     this.tenantsFormArray.push(newTenant);
+
+    // Initialize document storage for new tenant
+    this.tenantDocuments.set(tenantIndex, new Map());
   }
 
   removeTenant(index: number) {
     if (this.tenantsFormArray.length > 1) {
       this.tenantsFormArray.removeAt(index);
+
+      // Remove documents for this tenant
+      this.tenantDocuments.delete(index);
+
+      // Re-index remaining tenant documents
+      const newMap = new Map();
+      let newIndex = 0;
+      this.tenantDocuments.forEach((docs, oldIndex) => {
+        if (oldIndex !== index) {
+          newMap.set(newIndex, docs);
+          newIndex++;
+        }
+      });
+      this.tenantDocuments = newMap;
 
       // Ensure at least one tenant is marked as primary
       const hasPrimary = this.tenantsFormArray.controls.some(
@@ -142,17 +283,67 @@ export class TenantAddComponent implements OnInit {
 
   // Form submission
   onSubmit() {
-    if (this.tenantForm.valid && !this.isSaving) {
-      this.isSaving = true;
+    if (this.isSaving) return; // Prevent double submission
 
-      const formData = this.tenantForm.value as TenantAddFormData;
-      const tenantPromises: Promise<TenantSaveResponse>[] = [];
+    // Clear previous validation errors
+    this.validationErrors = [];
 
-      // Create tenant save requests for each tenant
-      formData.tenants.forEach((tenantData: TenantFormData) => {
-        const tenantToSave: Partial<ITenant> = {
-          ...tenantData,
-          // Copy shared property/tenancy details to each tenant
+    // Validate form using service
+    const formErrors = this.tenantService.validateForm(this.tenantForm);
+    if (formErrors.length > 0) {
+      this.validationErrors = formErrors;
+      this.showValidationErrors();
+      return;
+    }
+
+    if (this.tenantForm.invalid) {
+      this.tenantForm.markAllAsTouched();
+      return;
+    }
+
+    this.isSaving = true;
+
+    try {
+      const formData = this.tenantForm.value as {
+        tenants: ITenant[];
+        propertyId: number;
+        rentAmount: number;
+        securityDeposit: number;
+        maintenanceCharges: number;
+        tenancyStartDate: string;
+        tenancyEndDate: string;
+        rentDueDate: string;
+        leaseDuration: number;
+        noticePeriod: number;
+      };
+      const landlordId = this.userdetail?.userId
+        ? Number(this.userdetail.userId)
+        : 0;
+
+      // Prepare tenant data with documents
+      const tenantsWithDocuments = formData.tenants.map((tenant, index) => ({
+        ...tenant,
+        age: this.calculateAge(tenant.dob as string),
+        documents: this.convertCategorizedDocuments(index, landlordId),
+        landlordId: landlordId,
+        tenantGroup: Date.now(), // Use timestamp as group ID
+        dateCreated: new Date().toISOString(),
+        dateModified: new Date().toISOString(),
+        // Default status values
+        agreementSigned: false,
+        onboardingEmailSent: false,
+        onboardingCompleted: false,
+        isAcknowledge: false,
+        isVerified: false,
+        isNewTenant: true,
+        isActive: true,
+        needsOnboarding: true,
+      }));
+
+      // Convert to FormData for file upload support
+      const apiFormData = this.tenantService.convertTenantToFormData(
+        tenantsWithDocuments as ITenant[],
+        {
           propertyId: formData.propertyId,
           rentAmount: formData.rentAmount,
           securityDeposit: formData.securityDeposit,
@@ -162,101 +353,315 @@ export class TenantAddComponent implements OnInit {
           rentDueDate: formData.rentDueDate,
           leaseDuration: formData.leaseDuration,
           noticePeriod: formData.noticePeriod,
+        },
+        landlordId,
+      );
 
-          // Calculate age from DOB
-          age: this.calculateAge(tenantData.dob),
-
-          // Convert documents to proper format
-          documents: this.convertToDocuments(tenantData.documents),
-
-          // Set default values
-          landlordId: 1, // TODO: Get from auth service
-          tenantGroup: Date.now(), // Use timestamp as group ID for now
-          dateCreated: new Date().toISOString(),
-          dateModified: new Date().toISOString(),
-
-          // Default status values
-          agreementSigned: false,
-          onboardingEmailSent: false,
-          onboardingCompleted: false,
-          isAcknowledge: false,
-          isVerified: false,
-        };
-
-        tenantPromises.push(
-          firstValueFrom(this.tenantService.saveTenant(tenantToSave)),
-        );
-      });
-
-      // Execute all tenant save operations
-      Promise.all(tenantPromises)
-        .then((responses: TenantSaveResponse[]) => {
+      this.tenantService.saveTenant(apiFormData).subscribe({
+        next: (response: TenantSaveResponse) => {
           this.isSaving = false;
+          if (response.success) {
+            // Clear any previous errors
+            this.validationErrors = [];
+            this.isShowingValidationErrors = false;
 
-          const successCount = responses.filter((r) => r.success).length;
-          const totalCount = responses.length;
-
-          if (successCount === totalCount) {
-            this.showSuccess(
-              `Successfully added ${successCount} tenant${successCount > 1 ? 's' : ''} to the property`,
-            );
-            // TODO: The 'emit' function requires a mandatory void argument
-            this.tenantAdded.emit();
-          } else {
-            this.showError(
-              `Added ${successCount} out of ${totalCount} tenants. Some tenants failed to save.`,
-            );
-            // Show individual errors
-            responses.forEach((response, index) => {
-              if (!response.success) {
-                this.showError(`Tenant ${index + 1}: ${response.message}`);
-              }
+            // Show success message
+            this.alertService.success({
+              errors: [
+                {
+                  message: response.message,
+                  errorType: 'success',
+                },
+              ],
+              timeout: 5000,
             });
+
+            // Navigate back to tenant list or show success page
+            setTimeout(() => {
+              this.router.navigate(['/landlord/tenant/dashboard']);
+            }, 2000);
+          } else {
+            this.validationErrors =
+              response.errors?.map((error) => ({
+                field: 'general',
+                message: error,
+              })) || [];
+            this.showValidationErrors();
           }
-        })
-        .catch((error) => {
+        },
+        error: (error) => {
           this.isSaving = false;
-          this.showError('Failed to save tenants');
           console.error('Error saving tenants:', error);
-        });
+          this.alertService.error({
+            errors: [
+              {
+                message:
+                  'An error occurred while saving the tenants. Please try again.',
+                errorType: 'error',
+              },
+            ],
+            timeout: 5000,
+          });
+        },
+      });
+    } catch (error) {
+      this.isSaving = false;
+      this.alertService.error({
+        errors: [
+          {
+            message:
+              'Failed to prepare tenant data for saving. Please check your input and try again.',
+            errorType: 'error',
+          },
+        ],
+        timeout: 5000,
+      });
     }
   }
 
   onCancel() {
-    // TODO: The 'emit' function requires a mandatory void argument
-    this.cancelled.emit();
+    this.tenantAdded.emit();
   }
 
-  // Document handling for individual tenants
-  onTenantDocumentsUploaded(files: UploadedFile[], tenantIndex: number) {
-    const tenantFormGroup = this.getTenantFormGroup(tenantIndex);
-    const currentDocuments = tenantFormGroup.get('documents')?.value || [];
-
-    const newDocuments = files.map((file) => ({
-      category: this.getDocumentCategory(file.name || ''),
-      fileUrl: file.url,
-      fileName: file.name,
-      fileType: file.type,
-      fileSize: file.size,
-    }));
-
-    tenantFormGroup.patchValue({
-      documents: [...currentDocuments, ...newDocuments],
-    });
+  goBack() {
+    this.router.navigate(['/landlord/tenant/dashboard']);
   }
 
-  onTenantDocumentDeleted(file: UploadedFile, tenantIndex: number) {
-    const tenantFormGroup = this.getTenantFormGroup(tenantIndex);
-    const currentDocuments =
-      (tenantFormGroup.get('documents')?.value as UploadedFile[]) || [];
+  showValidationErrors() {
+    if (this.validationErrors.length > 0) {
+      this.isShowingValidationErrors = true;
 
-    const updatedDocuments = currentDocuments.filter(
-      (doc: UploadedFile) => doc.url !== file.url,
+      // Clear any existing alerts first
+      this.alertService.clearAlert();
+
+      // Mark all form controls as touched to show validation errors
+      this.tenantForm.markAllAsTouched();
+
+      // Create individual error messages
+      const errorMessages = this.validationErrors.map((error) => ({
+        message: error.message,
+        errorType: 'error' as const,
+      }));
+
+      // Add header message
+      const allMessages = [
+        {
+          message: `Please fix the following ${this.validationErrors.length} validation error(s):`,
+          errorType: 'error' as const,
+        },
+        ...errorMessages,
+      ];
+
+      // Use a small timeout to ensure previous alerts are cleared
+      this.alertService.error({
+        errors: allMessages,
+      });
+    }
+  }
+
+  // Helper method to check if a field is invalid
+  isFieldInvalid(fieldName: string): boolean {
+    const control = this.tenantForm.get(fieldName);
+    return !!(control && control.invalid && control.touched);
+  }
+
+  // Helper method to get field error message
+  getFieldErrorMessage(fieldName: string): string {
+    const control = this.tenantForm.get(fieldName);
+    if (control && control.errors && control.touched) {
+      const errors = control.errors;
+
+      if (errors['required']) {
+        return `${this.getFieldDisplayName(fieldName)} is required`;
+      }
+
+      if (errors['email']) {
+        return 'Please enter a valid email address';
+      }
+
+      if (errors['min']) {
+        const minError = errors['min'] as { min: number; actual: number };
+        return `Minimum value is ${minError.min}`;
+      }
+
+      if (errors['pattern']) {
+        return 'Invalid format';
+      }
+    }
+    return '';
+  }
+
+  // Document handling for individual tenants by category
+  onDocumentCategoryUploaded(
+    files: UploadedFile[],
+    tenantIndex: number,
+    category: DocumentCategory,
+  ) {
+    if (!this.tenantDocuments.has(tenantIndex)) {
+      this.tenantDocuments.set(tenantIndex, new Map());
+    }
+
+    const tenantDocs = this.tenantDocuments.get(tenantIndex)!;
+    tenantDocs.set(category, files);
+
+    // Update form control with all documents
+    this.updateTenantFormDocuments(tenantIndex);
+
+    // Force UI update by marking form as touched
+    this.tenantForm.markAsTouched();
+
+    // Trigger change detection to update the UI immediately
+    this.cdr.detectChanges();
+  }
+
+  onDocumentCategoryRemoved(
+    file: UploadedFile,
+    tenantIndex: number,
+    category: DocumentCategory,
+  ) {
+    if (!this.tenantDocuments.has(tenantIndex)) return;
+
+    const tenantDocs = this.tenantDocuments.get(tenantIndex)!;
+    const categoryFiles = tenantDocs.get(category) || [];
+
+    const updatedFiles = categoryFiles.filter((f) => f.url !== file.url);
+
+    if (updatedFiles.length > 0) {
+      tenantDocs.set(category, updatedFiles);
+    } else {
+      tenantDocs.delete(category);
+    }
+
+    // Update form control with all documents
+    this.updateTenantFormDocuments(tenantIndex);
+
+    // Trigger change detection to update the UI immediately
+    this.cdr.detectChanges();
+  }
+
+  // Get documents for a specific category and tenant
+  getDocumentsByCategory(
+    tenantIndex: number,
+    category: DocumentCategory,
+  ): UploadedFile[] {
+    const files = this.tenantDocuments.get(tenantIndex)?.get(category) || [];
+    // Return new array to ensure change detection triggers
+    return [...files];
+  }
+
+  // Get all documents for a tenant
+  getAllTenantDocuments(tenantIndex: number): UploadedFile[] {
+    const tenantDocs = this.tenantDocuments.get(tenantIndex);
+    if (!tenantDocs) return [];
+
+    const allDocs: UploadedFile[] = [];
+    tenantDocs.forEach((files) => allDocs.push(...files));
+    return allDocs;
+  }
+
+  // Get category label
+  getCategoryLabel(category: DocumentCategory): string {
+    const categoryOption = this.documentCategories.find(
+      (c) => c.value === category,
     );
+    return categoryOption?.label || 'Unknown Category';
+  }
 
-    tenantFormGroup.patchValue({
-      documents: updatedDocuments,
-    });
+  // Get category icon
+  getCategoryIcon(category: DocumentCategory): string {
+    switch (category) {
+      case DocumentCategory.Aadhaar:
+        return 'credit_card';
+      case DocumentCategory.PAN:
+        return 'credit_card';
+      case DocumentCategory.AddressProof:
+        return 'home';
+      case DocumentCategory.EmploymentProof:
+        return 'work';
+      case DocumentCategory.BankProof:
+        return 'account_balance';
+      case DocumentCategory.ProfilePhoto:
+        return 'person';
+      case DocumentCategory.IdProof:
+        return 'badge';
+      case DocumentCategory.RentalAgreement:
+        return 'description';
+      default:
+        return 'upload_file';
+    }
+  }
+
+  // Get category hint
+  getCategoryHint(category: DocumentCategory): string {
+    switch (category) {
+      case DocumentCategory.Aadhaar:
+        return 'Upload clear copy of Aadhaar card (front and back)';
+      case DocumentCategory.PAN:
+        return 'Upload PAN card copy';
+      case DocumentCategory.AddressProof:
+        return 'Utility bill, bank statement, or rental agreement';
+      case DocumentCategory.EmploymentProof:
+        return 'Salary slips, employment letter, or offer letter';
+      case DocumentCategory.BankProof:
+        return 'Bank statements for last 3 months';
+      case DocumentCategory.ProfilePhoto:
+        return 'Recent passport-size photograph';
+      case DocumentCategory.IdProof:
+        return 'Driving license, voter ID, or passport';
+      case DocumentCategory.RentalAgreement:
+        return 'Previous rental agreements if applicable';
+      default:
+        return 'Upload relevant documents';
+    }
+  }
+
+  // Check if category is required
+  isCategoryRequired(category: DocumentCategory): boolean {
+    const requiredCategories = [
+      DocumentCategory.Aadhaar,
+      DocumentCategory.PAN,
+      DocumentCategory.AddressProof,
+      DocumentCategory.ProfilePhoto,
+    ];
+    return requiredCategories.includes(category);
+  }
+
+  // Get file icon based on file type
+  getFileIcon(fileType: string): string {
+    if (fileType.includes('pdf')) return 'picture_as_pdf';
+    if (fileType.includes('image')) return 'image';
+    if (fileType.includes('doc')) return 'description';
+    return 'attach_file';
+  }
+
+  // Format file size
+  formatFileSize(bytes: number): string {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+  // Helper method to get user-friendly field names
+  private getFieldDisplayName(fieldName: string): string {
+    const fieldNames: { [key: string]: string } = {
+      name: 'Full Name',
+      email: 'Email Address',
+      phoneNumber: 'Phone Number',
+      dob: 'Date of Birth',
+      occupation: 'Occupation',
+      aadhaarNumber: 'Aadhaar Number',
+      panNumber: 'PAN Number',
+      propertyId: 'Property',
+      rentAmount: 'Rent Amount',
+      securityDeposit: 'Security Deposit',
+      tenancyStartDate: 'Tenancy Start Date',
+      rentDueDate: 'Rent Due Date',
+      emergencyContactName: 'Emergency Contact Name',
+      emergencyContactPhone: 'Emergency Contact Phone',
+      emergencyContactRelation: 'Emergency Contact Relation',
+    };
+    return fieldNames[fieldName] || fieldName;
   }
 
   private initializeForm() {
@@ -320,7 +725,7 @@ export class TenantAddComponent implements OnInit {
       isActive: [true],
       needsOnboarding: [true],
 
-      // Documents for this tenant
+      // Documents for this tenant (will be populated from categorized uploads)
       documents: [[]],
     });
   }
@@ -339,10 +744,13 @@ export class TenantAddComponent implements OnInit {
     return age;
   }
 
-  private convertToDocuments(uploadedFiles: UploadedFile[]): IDocument[] {
-    return uploadedFiles.map((file) => ({
-      ownerId: 1, // TODO: Get tenant ID after creation
-      ownerType: 'tenant',
+  private convertToDocuments(
+    uploadedFiles: UploadedFile[],
+    ownerId: number,
+  ): IDocument[] {
+    return uploadedFiles.map((file, index) => ({
+      ownerId: ownerId,
+      ownerType: OwnerType.TENANT,
       category: this.getDocumentCategory(file.name || ''),
       file: file.file,
       name: file.name,
@@ -351,7 +759,39 @@ export class TenantAddComponent implements OnInit {
       url: file.url,
       uploadedOn: new Date().toISOString(),
       isVerified: false,
+      description: `Tenant document ${index + 1}`,
     }));
+  }
+
+  // Convert categorized documents to IDocument array
+  private convertCategorizedDocuments(
+    tenantIndex: number,
+    ownerId: number,
+  ): IDocument[] {
+    const tenantDocs = this.tenantDocuments.get(tenantIndex);
+    if (!tenantDocs) return [];
+
+    const documents: IDocument[] = [];
+
+    tenantDocs.forEach((files, category) => {
+      files.forEach((file, fileIndex) => {
+        documents.push({
+          ownerId: ownerId,
+          ownerType: OwnerType.TENANT,
+          category: category,
+          file: file.file,
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          url: file.url,
+          uploadedOn: new Date().toISOString(),
+          isVerified: false,
+          description: `${this.getCategoryLabel(category)} - File ${fileIndex + 1}`,
+        });
+      });
+    });
+
+    return documents;
   }
 
   private getDocumentCategory(fileName: string): DocumentCategory {
@@ -378,5 +818,46 @@ export class TenantAddComponent implements OnInit {
       errors: [{ message, errorType: 'error' }],
       timeout: 5000,
     });
+  }
+
+  // Load properties for the current landlord
+  private loadProperties() {
+    const landlordId = this.userdetail?.userId
+      ? Number(this.userdetail.userId)
+      : 0;
+    if (landlordId > 0) {
+      this.isLoadingProperties = true;
+      this.propertyService.getProperties(landlordId).subscribe({
+        next: (properties: IProperty[]) => {
+          this.propertyOptions = properties
+            .filter((p) => p.status !== PropertyStatus.Draft) // Only show published properties
+            .map((property) => ({
+              value: property.id!.toString(),
+              label: `${property.title} - ${property.locality}, ${property.city}`,
+            }));
+          this.isLoadingProperties = false;
+        },
+        error: (error) => {
+          console.error('Error loading properties:', error);
+          this.isLoadingProperties = false;
+          this.alertService.error({
+            errors: [
+              {
+                message: 'Failed to load properties. Please refresh the page.',
+                errorType: 'error',
+              },
+            ],
+            timeout: 5000,
+          });
+        },
+      });
+    }
+  }
+
+  // Update tenant form control with all documents
+  private updateTenantFormDocuments(tenantIndex: number) {
+    const allDocuments = this.getAllTenantDocuments(tenantIndex);
+    const tenantFormGroup = this.getTenantFormGroup(tenantIndex);
+    tenantFormGroup.patchValue({ documents: allDocuments });
   }
 }

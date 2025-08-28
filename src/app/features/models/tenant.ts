@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { IDocument } from './document';
 import { ILandlord } from './landlord';
 import { IProperty } from './property';
@@ -92,6 +93,18 @@ export interface ITenant {
   tickets?: ITicket[];
   documents?: IDocument[];
   children?: TenantChildren[];
+}
+
+export interface TenantSaveResponse {
+  success: boolean;
+  message: string;
+  tenant?: ITenant;
+  errors?: string[];
+}
+
+export interface TenantValidationError {
+  field: string;
+  message: string;
 }
 
 export interface TenantChildren {

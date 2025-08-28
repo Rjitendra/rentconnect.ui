@@ -6,12 +6,17 @@ import {
   NgButton,
   NgIconComponent,
   NgMatTable,
-  SelectOption,
   TableColumn,
   TableOptions,
 } from '../../../../../../../projects/shared/src/public-api';
 // Models and enums
+import {
+  IUserDetail,
+  OauthService,
+} from '../../../../../oauth/service/oauth.service';
+import { IProperty } from '../../../../models/property';
 import { ITenant } from '../../../../models/tenant';
+import { PropertyService } from '../../../../service/property.service';
 import { TenantService } from '../../../../service/tenant.service';
 import { TenantAddComponent } from '../tenant-add/tenant-add';
 
@@ -39,6 +44,8 @@ export class TenantDashboard implements OnInit {
   tenants: ITenant[] = [];
   primaryTenants: ITenant[] = []; // Only primary tenants for table display
   tenantGroups: Map<number, ITenant[]> = new Map(); // Grouped tenants by tenantGroup
+  properties: IProperty[] = [];
+  userdetail: Partial<IUserDetail> = {};
 
   // NgMatTable configuration
   tableColumns: TableColumn[] = [
@@ -96,24 +103,17 @@ export class TenantDashboard implements OnInit {
     pageSizeOptions: [5, 10, 20],
   };
 
-  // Select options for tenant-add component
-  propertyOptions: SelectOption[] = [
-    { value: 1, label: '2BHK Apartment - Sector 15, Gurgaon' },
-    { value: 2, label: '3BHK House - Green Valley, Mumbai' },
-    { value: 3, label: '1BHK Studio - Tech Park, Bangalore' },
-    { value: 4, label: '2BHK Flat - Electronic City, Bangalore' },
-    { value: 5, label: '3BHK Villa - Koramangala, Bangalore' },
-    { value: 6, label: '4BHK House - Satellite, Ahmedabad' },
-    { value: 7, label: '1BHK Apartment - Bandra West, Mumbai' },
-    { value: 8, label: '2BHK Apartment - Jayanagar, Bangalore' },
-  ];
-
   private alertService = inject(AlertService);
   private tenantService = inject(TenantService);
+  private propertyService = inject(PropertyService);
+  private userService = inject(OauthService);
 
-  constructor() {}
+  constructor() {
+    this.userdetail = this.userService.getUserInfo();
+  }
 
   ngOnInit() {
+    this.loadProperties();
     this.loadTenants();
   }
 
@@ -134,8 +134,10 @@ export class TenantDashboard implements OnInit {
 
   // Table helper methods
   getPropertyName(propertyId: number): string {
-    const property = this.propertyOptions.find((p) => p.value === propertyId);
-    return property ? property.label : 'Unknown Property';
+    const property = this.properties.find((p) => p.id === propertyId);
+    return property
+      ? `${property.title} - ${property.locality}, ${property.city}`
+      : 'Unknown Property';
   }
 
   getStatusClass(tenant: ITenant): string {
@@ -358,15 +360,37 @@ export class TenantDashboard implements OnInit {
     });
   }
   private loadTenants() {
-    this.tenantService.getAllTenants().subscribe({
-      next: (tenants: ITenant[]) => {
-        this.tenants = tenants;
-        this.processTenantData();
-      },
-      error: (error: unknown) => {
-        this.showError('Failed to load tenants');
-        console.error('Error loading tenants:', error);
-      },
-    });
+    const landlordId = this.userdetail?.userId
+      ? Number(this.userdetail.userId)
+      : 0;
+    if (landlordId > 0) {
+      this.tenantService.getTenantsByLandlord(landlordId).subscribe({
+        next: (tenants: ITenant[]) => {
+          this.tenants = tenants;
+          this.processTenantData();
+        },
+        error: (error: unknown) => {
+          this.showError('Failed to load tenants');
+          console.error('Error loading tenants:', error);
+        },
+      });
+    }
+  }
+
+  // Load properties for the current landlord
+  private loadProperties() {
+    const landlordId = this.userdetail?.userId
+      ? Number(this.userdetail.userId)
+      : 0;
+    if (landlordId > 0) {
+      this.propertyService.getProperties(landlordId).subscribe({
+        next: (properties: IProperty[]) => {
+          this.properties = properties;
+        },
+        error: (error) => {
+          console.error('Error loading properties:', error);
+        },
+      });
+    }
   }
 }
