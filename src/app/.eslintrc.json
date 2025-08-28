@@ -9,7 +9,7 @@
           "error",
           {
             "type": "element",
-            "prefix": ["ng"],
+            "prefix": ["app"],
             "style": "kebab-case"
           }
         ]

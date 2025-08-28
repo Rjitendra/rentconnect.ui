@@ -115,7 +115,7 @@
       },
       "root": "projects/shared",
       "sourceRoot": "projects/shared/src",
-      "prefix": "",
+      "prefix": "ng",
       "architect": {
         "build": {
           "builder": "@angular/build:ng-packagr",

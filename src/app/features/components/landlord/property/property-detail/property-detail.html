@@ -328,20 +328,25 @@
 
 <!-- More Options Menu -->
 <ng-menu #moreMenu="ngMenu">
-  <button ng-menu-item (click)="markAsFavorite()">
+  <button type="button" ng-menu-item (click)="markAsFavorite()">
     <ng-icon name="favorite_border" />
     <span>Add to Favorites</span>
   </button>
-  <button ng-menu-item (click)="reportProperty()">
+  <button type="button" ng-menu-item (click)="reportProperty()">
     <ng-icon name="report" />
     <span>Report Property</span>
   </button>
-  <button ng-menu-item (click)="downloadDetails()">
+  <button type="button" ng-menu-item (click)="downloadDetails()">
     <ng-icon name="download" />
     <span>Download Details</span>
   </button>
   <ng-divider />
-  <button ng-menu-item class="danger-item" (click)="deleteProperty()">
+  <button
+    type="button"
+    ng-menu-item
+    class="danger-item"
+    (click)="deleteProperty()"
+  >
     <ng-icon name="delete" />
     <span>Delete Property</span>
   </button>

@@ -69,6 +69,7 @@
           }
         ],
         "@typescript-eslint/no-unsafe-assignment": "off",
+        "@typescript-eslint/unbound-method": "off",
 
         // 🔥 General ESLint rules
         "eqeqeq": "error",
