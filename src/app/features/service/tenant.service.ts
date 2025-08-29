@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
@@ -1591,8 +1587,8 @@ export class TenantService {
   }
   // Convert tenant data to FormData for API submission
   convertTenantToFormData(
-    tenants: any[],
-    propertyData: any,
+    tenants: ITenant[],
+    propertyData: Record<string, unknown>,
     landlordId: number,
   ): FormData {
     const formData = new FormData();
@@ -1617,7 +1613,7 @@ export class TenantService {
     tenants.forEach((tenant, tenantIndex) => {
       // Handle documents (files + metadata)
       if (tenant.documents && Array.isArray(tenant.documents)) {
-        tenant.documents.forEach((doc: any, docIndex: number) => {
+        tenant.documents.forEach((doc: IDocument, docIndex: number) => {
           if (doc.file instanceof File) {
             // Append the actual file
             formData.append(

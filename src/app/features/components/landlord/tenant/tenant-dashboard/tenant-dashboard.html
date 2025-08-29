@@ -66,8 +66,8 @@
           [expandedRowTemplate]="expandedRowTemplate"
           [expandKey]="'id'"
           [isPaginator]="true"
-          (rowClick)="onRowClick($event)"
-          (rowExpand)="onRowExpand($event)"
+          (rowClick)="onRowClick($any($event))"
+          (rowExpand)="onRowExpand($any($event))"
         />
 
         <!-- Template for expanded row content -->

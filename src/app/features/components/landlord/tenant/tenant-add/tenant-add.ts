@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import {
   ChangeDetectorRef,
   Component,
@@ -117,7 +115,7 @@ export class TenantAddComponent implements OnInit {
   private tenantService = inject(TenantService);
   private propertyService = inject(PropertyService);
   private userService = inject(OauthService);
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+
   private dialogService = inject(NgDialogService);
   private cdr = inject(ChangeDetectorRef);
   constructor() {
