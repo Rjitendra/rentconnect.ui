@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { IDocument } from './document';
 import { ILandlord } from './landlord';
 import { IProperty } from './property';

@@ -33,7 +33,7 @@ import {
   OauthService,
 } from '../../../../../oauth/service/oauth.service';
 import { OwnerType } from '../../../../constants/owner-type.constants';
-import { DocumentCategory, PropertyStatus } from '../../../../enums/view.enum';
+import { DocumentCategory } from '../../../../enums/view.enum';
 import { IDocument } from '../../../../models/document';
 import { IProperty } from '../../../../models/property';
 import {
@@ -125,6 +125,15 @@ export class TenantAddComponent implements OnInit {
   get tenantsFormArray(): FormArray {
     return this.tenantForm.get('tenants') as FormArray;
   }
+
+  ngOnInit() {
+    this.initializeForm();
+    this.loadProperties();
+
+    // Initialize document storage for first tenant
+    this.tenantDocuments.set(0, new Map());
+  }
+
   // Get available categories for dropdown (excluding already used ones)
   getAvailableCategories(tenantIndex: number): SelectOption[] {
     const usedCategories = Array.from(
@@ -217,14 +226,6 @@ export class TenantAddComponent implements OnInit {
 
     // Trigger change detection to update the UI immediately
     this.cdr.detectChanges();
-  }
-
-  ngOnInit() {
-    this.initializeForm();
-    this.loadProperties();
-
-    // Initialize document storage for first tenant
-    this.tenantDocuments.set(0, new Map());
   }
 
   addTenant() {
@@ -324,7 +325,7 @@ export class TenantAddComponent implements OnInit {
         age: this.calculateAge(tenant.dob as string),
         documents: this.convertCategorizedDocuments(index, landlordId),
         landlordId: landlordId,
-        tenantGroup: Date.now(), // Use timestamp as group ID
+        // tenantGroup: 0, // Use timestamp as group ID
         dateCreated: new Date().toISOString(),
         dateModified: new Date().toISOString(),
         // Default status values
@@ -828,12 +829,13 @@ export class TenantAddComponent implements OnInit {
       this.propertyService.getProperties(landlordId).subscribe({
         next: (properties: IProperty[]) => {
           this.propertyOptions = properties
-            .filter((p) => p.status !== PropertyStatus.Draft) // Only show published properties
+            // .filter((p) => p.status) // Only show published properties  !== PropertyStatus.Draft
             .map((property) => ({
               value: property.id!.toString(),
               label: `${property.title} - ${property.locality}, ${property.city}`,
             }));
           this.isLoadingProperties = false;
+          this.cdr.detectChanges();
         },
         error: (error) => {
           console.error('Error loading properties:', error);
