@@ -1,23 +1,4 @@
 <div class="property-dashboard">
-  <!-- Page Header -->
-  <div class="dashboard-header">
-    <div class="header-content">
-      <h1>Property Management</h1>
-      <p>Manage your property portfolio with advanced features</p>
-    </div>
-    @if (currentView === "table") {
-      <div class="header-actions">
-        <ng-button
-          buttonType="button"
-          type="filled"
-          label="Add New Property"
-          icon="add"
-          cssClass="create-btn"
-          (buttonClick)="onCreateProperty()"
-        />
-      </div>
-    }
-  </div>
   <!-- Breadcrumb Navigation -->
   @if (currentView !== "table") {
     <div class="breadcrumb">
@@ -40,6 +21,27 @@
       </span>
     </div>
   }
+  @if (currentView === "table") {
+    <!-- Page Header -->
+    <div class="dashboard-header">
+      <div class="header-content">
+        <h1>Property Management</h1>
+        <p>Manage your property portfolio with advanced features</p>
+      </div>
+
+      <div class="header-actions">
+        <ng-button
+          buttonType="button"
+          type="filled"
+          label="Add New Property"
+          icon="add"
+          cssClass="create-btn"
+          (buttonClick)="onCreateProperty()"
+        />
+      </div>
+    </div>
+  }
+
   <!-- Table View -->
   @if (currentView === "table") {
     <div class="table-view">
