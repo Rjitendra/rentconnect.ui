@@ -1,11 +1,4 @@
 <div class="tenant-add-form">
-  <div class="form-header">
-    <h1>Add New Tenants</h1>
-    <p>
-      Add tenants to your property with all required information and documents
-    </p>
-  </div>
-
   <div class="tenant-form-container">
     <form [formGroup]="tenantForm" (ngSubmit)="onSubmit()">
       <!-- Property & Tenancy Details Card (Shared for all tenants) -->
@@ -59,7 +52,6 @@
             suffixText="₹"
             [type]="InputType.Number"
           />
-          />
         </div>
 
         <div class="form-row">
@@ -84,7 +76,6 @@
             placeholder="12"
             suffixText="months"
             [type]="InputType.Number"
-          />
           />
         </div>
       </ng-card>
