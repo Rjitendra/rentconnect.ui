@@ -10,6 +10,8 @@ import { Router } from '@angular/router';
 // Import shared library components
 
 import {
+  Alert,
+  AlertInfo,
   AlertService,
   FileUploadConfig,
   InputType,
@@ -24,6 +26,7 @@ import {
   SelectOption,
   UploadedFile,
 } from '../../../../../../../projects/shared/src/public-api';
+import { Result } from '../../../../../common/models/common';
 import {
   IUserDetail,
   OauthService,
@@ -142,8 +145,7 @@ export class PropertyAdd implements OnInit {
   }
 
   onSubmit() {
-    // this.propertyForm.markAllAsDirty();
-    //  if (this.isSaving) return; // Prevent double submission
+    if (this.isSaving) return; // Prevent double submission
 
     // Clear previous validation errors
     this.validationErrors = [];
@@ -158,7 +160,7 @@ export class PropertyAdd implements OnInit {
     if (this.propertyForm.invalid) {
       return;
     }
-    // this.isSaving = true;
+    this.isSaving = true;
 
     try {
       // Create property object with form data and documents
@@ -177,31 +179,21 @@ export class PropertyAdd implements OnInit {
       const formData = this.convertPropertyToFormData(propertyData);
 
       this.propertyService.saveProperty(formData).subscribe({
-        next: (response: PropertySaveResponse) => {
+        next: (response: Result<PropertySaveResponse>) => {
           this.isSaving = false;
-          if (response.success) {
+          if (response.status) {
             // Clear any previous errors
             this.validationErrors = [];
             this.isShowingValidationErrors = false;
-
+            const error: AlertInfo[] = [
+              {
+                message: 'Property saved successfully!',
+                errorType: 'success',
+              },
+            ];
+            const alertData: Alert = { errors: error, timeout: 3000 };
+            this.alertService.showAlert(alertData, true);
             // Show success message
-            this.alertService.success({
-              errors: [
-                {
-                  message: response.message,
-                  errorType: 'success',
-                },
-              ],
-              timeout: 5000,
-            });
-
-            // Navigate back to property list or show success page
-            setTimeout(() => {
-              this.router.navigate(['/landlord/property/dashboard']);
-            }, 2000);
-          } else {
-            this.validationErrors = response.errors || [];
-            this.showValidationErrors();
           }
         },
         error: () => {
@@ -215,7 +207,6 @@ export class PropertyAdd implements OnInit {
                 errorType: 'error',
               },
             ],
-            timeout: 5000,
           });
         },
       });
@@ -256,9 +247,9 @@ export class PropertyAdd implements OnInit {
       const formData = this.convertPropertyToFormData(propertyData);
 
       this.propertyService.saveDraft(formData).subscribe({
-        next: (response: PropertySaveResponse) => {
+        next: (response: Result<PropertySaveResponse>) => {
           this.isSavingDraft = false;
-          if (response.success) {
+          if (response.status) {
             // Clear any previous errors
             this.validationErrors = [];
             this.isShowingValidationErrors = false;
@@ -273,9 +264,6 @@ export class PropertyAdd implements OnInit {
               ],
               timeout: 3000,
             });
-          } else {
-            this.validationErrors = response.errors || [];
-            this.showValidationErrors();
           }
         },
         error: () => {

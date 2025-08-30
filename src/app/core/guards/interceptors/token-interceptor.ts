@@ -17,7 +17,7 @@ export const tokenInterceptor: HttpInterceptorFn = (
   next: HttpHandlerFn,
 ): Observable<HttpEvent<unknown>> => {
   const oauthService = inject(OauthService);
-  const spinnerService = inject<SpinnerService>(SpinnerService);
+  const spinnerService = inject(SpinnerService);
 
   spinnerService.show(); // 🔥 show spinner on request start
 

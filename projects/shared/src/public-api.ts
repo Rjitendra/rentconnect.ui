@@ -13,9 +13,12 @@ export * from './lib/components/ng-input/ng-input.component';
 export * from './lib/components/ng-label/ng-label.component';
 export * from './lib/components/ng-mat-table/ng-mat-table';
 export * from './lib/components/ng-tree/ng-tree.component';
+export * from './lib/models/alert';
 export * from './lib/models/inav';
 export * from './lib/models/mat-table';
 export * from './lib/services/alert.service';
+
+export * from './lib/models/view-model';
 
 // New Angular Material Form Controls
 export * from './lib/components/ng-autocomplete/ng-autocomplete.component';

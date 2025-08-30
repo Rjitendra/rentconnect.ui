@@ -1,23 +1,23 @@
+import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable, of, throwError } from 'rxjs';
-import { delay, map } from 'rxjs/operators';
 import { FormGroup } from '@angular/forms';
+import { Observable, of } from 'rxjs';
+import { delay, map } from 'rxjs/operators';
+
+import { environment } from '../../../environments/environment';
+import { Result } from '../../common/models/common';
+import {
+  FurnishingType,
+  LeaseType,
+  PropertyStatus,
+  PropertyType,
+} from '../enums/view.enum';
 import {
   IProperty,
   PropertyFormData,
   PropertySaveResponse,
   PropertyValidationError,
 } from '../models/property';
-import { IDocument } from '../models/document';
-import {
-  PropertyStatus,
-  PropertyType,
-  FurnishingType,
-  LeaseType,
-  DocumentCategory,
-} from '../enums/view.enum';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -34,8 +34,8 @@ export class PropertyService {
   /**
    * Save property as published listing
    */
-  saveProperty(formData: FormData): Observable<any> {
-    return this._http.post<any>(
+  saveProperty(formData: FormData): Observable<Result<PropertySaveResponse>> {
+    return this._http.post<Result<PropertySaveResponse>>(
       `${environment.apiBaseUrl}Property/create`,
       formData,
     );
@@ -43,72 +43,13 @@ export class PropertyService {
 
   /**
    * Save property as draft
+   * need fix the end point
    */
-  saveDraft(formData: FormData): Observable<PropertySaveResponse> {
-    try {
-      // Extract property data from FormData
-      const propertyData = this.extractPropertyFromFormData(formData);
-
-      // For draft, we only validate basic required fields
-      const validationErrors = this.validatePropertyForDraft(propertyData);
-
-      if (validationErrors.length > 0) {
-        return of({
-          success: false,
-          message: 'Please provide minimum required information',
-          errors: validationErrors,
-        }).pipe(delay(300));
-      }
-
-      // Create draft property object
-      const property: IProperty = {
-        ...this.createBaseProperty(propertyData),
-        status: PropertyStatus.Draft,
-        id: propertyData.id || this.generateId(),
-      };
-
-      // Process uploaded files
-      const uploadedFiles = formData.getAll('propertyImages') as File[];
-      if (uploadedFiles.length > 0) {
-        property.documents = this.processUploadedFiles(uploadedFiles, formData);
-      }
-
-      // Simulate API call
-      return this.simulateApiCall(() => {
-        // Check if updating existing draft
-        const existingIndex = this.properties.findIndex(
-          (p) => p.id === property.id,
-        );
-        if (existingIndex >= 0) {
-          this.properties[existingIndex] = property;
-          return {
-            success: true,
-            propertyId: property.id,
-            message: 'Draft updated successfully!',
-          };
-        } else {
-          this.properties.push(property);
-          return {
-            success: true,
-            propertyId: property.id,
-            message:
-              'Draft saved successfully! You can continue editing later.',
-          };
-        }
-      });
-    } catch (error) {
-      return of({
-        success: false,
-        message: 'Invalid data format. Please try again.',
-        errors: [
-          {
-            field: 'general',
-            displayName: 'General',
-            message: 'Failed to process draft data',
-          },
-        ],
-      }).pipe(delay(300));
-    }
+  saveDraft(formData: FormData): Observable<Result<PropertySaveResponse>> {
+    return this._http.post<Result<PropertySaveResponse>>(
+      `${environment.apiBaseUrl}Property/create`,
+      formData,
+    );
   }
 
   /**
@@ -219,7 +160,7 @@ export class PropertyService {
     // No field mappings needed since we use proper IProperty field names
 
     requiredFields.forEach((field) => {
-      let value = data[field as keyof PropertyFormData];
+      const value = data[field as keyof PropertyFormData];
 
       // Use the field value directly from data
 
@@ -390,93 +331,5 @@ export class PropertyService {
   private isValidPhone(phone: string): boolean {
     const phoneRegex = /^[+]?[\d\s\-\(\)]{10,}$/;
     return phoneRegex.test(phone);
-  }
-
-  /**
-   * Extract property data from FormData
-   */
-  private extractPropertyFromFormData(formData: FormData): PropertyFormData {
-    const data: any = {};
-
-    // Extract all non-file fields from FormData
-    for (const [key, value] of formData.entries()) {
-      // Skip file fields and document metadata
-      if (key === 'propertyImages' || key.startsWith('documentMetadata[')) {
-        continue;
-      }
-
-      // Handle boolean values
-      if (value === 'true') {
-        data[key] = true;
-      } else if (value === 'false') {
-        data[key] = false;
-      }
-      // Handle numeric values
-      else if (!isNaN(Number(value)) && value !== '') {
-        data[key] = Number(value);
-      }
-      // Handle Date values
-      else if (key.includes('Date') || key === 'availableFrom') {
-        data[key] = new Date(value as string);
-      }
-      // Handle JSON values
-      else if (
-        typeof value === 'string' &&
-        (value.startsWith('{') || value.startsWith('['))
-      ) {
-        try {
-          data[key] = JSON.parse(value);
-        } catch {
-          data[key] = value;
-        }
-      }
-      // Handle regular string values
-      else {
-        data[key] = value;
-      }
-    }
-
-    return data as PropertyFormData;
-  }
-
-  /**
-   * Process uploaded files and create document objects
-   */
-  private processUploadedFiles(files: File[], formData: FormData): IDocument[] {
-    const documents: IDocument[] = [];
-
-    files.forEach((file, index) => {
-      // Try to get metadata for this file
-      const metadataKey = `documentMetadata[${index}]`;
-      let metadata: any = {};
-
-      try {
-        const metadataValue = formData.get(metadataKey);
-        if (metadataValue) {
-          metadata = JSON.parse(metadataValue as string);
-        }
-      } catch (error) {
-        console.warn(`Failed to parse metadata for file ${index}:`, error);
-      }
-
-      // Create document object
-      const document: IDocument = {
-        ownerId: metadata.ownerId || 0,
-        ownerType: metadata.ownerType || 'Property',
-        category: metadata.category || DocumentCategory.PropertyImages,
-        name: metadata.name || file.name,
-        type: metadata.type || file.type,
-        size: metadata.size || file.size,
-        url: URL.createObjectURL(file), // Create object URL for preview
-        file: file, // Keep the actual File object
-        uploadedOn: new Date().toISOString(),
-        isVerified: false,
-        description: metadata.description || `Property image ${index + 1}`,
-      };
-
-      documents.push(document);
-    });
-
-    return documents;
   }
 }

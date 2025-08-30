@@ -75,10 +75,7 @@ export interface PropertyValidationError {
 }
 
 export interface PropertySaveResponse {
-  success: boolean;
-  propertyId?: number;
-  message: string;
-  errors?: PropertyValidationError[];
+  propertyId: number;
 }
 
 // Extended interface for form data
