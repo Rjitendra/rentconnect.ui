@@ -1,39 +1,41 @@
 import {
   HttpEvent,
-  HttpHandler,
   HttpHandlerFn,
   HttpInterceptorFn,
   HttpRequest,
 } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { User } from 'oidc-client';
-import { Observable, from, switchMap } from 'rxjs';
+import { Observable, from } from 'rxjs';
+import { finalize, switchMap } from 'rxjs/operators';
+
+import { SpinnerService } from '../../../../../projects/shared/src/public-api';
 import { OauthService } from '../../../oauth/service/oauth.service';
 
 export const tokenInterceptor: HttpInterceptorFn = (
-  req: HttpRequest<any>,
+  req: HttpRequest<unknown>,
   next: HttpHandlerFn,
-): Observable<HttpEvent<any>> => {
+): Observable<HttpEvent<unknown>> => {
   const oauthService = inject(OauthService);
+  const spinnerService = inject<SpinnerService>(SpinnerService);
+
+  spinnerService.show(); // 🔥 show spinner on request start
 
   return from(getCurrentUserValue()).pipe(
     switchMap((token: User) => {
-      // Set Authorization header
       let headers = req.headers.set(
         'Authorization',
         'Bearer ' + token.access_token,
       );
 
-      // Only set content-type if body is NOT FormData
       if (!(req.body instanceof FormData)) {
         headers = headers.set('Content-Type', 'application/json');
       }
 
-      // Clone request with headers
       const requestClone = req.clone({ headers });
-
-      // Pass cloned request to next handler
-      return next(requestClone);
+      return next(requestClone).pipe(
+        finalize(() => spinnerService.hide()), // 🔥 always hide when request finishes
+      );
     }),
   );
 

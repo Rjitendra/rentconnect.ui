@@ -46,3 +46,4 @@ export * from './lib/services/ng-dialog.service';
 
 export * from './lib/enums/input-type';
 export * from './lib/services/common.service';
+export * from './lib/services/ng-spinner.service';

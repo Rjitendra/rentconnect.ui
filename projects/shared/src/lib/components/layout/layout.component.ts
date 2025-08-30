@@ -12,12 +12,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
-import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterModule } from '@angular/router';
 import { INav } from '../../models/inav';
 import { IUserDetail } from '../../models/user';
+import { NgSpinner } from '../ng-spinner/ng-spinner';
 
 @Component({
   selector: 'lib-layout',
@@ -31,6 +32,7 @@ import { IUserDetail } from '../../models/user';
     MatButtonModule,
     MatCardModule,
     MatMenuModule,
+    NgSpinner,
   ],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.scss',
