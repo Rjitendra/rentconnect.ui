@@ -86,7 +86,7 @@ export interface ITenant {
   user?: any; // map ApplicationUser interface if needed
 
   // Extra grouping
-  tenantGroup: number;
+  tenantGroup: string;
 
   // Navigation collections
   tickets?: ITicket[];
@@ -108,7 +108,7 @@ export interface TenantValidationError {
 
 export interface TenantChildren {
   id?: number;
-  tenantGroupId: number;
+  tenantGroupId: string;
   name: string;
   email?: string;
   dob: Date | string;

@@ -43,7 +43,7 @@ export class TenantDashboard implements OnInit {
   // Data
   tenants: ITenant[] = [];
   primaryTenants: ITenant[] = []; // Only primary tenants for table display
-  tenantGroups: Map<number, ITenant[]> = new Map(); // Grouped tenants by tenantGroup
+  tenantGroups: Map<string, ITenant[]> = new Map(); // Grouped tenants by tenantGroup
   properties: IProperty[] = [];
   userdetail: Partial<IUserDetail> = {};
 
@@ -174,11 +174,11 @@ export class TenantDashboard implements OnInit {
   }
 
   // Helper methods for expanded content
-  getGroupMembers(tenantGroup: number): ITenant[] {
+  getGroupMembers(tenantGroup: string): ITenant[] {
     return this.tenantGroups.get(tenantGroup) || [];
   }
 
-  getGroupMemberCount(tenantGroup: number): number {
+  getGroupMemberCount(tenantGroup: string): number {
     return this.tenantGroups.get(tenantGroup)?.length || 0;
   }
 

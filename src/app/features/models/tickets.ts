@@ -4,7 +4,7 @@ import { ITenant } from './tenant';
 export interface ITicket {
   id?: number; // BaseEntity
   landlordId: number;
-  tenantGroupId: number;
+  tenantGroupId: string;
   propertyId: number;
   category: string;
   description: string;
