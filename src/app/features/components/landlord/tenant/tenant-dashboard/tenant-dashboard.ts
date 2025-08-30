@@ -365,8 +365,8 @@ export class TenantDashboard implements OnInit {
       : 0;
     if (landlordId > 0) {
       this.tenantService.getTenantsByLandlord(landlordId).subscribe({
-        next: (tenants: ITenant[]) => {
-          this.tenants = tenants;
+        next: (tenants: Result<ITenant[]>) => {
+          this.tenants = tenants.entity;
           this.processTenantData();
         },
         error: (error: unknown) => {

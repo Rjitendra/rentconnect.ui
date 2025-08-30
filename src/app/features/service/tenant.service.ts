@@ -4,6 +4,7 @@ import { FormGroup } from '@angular/forms';
 import { Observable, of } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
+import { Result } from '../../common/models/common';
 import { DocumentCategory } from '../enums/view.enum';
 import { IDocument } from '../models/document';
 import { ITenant, TenantChildren } from '../models/tenant';
@@ -496,8 +497,8 @@ export class TenantService {
   }
 
   // Get tenants by landlord ID using API
-  getTenantsByLandlord(landlordId: number): Observable<ITenant[]> {
-    return this._http.get<ITenant[]>(
+  getTenantsByLandlord(landlordId: number): Observable<Result<ITenant[]>> {
+    return this._http.get<Result<ITenant[]>>(
       `${environment.apiBaseUrl}Tenant/landlord/${landlordId}`,
     );
   }
