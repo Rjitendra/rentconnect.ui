@@ -60,55 +60,7 @@ export class TenantDashboard implements OnInit {
   userdetail: Partial<IUserDetail> = {};
 
   // NgMatTable configuration
-  tableColumns: TableColumn[] = [
-    {
-      key: 'id',
-      label: 'ID',
-      width: '80px',
-      sortable: true,
-    },
-    {
-      key: 'name',
-      label: 'Primary Tenant',
-      sortable: true,
-    },
-    {
-      key: 'propertyName',
-      label: 'Property',
-      sortable: true,
-    },
-    {
-      key: 'phoneNumber',
-      label: 'Phone',
-      width: '150px',
-    },
-    {
-      key: 'rentAmount',
-      label: 'Rent Amount',
-      width: '120px',
-      align: 'right',
-    },
-    {
-      key: 'tenantCount',
-      label: 'Tenants',
-      width: '100px',
-      align: 'center',
-    },
-    {
-      key: 'statusDisplay',
-      label: 'Status',
-      width: '120px',
-    },
-    {
-      key: 'actions',
-      label: 'Actions',
-      width: '200px',
-      type: 'custom',
-      template: this.actionTemplate(),
-      align: 'center',
-      headerAlign: 'center',
-    },
-  ];
+  tableColumns: TableColumn[] = [];
 
   tableOptions: TableOptions = {
     sortable: true,
@@ -315,6 +267,58 @@ export class TenantDashboard implements OnInit {
     console.log('Edit tenant:', tenant);
     this.showInfo('Edit functionality will be implemented soon');
     // TODO: Implement edit functionality
+  }
+
+  private initializeTable() {
+    this.tableColumns = [
+      {
+        key: 'id',
+        label: 'ID',
+        width: '80px',
+        sortable: true,
+      },
+      {
+        key: 'name',
+        label: 'Primary Tenant',
+        sortable: true,
+      },
+      {
+        key: 'propertyName',
+        label: 'Property',
+        sortable: true,
+      },
+      {
+        key: 'phoneNumber',
+        label: 'Phone',
+        width: '150px',
+      },
+      {
+        key: 'rentAmount',
+        label: 'Rent Amount',
+        width: '120px',
+        align: 'right',
+      },
+      {
+        key: 'tenantCount',
+        label: 'Tenants',
+        width: '100px',
+        align: 'center',
+      },
+      {
+        key: 'statusDisplay',
+        label: 'Status',
+        width: '120px',
+      },
+      {
+        key: 'actions',
+        label: 'Actions',
+        width: '200px',
+        type: 'custom',
+        template: this.actionTemplate(),
+        align: 'center',
+        headerAlign: 'center',
+      },
+    ];
   }
 
   // Alert helper methods
