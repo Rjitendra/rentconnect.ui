@@ -190,13 +190,12 @@ export class PropertyDashboard implements OnInit {
     },
   ];
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   private dialogService = inject(NgDialogService);
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+
   private userService = inject(OauthService);
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+
   private propertyService = inject(PropertyService);
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+
   private $cdr = inject(ChangeDetectorRef);
 
   constructor() {

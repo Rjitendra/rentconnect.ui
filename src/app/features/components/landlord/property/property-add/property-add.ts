@@ -10,8 +10,6 @@ import { Router } from '@angular/router';
 // Import shared library components
 
 import {
-  Alert,
-  AlertInfo,
   AlertService,
   FileUploadConfig,
   InputType,
@@ -181,18 +179,24 @@ export class PropertyAdd implements OnInit {
       this.propertyService.saveProperty(formData).subscribe({
         next: (response: Result<PropertySaveResponse>) => {
           this.isSaving = false;
-          if (response.status) {
+          if (response) {
             // Clear any previous errors
             this.validationErrors = [];
             this.isShowingValidationErrors = false;
-            const error: AlertInfo[] = [
-              {
-                message: 'Property saved successfully!',
-                errorType: 'success',
-              },
-            ];
-            const alertData: Alert = { errors: error, timeout: 3000 };
-            this.alertService.showAlert(alertData, true);
+            const successMessgae = Array.isArray(response.message)
+              ? response.message.join(', ')
+              : 'Property saved successfully!!';
+
+            this.alertService.success({
+              errors: [
+                {
+                  message: successMessgae,
+                  errorType: 'success',
+                },
+              ],
+              timeout: 3000,
+            });
+            this.goBack();
             // Show success message
           }
         },
@@ -249,21 +253,27 @@ export class PropertyAdd implements OnInit {
       this.propertyService.saveDraft(formData).subscribe({
         next: (response: Result<PropertySaveResponse>) => {
           this.isSavingDraft = false;
-          if (response.status) {
+          if (response) {
             // Clear any previous errors
             this.validationErrors = [];
             this.isShowingValidationErrors = false;
 
             // Show success message
+
+            const successMessgae = Array.isArray(response.message)
+              ? response.message.join(', ')
+              : response.message || 'Draft saved successfully!';
+
             this.alertService.success({
               errors: [
                 {
-                  message: response.message,
+                  message: successMessgae,
                   errorType: 'success',
                 },
               ],
               timeout: 3000,
             });
+            this.goBack();
           }
         },
         error: () => {
