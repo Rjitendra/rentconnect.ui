@@ -247,3 +247,24 @@
     </div>
   }
 </div>
+
+<!-- Actions Template -->
+<ng-template #actionTemplate let-property>
+  <div class="action-container">
+    <ng-icon
+      name="visibility"
+      tooltip="View Details"
+      class="icon-purple icon-clickable"
+    />
+    <ng-icon
+      name="edit"
+      tooltip="Edit Property"
+      class="icon-orange icon-clickable"
+    />
+    <ng-icon
+      name="delete"
+      tooltip="Delete Property"
+      class="icon-error icon-clickable"
+    />
+  </div>
+</ng-template>

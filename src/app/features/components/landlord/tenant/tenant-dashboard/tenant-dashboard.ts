@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  TemplateRef,
+  inject,
+  viewChild,
+} from '@angular/core';
 import { Observable, of } from 'rxjs';
 
 import {
@@ -38,6 +45,9 @@ type ViewType = 'table' | 'add' | 'edit' | 'detail';
   styleUrl: './tenant-dashboard.scss',
 })
 export class TenantDashboard implements OnInit {
+  readonly actionTemplate =
+    viewChild.required<TemplateRef<unknown>>('actionTemplate');
+
   // View management
   currentView: ViewType = 'table';
   selectedTenant: ITenant | null = null;
@@ -93,7 +103,10 @@ export class TenantDashboard implements OnInit {
       key: 'actions',
       label: 'Actions',
       width: '200px',
-      sortable: false,
+      type: 'custom',
+      template: this.actionTemplate(),
+      align: 'center',
+      headerAlign: 'center',
     },
   ];
 
