@@ -179,7 +179,7 @@ export class PropertyAdd implements OnInit {
       this.propertyService.saveProperty(formData).subscribe({
         next: (response: Result<PropertySaveResponse>) => {
           this.isSaving = false;
-          if (response) {
+          if (response.success) {
             // Clear any previous errors
             this.validationErrors = [];
             this.isShowingValidationErrors = false;
@@ -253,7 +253,7 @@ export class PropertyAdd implements OnInit {
       this.propertyService.saveDraft(formData).subscribe({
         next: (response: Result<PropertySaveResponse>) => {
           this.isSavingDraft = false;
-          if (response) {
+          if (response.success) {
             // Clear any previous errors
             this.validationErrors = [];
             this.isShowingValidationErrors = false;

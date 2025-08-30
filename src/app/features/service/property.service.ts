@@ -106,9 +106,9 @@ export class PropertyService {
   /**
    * Get all properties
    */
-  getProperties(landlordId: number): Observable<IProperty[]> {
+  getProperties(landlordId: number): Observable<Result<IProperty[]>> {
     const url = `${environment.apiBaseUrl}Property/landlord/${landlordId}`;
-    return this._http.get<IProperty[]>(`${url}`);
+    return this._http.get<Result<IProperty[]>>(`${url}`);
   }
 
   /**

@@ -12,6 +12,7 @@ import { FormsModule } from '@angular/forms';
 import { Observable, of } from 'rxjs';
 
 import {
+  AlertService,
   NgButton,
   NgDialogService,
   NgDivider,
@@ -23,6 +24,7 @@ import {
   TableColumn,
   TableOptions,
 } from '../../../../../../../projects/shared/src/public-api';
+import { Result } from '../../../../../common/models/common';
 import {
   IUserDetail,
   OauthService,
@@ -195,6 +197,8 @@ export class PropertyDashboard implements OnInit {
   private userService = inject(OauthService);
 
   private propertyService = inject(PropertyService);
+
+  private alertService = inject(AlertService);
 
   private $cdr = inject(ChangeDetectorRef);
 
@@ -692,18 +696,20 @@ export class PropertyDashboard implements OnInit {
     const landlordId = Number(this.userdetail.userId);
 
     this.propertyService.getProperties(landlordId).subscribe({
-      next: (apiProperties: IProperty[]) => {
-        this.isLoading = false;
+      next: (response: Result<IProperty[]>) => {
+        if (response.success) {
+          this.isLoading = false;
 
-        if (apiProperties && apiProperties.length > 0) {
-          // Transform API properties and merge with existing mock data
-          const transformedApiProperties = apiProperties.map((property) =>
-            this.transformPropertyForTable(property),
-          );
+          if (response && response.entity.length > 0) {
+            // Transform API properties and merge with existing mock data
+            const transformedApiProperties = response.entity.map((property) =>
+              this.transformPropertyForTable(property),
+            );
 
-          this.properties = [...transformedApiProperties];
-          this.properties$ = of(this.properties);
-          this.$cdr.markForCheck();
+            this.properties = [...transformedApiProperties];
+            this.properties$ = of(this.properties);
+            this.$cdr.markForCheck();
+          }
         }
       },
       error: (error) => {
@@ -712,8 +718,14 @@ export class PropertyDashboard implements OnInit {
           'Failed to load properties from server. Showing mock data only.';
         console.error('Error loading properties from API:', error);
 
-        // Continue with mock data only
-        console.log('Using mock data due to API error');
+        this.alertService.success({
+          errors: [
+            {
+              message: this.loadingError,
+              errorType: 'error',
+            },
+          ],
+        });
       },
     });
   }

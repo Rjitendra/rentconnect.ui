@@ -28,6 +28,7 @@ import {
   SelectOption,
   UploadedFile,
 } from '../../../../../../../projects/shared/src/public-api';
+import { Result } from '../../../../../common/models/common';
 import {
   IUserDetail,
   OauthService,
@@ -876,8 +877,8 @@ export class TenantAddComponent implements OnInit {
     if (landlordId > 0) {
       this.isLoadingProperties = true;
       this.propertyService.getProperties(landlordId).subscribe({
-        next: (properties: IProperty[]) => {
-          this.propertyOptions = properties
+        next: (response: Result<IProperty[]>) => {
+          this.propertyOptions = response.entity
             // .filter((p) => p.status) // Only show published properties  !== PropertyStatus.Draft
             .map((property) => ({
               value: property.id!.toString(),

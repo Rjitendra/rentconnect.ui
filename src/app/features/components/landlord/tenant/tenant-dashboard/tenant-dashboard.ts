@@ -11,6 +11,7 @@ import {
   TableOptions,
 } from '../../../../../../../projects/shared/src/public-api';
 // Models and enums
+import { Result } from '../../../../../common/models/common';
 import {
   IUserDetail,
   OauthService,
@@ -383,8 +384,8 @@ export class TenantDashboard implements OnInit {
       : 0;
     if (landlordId > 0) {
       this.propertyService.getProperties(landlordId).subscribe({
-        next: (properties: IProperty[]) => {
-          this.properties = properties;
+        next: (response: Result<IProperty[]>) => {
+          this.properties = response.entity;
         },
         error: (error) => {
           console.error('Error loading properties:', error);
