@@ -15,7 +15,6 @@
         <th
           mat-header-cell
           *matHeaderCellDef
-          mat-sort-header
           style="width: 50px; min-width: 50px"
         >
           @if (headerCheckbox()) {
@@ -76,6 +75,8 @@
         <th
           mat-header-cell
           *matHeaderCellDef
+          [mat-sort-header]="sorting() || col.sortable ? col.key : ''"
+          [disabled]="!(sorting() || col.sortable)"
           [style.text-align]="col.headerAlign || col.align || 'left'"
           [class.column-selected]="selectedColumn === col.key"
           (click)="onColumnClick(col.key)"

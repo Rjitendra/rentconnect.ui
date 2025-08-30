@@ -11,7 +11,7 @@ interface User {
   role: string;
 }
 @Component({
-  selector: 'ng-home',
+  selector: 'app-home',
   imports: [NgMatTable],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',

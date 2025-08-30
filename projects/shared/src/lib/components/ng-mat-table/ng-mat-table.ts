@@ -4,6 +4,7 @@ import {
   Component,
   inject,
   input,
+  OnChanges,
   output,
   signal,
   TemplateRef,
@@ -43,7 +44,7 @@ import { model } from '../../models/view-model';
   styleUrl: './ng-mat-table.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NgMatTable implements AfterViewInit {
+export class NgMatTable implements OnChanges, AfterViewInit {
   readonly columns = input<TableColumn[]>([]);
   readonly data = input<model[]>([]);
   readonly options = input<TableOptions>({});
@@ -74,6 +75,12 @@ export class NgMatTable implements AfterViewInit {
 
   private _liveAnnouncer = inject(LiveAnnouncer);
 
+  ngOnChanges(): void {
+    if (this.dataSource) {
+      this.dataSource.data = this.data();
+    }
+  }
+
   ngOnInit() {
     this.displayedColumns = [
       ...(this.headerCheckbox() || this.rowCheckbox() ? ['select'] : []),
@@ -87,12 +94,13 @@ export class NgMatTable implements AfterViewInit {
       [],
     );
   }
+
   ngAfterViewInit() {
     if (this.paginator()) {
-      this.dataSource.paginator = this.paginator();
+      this.dataSource.paginator = this.paginator()!;
     }
-    if (this.sorting()) {
-      this.dataSource.sort = this.sort();
+    if (this.sort()) {
+      this.dataSource.sort = this.sort()!;
     }
   }
   /** Checkbox logic */
