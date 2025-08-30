@@ -7,25 +7,28 @@
   .dashboard-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     margin-bottom: 32px;
     background: white;
     padding: 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    color: white;
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
 
     .header-content {
       h1 {
-        margin: 0;
-        font-size: 28px;
+        margin: 0 0 8px 0;
+        font-size: 2rem;
         font-weight: 600;
-        color: #333;
+        letter-spacing: -0.025em;
       }
 
       p {
-        margin: 4px 0 0 0;
-        color: #666;
-        font-size: 14px;
+        margin: 0;
+        font-size: 1rem;
+        opacity: 0.9;
+        font-weight: 300;
       }
     }
 

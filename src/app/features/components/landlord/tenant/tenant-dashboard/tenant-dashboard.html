@@ -7,15 +7,14 @@
     </div>
     @if (currentView === "table") {
       <div class="header-actions">
-        <button
-          type="button"
-          class="add-tenant-btn"
-          matTooltip="Add New Tenant"
-          (click)="onAddTenant()"
-        >
-          <ng-icon name="person_add" class="icon-white" />
-          Add New Tenant
-        </button>
+        <ng-button
+          buttonType="button"
+          type="filled"
+          label="Add New Tenant"
+          icon="add"
+          cssClass="create-btn"
+          (buttonClick)="onAddTenant()"
+        />
       </div>
     }
   </div>
