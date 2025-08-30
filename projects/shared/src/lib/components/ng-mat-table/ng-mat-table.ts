@@ -1,6 +1,8 @@
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
+  inject,
   input,
   output,
   signal,
@@ -16,9 +18,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 
+import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { TableColumn, TableOptions } from '../../models/mat-table';
 import { model } from '../../models/view-model';
 
@@ -40,7 +43,7 @@ import { model } from '../../models/view-model';
   styleUrl: './ng-mat-table.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NgMatTable {
+export class NgMatTable implements AfterViewInit {
   readonly columns = input<TableColumn[]>([]);
   readonly data = input<model[]>([]);
   readonly options = input<TableOptions>({});
@@ -50,6 +53,7 @@ export class NgMatTable {
   readonly expandableRows = input(false);
   readonly expandedRowTemplate = input<TemplateRef<any>>();
   readonly expandKey = input<string>();
+  readonly sorting = input<boolean>(true);
 
   readonly rowClick = output<model>();
   readonly selectionChange = output<model[]>();
@@ -67,6 +71,9 @@ export class NgMatTable {
 
   readonly paginator = viewChild(MatPaginator);
   readonly sort = viewChild(MatSort);
+
+  private _liveAnnouncer = inject(LiveAnnouncer);
+
   ngOnInit() {
     this.displayedColumns = [
       ...(this.headerCheckbox() || this.rowCheckbox() ? ['select'] : []),
@@ -80,7 +87,14 @@ export class NgMatTable {
       [],
     );
   }
-
+  ngAfterViewInit() {
+    if (this.paginator()) {
+      this.dataSource.paginator = this.paginator();
+    }
+    if (this.sorting()) {
+      this.dataSource.sort = this.sort();
+    }
+  }
   /** Checkbox logic */
   isAllSelected() {
     return this.selection.selected.length === this.dataSource.data.length;
@@ -169,5 +183,18 @@ export class NgMatTable {
   toggle(element: model) {
     const key = this.expandKey() ? element[this.expandKey()!] : element;
     this.expandedRow.set(this.isExpanded(element) ? null : key);
+  }
+
+  /** Announce the change in sort state for assistive technology. */
+  announceSortChange(sortState: Sort) {
+    // This example uses English messages. If your application supports
+    // multiple language, you would internationalize these strings.
+    // Furthermore, you can customize the message to add additional
+    // details about the values being sorted.
+    if (sortState.direction) {
+      this._liveAnnouncer.announce(`Sorted ${sortState.direction}ending`);
+    } else {
+      this._liveAnnouncer.announce('Sorting cleared');
+    }
   }
 }

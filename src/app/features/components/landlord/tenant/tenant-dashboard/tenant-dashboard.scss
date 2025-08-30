@@ -825,6 +825,59 @@
   }
 }
 
+/* Action Container */
+.action-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+// Icon color classes to replace inline styles
+.icon-primary {
+  color: #3949ab !important;
+}
+
+.icon-secondary {
+  color: #6d4c41 !important;
+}
+
+.icon-info {
+  color: #1976d2 !important;
+}
+
+.icon-warning {
+  color: #f4511e !important;
+}
+
+.icon-success {
+  color: #43a047 !important;
+}
+
+.icon-accent {
+  color: #8e24aa !important;
+}
+
+.icon-teal {
+  color: #00acc1 !important;
+}
+
+.icon-purple {
+  color: #673ab7 !important;
+}
+
+.icon-orange {
+  color: #ff9800 !important;
+}
+
+.icon-error {
+  color: #e53935 !important;
+}
+
+.icon-clickable {
+  cursor: pointer;
+}
+
 // Responsive Design
 @media (max-width: 768px) {
   .tenant-dashboard {

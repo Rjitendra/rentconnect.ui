@@ -81,6 +81,7 @@ export class TenantDashboard implements OnInit {
   }
 
   ngOnInit() {
+    this.initializeTable();
     this.loadProperties();
     this.loadTenants();
   }

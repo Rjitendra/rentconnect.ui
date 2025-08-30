@@ -66,173 +66,11 @@
             [expandableRows]="true"
             [expandedRowTemplate]="expandedRowTemplate"
             [expandKey]="'id'"
-            [isPaginator]="true"
+            [isPaginator]="false"
             (rowClick)="onRowClick($any($event))"
             (rowExpand)="onRowExpand($any($event))"
           />
         }
-
-        <!-- Template for expanded row content -->
-        <ng-template #expandedRowTemplate let-tenant>
-          <div class="expanded-content">
-            <!-- Property Information Section -->
-            <div class="expanded-header">
-              <div class="property-section">
-                <div class="section-title">
-                  <ng-icon name="home" class="section-icon" />
-                  <h4>Property Information</h4>
-                </div>
-                <div class="property-details">
-                  <div class="detail-item">
-                    <span class="label">Property:</span>
-                    <span class="value">{{
-                      getPropertyName(tenant.propertyId)
-                    }}</span>
-                  </div>
-                  <div class="detail-item">
-                    <span class="label">Rent Amount:</span>
-                    <span class="value highlight"
-                      >₹{{ tenant.rentAmount | number }}</span
-                    >
-                  </div>
-                  <div class="detail-item">
-                    <span class="label">Security Deposit:</span>
-                    <span class="value"
-                      >₹{{ tenant.securityDeposit | number }}</span
-                    >
-                  </div>
-                  <div class="detail-item">
-                    <span class="label">Lease Duration:</span>
-                    <span class="value"
-                      >{{ tenant.leaseDuration || "N/A" }} months</span
-                    >
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Tenant Group Members Section -->
-            <div class="tenant-group-section">
-              <div class="section-title">
-                <ng-icon name="people" class="section-icon" />
-                <h4>
-                  Tenant Group Members ({{
-                    getGroupMemberCount(tenant.tenantGroup)
-                  }})
-                </h4>
-              </div>
-
-              <div class="tenant-members-grid">
-                @for (
-                  member of getGroupMembers(tenant.tenantGroup);
-                  track member.id
-                ) {
-                  <div
-                    class="member-card"
-                    [class.primary-member]="member.isPrimary"
-                  >
-                    <div class="member-header">
-                      <div class="member-avatar">
-                        <ng-icon
-                          [name]="member.isPrimary ? 'star' : 'person'"
-                          [class]="
-                            member.isPrimary ? 'icon-primary' : 'icon-secondary'
-                          "
-                        />
-                      </div>
-                      <div class="member-info">
-                        <div class="member-name">
-                          <span>{{ member.name }}</span>
-                          @if (member.isPrimary) {
-                            <span class="primary-badge">Primary</span>
-                          }
-                        </div>
-                        <div class="member-status">
-                          <ng-icon
-                            class="status-icon"
-                            [name]="getStatusIcon(member)"
-                          />
-                          <span [class]="getStatusClass(member)">{{
-                            getStatusText(member)
-                          }}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="member-details">
-                      <div class="contact-info">
-                        <div class="contact-item">
-                          <ng-icon name="email" class="contact-icon" />
-                          <span>{{ member.email || "N/A" }}</span>
-                        </div>
-                        <div class="contact-item">
-                          <ng-icon name="phone" class="contact-icon" />
-                          <span>{{ member.phoneNumber || "N/A" }}</span>
-                        </div>
-                        <div class="contact-item">
-                          <ng-icon name="work" class="contact-icon" />
-                          <span>{{ member.occupation || "N/A" }}</span>
-                        </div>
-                      </div>
-
-                      <!-- Member Actions -->
-                      <div class="member-actions">
-                        @if (!member.agreementSigned) {
-                          <ng-button
-                            buttonType="button"
-                            type="outlined"
-                            size="small"
-                            icon="description"
-                            tooltip="Create Agreement"
-                            (buttonClick)="onCreateAgreement(member)"
-                          >
-                            Agreement
-                          </ng-button>
-                        }
-                        @if (member.needsOnboarding) {
-                          <ng-button
-                            buttonType="button"
-                            type="filled"
-                            size="small"
-                            icon="send"
-                            tooltip="Send Onboarding Email"
-                            (buttonClick)="onSendOnboardingEmail(member)"
-                          >
-                            Onboard
-                          </ng-button>
-                        }
-                        <ng-button
-                          buttonType="button"
-                          type="icon"
-                          size="small"
-                          icon="visibility"
-                          tooltip="View Details"
-                          (buttonClick)="onViewTenant(member)"
-                        />
-                        <ng-button
-                          buttonType="button"
-                          type="icon"
-                          size="small"
-                          icon="edit"
-                          tooltip="Edit Tenant"
-                          (buttonClick)="onEditTenant(member)"
-                        />
-                        <ng-button
-                          buttonType="button"
-                          type="icon"
-                          size="small"
-                          icon="delete"
-                          tooltip="Delete Tenant"
-                          (buttonClick)="onDeleteTenant(member)"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                }
-              </div>
-            </div>
-          </div>
-        </ng-template>
       </div>
     </div>
   }
@@ -248,8 +86,140 @@
   }
 </div>
 
+<!-- Template for expanded row content -->
+<ng-template #expandedRowTemplate let-tenant>
+  <div class="expanded-content">
+    <!-- Property Information Section -->
+    <div class="expanded-header">
+      <div class="property-section">
+        <div class="section-title">
+          <ng-icon name="home" class="section-icon" />
+          <h4>Property Information</h4>
+        </div>
+        <div class="property-details">
+          <div class="detail-item">
+            <span class="label">Property:</span>
+            <span class="value">{{ getPropertyName(tenant.propertyId) }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Rent Amount:</span>
+            <span class="value highlight"
+              >₹{{ tenant.rentAmount | number }}</span
+            >
+          </div>
+          <div class="detail-item">
+            <span class="label">Security Deposit:</span>
+            <span class="value">₹{{ tenant.securityDeposit | number }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Lease Duration:</span>
+            <span class="value"
+              >{{ tenant.leaseDuration || "N/A" }} months</span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tenant Group Members Section -->
+    <div class="tenant-group-section">
+      <div class="section-title">
+        <ng-icon name="people" class="section-icon" />
+        <h4>
+          Tenant Group Members ({{ getGroupMemberCount(tenant.tenantGroup) }})
+        </h4>
+      </div>
+
+      <div class="tenant-members-grid">
+        @for (member of getGroupMembers(tenant.tenantGroup); track member.id) {
+          <div class="member-card" [class.primary-member]="member.isPrimary">
+            <div class="member-header">
+              <div class="member-avatar">
+                <ng-icon
+                  [name]="member.isPrimary ? 'star' : 'person'"
+                  [class]="member.isPrimary ? 'icon-primary' : 'icon-secondary'"
+                />
+              </div>
+              <div class="member-info">
+                <div class="member-name">
+                  <span>{{ member.name }}</span>
+                  @if (member.isPrimary) {
+                    <span class="primary-badge">Primary</span>
+                  }
+                </div>
+                <div class="member-status">
+                  <ng-icon class="status-icon" [name]="getStatusIcon(member)" />
+                  <span [class]="getStatusClass(member)">{{
+                    getStatusText(member)
+                  }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="member-details">
+              <div class="contact-info">
+                <div class="contact-item">
+                  <ng-icon name="email" class="contact-icon" />
+                  <span>{{ member.email || "N/A" }}</span>
+                </div>
+                <div class="contact-item">
+                  <ng-icon name="phone" class="contact-icon" />
+                  <span>{{ member.phoneNumber || "N/A" }}</span>
+                </div>
+                <div class="contact-item">
+                  <ng-icon name="work" class="contact-icon" />
+                  <span>{{ member.occupation || "N/A" }}</span>
+                </div>
+              </div>
+
+              <!-- Member Actions -->
+              <div class="member-actions">
+                @if (!member.agreementSigned) {
+                  <ng-icon
+                    name="description"
+                    tooltip="Create Agreement"
+                    class="icon-teal icon-clickable"
+                    (click)="onCreateAgreement(member)"
+                  />
+                }
+                @if (member.needsOnboarding) {
+                  <ng-icon
+                    name="send"
+                    tooltip="Send Onboarding Email"
+                    class="icon-success icon-clickable"
+                    (click)="onSendOnboardingEmail(member)"
+                  />
+                }
+
+                <ng-icon
+                  name="visibility"
+                  tooltip="View Details"
+                  class="icon-purple icon-clickable"
+                  (click)="onViewTenant(member)"
+                />
+                <ng-icon
+                  name="edit"
+                  tooltip="Edit Tenant"
+                  class="icon-orange icon-clickable"
+                  (click)="onEditTenant(member)"
+                />
+                <ng-icon
+                  name="delete"
+                  tooltip="Delete Tenant"
+                  class="icon-error icon-clickable"
+                  (click)="onDeleteTenant(member)"
+                />
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</ng-template>
+
 <!-- Actions Template -->
-<ng-template #actionTemplate let-property>
+<ng-template #actionTemplate let-member>
   <div class="action-container">
     <ng-icon
       name="visibility"
@@ -258,12 +228,24 @@
     />
     <ng-icon
       name="edit"
-      tooltip="Edit Property"
+      tooltip="Edit Tenant"
       class="icon-orange icon-clickable"
     />
     <ng-icon
+      name="description"
+      tooltip="Create Agreement"
+      class="icon-teal icon-clickable"
+      (click)="onCreateAgreement(member)"
+    />
+    <ng-icon
+      name="send"
+      tooltip="Send Onboarding Email"
+      class="icon-success icon-clickable"
+      (click)="onSendOnboardingEmail(member)"
+    />
+    <ng-icon
       name="delete"
-      tooltip="Delete Property"
+      tooltip="Delete Tenant"
       class="icon-error icon-clickable"
     />
   </div>
