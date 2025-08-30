@@ -399,7 +399,6 @@ export class TenantAddComponent implements OnInit {
                 errorType: 'error',
               },
             ],
-            timeout: 5000,
           });
         },
       });
@@ -682,6 +681,8 @@ export class TenantAddComponent implements OnInit {
 
     // Set the first tenant as primary by default
     this.tenantsFormArray.at(0).patchValue({ isPrimary: true });
+
+    this.patchTestTenantFormValues();
   }
 
   private createTenantFormGroup(): FormGroup {
@@ -729,6 +730,54 @@ export class TenantAddComponent implements OnInit {
     });
   }
 
+  // ...existing code...
+
+  private patchTestTenantFormValues() {
+    this.tenantForm.patchValue({
+      propertyId: '101',
+      rentAmount: 25000,
+      securityDeposit: 50000,
+      maintenanceCharges: 1500,
+      tenancyStartDate: '2025-09-01',
+      tenancyEndDate: '2026-08-31',
+      rentDueDate: '2025-09-05',
+      leaseDuration: 12,
+      noticePeriod: 30,
+    });
+
+    const firstTenant = this.tenantsFormArray.at(0);
+    firstTenant.patchValue({
+      name: 'Test Tenant',
+      email: 'test.tenant@example.com',
+      phoneNumber: '9876543210',
+      alternatePhoneNumber: '9123456789',
+      dob: '1990-01-01',
+      occupation: 'Engineer',
+      gender: 'Male',
+      maritalStatus: 'Single',
+      currentAddress: '123 Test Street',
+      permanentAddress: '456 Permanent Ave',
+      emergencyContactName: 'John Doe',
+      emergencyContactPhone: '9988776655',
+      emergencyContactRelation: 'Friend',
+      aadhaarNumber: '123412341234',
+      panNumber: 'ABCDE1234F',
+      drivingLicenseNumber: 'DL1234567890',
+      voterIdNumber: 'VOTER12345',
+      employerName: 'TestCorp',
+      employerAddress: '789 Employer Road',
+      employerPhone: '9876543211',
+      monthlyIncome: 75000,
+      workExperience: 5,
+      isPrimary: true,
+      isNewTenant: true,
+      isActive: true,
+      needsOnboarding: true,
+      documents: [],
+    });
+  }
+
+  // ...existing code...
   private calculateAge(dob: string): number {
     const today = new Date();
     const birthDate = new Date(dob);

@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { Observable, of } from 'rxjs';
 
 import {
   AlertService,
@@ -102,11 +103,12 @@ export class TenantDashboard implements OnInit {
     pageSize: 10,
     pageSizeOptions: [5, 10, 20],
   };
-
+  initDashBoard$!: Observable<boolean>;
   private alertService = inject(AlertService);
   private tenantService = inject(TenantService);
   private propertyService = inject(PropertyService);
   private userService = inject(OauthService);
+  private $cdr = inject(ChangeDetectorRef);
 
   constructor() {
     this.userdetail = this.userService.getUserInfo();
@@ -352,6 +354,7 @@ export class TenantDashboard implements OnInit {
           statusIcon: this.getStatusIcon(primaryTenant),
         };
         this.primaryTenants.push(enhancedTenant as ITenant);
+        this.initDashBoard$ = of(true);
       }
     });
   }
