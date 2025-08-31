@@ -7,7 +7,11 @@ import { MatMenuTrigger } from '@angular/material/menu';
   hostDirectives: [
     {
       directive: MatMenuTrigger,
-      inputs: ['matMenuTriggerData', 'matMenuTriggerRestoreFocus'],
+      inputs: [
+        'matMenuTriggerFor: ngMenuTriggerFor',
+        'matMenuTriggerData',
+        'matMenuTriggerRestoreFocus',
+      ],
       outputs: ['menuOpened', 'menuClosed'],
     },
   ],

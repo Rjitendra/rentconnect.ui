@@ -6,3 +6,8 @@ export interface Result<T> {
   success: boolean;
   message: string | string[];
 }
+
+export interface ApiError<T> {
+  error?: Result<T>;
+  message?: string;
+}

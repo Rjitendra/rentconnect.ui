@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectorRef,
   Component,
@@ -24,7 +25,7 @@ import {
   TableColumn,
   TableOptions,
 } from '../../../../../../../projects/shared/src/public-api';
-import { Result } from '../../../../../common/models/common';
+import { ApiError, Result } from '../../../../../common/models/common';
 import {
   IUserDetail,
   OauthService,
@@ -268,9 +269,10 @@ export class PropertyDashboard implements OnInit {
                 );
               }
             }),
-            catchError((error) => {
+            catchError((error: HttpErrorResponse) => {
+              const apiError = error.error as ApiError<boolean>; // Cast to your interface
               this.alert(
-                error?.error.message ||
+                apiError.error?.message.toString() ||
                   'Error deleting property. Please try again.',
                 'error',
               );
