@@ -101,9 +101,13 @@
     </div>
   }
   <!-- Property Add/Edit Component -->
+  <!-- Property Add/Edit Component -->
   @if (currentView === "create" || currentView === "edit") {
     <div>
-      <app-property-add (backToList)="showTable()" />
+      <app-property-add
+        [property]="selectedProperty"
+        (backToList)="showTable()"
+      />
     </div>
   }
 

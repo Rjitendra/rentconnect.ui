@@ -397,4 +397,141 @@
       }
     }
   }
+  /* Tenants Section */
+  .tenants-list {
+    .tenant-card {
+      background: #f8f9ff;
+      border: 1px solid #e3e8ff;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      transition: all 0.3s ease;
+
+      &:hover {
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+        border-color: #667eea;
+      }
+
+      .tenant-info {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 16px;
+
+        .tenant-avatar {
+          width: 48px;
+          height: 48px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-size: 20px;
+          flex-shrink: 0;
+        }
+
+        .tenant-details {
+          flex: 1;
+
+          h4 {
+            margin: 0 0 8px 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+          }
+
+          .tenant-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 12px;
+
+            .meta-item {
+              display: flex;
+              align-items: center;
+              gap: 6px;
+              font-size: 0.9rem;
+              color: #666;
+
+              ng-icon {
+                font-size: 16px;
+              }
+            }
+          }
+
+          .tenant-badges {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+
+            .badge {
+              padding: 4px 12px;
+              border-radius: 20px;
+              font-size: 0.75rem;
+              font-weight: 600;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+
+              &.primary {
+                background-color: #e3f2fd;
+                color: #1976d2;
+                border: 1px solid #bbdefb;
+              }
+
+              &.active {
+                background-color: #e8f5e8;
+                color: #2e7d32;
+                border: 1px solid #c8e6c9;
+              }
+
+              &.verified {
+                background-color: #fff3e0;
+                color: #f57c00;
+                border: 1px solid #ffcc02;
+              }
+            }
+          }
+        }
+      }
+
+      .tenant-actions {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+
+        .lease-info {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 0.85rem;
+          color: #666;
+          background: #f0f0f0;
+          padding: 6px 12px;
+          border-radius: 16px;
+
+          ng-icon {
+            font-size: 14px;
+          }
+        }
+      }
+    }
+  }
+
+  .tenants-note {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #fff3e0;
+    border: 1px solid #ffcc02;
+    border-radius: 8px;
+    margin-top: 16px;
+    color: #f57c00;
+    font-size: 0.9rem;
+
+    ng-icon {
+      font-size: 18px;
+    }
+  }
 }

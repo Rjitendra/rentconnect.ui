@@ -7,8 +7,14 @@
         (click)="goBack()"
       />
       <div class="header-text">
-        <h1>Add New Property</h1>
-        <p>Create a detailed listing for your property</p>
+        <h1>{{ isEditMode ? "Edit Property" : "Add New Property" }}</h1>
+        <p>
+          {{
+            isEditMode
+              ? "Update your property details"
+              : "Create a detailed listing for your property"
+          }}
+        </p>
       </div>
     </div>
   </div>
@@ -320,6 +326,84 @@
           />
         </div>
       </ng-card>
+
+      <!-- Existing Tenants Card (Show only in edit mode) -->
+      @if (isEditMode && property() && getTenantsList().length > 0) {
+        <ng-card
+          title="Current Tenants"
+          subtitle="Tenants currently associated with this property"
+          icon="people"
+          class="form-card"
+        >
+          <div class="tenants-list">
+            @for (tenant of getTenantsList(); track tenant.id) {
+              <div class="tenant-card">
+                <div class="tenant-info">
+                  <div class="tenant-avatar">
+                    <ng-icon name="person" />
+                  </div>
+                  <div class="tenant-details">
+                    <h4>{{ tenant.name }}</h4>
+                    <div class="tenant-meta">
+                      @if (tenant.email) {
+                        <span class="meta-item">
+                          <ng-icon name="email" />
+                          {{ tenant.email }}
+                        </span>
+                      }
+                      @if (tenant.phoneNumber) {
+                        <span class="meta-item">
+                          <ng-icon name="phone" />
+                          {{ tenant.phoneNumber }}
+                        </span>
+                      }
+                      @if (tenant.age) {
+                        <span class="meta-item">
+                          <ng-icon name="cake" />
+                          {{ tenant.age }} years old
+                        </span>
+                      }
+                    </div>
+                    <div class="tenant-badges">
+                      @if (tenant.isPrimary) {
+                        <span class="badge primary">Primary</span>
+                      }
+                      @if (tenant.isActive) {
+                        <span class="badge active">Active</span>
+                      }
+                      @if (tenant.isVerified) {
+                        <span class="badge verified">Verified</span>
+                      }
+                    </div>
+                  </div>
+                </div>
+                <div class="tenant-actions">
+                  @if (tenant.tenancyStartDate) {
+                    <span class="lease-info">
+                      <ng-icon name="calendar_today" />
+                      Started:
+                      {{ tenant.tenancyStartDate | date: "MMM dd, yyyy" }}
+                    </span>
+                  }
+                  @if (tenant.tenancyEndDate) {
+                    <span class="lease-info">
+                      <ng-icon name="event" />
+                      Ends: {{ tenant.tenancyEndDate | date: "MMM dd, yyyy" }}
+                    </span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+          <div class="tenants-note">
+            <ng-icon name="info" />
+            <span
+              >To modify tenant information, please use the Tenant Management
+              section.</span
+            >
+          </div>
+        </ng-card>
+      }
 
       <!-- Action Buttons -->
       <div class="action-buttons-icons">

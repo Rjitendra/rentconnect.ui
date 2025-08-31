@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, output } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { Component, inject, input, OnInit, output } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -50,6 +51,7 @@ import { PropertyService } from '../../../../service/property.service';
   standalone: true,
   imports: [
     ReactiveFormsModule,
+    DatePipe,
     NgCardComponent,
     NgIconComponent,
     NgInputComponent,
@@ -64,6 +66,9 @@ import { PropertyService } from '../../../../service/property.service';
 })
 export class PropertyAdd implements OnInit {
   readonly backToList = output<void>();
+  readonly property = input<IProperty | null>(null);
+
+  isEditMode = false;
 
   propertyForm!: FormGroup;
   uploadedImages: UploadedFile[] = [];
@@ -138,8 +143,14 @@ export class PropertyAdd implements OnInit {
   }
 
   ngOnInit() {
+    this.isEditMode = !!this.property();
     this.initializeForm();
-    this.populateTestDefaults();
+
+    if (this.isEditMode && this.property()) {
+      this.populateFormForEdit();
+    } else {
+      this.populateTestDefaults();
+    }
   }
 
   onSubmit() {
@@ -168,8 +179,16 @@ export class PropertyAdd implements OnInit {
         documents: this.convertImagesToDocuments(),
         status: PropertyStatus.Listed,
         IsValid: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        ...(this.isEditMode && this.property()
+          ? {
+              id: this.property()!.id,
+              createdAt: this.property()!['createdAt'],
+              updatedAt: new Date(),
+            }
+          : {
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            }),
       };
 
       // Convert to FormData for file upload support
@@ -184,7 +203,9 @@ export class PropertyAdd implements OnInit {
             this.isShowingValidationErrors = false;
             const successMessgae = Array.isArray(response.message)
               ? response.message.join(', ')
-              : 'Property saved successfully!!';
+              : this.isEditMode
+                ? 'Property updated successfully!'
+                : 'Property saved successfully!';
 
             this.alertService.success({
               errors: [
@@ -448,7 +469,55 @@ export class PropertyAdd implements OnInit {
   }
 
   removeImage(image: UploadedFile): void {
+    // If it's an existing image (dummy file with size 0), call API to delete
+    const imageWithId = image as UploadedFile & { id?: string };
+    if (this.isEditMode && image.file.size === 0 && imageWithId.id) {
+      this.deleteExistingImage(imageWithId.id, image);
+    } else {
+      // For new uploads, just remove from array
+      this.removeImageFromList(image);
+    }
+  }
+
+  getTenantsList() {
+    const prop = this.property();
+    return prop?.tenants || [];
+  }
+
+  private deleteExistingImage(imageId: string, image: UploadedFile) {
+    // Here you would call your API to delete the image
+    console.log('Deleting existing image with ID:', imageId);
+
+    // TODO: Implement API call to delete image
+    // this.propertyService.deletePropertyImage(imageId).subscribe({
+    //   next: (response) => {
+    //     if (response.success) {
+    //       this.removeImageFromList(image);
+    //       this.alertService.success({
+    //         errors: [{ message: 'Image deleted successfully', errorType: 'success' }]
+    //       });
+    //     }
+    //   },
+    //   error: (error) => {
+    //     this.alertService.success({
+    //       errors: [{ message: 'Failed to delete image', errorType: 'error' }]
+    //     });
+    //   }
+    // });
+
+    // For now, just remove from display
     this.removeImageFromList(image);
+
+    // Show success message
+    this.alertService.success({
+      errors: [
+        {
+          message:
+            'Image removed (Note: API integration needed for permanent deletion)',
+          errorType: 'success',
+        },
+      ],
+    });
   }
 
   private removeImageFromList(image: UploadedFile): void {
@@ -736,5 +805,78 @@ export class PropertyAdd implements OnInit {
       // Property Images
       propertyImages: [null], // Remove required validation for images
     });
+  }
+  private populateFormForEdit() {
+    const prop = this.property();
+    if (!prop) return;
+
+    // Populate form with existing property data
+    this.propertyForm.patchValue({
+      title: prop.title,
+      description: prop.description,
+      propertyType: prop.propertyType,
+      bhkConfiguration: prop.bhkConfiguration,
+      apartmentNumber: prop['apartmentNumber'],
+      buildingName: prop['buildingName'],
+      addressLine1: prop.addressLine1,
+      addressLine2: prop.addressLine2,
+      locality: prop.locality,
+      city: prop.city,
+      state: prop.state,
+      pinCode: prop.pinCode,
+      country: prop['country'],
+      totalFloors: prop.totalFloors,
+      floorNumber: prop.floorNumber,
+      coveredArea: prop['coveredArea'],
+      carpetArea: prop['carpetArea'],
+      builtUpArea: prop['builtUpArea'],
+      balconies: prop['balconies'],
+      bathrooms: prop['bathrooms'],
+      furnishingType: prop.furnishingType,
+      leaseType: prop.leaseType,
+      monthlyRent: prop.monthlyRent,
+      securityDeposit: prop.securityDeposit,
+      maintenanceCharges: prop['maintenanceCharges'],
+      hasParking: prop.hasParking,
+      parkingCharges: prop['parkingCharges'],
+      electricityCharges: prop['electricityCharges'],
+      waterCharges: prop['waterCharges'],
+      gasPipelineCharges: prop['gasPipelineCharges'],
+      leaseStartDate: prop['leaseStartDate'],
+      leaseEndDate: prop['leaseEndDate'],
+      availableFrom: prop.availableFrom,
+      isNegotiable: prop.isNegotiable,
+      petPolicy: prop['petPolicy'],
+      dietaryRestrictions: prop['dietaryRestrictions'],
+      genderPreference: prop['genderPreference'],
+      occupancyType: prop['occupancyType'],
+      smokingPolicy: prop['smokingPolicy'],
+      drinkingPolicy: prop['drinkingPolicy'],
+    });
+
+    // Load existing images/documents
+    if (prop.documents && prop.documents.length > 0) {
+      this.loadExistingDocuments(prop.documents);
+    }
+  }
+
+  private loadExistingDocuments(documents: IDocument[]) {
+    // Convert existing documents to UploadedFile format for display
+    const imageDocuments = documents.filter(
+      (doc) => doc.category === DocumentCategory.PropertyImages && doc.url,
+    );
+
+    this.uploadedImages = imageDocuments.map((doc, index) => ({
+      id: doc.id?.toString() || `existing_${index}`,
+      name: doc.name || `image_${index}`,
+      size: doc.size || 0,
+      type: doc.type || 'image/jpeg',
+      url: doc.url!,
+      uploadProgress: 100,
+      isUploaded: true,
+      file: new File([], doc.name || `image_${index}`, {
+        type: doc.type || 'image/jpeg',
+      }), // Create dummy file for existing images
+    })) as (UploadedFile & { id?: string })[];
   }
 }
