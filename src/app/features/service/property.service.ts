@@ -35,10 +35,20 @@ export class PropertyService {
    * Save property as published listing
    */
   saveProperty(formData: FormData): Observable<Result<PropertySaveResponse>> {
-    return this._http.post<Result<PropertySaveResponse>>(
-      `${environment.apiBaseUrl}Property/create`,
-      formData,
-    );
+    const idValue = formData.get('id');
+    const propertyId = idValue !== null ? +idValue : null;
+    if (propertyId) {
+      return this._http.post<Result<PropertySaveResponse>>(
+        `${environment.apiBaseUrl}Property/update/${propertyId}`,
+        formData,
+      );
+    } else {
+      // Update existing property
+      return this._http.post<Result<PropertySaveResponse>>(
+        `${environment.apiBaseUrl}Property/create`,
+        formData,
+      );
+    }
   }
 
   /**
@@ -46,10 +56,19 @@ export class PropertyService {
    * need fix the end point
    */
   saveDraft(formData: FormData): Observable<Result<PropertySaveResponse>> {
-    return this._http.post<Result<PropertySaveResponse>>(
-      `${environment.apiBaseUrl}Property/create`,
-      formData,
-    );
+    const idValue = formData.get('id');
+    const propertyId = idValue !== null ? +idValue : null;
+    if (propertyId) {
+      return this._http.post<Result<PropertySaveResponse>>(
+        `${environment.apiBaseUrl}Property/update/${propertyId}`,
+        formData,
+      );
+    } else {
+      return this._http.post<Result<PropertySaveResponse>>(
+        `${environment.apiBaseUrl}Property/create`,
+        formData,
+      );
+    }
   }
 
   /**
