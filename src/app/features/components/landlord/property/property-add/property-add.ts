@@ -65,9 +65,8 @@ import { PropertyService } from '../../../../service/property.service';
   styleUrl: './property-add.scss',
 })
 export class PropertyAdd implements OnInit {
-  readonly backToList = output<void>();
   readonly property = input<IProperty | null>(null);
-
+  readonly backToList = output<void>();
   isEditMode = false;
 
   propertyForm!: FormGroup;
