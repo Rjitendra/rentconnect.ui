@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 // Removed direct Material imports - using shared library instead
-import { Observable, of } from 'rxjs';
+import { catchError, filter, Observable, of, switchMap, tap } from 'rxjs';
 
 import {
   AlertService,
@@ -237,40 +237,49 @@ export class PropertyDashboard implements OnInit {
   }
 
   onDeleteProperty(property: IProperty): void {
-    if (confirm(`Are you sure you want to delete "${property.title}"?`)) {
-      // Check if this is a mock property (ID <= 10) or API property
-      const isMockProperty = property.id! <= 10;
+    this.dialogService
+      .confirm({
+        title: 'Confirm Deletion',
+        message: `Are you sure you want to delete "${property.title}"?`,
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        type: 'warning',
+        icon: 'warning',
+        disableClose: true,
+      })
+      .pipe(
+        // Only proceed if user confirms
+        filter((result) => result.action === 'confirm'),
 
-      if (isMockProperty) {
-        // For mock properties, just remove from local array
-        this.properties = this.properties.filter(
-          (item) => item.id !== property.id,
-        );
-        console.log('Deleted mock property:', property);
-      } else {
-        // For API properties, call the API to delete
-        this.propertyService.deleteProperty(property.id!).subscribe({
-          next: (success: boolean) => {
-            if (success) {
-              // Remove from local array after successful API deletion
-              this.properties = this.properties.filter(
-                (item) => item.id !== property.id,
+        // Call API delete
+        switchMap(() =>
+          this.propertyService.deleteProperty(property.id!).pipe(
+            tap((success: Result<boolean>) => {
+              if (success.success) {
+                // Update local array
+                this.properties = this.properties.filter(
+                  (item) => item.id !== property.id,
+                );
+                this.alert('Property deleted successfully!');
+              } else {
+                this.alert(
+                  'Failed to delete property. Please try again.',
+                  'error',
+                );
+              }
+            }),
+            catchError((error) => {
+              this.alert(
+                error?.error.message ||
+                  'Error deleting property. Please try again.',
+                'error',
               );
-              console.log('Successfully deleted property from API:', property);
-              alert('Property deleted successfully!');
-            } else {
-              alert('Failed to delete property. Please try again.');
-            }
-          },
-          error: (error) => {
-            console.error('Error deleting property:', error);
-            alert(
-              'An error occurred while deleting the property. Please try again.',
-            );
-          },
-        });
-      }
-    }
+              return of(false); // Prevent stream from breaking
+            }),
+          ),
+        ),
+      )
+      .subscribe();
   }
 
   // Statistics Methods
@@ -508,18 +517,15 @@ export class PropertyDashboard implements OnInit {
   }
 
   // Get status icon based on property status
-  getStatusIcon(status: string): string {
+  getStatusIcon(status: PropertyStatus): string {
     switch (status) {
-      case 'available':
-      case 'listed':
+      case PropertyStatus.Listed:
         return 'check_circle';
-      case 'rented':
-      case 'occupied':
+      case PropertyStatus.Rented:
         return 'people';
-      case 'undermaintenance':
-      case 'maintenance':
-        return 'build';
-      case 'draft':
+      case PropertyStatus.Archived:
+        return 'delete';
+      case PropertyStatus.Draft:
         return 'edit';
       default:
         return 'info';
@@ -535,22 +541,37 @@ export class PropertyDashboard implements OnInit {
   handleUploadClick(property: IProperty): void {
     this.onUploadDocument(property);
   }
-  getSimplifiedStatus(status: string): string {
+
+  getSimplifiedStatus(status: PropertyStatus): string {
     switch (status) {
-      case 'available':
-      case 'listed':
+      case PropertyStatus.Listed:
         return 'LISTED';
-      case 'rented':
-      case 'occupied':
+      case PropertyStatus.Rented:
         return 'RENTED';
-      case 'undermaintenance':
-        return 'RENTED';
-      case 'draft':
-        return 'LISTED';
+      case PropertyStatus.Archived:
+        return 'Archived';
+      case PropertyStatus.Draft:
+        return 'Draft';
       default:
         return 'LISTED';
     }
   }
+
+  getSimplifiedStatusIconColor(status: PropertyStatus): string {
+    switch (status) {
+      case PropertyStatus.Listed:
+        return 'icon-info';
+      case PropertyStatus.Rented:
+        return 'icon-success';
+      case PropertyStatus.Archived:
+        return 'icon-error ';
+      case PropertyStatus.Draft:
+        return 'icon-warning';
+      default:
+        return 'icon-warning';
+    }
+  }
+
   private exportPropertiesToCSV(properties: TransformedProperty[]): void {
     const headers = [
       'ID',
@@ -861,5 +882,21 @@ export class PropertyDashboard implements OnInit {
     if (index !== -1) {
       this.properties[index] = this.transformPropertyForTable(updatedProperty);
     }
+  }
+
+  private alert(
+    message: string,
+    type: 'success' | 'error' | 'warning' = 'success',
+  ): void {
+    // Show success message
+    this.alertService.showAlert({
+      errors: [
+        {
+          message: message,
+          errorType: type,
+        },
+      ],
+      timeout: 5000,
+    });
   }
 }

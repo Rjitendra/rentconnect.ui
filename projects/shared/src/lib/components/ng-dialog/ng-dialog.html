@@ -1,1 +1,37 @@
-<p>ng-dialog works!</p>
+<div class="ng-dialog-container">
+  <!-- Header -->
+  <div class="ng-dialog-header" [class]="'dialog-' + (data.type || 'info')">
+    @if (data.icon) {
+      <ng-icon [name]="data.icon!" class="dialog-icon" />
+    }
+    @if (data.title) {
+      <h2 class="dialog-title">{{ data.title }}</h2>
+    }
+  </div>
+
+  <!-- Content -->
+  <div class="ng-dialog-content">
+    @if (data.message) {
+      <p class="dialog-message">{{ data.message }}</p>
+    }
+    <ng-content></ng-content>
+  </div>
+
+  <!-- Actions -->
+  <div class="ng-dialog-actions">
+    @if (data.showCancel !== false) {
+      <ng-button
+        buttonType="button"
+        type="text"
+        [label]="data.cancelText || 'Cancel'"
+        (buttonClick)="onCancel()"
+      />
+    }
+    <ng-button
+      buttonType="button"
+      type="filled"
+      [label]="data.confirmText || 'OK'"
+      (buttonClick)="onConfirm()"
+    />
+  </div>
+</div>

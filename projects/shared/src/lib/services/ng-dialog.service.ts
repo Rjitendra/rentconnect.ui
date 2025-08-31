@@ -1,26 +1,13 @@
-import { Injectable, inject } from '@angular/core';
+import { ComponentType } from '@angular/cdk/overlay';
+import { Injectable, TemplateRef, inject } from '@angular/core';
 import {
   MatDialog,
   MatDialogConfig,
   MatDialogRef,
 } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
-
-export interface NgDialogConfig extends Omit<MatDialogConfig, 'data'> {
-  data?: any;
-  title?: string;
-  message?: string;
-  confirmText?: string;
-  cancelText?: string;
-  showCancel?: boolean;
-  icon?: string;
-  type?: 'info' | 'warning' | 'error' | 'success' | 'confirm';
-}
-
-export interface NgDialogResult {
-  action: 'confirm' | 'cancel' | 'close';
-  data?: any;
-}
+import { NgDialog } from '../components/ng-dialog/ng-dialog';
+import { NgDialogData, NgDialogResult } from '../models/dialog';
 
 @Injectable({
   providedIn: 'root',
@@ -32,8 +19,8 @@ export class NgDialogService {
    * Open a custom dialog with a component
    */
   open<T, R = any>(
-    component: any,
-    config?: NgDialogConfig,
+    component: ComponentType<T> | TemplateRef<T>,
+    config?: NgDialogData,
   ): MatDialogRef<T, R> {
     const dialogConfig: MatDialogConfig = {
       width: config?.width || '500px',
@@ -49,47 +36,52 @@ export class NgDialogService {
   /**
    * Open a confirmation dialog
    */
-  confirm(config: {
-    title?: string;
-    message: string;
-    confirmText?: string;
-    cancelText?: string;
-    type?: 'info' | 'warning' | 'error' | 'success';
-    icon?: string;
-  }): Observable<NgDialogResult> {
-    // For now, return a simple confirm dialog
-    // This can be enhanced with a custom confirmation component later
-    const result = confirm(
-      `${config.title ? config.title + '\n\n' : ''}${config.message}`,
-    );
+  confirm(config: NgDialogData): Observable<NgDialogResult> {
+    const dialogConfig: MatDialogConfig = {
+      width: config?.width || '400px',
+      disableClose: config?.disableClose ?? true,
+      autoFocus: config?.autoFocus ?? true,
+      restoreFocus: config?.restoreFocus ?? true,
+      ...config,
+    };
+
+    const dialogRef = this.matDialog.open(NgDialog, {
+      ...dialogConfig,
+      data: {
+        ...config,
+        disableClose: config?.disableClose ?? true,
+        type: config.type || 'confirm',
+        showCancel: config.showCancel !== false, // default true
+      },
+    });
 
     return new Observable((observer) => {
-      observer.next({
-        action: result ? 'confirm' : 'cancel',
+      dialogRef.afterClosed().subscribe((result) => {
+        observer.next(result || { action: 'close' });
+        observer.complete();
       });
-      observer.complete();
     });
   }
 
   /**
    * Open an alert dialog
    */
-  alert(config: {
-    title?: string;
-    message: string;
-    confirmText?: string;
-    type?: 'info' | 'warning' | 'error' | 'success';
-    icon?: string;
-  }): Observable<NgDialogResult> {
-    // For now, return a simple alert dialog
-    // This can be enhanced with a custom alert component later
-    alert(`${config.title ? config.title + '\n\n' : ''}${config.message}`);
+  alert(config: NgDialogData): Observable<NgDialogResult> {
+    const dialogRef = this.matDialog.open(NgDialog, {
+      width: '400px',
+      data: {
+        ...config,
+        disableClose: config?.disableClose ?? false,
+        type: config.type || 'info',
+        showCancel: false,
+      },
+    });
 
     return new Observable((observer) => {
-      observer.next({
-        action: 'confirm',
+      dialogRef.afterClosed().subscribe((result) => {
+        observer.next(result || { action: 'close' });
+        observer.complete();
       });
-      observer.complete();
     });
   }
 

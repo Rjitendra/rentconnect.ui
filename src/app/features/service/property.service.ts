@@ -122,15 +122,10 @@ export class PropertyService {
   /**
    * Delete property
    */
-  deleteProperty(id: number): Observable<boolean> {
-    return this.simulateApiCall(() => {
-      const index = this.properties.findIndex((p) => p.id === id);
-      if (index >= 0) {
-        this.properties.splice(index, 1);
-        return true;
-      }
-      return false;
-    });
+  deleteProperty(id: number): Observable<Result<boolean>> {
+    return this._http.delete<Result<boolean>>(
+      `${environment.apiBaseUrl}Property/${id}`,
+    );
   }
 
   // Private helper methods

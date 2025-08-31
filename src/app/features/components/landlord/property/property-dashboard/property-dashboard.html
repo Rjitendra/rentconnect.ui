@@ -461,7 +461,7 @@
     [ngClass]="'status-' + getSimplifiedStatus(property.status).toLowerCase()"
   >
     <ng-icon
-      class="status-icon icon-teal"
+      [class]="'status-icon' + getSimplifiedStatusIconColor(property.status)"
       [name]="getStatusIcon(property.status)"
     />
     {{ getSimplifiedStatus(property.status) }}

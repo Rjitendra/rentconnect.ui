@@ -63,7 +63,7 @@ export interface IProperty extends model {
   // Audit
   createdOn?: Date | string;
   updatedOn?: Date | string;
-
+  IsValid?: boolean;
   // Documents
   documents?: IDocument[];
 }

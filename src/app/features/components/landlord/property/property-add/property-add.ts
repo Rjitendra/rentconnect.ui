@@ -164,11 +164,10 @@ export class PropertyAdd implements OnInit {
       // Create property object with form data and documents
       const propertyData: IProperty = {
         ...this.propertyForm.value,
-        landlordId: this.userdetail?.userId
-          ? Number(this.userdetail.userId)
-          : 0,
+        landlordId: Number(this.userdetail.userId),
         documents: this.convertImagesToDocuments(),
         status: PropertyStatus.Listed,
+        IsValid: true,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -241,8 +240,10 @@ export class PropertyAdd implements OnInit {
       // Create property object with form data and documents
       const propertyData: IProperty = {
         ...this.propertyForm.value,
+        landlordId: Number(this.userdetail.userId),
         documents: this.convertImagesToDocuments(),
         status: PropertyStatus.Draft,
+        IsValid: false,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
