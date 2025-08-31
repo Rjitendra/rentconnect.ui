@@ -1,28 +1,91 @@
-import { Directive, Input, OnInit, inject } from '@angular/core';
-import { MatMenuTrigger } from '@angular/material/menu';
+import {
+  ConnectionPositionPair,
+  Overlay,
+  OverlayRef,
+} from '@angular/cdk/overlay';
+import { TemplatePortal } from '@angular/cdk/portal';
+import {
+  Directive,
+  ElementRef,
+  HostListener,
+  Input,
+  OnDestroy,
+} from '@angular/core';
+import { Subscription } from 'rxjs';
+import { NgMenuComponent } from '../components/ng-menu/ng-menu';
 
 @Directive({
   selector: '[ngMenuTriggerFor]',
-  standalone: true,
-  hostDirectives: [
-    {
-      directive: MatMenuTrigger,
-      inputs: ['matMenuTriggerData', 'matMenuTriggerRestoreFocus'],
-      outputs: ['menuOpened', 'menuClosed'],
-    },
-  ],
 })
-export class NgMenuTriggerDirective implements OnInit {
-  @Input() ngMenuTriggerFor: MatMenuTrigger | any;
+export class NgMenuTriggerDirective implements OnDestroy {
+  @Input('ngMenuTriggerFor') menu!: NgMenuComponent;
 
-  private matMenuTrigger = inject(MatMenuTrigger);
+  private overlayRef!: OverlayRef;
+  private subscription = new Subscription();
 
-  ngOnInit() {
-    if (this.ngMenuTriggerFor?.templateRef) {
-      // assign the underlying MatMenu
-      this.matMenuTrigger.menu = this.ngMenuTriggerFor.templateRef;
-    } else if (this.ngMenuTriggerFor instanceof MatMenuTrigger) {
-      this.matMenuTrigger.menu = this.ngMenuTriggerFor.menu;
+  constructor(
+    private overlay: Overlay,
+    private elementRef: ElementRef<HTMLElement>,
+  ) {}
+
+  @HostListener('click')
+  onClick() {
+    if (this.menu?.templateRef) {
+      this.openMenu();
+    } else {
+      console.error('NgMenuComponent or its templateRef is null.');
     }
+  }
+
+  private openMenu() {
+    if (this.overlayRef?.hasAttached()) {
+      return;
+    }
+
+    const positionStrategy = this.overlay
+      .position()
+      .flexibleConnectedTo(this.elementRef)
+      .withPositions(this.getPositions());
+
+    this.overlayRef = this.overlay.create({
+      positionStrategy,
+      scrollStrategy: this.overlay.scrollStrategies.reposition(),
+      hasBackdrop: true,
+      backdropClass: 'cdk-overlay-transparent-backdrop',
+    });
+
+    const portal = new TemplatePortal(
+      this.menu.templateRef,
+      this.menu.viewContainerRef,
+    );
+    this.overlayRef.attach(portal);
+
+    this.subscription.add(
+      this.overlayRef.backdropClick().subscribe(() => {
+        this.overlayRef.detach();
+      }),
+    );
+  }
+
+  private getPositions(): ConnectionPositionPair[] {
+    return [
+      {
+        originX: 'start',
+        originY: 'bottom',
+        overlayX: 'start',
+        overlayY: 'top',
+      },
+      {
+        originX: 'end',
+        originY: 'bottom',
+        overlayX: 'end',
+        overlayY: 'top',
+      },
+    ];
+  }
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
+    this.overlayRef?.dispose();
   }
 }

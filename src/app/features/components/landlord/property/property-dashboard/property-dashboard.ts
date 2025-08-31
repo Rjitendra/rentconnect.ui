@@ -1,3 +1,4 @@
+import { OverlayModule } from '@angular/cdk/overlay';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
@@ -21,6 +22,7 @@ import {
   NgIconComponent,
   NgMatTable,
   NgMenuComponent,
+  NgMenuTriggerDirective,
   NgSelectComponent,
   TableColumn,
   TableOptions,
@@ -33,7 +35,7 @@ import {
 import { DocumentCategory, PropertyStatus } from '../../../../enums/view.enum';
 import { IDocument } from '../../../../models/document';
 import { IProperty } from '../../../../models/property';
-import { ITenant } from '../../../../models/tenant';
+import { ITenant, TenantChildren } from '../../../../models/tenant';
 import { PropertyService } from '../../../../service/property.service';
 import { PropertyAdd } from '../property-add/property-add';
 import { PropertyDetail } from '../property-detail/property-detail';
@@ -65,9 +67,12 @@ interface TenantChild {
     NgMenuComponent,
     NgDivider,
     MatMenuModule,
-
     PropertyAdd,
     PropertyDetail,
+    NgMenuTriggerDirective,
+    NgMenuComponent,
+    NgMenuTriggerDirective,
+    OverlayModule,
   ],
   templateUrl: './property-dashboard.html',
   styleUrls: ['./property-dashboard.scss'],
@@ -313,6 +318,14 @@ export class PropertyDashboard implements OnInit {
 
   getTenantChildren(tenant: ITenant): TenantChild[] {
     // Return family members (non-primary tenants) from the same tenant group
+    if (tenant.children?.length) {
+      return tenant.children.map((member: TenantChildren) => ({
+        id: member.id || 0,
+        name: member.name || 'Unknown',
+        age: member.age || 0,
+        relation: member.relation || 'N/A',
+      }));
+    }
     const familyMembers = this.mockTenants.filter(
       (t: ITenant) =>
         t.tenantGroup === tenant.tenantGroup &&

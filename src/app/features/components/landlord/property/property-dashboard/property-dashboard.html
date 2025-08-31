@@ -353,7 +353,7 @@
         name="visibility"
         tooltip="View All Tenants"
         class="tenant-view-icon icon-info icon-clickable"
-        [matMenuTriggerFor]="tenantMenu"
+        [ngMenuTriggerFor]="tenantMenu"
       />
     } @else {
       <!-- No tenants -->
@@ -364,7 +364,7 @@
     }
 
     <!-- Tenant Menu -->
-    <mat-menu #tenantMenu panelClass="tenant-menu-panel">
+    <ng-menu #tenantMenu="ng-menu" panelClass="tenant-menu-panel">
       <div class="tenant-menu-header">
         <h4>Tenants for {{ property.title }}</h4>
       </div>
@@ -396,7 +396,7 @@
                 </div>
               </div>
               <!-- Tenant Children -->
-              <!-- @if (getTenantChildren(property).length > 0) {
+              @if (getTenantChildren(tenant).length > 0) {
                 <div class="tenant-children">
                   <div class="children-header">
                     <ng-icon name="child_care" />
@@ -412,13 +412,13 @@
                     </div>
                   }
                 </div>
-              } -->
+              }
             </div>
             <ng-divider />
           </div>
         }
       </div>
-    </mat-menu>
+    </ng-menu>
   </div>
 </ng-template>
 
