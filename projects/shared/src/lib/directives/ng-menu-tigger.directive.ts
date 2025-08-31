@@ -7,24 +7,22 @@ import { MatMenuTrigger } from '@angular/material/menu';
   hostDirectives: [
     {
       directive: MatMenuTrigger,
-      inputs: [
-        'matMenuTriggerFor: ngMenuTriggerFor',
-        'matMenuTriggerData',
-        'matMenuTriggerRestoreFocus',
-      ],
+      inputs: ['matMenuTriggerData', 'matMenuTriggerRestoreFocus'],
       outputs: ['menuOpened', 'menuClosed'],
     },
   ],
 })
 export class NgMenuTriggerDirective implements OnInit {
-  @Input() ngMenuTriggerFor: any;
+  @Input() ngMenuTriggerFor: MatMenuTrigger | any;
 
   private matMenuTrigger = inject(MatMenuTrigger);
 
   ngOnInit() {
-    // Set the menu reference on the underlying MatMenuTrigger
-    if (this.ngMenuTriggerFor) {
-      this.matMenuTrigger.menu = this.ngMenuTriggerFor;
+    if (this.ngMenuTriggerFor?.templateRef) {
+      // assign the underlying MatMenu
+      this.matMenuTrigger.menu = this.ngMenuTriggerFor.templateRef;
+    } else if (this.ngMenuTriggerFor instanceof MatMenuTrigger) {
+      this.matMenuTrigger.menu = this.ngMenuTriggerFor.menu;
     }
   }
 }

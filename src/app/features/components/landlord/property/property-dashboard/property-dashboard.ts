@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 // Removed direct Material imports - using shared library instead
+import { MatMenuModule } from '@angular/material/menu';
 import { catchError, filter, Observable, of, switchMap, tap } from 'rxjs';
 
 import {
@@ -20,7 +21,6 @@ import {
   NgIconComponent,
   NgMatTable,
   NgMenuComponent,
-  NgMenuTriggerDirective,
   NgSelectComponent,
   TableColumn,
   TableOptions,
@@ -64,7 +64,7 @@ interface TenantChild {
     NgMatTable,
     NgMenuComponent,
     NgDivider,
-    NgMenuTriggerDirective,
+    MatMenuModule,
 
     PropertyAdd,
     PropertyDetail,

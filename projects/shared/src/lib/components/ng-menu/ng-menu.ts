@@ -1,81 +1,65 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, Input, ViewChild } from '@angular/core';
-import { MatIconModule } from '@angular/material/icon';
 import { MatMenu, MatMenuModule, MatMenuPanel } from '@angular/material/menu';
 
 @Component({
   selector: 'ng-menu',
   standalone: true,
+  imports: [CommonModule, MatMenuModule],
   exportAs: 'ngMenu',
-  imports: [CommonModule, MatMenuModule, MatIconModule],
   template: `
     <mat-menu #menu="matMenu" [class]="panelClass">
       <ng-content></ng-content>
     </mat-menu>
   `,
-  styles: [
-    `
-      :host {
-        display: contents;
-      }
-    `,
-  ],
 })
-export class NgMenuComponent implements AfterViewInit, MatMenuPanel<any> {
-  @Input() panelClass: string = '';
+export class NgMenuComponent implements MatMenuPanel<any>, AfterViewInit {
+  @Input() panelClass = '';
   @ViewChild('menu', { static: true }) menu!: MatMenu;
 
-  // Implement MatMenuPanel interface by delegating to the internal MatMenu
-  get xPosition() {
-    return this.menu.xPosition;
-  }
-  set xPosition(value) {
-    this.menu.xPosition = value;
-  }
+  ngAfterViewInit(): void {}
 
-  get yPosition() {
-    return this.menu.yPosition;
-  }
-  set yPosition(value) {
-    this.menu.yPosition = value;
-  }
-
-  get overlapTrigger() {
-    return this.menu.overlapTrigger;
-  }
-  set overlapTrigger(value) {
-    this.menu.overlapTrigger = value;
-  }
-
+  // --- Required by MatMenuPanel ---
   get templateRef() {
     return this.menu.templateRef;
   }
-  get classList() {
-    return this.menu.classList;
+  get xPosition() {
+    return this.menu.xPosition;
   }
-  get panelId() {
-    return this.menu.panelId;
+  set xPosition(value: 'before' | 'after') {
+    this.menu.xPosition = value;
   }
-  get parentMenu() {
-    return this.menu.parentMenu;
+  get yPosition() {
+    return this.menu.yPosition;
   }
-  get close() {
-    return this.menu.close;
+  set yPosition(value: 'above' | 'below') {
+    this.menu.yPosition = value;
+  }
+  get overlapTrigger() {
+    return this.menu.overlapTrigger;
+  }
+  set overlapTrigger(value: boolean) {
+    this.menu.overlapTrigger = value;
+  }
+  get hasBackdrop() {
+    return this.menu.hasBackdrop;
+  }
+  get backdropClass() {
+    return this.menu.backdropClass;
   }
 
-  ngAfterViewInit() {
-    // Menu is now available
-  }
+  // --- FIX: implement close property required by MatMenuPanel ---
+  close = this.menu.closed;
 
   focusFirstItem(origin?: any) {
     return this.menu.focusFirstItem(origin);
   }
 
   resetActiveItem() {
-    this.menu.resetActiveItem();
+    return this.menu.resetActiveItem();
   }
 
   setPositionClasses(classes?: any) {
-    this.menu.setPositionClasses(classes);
+    return this.menu.setPositionClasses(classes);
   }
 }
