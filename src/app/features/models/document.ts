@@ -20,4 +20,5 @@ export interface IDocument {
   isVerified?: boolean; // Default false
   verifiedBy?: string; // Optional, default empty
   description?: string; // Optional, default empty
+  downloadUrl?: string;
 }

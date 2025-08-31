@@ -12,6 +12,7 @@ import {
   PropertyStatus,
   PropertyType,
 } from '../enums/view.enum';
+import { IDocument } from '../models/document';
 import {
   IProperty,
   PropertyFormData,
@@ -136,6 +137,14 @@ export class PropertyService {
   getPropertyById(id: number): Observable<IProperty | null> {
     const property = this.properties.find((p) => p.id === id);
     return of(property || null).pipe(delay(200));
+  }
+
+  getPropertyImagesUrl(
+    landlordId: number,
+    propertyId: number,
+  ): Observable<Result<IDocument[]>> {
+    const url = `${environment.apiBaseUrl}Property/landlord/${landlordId}/${propertyId}/images`;
+    return this._http.get<Result<IDocument[]>>(`${url}`);
   }
 
   /**

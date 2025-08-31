@@ -131,6 +131,7 @@ export class PropertyAdd implements OnInit {
   validationErrors: PropertyValidationError[] = [];
   isShowingValidationErrors = false;
   userdetail: Partial<IUserDetail> = {};
+  propertiesImages: IDocument[] = [];
 
   private fb = inject(FormBuilder);
   private router = inject(Router);
@@ -146,7 +147,10 @@ export class PropertyAdd implements OnInit {
     this.initializeForm();
 
     if (this.isEditMode && this.property()) {
-      this.populateFormForEdit();
+      this.getPropertyImages(
+        Number(this.userdetail.userId),
+        Number(this.property()?.id ?? 0),
+      );
     } else {
       this.populateTestDefaults();
     }
@@ -877,5 +881,18 @@ export class PropertyAdd implements OnInit {
         type: doc.type || 'image/jpeg',
       }), // Create dummy file for existing images
     })) as (UploadedFile & { id?: string })[];
+  }
+
+  private getPropertyImages(landlordId: number, propertyId: number) {
+    this.propertyService
+      .getPropertyImagesUrl(landlordId, propertyId)
+      .subscribe((res: Result<IDocument[]>) => {
+        this.propertiesImages = res.entity;
+        const prop = this.property();
+        if (prop) {
+          prop.documents = this.propertiesImages;
+        }
+        this.populateFormForEdit();
+      });
   }
 }
