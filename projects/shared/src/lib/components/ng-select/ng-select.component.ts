@@ -1,33 +1,33 @@
 import {
   Component,
   forwardRef,
-  output,
-  input,
-  Injector,
   inject,
-  OnInit,
+  Injector,
+  input,
   OnDestroy,
+  OnInit,
+  output,
 } from '@angular/core';
 import {
   ControlValueAccessor,
-  NG_VALUE_ACCESSOR,
-  ReactiveFormsModule,
-  NgControl,
   FormControl,
+  NG_VALUE_ACCESSOR,
+  NgControl,
+  ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { MatSelectModule } from '@angular/material/select';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatOptionModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { NgLabelComponent } from '../ng-label/ng-label.component';
+import { MatSelectModule } from '@angular/material/select';
 import { NgClarifyTextComponent } from '../ng-clarify-text/ng-clarify-text.component';
+import { NgLabelComponent } from '../ng-label/ng-label.component';
 
 export interface SelectOption {
-  value: any;
+  value: unknown;
   label: string;
   disabled?: boolean;
 }

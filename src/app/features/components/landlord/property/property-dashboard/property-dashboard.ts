@@ -165,37 +165,6 @@ export class PropertyDashboard implements OnInit {
 
   userdetail: Partial<IUserDetail> = {};
 
-  // Mock tenant data for testing
-  private mockTenants: ITenant[] = [
-    {
-      id: 1,
-      landlordId: 1,
-      propertyId: 1,
-      name: 'Alice Johnson',
-      email: 'alice.johnson@example.com',
-      phoneNumber: '9876543212',
-      dob: '1988-05-12',
-      age: 36,
-      occupation: 'Designer',
-      aadhaarNumber: '123456789012',
-      panNumber: 'ABCDE1234F',
-      tenancyStartDate: '2024-01-01',
-      tenancyEndDate: '2025-01-01',
-      rentDueDate: '2024-01-05',
-      rentAmount: 45000,
-      securityDeposit: 135000,
-      isAcknowledge: true,
-      acknowledgeDate: '2024-01-01',
-      isVerified: true,
-      isNewTenant: false,
-      isPrimary: true,
-      isActive: true,
-      tenantGroup: '1',
-      documents: [],
-      tickets: [],
-    },
-  ];
-
   private dialogService = inject(NgDialogService);
 
   private userService = inject(OauthService);
@@ -315,25 +284,8 @@ export class PropertyDashboard implements OnInit {
   }
 
   getTenantChildren(tenant: ITenant): TenantChild[] {
-    // Return family members (non-primary tenants) from the same tenant group
-    const familyMembers = this.mockTenants.filter(
-      (t: ITenant) =>
-        t.tenantGroup === tenant.tenantGroup &&
-        t.id !== tenant.id &&
-        !t.isPrimary,
-    );
-
-    return familyMembers.map((member: ITenant) => ({
-      id: member.id || 0,
-      name: member.name || 'Unknown',
-      age: member.age || 0,
-      relation:
-        member.age && member.age < 18
-          ? member.name?.includes('Sarah')
-            ? 'Daughter'
-            : 'Son'
-          : 'Spouse',
-    }));
+    console.log(tenant);
+    return [];
   }
 
   onViewTenants(property: IProperty): void {

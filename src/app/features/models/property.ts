@@ -25,7 +25,6 @@ export interface IProperty extends model {
   totalFloors?: number;
   carpetAreaSqFt?: number;
   builtUpAreaSqFt?: number;
-  isFurnished: boolean;
   furnishingType?: FurnishingType;
   numberOfBathrooms?: number;
   numberOfBalconies?: number;

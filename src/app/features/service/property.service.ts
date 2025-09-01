@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { Observable, of } from 'rxjs';
-import { delay, map } from 'rxjs/operators';
+import { delay } from 'rxjs/operators';
 
 import { environment } from '../../../environments/environment';
 import { Result } from '../../common/models/common';
@@ -26,7 +26,6 @@ import {
 export class PropertyService {
   private _http = inject(HttpClient);
   private properties: IProperty[] = [];
-  private nextId = 1;
 
   constructor() {
     // Initialize with some mock data if needed
@@ -39,7 +38,7 @@ export class PropertyService {
     const idValue = formData.get('id');
     const propertyId = idValue !== null ? +idValue : null;
     if (propertyId) {
-      return this._http.post<Result<PropertySaveResponse>>(
+      return this._http.put<Result<PropertySaveResponse>>(
         `${environment.apiBaseUrl}Property/update/${propertyId}`,
         formData,
       );
@@ -256,7 +255,6 @@ export class PropertyService {
       totalFloors: data.totalFloors || 0,
       carpetAreaSqFt: data.carpetAreaSqFt || 0,
       builtUpAreaSqFt: data.builtUpAreaSqFt || 0,
-      isFurnished: data.isFurnished || false,
       furnishingType: data.furnishingType as FurnishingType,
       numberOfBathrooms: data.numberOfBathrooms || 0,
       numberOfBalconies: data.numberOfBalconies || 0,
@@ -296,17 +294,6 @@ export class PropertyService {
       // Documents
       documents: data.documents || [],
     };
-  }
-
-  private simulateApiCall<T>(operation: () => T): Observable<T> {
-    return of(null).pipe(
-      delay(Math.random() * 1000 + 500), // Random delay between 500-1500ms
-      map(() => operation()),
-    );
-  }
-
-  private generateId(): number {
-    return this.nextId++;
   }
 
   private getFieldDisplayName(fieldName: string): string {

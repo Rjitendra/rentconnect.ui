@@ -6,7 +6,6 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { Router } from '@angular/router';
 
 // Import shared library components
 
@@ -22,7 +21,6 @@ import {
   NgInputComponent,
   NgSelectComponent,
   NgTextareaComponent,
-  SelectOption,
   UploadedFile,
 } from '../../../../../../../projects/shared/src/public-api';
 import { Result } from '../../../../../common/models/common';
@@ -31,6 +29,13 @@ import {
   OauthService,
 } from '../../../../../oauth/service/oauth.service';
 import { OwnerType } from '../../../../constants/owner-type.constants';
+import {
+  acceptedImageTypes,
+  bhkConfigurationOptions,
+  furnishingTypeOptions,
+  leaseTypeOptions,
+  propertyTypeOptions,
+} from '../../../../constants/properties.constants';
 import {
   DocumentCategory,
   FurnishingType,
@@ -67,61 +72,29 @@ import { PropertyService } from '../../../../service/property.service';
 export class PropertyAdd implements OnInit {
   readonly property = input<IProperty | null>(null);
   readonly backToList = output<void>();
-  isEditMode = false;
-
-  propertyForm!: FormGroup;
-  uploadedImages: UploadedFile[] = [];
-  isDragOver = false;
-
   // Image upload configuration
   readonly maxFileSize = 5 * 1024 * 1024; // 5MB
   readonly maxFiles = 10;
-  readonly acceptedTypes = [
-    'image/jpeg',
-    'image/jpg',
-    'image/png',
-    'image/gif',
-  ];
+  readonly acceptedTypes = acceptedImageTypes;
 
   // Select options for dropdowns using enums
-  propertyTypeOptions: SelectOption[] = [
-    { value: PropertyType.Apartment, label: 'Apartment' },
-    { value: PropertyType.Villa, label: 'Villa' },
-    { value: PropertyType.IndependentHouse, label: 'Independent House' },
-    { value: PropertyType.RowHouse, label: 'Row House' },
-    { value: PropertyType.Studio, label: 'Studio' },
-    { value: PropertyType.Plot, label: 'Plot' },
-  ];
-
-  bhkConfigurationOptions: SelectOption[] = [
-    { value: '1RK', label: '1 RK' },
-    { value: '1BHK', label: '1 BHK' },
-    { value: '2BHK', label: '2 BHK' },
-    { value: '3BHK', label: '3 BHK' },
-    { value: '4BHK', label: '4 BHK' },
-    { value: '5BHK+', label: '5+ BHK' },
-  ];
-
-  furnishingTypeOptions: SelectOption[] = [
-    { value: FurnishingType.Unfurnished, label: 'Unfurnished' },
-    { value: FurnishingType.SemiFurnished, label: 'Semi Furnished' },
-    { value: FurnishingType.FullyFurnished, label: 'Fully Furnished' },
-  ];
-
-  leaseTypeOptions: SelectOption[] = [
-    { value: LeaseType.ShortTerm, label: 'Short Term (< 11 months)' },
-    { value: LeaseType.LongTerm, label: 'Long Term (11+ months)' },
-  ];
-
+  propertyTypeOptions = propertyTypeOptions;
+  bhkConfigurationOptions = bhkConfigurationOptions;
+  furnishingTypeOptions = furnishingTypeOptions;
+  leaseTypeOptions = leaseTypeOptions;
   imageUploadConfig: FileUploadConfig = {
     maxFileSize: this.maxFileSize,
     acceptedTypes: ['image/*'],
     maxFiles: this.maxFiles,
     allowMultiple: true,
   };
-
   // Expose InputType enum to template
   InputType = InputType;
+
+  propertyForm!: FormGroup;
+  uploadedImages: UploadedFile[] = [];
+  isDragOver = false;
+  isEditMode = false;
 
   // Loading states
   isSaving = false;
@@ -134,7 +107,6 @@ export class PropertyAdd implements OnInit {
   propertiesImages: IDocument[] = [];
 
   private fb = inject(FormBuilder);
-  private router = inject(Router);
   private propertyService = inject(PropertyService);
   private alertService = inject(AlertService);
   private userService = inject(OauthService);
@@ -332,8 +304,6 @@ export class PropertyAdd implements OnInit {
   }
 
   goBack() {
-    // Emit event to parent component instead of router navigation
-    // TODO: The 'emit' function requires a mandatory void argument
     this.backToList.emit();
   }
 
@@ -375,7 +345,6 @@ export class PropertyAdd implements OnInit {
     return !!(control && control.invalid && control.touched);
   }
 
-  // Helper method to get field error message
   // Helper method to get field error message
   getFieldErrorMessage(fieldName: string): string {
     const control = this.propertyForm.get(fieldName);
@@ -819,42 +788,35 @@ export class PropertyAdd implements OnInit {
       description: prop.description,
       propertyType: prop.propertyType,
       bhkConfiguration: prop.bhkConfiguration,
-      apartmentNumber: prop['apartmentNumber'],
-      buildingName: prop['buildingName'],
+      floorNumber: prop.floorNumber,
+      totalFloors: prop.totalFloors,
+      numberOfBathrooms: prop.numberOfBathrooms,
+      numberOfBalconies: prop.numberOfBalconies,
+      carpetAreaSqFt: prop.carpetAreaSqFt,
+      builtUpAreaSqFt: prop.builtUpAreaSqFt,
+      furnishingType: prop.furnishingType,
+
       addressLine1: prop.addressLine1,
       addressLine2: prop.addressLine2,
+      landmark: prop.landmark,
       locality: prop.locality,
       city: prop.city,
       state: prop.state,
       pinCode: prop.pinCode,
-      country: prop['country'],
-      totalFloors: prop.totalFloors,
-      floorNumber: prop.floorNumber,
-      coveredArea: prop['coveredArea'],
-      carpetArea: prop['carpetArea'],
-      builtUpArea: prop['builtUpArea'],
-      balconies: prop['balconies'],
-      bathrooms: prop['bathrooms'],
-      furnishingType: prop.furnishingType,
-      leaseType: prop.leaseType,
+
       monthlyRent: prop.monthlyRent,
-      securityDeposit: prop.securityDeposit,
-      maintenanceCharges: prop['maintenanceCharges'],
-      hasParking: prop.hasParking,
-      parkingCharges: prop['parkingCharges'],
-      electricityCharges: prop['electricityCharges'],
-      waterCharges: prop['waterCharges'],
-      gasPipelineCharges: prop['gasPipelineCharges'],
-      leaseStartDate: prop['leaseStartDate'],
-      leaseEndDate: prop['leaseEndDate'],
+      securityDepos: prop.securityDeposit,
       availableFrom: prop.availableFrom,
+      leaseType: prop.leaseType,
       isNegotiable: prop.isNegotiable,
-      petPolicy: prop['petPolicy'],
-      dietaryRestrictions: prop['dietaryRestrictions'],
-      genderPreference: prop['genderPreference'],
-      occupancyType: prop['occupancyType'],
-      smokingPolicy: prop['smokingPolicy'],
-      drinkingPolicy: prop['drinkingPolicy'],
+
+      hasLift: prop.hasLift,
+      hasParking: prop.hasParking,
+      hasPowerBackup: prop.hasPowerBackup,
+      hasWaterSupply: prop.hasWaterSupply,
+      hasGasPipeline: prop.hasGasPipeline,
+      hasSecurity: prop.hasSecurity,
+      hasInternet: prop.hasInternet,
     });
 
     // Load existing images/documents
@@ -881,6 +843,9 @@ export class PropertyAdd implements OnInit {
         type: doc.type || 'image/jpeg',
       }), // Create dummy file for existing images
     })) as (UploadedFile & { id?: string })[];
+    this.propertyForm
+      .get('propertyImages')
+      ?.setValue(this.uploadedImages, { emitEvent: false });
   }
 
   private getPropertyImages(landlordId: number, propertyId: number) {
