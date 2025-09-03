@@ -124,8 +124,6 @@ export class PropertyDetail implements OnInit {
   }
 
   goBack() {
-    // Emit event to parent component instead of router navigation
-    // TODO: The 'emit' function requires a mandatory void argument
     this.backToList.emit();
   }
 
