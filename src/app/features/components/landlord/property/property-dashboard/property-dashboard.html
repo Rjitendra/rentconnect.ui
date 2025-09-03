@@ -97,7 +97,10 @@
   <!-- Property Detail Component -->
   @if (currentView === "detail") {
     <div>
-      <app-property-detail (backToList)="showTable()" />
+      <app-property-detail
+        [selectedProperties]="selectedProperty"
+        (backToList)="showTable()"
+      />
     </div>
   }
   <!-- Property Add/Edit Component -->

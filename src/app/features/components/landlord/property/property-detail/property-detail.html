@@ -10,12 +10,12 @@
         (buttonClick)="goBack()"
       />
       <div class="header-info">
-        <h1>{{ property?.title || "Property Details" }}</h1>
+        <h1>{{ property.title || "Property Details" }}</h1>
         <div class="header-meta">
-          <span class="property-id">ID: #{{ property?.id }}</span>
+          <span class="property-id">ID: #{{ property.id }}</span>
           <div class="status-chip" [ngClass]="getStatusClass()">
             <ng-icon [name]="getStatusIcon()" />
-            {{ property?.status }}
+            {{ property.status }}
           </div>
         </div>
       </div>
@@ -52,33 +52,35 @@
   <div class="content-grid">
     <!-- Property Images Section -->
     <ng-card class="images-card">
-      <div class="image-gallery">
-        <div class="main-image">
-          <img alt="Property Image" [src]="selectedImage || defaultImage" />
-          <div class="image-overlay">
-            <ng-button
-              buttonType="button"
-              type="fab"
-              icon="photo_library"
-              class="gallery-btn"
-              (buttonClick)="openGallery()"
-            />
+      @if (initPage$) {
+        <div class="image-gallery">
+          <div class="main-image">
+            <img alt="Property Image" [src]="selectedImage || defaultImage" />
+            <div class="image-overlay">
+              <ng-button
+                buttonType="button"
+                type="fab"
+                icon="photo_library"
+                class="gallery-btn"
+                (buttonClick)="openGallery()"
+              />
+            </div>
           </div>
+          @if (propertiesImages.length > 1) {
+            <div class="thumbnail-strip">
+              @for (image of propertiesImages; track image) {
+                <div
+                  class="thumbnail"
+                  [class.active]="image === selectedImage"
+                  (click)="selectImage(image)"
+                >
+                  <img alt="Property thumbnail" [src]="image.url" />
+                </div>
+              }
+            </div>
+          }
         </div>
-        @if (propertyImages.length > 1) {
-          <div class="thumbnail-strip">
-            @for (image of propertyImages; track image) {
-              <div
-                class="thumbnail"
-                [class.active]="image === selectedImage"
-                (click)="selectImage(image)"
-              >
-                <img alt="Property thumbnail" [src]="image" />
-              </div>
-            }
-          </div>
-        }
-      </div>
+      }
     </ng-card>
 
     <!-- Property Overview -->
@@ -88,21 +90,21 @@
           <ng-icon name="home" />
           <div>
             <span class="label">Type</span>
-            <span class="value">{{ property?.propertyType }}</span>
+            <span class="value">{{ property.propertyType }}</span>
           </div>
         </div>
         <div class="overview-item">
           <ng-icon name="bed" />
           <div>
             <span class="label">Configuration</span>
-            <span class="value">{{ property?.bhkConfiguration }}</span>
+            <span class="value">{{ property.bhkConfiguration }}</span>
           </div>
         </div>
         <div class="overview-item">
           <ng-icon name="square_foot" />
           <div>
             <span class="label">Carpet Area</span>
-            <span class="value">{{ property?.carpetAreaSqFt }} sq ft</span>
+            <span class="value">{{ property.carpetAreaSqFt }} sq ft</span>
           </div>
         </div>
         <div class="overview-item">
@@ -110,7 +112,7 @@
           <div>
             <span class="label">Floor</span>
             <span class="value"
-              >{{ property?.floorNumber }} of {{ property?.totalFloors }}</span
+              >{{ property.floorNumber }} of {{ property.totalFloors }}</span
             >
           </div>
         </div>
@@ -118,14 +120,14 @@
           <ng-icon name="chair" />
           <div>
             <span class="label">Furnishing</span>
-            <span class="value">{{ property?.furnishingType }}</span>
+            <span class="value">{{ property.furnishingType }}</span>
           </div>
         </div>
         <div class="overview-item">
           <ng-icon name="schedule" />
           <div>
             <span class="label">Available From</span>
-            <span class="value">{{ formatDate(property?.availableFrom) }}</span>
+            <span class="value">{{ formatDate(property.availableFrom) }}</span>
           </div>
         </div>
       </div>
@@ -138,11 +140,11 @@
           <div class="rent-amount">
             <span class="currency">₹</span>
             <span class="amount">{{
-              formatCurrency(property?.monthlyRent)
+              formatCurrency(property.monthlyRent)
             }}</span>
             <span class="period">/month</span>
           </div>
-          @if (property?.isNegotiable) {
+          @if (property.isNegotiable) {
             <div class="negotiable">
               <span class="negotiable-chip">Negotiable</span>
             </div>
@@ -152,12 +154,12 @@
           <div class="detail-item">
             <span class="label">Security Deposit</span>
             <span class="value"
-              >₹{{ formatCurrency(property?.securityDeposit) }}</span
+              >₹{{ formatCurrency(property.securityDeposit) }}</span
             >
           </div>
           <div class="detail-item">
             <span class="label">Lease Type</span>
-            <span class="value">{{ property?.leaseType }}</span>
+            <span class="value">{{ property.leaseType }}</span>
           </div>
         </div>
       </div>
@@ -167,21 +169,21 @@
     <ng-card class="location-card" title="Location" icon="place">
       <div class="location-info">
         <div class="address">
-          <p class="address-line">{{ property?.addressLine1 }}</p>
-          @if (property?.addressLine2) {
-            <p class="address-line">{{ property?.addressLine2 }}</p>
+          <p class="address-line">{{ property.addressLine1 }}</p>
+          @if (property.addressLine2) {
+            <p class="address-line">{{ property.addressLine2 }}</p>
           }
           <p class="address-line">
-            {{ property?.locality }}, {{ property?.city }}
+            {{ property.locality }}, {{ property.city }}
           </p>
           <p class="address-line">
-            {{ property?.state }} - {{ property?.pinCode }}
+            {{ property.state }} - {{ property.pinCode }}
           </p>
         </div>
-        @if (property?.landmark) {
+        @if (property.landmark) {
           <div class="landmark">
             <ng-icon name="map" />
-            <span>Near {{ property?.landmark }}</span>
+            <span>Near {{ property.landmark }}</span>
           </div>
         }
         <ng-button
@@ -202,11 +204,11 @@
           <h4>Room Details</h4>
           <div class="detail-item">
             <span class="label">Bathrooms</span>
-            <span class="value">{{ property?.numberOfBathrooms }}</span>
+            <span class="value">{{ property.numberOfBathrooms }}</span>
           </div>
           <div class="detail-item">
             <span class="label">Balconies</span>
-            <span class="value">{{ property?.numberOfBalconies || 0 }}</span>
+            <span class="value">{{ property.numberOfBalconies || 0 }}</span>
           </div>
         </div>
 
@@ -214,11 +216,11 @@
           <h4>Area Details</h4>
           <div class="detail-item">
             <span class="label">Carpet Area</span>
-            <span class="value">{{ property?.carpetAreaSqFt }} sq ft</span>
+            <span class="value">{{ property.carpetAreaSqFt }} sq ft</span>
           </div>
           <div class="detail-item">
             <span class="label">Built-up Area</span>
-            <span class="value">{{ property?.builtUpAreaSqFt }} sq ft</span>
+            <span class="value">{{ property.builtUpAreaSqFt }} sq ft</span>
           </div>
         </div>
       </div>
@@ -231,69 +233,69 @@
       icon="apartment"
     >
       <div class="amenities-grid">
-        <div class="amenity-item" [class.available]="property?.hasLift">
+        <div class="amenity-item" [class.available]="property.hasLift">
           <ng-icon name="elevator" />
           <span>Lift</span>
           <ng-icon
             class="status-icon"
-            [name]="property?.hasLift ? 'check_circle' : 'cancel'"
+            [name]="property.hasLift ? 'check_circle' : 'cancel'"
           />
         </div>
-        <div class="amenity-item" [class.available]="property?.hasParking">
+        <div class="amenity-item" [class.available]="property.hasParking">
           <ng-icon name="local_parking" />
           <span>Parking</span>
           <ng-icon
             class="status-icon"
-            [name]="property?.hasParking ? 'check_circle' : 'cancel'"
+            [name]="property.hasParking ? 'check_circle' : 'cancel'"
           />
         </div>
-        <div class="amenity-item" [class.available]="property?.hasPowerBackup">
+        <div class="amenity-item" [class.available]="property.hasPowerBackup">
           <ng-icon name="battery_charging_full" />
           <span>Power Backup</span>
           <ng-icon
             class="status-icon"
-            [name]="property?.hasPowerBackup ? 'check_circle' : 'cancel'"
+            [name]="property.hasPowerBackup ? 'check_circle' : 'cancel'"
           />
         </div>
-        <div class="amenity-item" [class.available]="property?.hasWaterSupply">
+        <div class="amenity-item" [class.available]="property.hasWaterSupply">
           <ng-icon name="water_drop" />
           <span>24/7 Water</span>
           <ng-icon
             class="status-icon"
-            [name]="property?.hasWaterSupply ? 'check_circle' : 'cancel'"
+            [name]="property.hasWaterSupply ? 'check_circle' : 'cancel'"
           />
         </div>
-        <div class="amenity-item" [class.available]="property?.hasGasPipeline">
+        <div class="amenity-item" [class.available]="property.hasGasPipeline">
           <ng-icon name="local_fire_department" />
           <span>Gas Pipeline</span>
           <ng-icon
             class="status-icon"
-            [name]="property?.hasGasPipeline ? 'check_circle' : 'cancel'"
+            [name]="property.hasGasPipeline ? 'check_circle' : 'cancel'"
           />
         </div>
-        <div class="amenity-item" [class.available]="property?.hasSecurity">
+        <div class="amenity-item" [class.available]="property.hasSecurity">
           <ng-icon name="security" />
           <span>Security</span>
           <ng-icon
             class="status-icon"
-            [name]="property?.hasSecurity ? 'check_circle' : 'cancel'"
+            [name]="property.hasSecurity ? 'check_circle' : 'cancel'"
           />
         </div>
-        <div class="amenity-item" [class.available]="property?.hasInternet">
+        <div class="amenity-item" [class.available]="property.hasInternet">
           <ng-icon name="wifi" />
           <span>Internet Ready</span>
           <ng-icon
             class="status-icon"
-            [name]="property?.hasInternet ? 'check_circle' : 'cancel'"
+            [name]="property.hasInternet ? 'check_circle' : 'cancel'"
           />
         </div>
       </div>
     </ng-card>
 
     <!-- Description -->
-    @if (property?.description) {
+    @if (property.description) {
       <ng-card class="description-card" title="Description" icon="description">
-        <p class="description-text">{{ property?.description }}</p>
+        <p class="description-text">{{ property.description }}</p>
       </ng-card>
     }
 

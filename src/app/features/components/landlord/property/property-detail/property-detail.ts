@@ -1,9 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, output } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, inject, input, OnInit, output } from '@angular/core';
+import { Router } from '@angular/router';
 
 // Shared Library Components
+import { Observable, of } from 'rxjs';
+
 import {
+  AlertService,
   NgButton,
   NgCardComponent,
   NgDivider,
@@ -12,13 +15,15 @@ import {
   NgMenuItemDirective,
   NgMenuTriggerDirective,
 } from '../../../../../../../projects/shared/src/public-api';
+import { Result } from '../../../../../common/models/common';
 import {
-  FurnishingType,
-  LeaseType,
-  PropertyStatus,
-  PropertyType,
-} from '../../../../enums/view.enum';
+  IUserDetail,
+  OauthService,
+} from '../../../../../oauth/service/oauth.service';
+import { PropertyStatus } from '../../../../enums/view.enum';
+import { IDocument } from '../../../../models/document';
 import { IProperty } from '../../../../models/property';
+import { PropertyService } from '../../../../service/property.service';
 
 @Component({
   selector: 'app-property-detail',
@@ -37,32 +42,34 @@ import { IProperty } from '../../../../models/property';
   styleUrl: './property-detail.scss',
 })
 export class PropertyDetail implements OnInit {
+  readonly selectedProperties = input<IProperty | null>(null);
   readonly backToList = output<void>();
 
-  property: IProperty | null = null;
-  selectedImage: string = '';
+  initPage$!: Observable<boolean>;
+  property!: IProperty;
+  userdetail: Partial<IUserDetail> = {};
+  propertiesImages: IDocument[] = [];
+  selectedImage!: IDocument;
   defaultImage: string =
     'https://via.placeholder.com/800x400/667eea/ffffff?text=Property+Image';
 
-  propertyImages: string[] = [
-    'https://via.placeholder.com/800x400/667eea/ffffff?text=Main+View',
-    'https://via.placeholder.com/800x400/764ba2/ffffff?text=Living+Room',
-    'https://via.placeholder.com/800x400/667eea/ffffff?text=Bedroom',
-    'https://via.placeholder.com/800x400/764ba2/ffffff?text=Kitchen',
-    'https://via.placeholder.com/800x400/667eea/ffffff?text=Bathroom',
-  ];
-
-  private route = inject(ActivatedRoute);
   private router = inject(Router);
 
-  constructor() {}
+  private propertyService = inject(PropertyService);
+  private alertService = inject(AlertService);
+  private userService = inject(OauthService);
+
+  constructor() {
+    this.userdetail = this.userService.getUserInfo();
+  }
 
   ngOnInit() {
     this.loadProperty();
-    this.selectedImage = this.propertyImages[0] || this.defaultImage;
+    this.getPropertyImages(Number(this.userdetail.userId), this.property.id!);
+    this.selectedImage = this.propertiesImages[0] || this.defaultImage;
   }
 
-  selectImage(image: string) {
+  selectImage(image: IDocument) {
     this.selectedImage = image;
   }
 
@@ -170,53 +177,17 @@ export class PropertyDetail implements OnInit {
   }
 
   private loadProperty() {
-    // Mock property data - in real app, this would come from a service
-    this.property = {
-      id: 1,
-      landlordId: 1,
-      title: 'Luxurious 3BHK Apartment in Prime Location',
-      description:
-        'This beautiful 3BHK apartment is located in the heart of the city with excellent connectivity to metro stations, shopping malls, and schools. The apartment features modern amenities, spacious rooms, and a stunning view of the city skyline. Perfect for families looking for a comfortable and convenient lifestyle.',
-      propertyType: PropertyType.Apartment,
-      bhkConfiguration: '3BHK',
-      isFurnished: true,
-      floorNumber: 5,
-      totalFloors: 12,
-      carpetAreaSqFt: 1200,
-      builtUpAreaSqFt: 1450,
-      furnishingType: FurnishingType.SemiFurnished,
-      numberOfBathrooms: 2,
-      numberOfBalconies: 2,
-
-      // Location
-      addressLine1: 'Tower A, Skyline Residency',
-      addressLine2: 'Sector 18, Noida Extension',
-      landmark: 'Metro Station',
-      locality: 'Noida Extension',
-      city: 'Noida',
-      state: 'Uttar Pradesh',
-      pinCode: '201009',
-
-      // Rent Details
-      monthlyRent: 28000,
-      securityDeposit: 56000,
-      isNegotiable: true,
-      availableFrom: new Date('2024-02-01'),
-      leaseType: LeaseType.LongTerm,
-
-      // Amenities
-      hasLift: true,
-      hasParking: true,
-      hasPowerBackup: true,
-      hasWaterSupply: true,
-      hasGasPipeline: false,
-      hasSecurity: true,
-      hasInternet: true,
-
-      // Status
-      status: PropertyStatus.Listed,
-      createdOn: new Date('2024-01-15'),
-      updatedOn: new Date('2024-01-20'),
-    };
+    this.property = this.selectedProperties()!;
+  }
+  private getPropertyImages(landlordId: number, propertyId: number) {
+    this.propertyService
+      .getPropertyImagesUrl(landlordId, propertyId)
+      .subscribe((res: Result<IDocument[]>) => {
+        this.propertiesImages = res.entity;
+        if (this.property) {
+          this.property.documents = this.propertiesImages;
+          this.initPage$ = of(true);
+        }
+      });
   }
 }
