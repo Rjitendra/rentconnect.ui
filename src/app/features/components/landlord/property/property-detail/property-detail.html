@@ -55,7 +55,10 @@
       @if (initPage$) {
         <div class="image-gallery">
           <div class="main-image">
-            <img alt="Property Image" [src]="selectedImage || defaultImage" />
+            <img
+              alt="Property Image"
+              [src]="selectedImage.url || defaultImage"
+            />
             <div class="image-overlay">
               <ng-button
                 buttonType="button"
@@ -90,7 +93,9 @@
           <ng-icon name="home" />
           <div>
             <span class="label">Type</span>
-            <span class="value">{{ property.propertyType }}</span>
+            <span class="value">{{
+              getPropertyType(property.propertyType!)
+            }}</span>
           </div>
         </div>
         <div class="overview-item">
@@ -120,7 +125,9 @@
           <ng-icon name="chair" />
           <div>
             <span class="label">Furnishing</span>
-            <span class="value">{{ property.furnishingType }}</span>
+            <span class="value">{{
+              getFurnishingType(property.furnishingType!)
+            }}</span>
           </div>
         </div>
         <div class="overview-item">
@@ -159,7 +166,7 @@
           </div>
           <div class="detail-item">
             <span class="label">Lease Type</span>
-            <span class="value">{{ property.leaseType }}</span>
+            <span class="value">{{ getLeaseType(property.leaseType!) }}</span>
           </div>
         </div>
       </div>

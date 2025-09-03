@@ -1,8 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, input, OnInit, output } from '@angular/core';
 import { Router } from '@angular/router';
-
-// Shared Library Components
 import { Observable, of } from 'rxjs';
 
 import {
@@ -20,7 +18,17 @@ import {
   IUserDetail,
   OauthService,
 } from '../../../../../oauth/service/oauth.service';
-import { PropertyStatus } from '../../../../enums/view.enum';
+import {
+  furnishingTypeOptions,
+  leaseTypeOptions,
+  propertyTypeOptions,
+} from '../../../../constants/properties.constants';
+import {
+  FurnishingType,
+  LeaseType,
+  PropertyStatus,
+  PropertyType,
+} from '../../../../enums/view.enum';
 import { IDocument } from '../../../../models/document';
 import { IProperty } from '../../../../models/property';
 import { PropertyService } from '../../../../service/property.service';
@@ -53,8 +61,11 @@ export class PropertyDetail implements OnInit {
   defaultImage: string =
     'https://via.placeholder.com/800x400/667eea/ffffff?text=Property+Image';
 
-  private router = inject(Router);
+  private propertyTypeOptions = propertyTypeOptions;
+  private furnishingTypeOptions = furnishingTypeOptions;
+  private leaseTypeOptions = leaseTypeOptions;
 
+  private router = inject(Router);
   private propertyService = inject(PropertyService);
   private alertService = inject(AlertService);
   private userService = inject(OauthService);
@@ -66,7 +77,6 @@ export class PropertyDetail implements OnInit {
   ngOnInit() {
     this.loadProperty();
     this.getPropertyImages(Number(this.userdetail.userId), this.property.id!);
-    this.selectedImage = this.propertiesImages[0] || this.defaultImage;
   }
 
   selectImage(image: IDocument) {
@@ -176,9 +186,22 @@ export class PropertyDetail implements OnInit {
     alert('Map view coming soon!');
   }
 
+  getPropertyType(propertyTypes: PropertyType): string {
+    return this.propertyTypeOptions[propertyTypes].label;
+  }
+
+  getFurnishingType(furnishTypes: FurnishingType): string {
+    return this.furnishingTypeOptions[furnishTypes].label;
+  }
+
+  getLeaseType(leaseTypes: LeaseType): string {
+    return this.leaseTypeOptions[leaseTypes].label;
+  }
+
   private loadProperty() {
     this.property = this.selectedProperties()!;
   }
+
   private getPropertyImages(landlordId: number, propertyId: number) {
     this.propertyService
       .getPropertyImagesUrl(landlordId, propertyId)
@@ -186,6 +209,7 @@ export class PropertyDetail implements OnInit {
         this.propertiesImages = res.entity;
         if (this.property) {
           this.property.documents = this.propertiesImages;
+          this.selectedImage = this.propertiesImages[0] || this.defaultImage;
           this.initPage$ = of(true);
         }
       });
