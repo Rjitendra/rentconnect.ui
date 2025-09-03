@@ -343,22 +343,22 @@
           </div>
           <div class="tenant-info">
             <span class="tenant-name">{{ tenant.name }}</span>
-            @if (getTenantsList(property).length > 1) {
-              <span class="more-tenants"
-                >+{{ getTenantsList(property).length - 1 }} more</span
-              >
-            }
           </div>
+          <!-- View all button -->
+          <ng-icon
+            name="visibility"
+            tooltip="View All Tenants"
+            class="tenant-view-icon icon-info icon-clickable"
+            [ngMenuTriggerFor]="tenantMenu"
+          />
         </div>
       }
 
-      <!-- View all button -->
-      <ng-icon
-        name="visibility"
-        tooltip="View All Tenants"
-        class="tenant-view-icon icon-info icon-clickable"
-        [ngMenuTriggerFor]="tenantMenu"
-      />
+      @if (getTenantsList(property).length > 1) {
+        <span class="more-tenants"
+          >+{{ getTenantsList(property).length - 1 }} more</span
+        >
+      }
     } @else {
       <!-- No tenants -->
       <div class="no-tenants">

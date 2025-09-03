@@ -714,7 +714,6 @@ export class PropertyDashboard implements OnInit {
       fullAddress: this.getFullAddress(property),
       mappedTenants: this.getMappedTenantsDisplay(property.tenants || []),
       documentsCount: this.getDocumentsDisplay(property.documents || []),
-      monthlyRent: property.monthlyRent ? 10 : 0,
       createdOn: property.createdOn
         ? new Date(property.createdOn).toLocaleDateString()
         : 'N/A',

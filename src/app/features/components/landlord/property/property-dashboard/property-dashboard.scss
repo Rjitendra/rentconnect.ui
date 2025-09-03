@@ -166,18 +166,17 @@
 
   /* Tenants Cell */
   .tenants-cell {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 12px 8px;
-    min-width: 300px;
+    // display: flex;
+    // align-items: center;
+    // justify-content: space-between;
+    // gap: 10px;
+    // padding: 12px 8px;
 
     .tenant-profile {
       display: flex;
       align-items: center;
-      gap: 12px;
-      flex: 1;
+      gap: 10px;
+      // flex: 1;
 
       .tenant-avatar {
         width: 32px;

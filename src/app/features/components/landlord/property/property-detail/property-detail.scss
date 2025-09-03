@@ -592,3 +592,146 @@
     }
   }
 }
+/* Card and General Layout */
+.form-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  background-color: #f7f9fc;
+  margin-bottom: 24px;
+}
+
+.tenants-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.tenant-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-radius: 6px;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  transition: all 0.3s ease;
+}
+
+.tenant-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Tenant Information Section */
+.tenant-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.tenant-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #64b5f6; /* A pleasant blue */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #ffffff;
+  font-size: 24px;
+}
+
+.tenant-details h4 {
+  margin: 0;
+  font-size: 1.1em;
+  font-weight: 600;
+  color: #333;
+}
+
+.tenant-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.85em;
+  color: #666;
+  margin-top: 4px;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.meta-item ng-icon {
+  font-size: 16px;
+  color: #999;
+}
+
+/* Badges */
+.tenant-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75em;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.badge.primary {
+  background-color: #ffb74d; /* Orange */
+  color: #553c00;
+}
+
+.badge.active {
+  background-color: #81c784; /* Green */
+  color: #1b5e20;
+}
+
+.badge.verified {
+  background-color: #4db6ac; /* Teal */
+  color: #004d40;
+}
+
+/* Tenant Actions/Lease Info */
+.tenant-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  font-size: 0.85em;
+  color: #666;
+  text-align: right;
+}
+
+.lease-info {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Note Section */
+.tenants-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  background-color: #fff3e0; /* Light orange for a warning/info feel */
+  border-top: 1px solid #ffcc80;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  color: #666;
+  font-size: 0.9em;
+}
+
+.tenants-note ng-icon {
+  color: #fb8c00; /* Darker orange for the icon */
+}

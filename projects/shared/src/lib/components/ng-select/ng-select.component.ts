@@ -27,7 +27,7 @@ import { NgClarifyTextComponent } from '../ng-clarify-text/ng-clarify-text.compo
 import { NgLabelComponent } from '../ng-label/ng-label.component';
 
 export interface SelectOption {
-  value: unknown;
+  value: any;
   label: string;
   disabled?: boolean;
 }

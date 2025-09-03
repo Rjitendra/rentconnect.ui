@@ -157,15 +157,19 @@ export class PropertyAdd implements OnInit {
         ...(this.isEditMode && this.property()
           ? {
               id: this.property()!.id,
-              createdAt: this.property()!['createdAt'],
-              updatedAt: new Date(),
+
+              createdOn: this.property()!.createdOn,
+              updatedOn: new Date(),
             }
           : {
-              createdAt: new Date(),
-              updatedAt: new Date(),
+              status: PropertyStatus.Listed,
+              createdOn: new Date(),
+              updatedOn: new Date(),
             }),
       };
-
+      if (propertyData['propertyImages']) {
+        delete propertyData['propertyImages'];
+      }
       // Convert to FormData for file upload support
       const formData = this.convertPropertyToFormData(propertyData);
 
@@ -805,7 +809,7 @@ export class PropertyAdd implements OnInit {
       pinCode: prop.pinCode,
 
       monthlyRent: prop.monthlyRent,
-      securityDepos: prop.securityDeposit,
+      securityDeposit: prop.securityDeposit,
       availableFrom: prop.availableFrom,
       leaseType: prop.leaseType,
       isNegotiable: prop.isNegotiable,

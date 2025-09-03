@@ -39,7 +39,7 @@ export class PropertyService {
     const propertyId = idValue !== null ? +idValue : null;
     if (propertyId) {
       return this._http.put<Result<PropertySaveResponse>>(
-        `${environment.apiBaseUrl}Property/update/${propertyId}`,
+        `${environment.apiBaseUrl}Property/update`,
         formData,
       );
     } else {
