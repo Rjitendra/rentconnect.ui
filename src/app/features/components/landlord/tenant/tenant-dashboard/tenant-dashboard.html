@@ -1,28 +1,13 @@
 <div class="tenant-dashboard">
   <!-- Page Header -->
-  <div class="dashboard-header">
-    <div class="header-content">
-      @if (currentView === "add") {
-        <ng-icon
-          name="arrow_back"
-          class="arrow_back icon-clickable"
-          matTooltip="Go back to property list"
-        />
-        <div>
-          <h1>Add New Tenants</h1>
-          <p>
-            Add tenants to your property with all required information and
-            documents
-          </p>
-        </div>
-      } @else {
+  @if (currentView === "table") {
+    <div class="dashboard-header">
+      <div class="header-content">
         <div>
           <h1>Tenant Management</h1>
           <p>Manage your tenants, agreements, and onboarding process</p>
         </div>
-      }
-    </div>
-    @if (currentView === "table") {
+      </div>
       <div class="header-actions">
         <ng-button
           buttonType="button"
@@ -33,8 +18,8 @@
           (buttonClick)="onAddTenant()"
         />
       </div>
-    }
-  </div>
+    </div>
+  }
 
   <!-- Table View -->
   @if (currentView === "table") {

@@ -68,7 +68,7 @@ import {
 export class TenantAddComponent implements OnInit {
   readonly tenantAdded = output<void>();
   readonly cancelled = output<void>();
-
+  readonly backToList = output<void>();
   // Input properties for edit/detail modes
   readonly initialMode = input<'add' | 'edit' | 'detail'>('add');
   readonly tenantsToEdit = input<ITenant[]>([]);
@@ -519,10 +519,6 @@ export class TenantAddComponent implements OnInit {
 
   onCancel() {
     this.tenantAdded.emit();
-  }
-
-  goBack() {
-    this.router.navigate(['/landlord/tenant/dashboard']);
   }
 
   showValidationErrors() {

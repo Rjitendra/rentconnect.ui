@@ -3,27 +3,22 @@
   <div class="form-header">
     <div class="header-content">
       <ng-icon
-        class="header-icon"
-        [name]="
-          mode === 'add'
-            ? 'person_add'
-            : mode === 'edit'
-              ? 'edit'
-              : 'visibility'
-        "
+        name="arrow_back"
+        class="arrow_back"
+        matTooltip="Go back to property list"
+        (click)="onCancel()"
       />
       <div>
         <h1>{{ getFormTitle() }}</h1>
         <p>{{ getFormDescription() }}</p>
       </div>
     </div>
-    @if (mode !== "add") {
-      <div class="mode-indicator">
-        <span [class]="'mode-badge mode-' + mode">
-          {{ mode.toUpperCase() }}
-        </span>
-      </div>
-    }
+    <ng-icon
+      class="header-icon"
+      [name]="
+        mode === 'add' ? 'person_add' : mode === 'edit' ? 'edit' : 'visibility'
+      "
+    />
   </div>
 
   <div class="tenant-form-container">
@@ -411,7 +406,7 @@
           type="button"
           class="cancel-btn"
           title="Cancel and go back"
-          (click)="goBack()"
+          (click)="onCancel()"
         >
           <ng-icon name="cancel" class="icon-secondary" />
           Cancel
