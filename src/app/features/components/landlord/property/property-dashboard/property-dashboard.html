@@ -116,16 +116,15 @@
 
   <!-- Document Upload Modal -->
   @if (showUploadModal) {
-    <div class="upload-modal-overlay" (click)="onCloseUploadModal()">
+    <div class="upload-modal-overlay">
       <div class="upload-modal" (click)="$event.stopPropagation()">
         <div class="modal-header">
           <h3>Upload Document</h3>
-          <ng-button
-            buttonType="button"
-            type="icon"
-            icon="close"
-            cssClass="close-btn"
-            (buttonClick)="onCloseUploadModal()"
+          <ng-icon
+            name="close"
+            type="button"
+            class="icon-clickable"
+            (click)="onCloseUploadModal()"
           />
         </div>
         <div class="modal-content">
@@ -216,12 +215,11 @@
       <div class="download-modal" (click)="$event.stopPropagation()">
         <div class="modal-header">
           <h3>Download Documents</h3>
-          <ng-button
-            buttonType="button"
-            type="icon"
-            icon="close"
-            cssClass="close-btn"
-            (buttonClick)="onCloseDownloadModal()"
+          <ng-icon
+            name="close"
+            type="button"
+            class="icon-clickable"
+            (click)="onCloseDownloadModal()"
           />
         </div>
         <div class="modal-content">
