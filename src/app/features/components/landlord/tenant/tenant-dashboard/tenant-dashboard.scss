@@ -965,7 +965,6 @@
   }
 }
 
-// NgMatTable Expanded Row Styles
 .expanded-content {
   background: linear-gradient(135deg, #f8f9ff 0%, #fff 100%);
   border-radius: 12px;
@@ -974,343 +973,208 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   border: 1px solid #e3f2fd;
 
-  // Section styling
-  .expanded-header {
-    margin-bottom: 24px;
-
-    .property-section {
-      background: white;
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-      border-left: 4px solid #2196f3;
-    }
-  }
-
-  .section-title {
+  .expanded-row {
     display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
-
-    .section-icon {
-      font-size: 20px;
-      color: #2196f3;
-    }
-
-    h4 {
-      margin: 0;
-      font-size: 16px;
-      font-weight: 600;
-      color: #333;
-    }
+    gap: 32px;
+    align-items: flex-start; // keep top aligned
   }
 
-  .property-details {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-
-    .detail-item {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-
-      .label {
-        font-size: 12px;
-        font-weight: 500;
-        color: #666;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-
-      .value {
-        font-size: 14px;
-        font-weight: 500;
-        color: #333;
-
-        &.highlight {
-          color: #2196f3;
-          font-weight: 600;
-        }
-      }
-    }
+  /* Property Info Section */
+  .expanded-header {
+    flex: 0 0 320px; // fixed width for property info
   }
 
-  // Tenant group section
-  .tenant-group-section {
-    margin-top: 24px;
+  .property-section {
+    background: #fff;
+    border-radius: 8px;
+    padding: 16px;
+    border-left: 4px solid #2196f3;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
     .section-title {
-      margin-bottom: 12px;
-    }
-
-    .tenant-members-grid {
       display: flex;
-      flex-wrap: nowrap; // keep in one row
-      gap: 16px;
-      margin-top: 12px;
-      overflow-x: auto; // horizontal scroll when overflow
-      padding-bottom: 8px;
-      scroll-behavior: smooth;
-
-      // scrollbar styling
-      &::-webkit-scrollbar {
-        height: 8px;
-      }
-      &::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      &::-webkit-scrollbar-thumb {
-        background: #bbb;
-        border-radius: 4px;
-      }
-      scrollbar-width: thin;
-    }
-  }
-
-  // Member cards
-  .member-card {
-    flex: 0 0 350px; // fixed width for horizontal scrolling
-    max-width: 350px;
-    background: white;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    border: 1px solid #e0e0e0;
-    transition: all 0.3s ease;
-
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-      border-color: #2196f3;
-    }
-
-    &.primary-member {
-      border-left: 4px solid #ff9800;
-
-      &:hover {
-        border-left: 4px solid #ff9800;
-        border-color: #ff9800;
-      }
-    }
-
-    .member-header {
-      display: flex;
-      align-items: flex-start;
-      gap: 16px;
+      align-items: center;
+      gap: 8px;
       margin-bottom: 16px;
 
-      .member-avatar {
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+      .section-icon {
+        font-size: 20px;
+        color: #2196f3;
+      }
+
+      h4 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+      }
+    }
+
+    .property-details {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+
+      .detail-item {
         display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
+        justify-content: space-between;
+        padding: 6px 10px;
+        background: #fafafa;
+        border-radius: 6px;
 
-        ng-icon {
-          font-size: 22px;
-          transition: transform 0.2s ease;
+        .label {
+          font-size: 13px;
+          font-weight: 500;
+          color: #666;
+        }
+        .value {
+          font-size: 14px;
+          font-weight: 600;
+          color: #333;
 
-          &:hover {
-            transform: scale(1.1);
-          }
-
-          &.icon-primary {
-            color: #ff9800;
-          }
-
-          &.icon-secondary {
+          &.highlight {
             color: #2196f3;
           }
         }
       }
+    }
+  }
 
-      .member-info {
-        flex: 1;
+  /* Tenant Group Section */
+  .tenant-group-section {
+    flex: 1; // take remaining space
 
-        .member-name {
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+
+      .section-icon {
+        font-size: 20px;
+        color: #4caf50;
+      }
+
+      h4 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+      }
+    }
+
+    .tenant-members-grid {
+      display: flex;
+      flex-wrap: nowrap; // keep in one line
+      gap: 16px;
+      overflow-x: auto; // scroll if overflow
+      padding-bottom: 8px;
+
+      .member-card {
+        flex: 0 0 280px; // fixed width for horizontal scrolling
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        transition: all 0.2s ease;
+
+        &:hover {
+          transform: translateY(-2px);
+          border-color: #2196f3;
+        }
+
+        &.primary-member {
+          border-left: 4px solid #ff9800;
+        }
+
+        .member-header {
           display: flex;
           align-items: center;
           gap: 12px;
-          margin-bottom: 6px;
+          margin-bottom: 12px;
 
-          span:first-child {
-            font-weight: 600;
-            font-size: 16px;
-            color: #333;
+          .member-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            ng-icon {
+              font-size: 20px;
+            }
           }
 
-          .primary-badge {
-            background: linear-gradient(135deg, #ff9800, #f57c00);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 16px;
-            font-size: 11px;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-          }
-        }
+          .member-info {
+            flex: 1;
 
-        .member-status {
-          display: flex;
-          align-items: center;
-          gap: 6px;
+            .member-name {
+              display: flex;
+              align-items: center;
+              gap: 8px;
 
-          .status-icon {
-            font-size: 14px;
-          }
+              span {
+                font-weight: 600;
+                font-size: 14px;
+              }
 
-          span {
-            font-size: 12px;
-            font-weight: 500;
-            padding: 2px 8px;
-            border-radius: 12px;
-
-            &.status-active {
-              background: #e8f5e8;
-              color: #2e7d32;
+              .primary-badge {
+                background: #ff9800;
+                color: #fff;
+                font-size: 11px;
+                padding: 2px 6px;
+                border-radius: 12px;
+              }
             }
 
-            &.status-pending {
-              background: #fff3e0;
-              color: #f57c00;
-            }
+            .member-status {
+              margin-top: 4px;
+              display: flex;
+              align-items: center;
+              gap: 6px;
 
-            &.status-inactive {
-              background: #ffebee;
-              color: #d32f2f;
-            }
-
-            &.status-new {
-              background: #e3f2fd;
-              color: #1976d2;
+              span {
+                font-size: 12px;
+                font-weight: 500;
+              }
             }
           }
         }
-      }
-    }
 
-    .member-details {
-      .contact-info {
-        margin-bottom: 16px;
+        .member-details {
+          .contact-info {
+            margin-bottom: 10px;
 
-        .contact-item {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          margin-bottom: 8px;
-          font-size: 13px;
-          color: #555;
-
-          .contact-icon {
-            font-size: 16px;
-            color: #2196f3;
-            width: 20px;
+            .contact-item {
+              display: flex;
+              align-items: center;
+              gap: 6px;
+              font-size: 13px;
+              color: #555;
+            }
           }
 
-          span {
-            font-weight: 400;
-          }
-        }
-      }
-
-      .member-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        padding-top: 16px;
-        border-top: 1px solid #f0f0f0;
-
-        ng-button,
-        ng-icon {
-          cursor: pointer;
-          transition: transform 0.2s ease;
-
-          &:hover {
-            transform: scale(1.15);
+          .member-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
           }
         }
       }
     }
   }
 
-  // Icon utility classes
-  .icon-white {
-    color: white !important;
-  }
-
-  .icon-warning {
-    color: #ffc107 !important;
-  }
-
-  .icon-info {
-    color: #2196f3 !important;
-  }
-
-  .icon-success {
-    color: #4caf50 !important;
-  }
-
-  .icon-error {
-    color: #d32f2f !important;
-  }
-
-  .icon-small {
-    font-size: 14px;
-  }
-
-  // Responsive design
+  /* Responsive */
   @media (max-width: 992px) {
-    .property-details {
-      grid-template-columns: 1fr 1fr;
+    .expanded-row {
+      flex-direction: column;
     }
 
     .tenant-members-grid {
-      flex-wrap: wrap; // allow wrapping on smaller screens
-      overflow-x: visible;
-    }
-  }
-
-  @media (max-width: 768px) {
-    padding: 16px;
-
-    .property-details {
-      grid-template-columns: 1fr;
-    }
-
-    .tenant-members-grid {
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .member-card {
-      flex: 1 1 100%;
-      max-width: 100%;
-    }
-
-    .member-header {
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-
-      .member-info .member-name {
-        flex-direction: column;
-        gap: 8px;
-      }
-    }
-
-    .member-details .member-actions {
-      justify-content: center;
-
-      ng-button {
-        flex: 1;
-        min-width: 80px;
-      }
+      flex-wrap: wrap; // allow wrapping on small screen
     }
   }
 }
