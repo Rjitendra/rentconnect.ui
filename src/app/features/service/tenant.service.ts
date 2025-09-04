@@ -509,6 +509,14 @@ export class TenantService {
       formData,
     );
   }
+
+  // Update tenant using real API
+  updateTenant(formData: FormData): Observable<TenantSaveResponse> {
+    return this._http.put<TenantSaveResponse>(
+      `${environment.apiBaseUrl}Tenant/update`,
+      formData,
+    );
+  }
   // Convert tenant data to FormData for API submission
   convertTenantToFormData(
     tenants: ITenant[],

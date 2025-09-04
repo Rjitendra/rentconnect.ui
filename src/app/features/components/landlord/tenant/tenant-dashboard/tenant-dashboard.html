@@ -96,8 +96,37 @@
   @if (currentView === "add") {
     <div class="form-view">
       <app-tenant-add
+        [initialMode]="'add'"
         (tenantAdded)="onTenantAdded()"
         (cancelled)="onTenantAddCancelled()"
+      />
+    </div>
+  }
+
+  <!-- Edit Tenant Form -->
+  @if (currentView === "edit") {
+    <div class="form-view">
+      <app-tenant-add
+        [initialMode]="'edit'"
+        [tenantsToEdit]="editMode === 'group' ? editingTenants : []"
+        [singleTenantToEdit]="
+          editMode === 'single' ? editingSingleTenant : null
+        "
+        (tenantAdded)="onTenantEdited()"
+        (cancelled)="showTable()"
+      />
+    </div>
+  }
+
+  <!-- Detail Tenant View -->
+  @if (currentView === "detail") {
+    <div class="form-view">
+      <app-tenant-add
+        [initialMode]="'detail'"
+        [tenantsToEdit]="editingTenants"
+        [singleTenantToEdit]="editingSingleTenant"
+        (tenantAdded)="showTable()"
+        (cancelled)="showTable()"
       />
     </div>
   }
@@ -248,18 +277,20 @@
   </div>
 </ng-template>
 
-<!-- Actions Template -->
+<!-- Actions Template for Table Row -->
 <ng-template #actionTemplate let-member>
   <div class="action-container">
     <ng-icon
       name="visibility"
-      tooltip="View Details"
+      tooltip="View Group Details"
       class="icon-purple icon-clickable"
+      (click)="onViewTenant(member)"
     />
     <ng-icon
       name="edit"
-      tooltip="Edit Tenant"
+      tooltip="Edit All Group Members"
       class="icon-orange icon-clickable"
+      (click)="onEditTenantGroup(member)"
     />
     <ng-icon
       name="description"
@@ -275,8 +306,9 @@
     />
     <ng-icon
       name="delete"
-      tooltip="Delete Tenant"
+      tooltip="Delete Tenant Group"
       class="icon-error icon-clickable"
+      (click)="onDeleteTenant(member)"
     />
   </div>
 </ng-template>

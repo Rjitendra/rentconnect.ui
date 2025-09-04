@@ -2,6 +2,7 @@ import {
   ChangeDetectorRef,
   Component,
   inject,
+  input,
   OnInit,
   output,
 } from '@angular/core';
@@ -68,9 +69,20 @@ export class TenantAddComponent implements OnInit {
   readonly tenantAdded = output<void>();
   readonly cancelled = output<void>();
 
+  // Input properties for edit/detail modes
+  readonly initialMode = input<'add' | 'edit' | 'detail'>('add');
+  readonly tenantsToEdit = input<ITenant[]>([]);
+  readonly singleTenantToEdit = input<ITenant | null>(null);
+
   // Form
   tenantForm!: FormGroup;
   isSaving = false;
+
+  // Mode and data for edit/detail
+  mode: 'add' | 'edit' | 'detail' = 'add';
+  editingTenants: ITenant[] = [];
+  editableTenantId: number | null = null; // For single tenant edit from expanded row
+  isEditingFromExpandedRow = false;
 
   // Property options for dropdown
   propertyOptions: SelectOption[] = [];
@@ -128,11 +140,40 @@ export class TenantAddComponent implements OnInit {
   }
 
   ngOnInit() {
+    // Set mode based on input
+    this.mode = this.initialMode();
+
+    // Handle edit modes
+    if (this.mode === 'edit' || this.mode === 'detail') {
+      const singleTenant = this.singleTenantToEdit();
+      const multipleTenants = this.tenantsToEdit();
+
+      if (singleTenant) {
+        // Single tenant edit from expanded row
+        this.editingTenants = [singleTenant];
+        this.editableTenantId = singleTenant.id!;
+        this.isEditingFromExpandedRow = true;
+      } else if (multipleTenants.length > 0) {
+        // Multiple tenants edit from table row
+        this.editingTenants = multipleTenants;
+        this.isEditingFromExpandedRow = false;
+      }
+    }
+
     this.initializeForm();
     this.loadProperties();
 
-    // Initialize document storage for first tenant
-    this.tenantDocuments.set(0, new Map());
+    // Initialize document storage
+    if (this.mode === 'add') {
+      this.tenantDocuments.set(0, new Map());
+    } else {
+      // Initialize document storage for editing tenants
+      this.editingTenants.forEach((tenant, index) => {
+        this.tenantDocuments.set(index, new Map());
+        // Load existing documents into the map
+        this.loadExistingDocuments(tenant, index);
+      });
+    }
   }
 
   // Get available categories for dropdown (excluding already used ones)
@@ -281,6 +322,55 @@ export class TenantAddComponent implements OnInit {
     return this.tenantsFormArray.at(index) as FormGroup;
   }
 
+  // Check if a tenant is editable (for single tenant edit mode)
+  isTenantEditable(tenantIndex: number): boolean {
+    if (this.mode === 'detail') return false; // Detail mode - no editing
+    if (this.mode === 'add') return true; // Add mode - all editable
+    if (!this.isEditingFromExpandedRow) return true; // Table edit - all editable
+
+    // Single tenant edit from expanded row - only specific tenant editable
+    const tenant = this.editingTenants[tenantIndex];
+    return tenant?.id === this.editableTenantId;
+  }
+
+  // Get form title based on mode
+  getFormTitle(): string {
+    switch (this.mode) {
+      case 'add':
+        return 'Add New Tenants';
+      case 'edit':
+        if (this.isEditingFromExpandedRow) {
+          return `Edit Tenant: ${this.editingTenants[0]?.name}`;
+        }
+        return `Edit Tenant Group (${this.editingTenants.length} members)`;
+      case 'detail':
+        if (this.editingTenants.length === 1) {
+          return `Tenant Details: ${this.editingTenants[0]?.name}`;
+        }
+        return `Tenant Group Details (${this.editingTenants.length} members)`;
+      default:
+        return 'Tenant Management';
+    }
+  }
+
+  // Get form description based on mode
+  getFormDescription(): string {
+    switch (this.mode) {
+      case 'add':
+        return 'Add tenants to your property with all required information and documents';
+      case 'edit':
+        if (this.isEditingFromExpandedRow) {
+          return 'Edit information for the selected tenant member';
+        }
+        return 'Edit information for all tenants in this group';
+      case 'detail':
+        return 'View detailed information for the tenant(s)';
+      default:
+        return '';
+    }
+  }
+
+  // Public methods
   // Form submission
   onSubmit() {
     if (this.isSaving) return; // Prevent double submission
@@ -357,7 +447,13 @@ export class TenantAddComponent implements OnInit {
         landlordId,
       );
 
-      this.tenantService.saveTenant(apiFormData).subscribe({
+      // Choose API call based on mode
+      const apiCall =
+        this.mode === 'edit'
+          ? this.tenantService.updateTenant(apiFormData)
+          : this.tenantService.saveTenant(apiFormData);
+
+      apiCall.subscribe({
         next: (response: TenantSaveResponse) => {
           this.isSaving = false;
           if (response.success) {
@@ -366,20 +462,20 @@ export class TenantAddComponent implements OnInit {
             this.isShowingValidationErrors = false;
 
             // Show success message
+            const action = this.mode === 'edit' ? 'updated' : 'saved';
             this.alertService.success({
               errors: [
                 {
-                  message: response.message,
+                  message:
+                    response.message || `Tenants ${action} successfully!`,
                   errorType: 'success',
                 },
               ],
               timeout: 5000,
             });
 
-            // Navigate back to tenant list or show success page
-            setTimeout(() => {
-              this.router.navigate(['/landlord/tenant/dashboard']);
-            }, 2000);
+            // Emit completion event to parent
+            this.tenantAdded.emit();
           } else {
             this.validationErrors =
               response.errors?.map((error) => ({
@@ -391,12 +487,15 @@ export class TenantAddComponent implements OnInit {
         },
         error: (error) => {
           this.isSaving = false;
-          console.error('Error saving tenants:', error);
+          console.error(
+            `Error ${this.mode === 'edit' ? 'updating' : 'saving'} tenants:`,
+            error,
+          );
+          const action = this.mode === 'edit' ? 'updating' : 'saving';
           this.alertService.error({
             errors: [
               {
-                message:
-                  'An error occurred while saving the tenants. Please try again.',
+                message: `An error occurred while ${action} the tenants. Please try again.`,
                 errorType: 'error',
               },
             ],
@@ -641,6 +740,7 @@ export class TenantAddComponent implements OnInit {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
+  // Private methods
   // Helper method to get user-friendly field names
   private getFieldDisplayName(fieldName: string): string {
     const fieldNames: { [key: string]: string } = {
@@ -664,26 +764,163 @@ export class TenantAddComponent implements OnInit {
   }
 
   private initializeForm() {
-    this.tenantForm = this.fb.group({
-      // Property & Tenancy Details (shared for all tenants)
-      propertyId: ['', Validators.required],
-      rentAmount: ['', [Validators.required, Validators.min(1)]],
-      securityDeposit: [0],
-      maintenanceCharges: [0],
-      tenancyStartDate: ['', Validators.required],
-      tenancyEndDate: [''],
-      rentDueDate: ['', Validators.required],
-      leaseDuration: [12],
-      noticePeriod: [30],
+    if (this.mode === 'add') {
+      // Initialize form for adding new tenants
+      this.tenantForm = this.fb.group({
+        // Property & Tenancy Details (shared for all tenants)
+        propertyId: ['', Validators.required],
+        rentAmount: ['', [Validators.required, Validators.min(1)]],
+        securityDeposit: [0],
+        maintenanceCharges: [0],
+        tenancyStartDate: ['', Validators.required],
+        tenancyEndDate: [''],
+        rentDueDate: ['', Validators.required],
+        leaseDuration: [12],
+        noticePeriod: [30],
 
-      // Tenant Array
-      tenants: this.fb.array([this.createTenantFormGroup()]),
+        // Tenant Array
+        tenants: this.fb.array([this.createTenantFormGroup()]),
+      });
+
+      // Set the first tenant as primary by default
+      this.tenantsFormArray.at(0).patchValue({ isPrimary: true });
+      this.patchTestTenantFormValues();
+    } else {
+      // Initialize form for editing existing tenants
+      this.initializeEditForm();
+    }
+  }
+
+  private initializeEditForm() {
+    if (this.editingTenants.length === 0) return;
+
+    const firstTenant = this.editingTenants[0];
+
+    // Create form with existing data
+    this.tenantForm = this.fb.group({
+      // Property & Tenancy Details from existing tenant
+      propertyId: [
+        firstTenant.propertyId?.toString() || '',
+        Validators.required,
+      ],
+      rentAmount: [
+        firstTenant.rentAmount || 0,
+        [Validators.required, Validators.min(1)],
+      ],
+      securityDeposit: [firstTenant.securityDeposit || 0],
+      maintenanceCharges: [firstTenant.maintenanceCharges || 0],
+      tenancyStartDate: [
+        firstTenant.tenancyStartDate || '',
+        Validators.required,
+      ],
+      tenancyEndDate: [firstTenant.tenancyEndDate || ''],
+      rentDueDate: [firstTenant.rentDueDate || '', Validators.required],
+      leaseDuration: [firstTenant.leaseDuration || 12],
+      noticePeriod: [firstTenant.noticePeriod || 30],
+
+      // Tenant Array with existing tenants
+      tenants: this.fb.array([]),
     });
 
-    // Set the first tenant as primary by default
-    this.tenantsFormArray.at(0).patchValue({ isPrimary: true });
+    // Add existing tenants to form array
+    this.editingTenants.forEach((tenant) => {
+      const tenantFormGroup = this.createTenantFormGroupFromExisting(tenant);
+      this.tenantsFormArray.push(tenantFormGroup);
+    });
 
-    this.patchTestTenantFormValues();
+    // Disable form controls in detail mode
+    if (this.mode === 'detail') {
+      this.tenantForm.disable();
+    }
+
+    // In single tenant edit mode, disable other tenants
+    if (this.isEditingFromExpandedRow && this.mode === 'edit') {
+      this.tenantsFormArray.controls.forEach((control, index) => {
+        const tenant = this.editingTenants[index];
+        if (tenant?.id !== this.editableTenantId) {
+          control.disable();
+        }
+      });
+    }
+  }
+
+  // Load existing documents for editing tenants
+  private loadExistingDocuments(tenant: ITenant, tenantIndex: number): void {
+    if (!tenant.documents || tenant.documents.length === 0) return;
+
+    const tenantDocs = new Map<DocumentCategory, UploadedFile[]>();
+
+    // Group documents by category
+    tenant.documents.forEach((doc) => {
+      if (!tenantDocs.has(doc.category)) {
+        tenantDocs.set(doc.category, []);
+      }
+
+      // Convert IDocument to UploadedFile format for the form
+      const uploadedFile: UploadedFile = {
+        name: doc.name || 'Unknown Document',
+        size: doc.size || 0,
+        type: doc.type || 'application/octet-stream',
+        url: doc.url || '',
+        file: new File([], doc.name || 'document', {
+          type: doc.type || 'application/octet-stream',
+        }),
+      };
+
+      tenantDocs.get(doc.category)!.push(uploadedFile);
+    });
+
+    this.tenantDocuments.set(tenantIndex, tenantDocs);
+  }
+
+  private createTenantFormGroupFromExisting(tenant: ITenant): FormGroup {
+    return this.fb.group({
+      // Include ID for updates
+      id: [tenant.id],
+
+      // Personal Information
+      name: [tenant.name || '', [Validators.required, Validators.minLength(2)]],
+      email: [tenant.email || '', [Validators.required, Validators.email]],
+      phoneNumber: [tenant.phoneNumber || '', [Validators.required]],
+      alternatePhoneNumber: [tenant.alternatePhoneNumber || ''],
+      dob: [tenant.dob || '', Validators.required],
+      occupation: [tenant.occupation || '', Validators.required],
+      gender: [tenant.gender || ''],
+      maritalStatus: [tenant.maritalStatus || ''],
+
+      // Address Information
+      currentAddress: [tenant.currentAddress || ''],
+      permanentAddress: [tenant.permanentAddress || ''],
+
+      // Emergency Contact
+      emergencyContactName: [tenant.emergencyContactName || ''],
+      emergencyContactPhone: [tenant.emergencyContactPhone || ''],
+      emergencyContactRelation: [tenant.emergencyContactRelation || ''],
+
+      // Government IDs
+      aadhaarNumber: [tenant.aadhaarNumber || '', [Validators.required]],
+      panNumber: [tenant.panNumber || '', [Validators.required]],
+      drivingLicenseNumber: [tenant.drivingLicenseNumber || ''],
+      voterIdNumber: [tenant.voterIdNumber || ''],
+
+      // Employment Details
+      employerName: [tenant.employerName || ''],
+      employerAddress: [tenant.employerAddress || ''],
+      employerPhone: [tenant.employerPhone || ''],
+      monthlyIncome: [tenant.monthlyIncome || 0],
+      workExperience: [tenant.workExperience || 0],
+
+      // Flags
+      isPrimary: [tenant.isPrimary || false],
+      isNewTenant: [tenant.isNewTenant || false],
+      isActive: [tenant.isActive !== undefined ? tenant.isActive : true],
+      needsOnboarding: [
+        tenant.needsOnboarding !== undefined ? tenant.needsOnboarding : true,
+      ],
+
+      // Documents
+      documents: [tenant.documents || []],
+    });
   }
 
   private createTenantFormGroup(): FormGroup {

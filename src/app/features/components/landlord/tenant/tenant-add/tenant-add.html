@@ -1,4 +1,31 @@
 <div class="tenant-add-form">
+  <!-- Dynamic Header -->
+  <div class="form-header">
+    <div class="header-content">
+      <ng-icon
+        class="header-icon"
+        [name]="
+          mode === 'add'
+            ? 'person_add'
+            : mode === 'edit'
+              ? 'edit'
+              : 'visibility'
+        "
+      />
+      <div>
+        <h1>{{ getFormTitle() }}</h1>
+        <p>{{ getFormDescription() }}</p>
+      </div>
+    </div>
+    @if (mode !== "add") {
+      <div class="mode-indicator">
+        <span [class]="'mode-badge mode-' + mode">
+          {{ mode.toUpperCase() }}
+        </span>
+      </div>
+    }
+  </div>
+
   <div class="tenant-form-container">
     <form [formGroup]="tenantForm" (ngSubmit)="onSubmit()">
       <!-- Property & Tenancy Details Card (Shared for all tenants) -->
@@ -87,10 +114,12 @@
             <ng-icon name="people" class="icon-primary" />
             Tenants ({{ tenantsFormArray.length }})
           </h2>
-          <button type="button" class="add-tenant-btn" (click)="addTenant()">
-            <ng-icon name="person_add" class="icon-white" />
-            Add Tenant
-          </button>
+          @if (mode === "add") {
+            <button type="button" class="add-tenant-btn" (click)="addTenant()">
+              <ng-icon name="person_add" class="icon-white" />
+              Add Tenant
+            </button>
+          }
         </div>
 
         <!-- Tenant Forms Array -->
@@ -100,7 +129,11 @@
             track tenantForm;
             let i = $index
           ) {
-            <div class="tenant-form-group" [formGroupName]="i">
+            <div
+              class="tenant-form-group"
+              [formGroupName]="i"
+              [class.disabled-tenant]="!isTenantEditable(i)"
+            >
               <!-- Tenant Header -->
               <div class="tenant-header">
                 <div class="tenant-title">
@@ -124,7 +157,10 @@
                   </h3>
                 </div>
                 <div class="tenant-actions">
-                  @if (!getTenantFormGroup(i).get("isPrimary")?.value) {
+                  @if (
+                    mode === "add" &&
+                    !getTenantFormGroup(i).get("isPrimary")?.value
+                  ) {
                     <button
                       type="button"
                       class="primary-btn"
@@ -134,7 +170,7 @@
                       <ng-icon name="star" class="icon-warning" />
                     </button>
                   }
-                  @if (tenantsFormArray.length > 1) {
+                  @if (mode === "add" && tenantsFormArray.length > 1) {
                     <button
                       type="button"
                       class="remove-btn"
@@ -143,6 +179,22 @@
                     >
                       <ng-icon name="person_remove" class="icon-danger" />
                     </button>
+                  }
+                  @if (mode !== "add") {
+                    <div class="tenant-mode-indicator">
+                      @if (getTenantFormGroup(i).get("isPrimary")?.value) {
+                        <span class="primary-indicator">
+                          <ng-icon name="star" class="icon-warning" />
+                          Primary Tenant
+                        </span>
+                      }
+                      @if (!isTenantEditable(i)) {
+                        <span class="readonly-indicator">
+                          <ng-icon name="lock" class="icon-secondary" />
+                          Read Only
+                        </span>
+                      }
+                    </div>
                   }
                 </div>
               </div>
@@ -159,6 +211,7 @@
                     label="Full Name"
                     placeholder="Enter tenant's full name"
                     suffixIcon="person"
+                    [disabled]="!isTenantEditable(i)"
                   />
                   <ng-input
                     class="half-width"
@@ -166,6 +219,7 @@
                     label="Email Address"
                     placeholder="tenant@example.com"
                     suffixIcon="email"
+                    [disabled]="!isTenantEditable(i)"
                   />
                 </div>
                 <div class="form-row">
@@ -175,6 +229,7 @@
                     label="Phone Number"
                     placeholder="+91 9876543210"
                     suffixIcon="phone"
+                    [disabled]="!isTenantEditable(i)"
                   />
                   <ng-datepicker
                     class="half-width"
@@ -365,20 +420,30 @@
         <button
           type="submit"
           class="save-btn"
-          title="Save all tenants"
-          [disabled]="tenantForm.invalid || isSaving"
+          [title]="mode === 'edit' ? 'Update tenants' : 'Save all tenants'"
+          [disabled]="tenantForm.invalid || isSaving || mode === 'detail'"
         >
           <ng-icon
             class="icon-white"
-            [name]="isSaving ? 'hourglass_empty' : 'save'"
+            [name]="
+              isSaving ? 'hourglass_empty' : mode === 'edit' ? 'update' : 'save'
+            "
           />
           {{
-            isSaving
-              ? "Saving..."
-              : "Add " +
-                tenantsFormArray.length +
-                " Tenant" +
-                (tenantsFormArray.length > 1 ? "s" : "")
+            mode === "detail"
+              ? "View Only"
+              : isSaving
+                ? mode === "edit"
+                  ? "Updating..."
+                  : "Saving..."
+                : mode === "edit"
+                  ? "Update " +
+                    tenantsFormArray.length +
+                    (tenantsFormArray.length === 1 ? " Tenant" : " Tenants")
+                  : "Add " +
+                    tenantsFormArray.length +
+                    " Tenant" +
+                    (tenantsFormArray.length > 1 ? "s" : "")
           }}
         </button>
       </div>

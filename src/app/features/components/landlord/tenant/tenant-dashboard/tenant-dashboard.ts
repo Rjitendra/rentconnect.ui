@@ -52,6 +52,11 @@ export class TenantDashboard implements OnInit {
   currentView: ViewType = 'table';
   selectedTenant: ITenant | null = null;
 
+  // Edit/Detail data
+  editingTenants: ITenant[] = [];
+  editingSingleTenant: ITenant | null = null;
+  editMode: 'group' | 'single' = 'group';
+
   // Data
   tenants: ITenant[] = [];
   primaryTenants: ITenant[] = []; // Only primary tenants for table display
@@ -155,6 +160,9 @@ export class TenantDashboard implements OnInit {
   showTable() {
     this.currentView = 'table';
     this.selectedTenant = null;
+    this.editingTenants = [];
+    this.editingSingleTenant = null;
+    this.editMode = 'group';
   }
 
   onAddTenant() {
@@ -168,6 +176,11 @@ export class TenantDashboard implements OnInit {
   }
 
   onTenantAddCancelled() {
+    this.showTable();
+  }
+
+  onTenantEdited() {
+    this.loadTenants();
     this.showTable();
   }
 
@@ -260,14 +273,29 @@ export class TenantDashboard implements OnInit {
   }
 
   onViewTenant(tenant: ITenant) {
+    // Get all tenants in the same group for detail view
+    const groupMembers = this.getGroupMembers(tenant.tenantGroup);
+    this.editingTenants = groupMembers;
+    this.editingSingleTenant = tenant;
+    this.editMode = 'single';
     this.currentView = 'detail';
-    this.selectedTenant = tenant;
   }
 
   onEditTenant(tenant: ITenant): void {
-    console.log('Edit tenant:', tenant);
-    this.showInfo('Edit functionality will be implemented soon');
-    // TODO: Implement edit functionality
+    // Single tenant edit from expanded row
+    this.editingSingleTenant = tenant;
+    this.editingTenants = this.getGroupMembers(tenant.tenantGroup);
+    this.editMode = 'single';
+    this.currentView = 'edit';
+  }
+
+  // Edit all tenants in group (from table row action)
+  onEditTenantGroup(primaryTenant: ITenant): void {
+    const groupMembers = this.getGroupMembers(primaryTenant.tenantGroup);
+    this.editingTenants = groupMembers;
+    this.editingSingleTenant = null;
+    this.editMode = 'group';
+    this.currentView = 'edit';
   }
 
   private initializeTable() {

@@ -1,5 +1,65 @@
+// Form Header Styles
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  padding: 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  color: white;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+
+  .header-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    .header-icon {
+      font-size: 32px;
+      opacity: 0.9;
+    }
+
+    h1 {
+      margin: 0 0 8px 0;
+      font-size: 1.75rem;
+      font-weight: 600;
+      letter-spacing: -0.025em;
+    }
+
+    p {
+      margin: 0;
+      font-size: 1rem;
+      opacity: 0.9;
+      font-weight: 300;
+    }
+  }
+
+  .mode-indicator {
+    .mode-badge {
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+
+      &.mode-edit {
+        background: rgba(255, 152, 0, 0.2);
+        color: #ff9800;
+        border: 1px solid rgba(255, 152, 0, 0.3);
+      }
+
+      &.mode-detail {
+        background: rgba(33, 150, 243, 0.2);
+        color: #2196f3;
+        border: 1px solid rgba(33, 150, 243, 0.3);
+      }
+    }
+  }
+}
+
 .tenant-add-form {
-  .form-header {
+  .tenant-form-container .old-form-header {
     margin-bottom: 32px;
     text-align: center;
 
@@ -543,5 +603,61 @@
       border-radius: 12px;
       overflow: hidden;
     }
+  }
+}
+
+// Disabled tenant styling for edit modes
+.disabled-tenant {
+  opacity: 0.6;
+  pointer-events: none;
+  position: relative;
+
+  &::before {
+    content: "Read Only";
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(108, 117, 125, 0.9);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    z-index: 10;
+  }
+
+  .tenant-card {
+    background: #f8f9fa !important;
+    border: 1px dashed #dee2e6 !important;
+  }
+}
+
+// Tenant mode indicator styles
+.tenant-mode-indicator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .primary-indicator,
+  .readonly-indicator {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .primary-indicator {
+    background: rgba(255, 152, 0, 0.1);
+    color: #ff9800;
+    border: 1px solid rgba(255, 152, 0, 0.3);
+  }
+
+  .readonly-indicator {
+    background: rgba(108, 117, 125, 0.1);
+    color: #6c757d;
+    border: 1px solid rgba(108, 117, 125, 0.3);
   }
 }
