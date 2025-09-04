@@ -425,22 +425,23 @@
 
     .upload-modal,
     .download-modal {
-      background: white;
+      background: #fff;
       border-radius: 16px;
       width: 90%;
       max-width: 600px;
-      max-height: 80vh;
-      overflow: hidden;
+      max-height: 90vh; // allow modal to take up most of the screen
+      display: flex;
+      flex-direction: column; // header + content + footer stacked
       box-shadow: 0 16px 64px rgba(0, 0, 0, 0.2);
 
       .modal-header {
+        flex-shrink: 0;
         display: flex;
         justify-content: space-between;
         align-items: center;
         padding: 20px 24px;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-
         h3 {
           margin: 0;
           font-size: 1.25rem;
@@ -449,6 +450,8 @@
       }
 
       .modal-content {
+        flex: 1; // take remaining height
+        overflow-y: auto; // scrollbar if needed
         padding: 24px;
 
         .property-info {
@@ -595,13 +598,13 @@
       }
 
       .modal-footer {
+        flex-shrink: 0;
         display: flex;
         justify-content: flex-end;
         gap: 12px;
         padding: 16px 24px;
         background: #f8f9fa;
         border-top: 1px solid #e0e0e0;
-
         button {
           min-width: 100px;
           height: 40px;

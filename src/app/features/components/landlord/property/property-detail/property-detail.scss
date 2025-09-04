@@ -1,16 +1,17 @@
 .property-detail-container {
-  max-width: 1400px;
-  margin: 0 auto;
   padding: 24px;
-  background: linear-gradient(135deg, #f8f9ff 0%, #e8ebf7 100%);
+  margin: 0 auto;
+  background-color: #f5f5f5;
   min-height: 100vh;
 
+  // Header Section - Consistent with tenant-add
   .header-section {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 16px;
-    padding: 32px;
+    border-radius: 12px;
+    padding: 24px;
     margin-bottom: 32px;
-    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.15);
+    color: white;
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
 
     .header-content {
       display: flex;
@@ -18,34 +19,25 @@
       justify-content: space-between;
       gap: 20px;
 
-      .back-button {
+      .arrow_back {
         background: rgba(255, 255, 255, 0.2);
-        color: white;
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.3);
-        flex-shrink: 0;
-
-        &:hover {
-          background: rgba(255, 255, 255, 0.3);
-          transform: translateX(-2px);
-          transition: all 0.3s ease;
-        }
-
-        ng-icon {
-          font-size: 24px;
-        }
+        border-radius: 20px;
+        padding: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 24px;
       }
 
       .header-info {
         flex: 1;
-        color: white;
 
         h1 {
           margin: 0 0 12px 0;
-          font-size: 2.2rem;
-          font-weight: 700;
+          font-size: 2rem;
+          font-weight: 600;
           text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-          line-height: 1.2;
         }
 
         .header-meta {
@@ -58,32 +50,6 @@
             opacity: 0.8;
             font-weight: 500;
           }
-
-          mat-chip {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-
-            ng-icon {
-              margin-right: 4px;
-              font-size: 16px;
-            }
-
-            &.status-listed {
-              background: rgba(76, 175, 80, 0.3);
-              border-color: rgba(76, 175, 80, 0.5);
-            }
-
-            &.status-draft {
-              background: rgba(255, 152, 0, 0.3);
-              border-color: rgba(255, 152, 0, 0.5);
-            }
-
-            &.status-rented {
-              background: rgba(244, 67, 54, 0.3);
-              border-color: rgba(244, 67, 54, 0.5);
-            }
-          }
         }
       }
 
@@ -91,40 +57,27 @@
         display: flex;
         gap: 8px;
         flex-shrink: 0;
-
-        .action-btn {
-          background: rgba(255, 255, 255, 0.2);
-          color: white;
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.3);
-
-          &:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.05);
-            transition: all 0.3s ease;
-          }
-        }
       }
     }
   }
 
+  // Content Grid
   .content-grid {
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: 24px;
 
+    // Images Card
     .images-card {
       grid-column: 1 / -1;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-      border: 1px solid rgba(102, 126, 234, 0.1);
 
       .image-gallery {
         .main-image {
           position: relative;
           height: 400px;
           overflow: hidden;
+          border-radius: 8px;
+          margin-bottom: 16px;
 
           img {
             width: 100%;
@@ -138,13 +91,26 @@
             right: 16px;
 
             .gallery-btn {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              width: 48px;
+              height: 48px;
               background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
               color: white;
+              border: none;
+              border-radius: 50%;
+              cursor: pointer;
               box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+              transition: all 0.3s ease;
 
               &:hover {
                 transform: scale(1.1);
                 box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+              }
+
+              .icon-white {
+                font-size: 24px;
               }
             }
           }
@@ -153,15 +119,13 @@
         .thumbnail-strip {
           display: flex;
           gap: 8px;
-          padding: 16px;
-          background: rgba(102, 126, 234, 0.02);
-          overflow-x: auto;
+          // overflow-x: auto;
 
           .thumbnail {
             flex-shrink: 0;
             width: 80px;
             height: 60px;
-            border-radius: 8px;
+            border-radius: 6px;
             overflow: hidden;
             cursor: pointer;
             border: 2px solid transparent;
@@ -187,52 +151,37 @@
       }
     }
 
-    ng-card {
-      // Card styling is handled by ng-card component
-      // Custom content styling only
-
-      ::ng-deep mat-card {
-        border-radius: 16px;
-        background: white;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        border: 1px solid rgba(102, 126, 234, 0.1);
-        transition: all 0.3s ease;
-
-        &:hover {
-          box-shadow: 0 8px 32px rgba(102, 126, 234, 0.12);
-          transform: translateY(-2px);
-        }
-
-        mat-card-content {
-          padding: 24px;
-        }
-      }
-    }
-
+    // Overview Card
     .overview-card {
       .overview-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 20px;
+        gap: 16px;
 
         .overview-item {
           display: flex;
           align-items: center;
           gap: 12px;
           padding: 16px;
-          background: rgba(102, 126, 234, 0.02);
-          border-radius: 12px;
-          border: 1px solid rgba(102, 126, 234, 0.1);
+          background: #f7fafc;
+          border-radius: 8px;
+          border: 1px solid #e2e8f0;
+          transition: all 0.3s ease;
 
-          ng-icon {
+          &:hover {
+            background: #edf2f7;
+            transform: translateY(-2px);
+          }
+
+          .item-icon {
             color: #667eea;
             background: rgba(102, 126, 234, 0.1);
             padding: 8px;
-            border-radius: 8px;
-            font-size: 20px;
+            border-radius: 6px;
+            font-size: 18px;
           }
 
-          div {
+          .item-content {
             display: flex;
             flex-direction: column;
 
@@ -243,7 +192,7 @@
             }
 
             .value {
-              font-size: 1rem;
+              font-size: 0.95rem;
               color: #1a202c;
               font-weight: 600;
             }
@@ -252,47 +201,52 @@
       }
     }
 
+    // Rent Card
     .rent-card {
       .rent-info {
         .rent-main {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 24px;
+          margin-bottom: 20px;
 
           .rent-amount {
             display: flex;
-            align-items: baseline;
-            gap: 4px;
+            align-items: center;
+            gap: 8px;
 
-            .currency {
-              font-size: 1.2rem;
-              color: #4a5568;
-              font-weight: 500;
+            .currency-icon {
+              font-size: 1.5rem;
+              color: #667eea;
             }
 
             .amount {
-              font-size: 2.5rem;
+              font-size: 2.2rem;
               color: #1a202c;
               font-weight: 700;
             }
 
             .period {
-              font-size: 1rem;
+              font-size: 0.9rem;
               color: #4a5568;
               font-weight: 500;
             }
           }
 
-          .negotiable {
-            mat-chip {
-              background: linear-gradient(
-                135deg,
-                rgba(102, 126, 234, 0.1) 0%,
-                rgba(118, 75, 162, 0.1) 100%
-              );
-              color: #667eea;
-              border: 1px solid rgba(102, 126, 234, 0.3);
+          .negotiable-badge {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 16px;
+            font-size: 0.8rem;
+            font-weight: 500;
+
+            .negotiable-icon {
+              font-size: 14px;
             }
           }
         }
@@ -304,75 +258,110 @@
 
           .detail-item {
             display: flex;
-            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
             padding: 12px;
-            background: rgba(102, 126, 234, 0.02);
+            background: #f7fafc;
             border-radius: 8px;
 
-            .label {
-              color: #4a5568;
-              font-weight: 500;
+            .detail-icon {
+              color: #667eea;
+              font-size: 16px;
             }
 
-            .value {
-              color: #1a202c;
-              font-weight: 600;
+            .detail-content {
+              display: flex;
+              flex-direction: column;
+              flex: 1;
+
+              .label {
+                color: #4a5568;
+                font-weight: 500;
+                font-size: 0.85rem;
+              }
+
+              .value {
+                color: #1a202c;
+                font-weight: 600;
+              }
             }
           }
         }
       }
     }
 
+    // Location Card
     .location-card {
       .location-info {
-        .address {
+        .address-section {
+          display: flex;
+          gap: 12px;
           margin-bottom: 16px;
 
-          .address-line {
-            margin: 4px 0;
-            color: #1a202c;
-            font-weight: 500;
-            line-height: 1.4;
+          .address-icon {
+            color: #667eea;
+            font-size: 20px;
+            margin-top: 2px;
+          }
+
+          .address-content {
+            flex: 1;
+
+            .address-line {
+              margin: 2px 0;
+              color: #1a202c;
+              font-weight: 500;
+              line-height: 1.4;
+            }
           }
         }
 
-        .landmark {
+        .landmark-section {
           display: flex;
           align-items: center;
           gap: 8px;
-          margin-bottom: 20px;
-          padding: 12px;
-          background: rgba(102, 126, 234, 0.05);
-          border-radius: 8px;
+          margin-bottom: 16px;
+          padding: 10px;
+          background: #f7fafc;
+          border-radius: 6px;
 
-          ng-icon {
+          .landmark-icon {
             color: #667eea;
-            font-size: 18px;
+            font-size: 16px;
           }
 
-          span {
+          .landmark-text {
             color: #1a202c;
             font-weight: 500;
           }
         }
 
         .map-button {
+          display: flex;
+          align-items: center;
+          gap: 8px;
           width: 100%;
+          padding: 12px 16px;
+          background: transparent;
           border: 2px solid #667eea;
           color: #667eea;
+          border-radius: 8px;
+          cursor: pointer;
           font-weight: 600;
+          transition: all 0.3s ease;
 
           &:hover {
             background: rgba(102, 126, 234, 0.1);
           }
 
-          ng-icon {
-            margin-right: 8px;
+          .btn-icon {
+            font-size: 18px;
           }
         }
       }
     }
 
+    // Details Card
     .details-card {
       .details-grid {
         display: flex;
@@ -380,117 +369,165 @@
         gap: 20px;
 
         .detail-group {
-          h4 {
-            margin: 0 0 12px 0;
-            color: #1a202c;
-            font-weight: 600;
+          .group-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+
+            .group-icon {
+              color: #667eea;
+              font-size: 18px;
+            }
+
+            h4 {
+              margin: 0;
+              color: #1a202c;
+              font-weight: 600;
+            }
           }
 
           .detail-item {
             display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
 
             &:last-child {
               border-bottom: none;
             }
 
-            .label {
-              color: #4a5568;
-              font-weight: 500;
+            .detail-icon {
+              color: #667eea;
+              font-size: 16px;
             }
 
-            .value {
-              color: #1a202c;
-              font-weight: 600;
+            .detail-content {
+              display: flex;
+              justify-content: space-between;
+              flex: 1;
+
+              .label {
+                color: #4a5568;
+                font-weight: 500;
+              }
+
+              .value {
+                color: #1a202c;
+                font-weight: 600;
+              }
             }
           }
         }
       }
     }
 
+    // Amenities Card
     .amenities-card {
       .amenities-grid {
         display: grid;
         grid-template-columns: 1fr;
-        gap: 12px;
+        gap: 10px;
 
         .amenity-item {
           display: flex;
           align-items: center;
           gap: 12px;
-          padding: 16px;
-          border-radius: 12px;
-          border: 2px solid rgba(244, 67, 54, 0.2);
-          background: rgba(244, 67, 54, 0.05);
+          padding: 12px;
+          border-radius: 8px;
+          border: 2px solid #fed7d7;
+          background: #fef5e7;
           transition: all 0.3s ease;
 
           &.available {
-            border-color: rgba(76, 175, 80, 0.3);
-            background: rgba(76, 175, 80, 0.05);
-
-            .status-icon {
-              color: #4caf50;
-            }
+            border-color: #c6f6d5;
+            background: #f0fff4;
           }
 
-          ng-icon:first-child {
+          .amenity-icon {
             color: #667eea;
-            font-size: 20px;
+            font-size: 18px;
           }
 
-          span {
+          .amenity-label {
             flex: 1;
             color: #1a202c;
             font-weight: 500;
           }
 
           .status-icon {
-            color: #f44336;
-            font-size: 20px;
+            font-size: 18px;
+            color: #e53e3e;
+
+            &.available {
+              color: #38a169;
+            }
           }
         }
       }
     }
 
+    // Description Card
     .description-card {
       grid-column: 1 / -1;
 
-      .description-text {
-        color: #1a202c;
-        line-height: 1.6;
-        margin: 0;
+      .description-content {
+        position: relative;
+        padding-left: 40px;
+
+        .quote-icon {
+          position: absolute;
+          left: 0;
+          top: 0;
+          color: #667eea;
+          font-size: 24px;
+          opacity: 0.5;
+        }
+
+        .description-text {
+          color: #1a202c;
+          line-height: 1.6;
+          margin: 0;
+          font-style: italic;
+        }
       }
     }
 
-    .contact-card {
+    // Actions Card
+    .actions-card {
       grid-column: 1 / -1;
 
-      .contact-actions {
-        display: flex;
+      .actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 16px;
-        flex-wrap: wrap;
 
-        .contact-btn {
-          flex: 1;
-          min-width: 200px;
-          padding: 16px;
-          font-weight: 600;
+        .action-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          padding: 12px 24px;
           border-radius: 8px;
+          cursor: pointer;
+          font-weight: 600;
+          transition: all 0.3s ease;
 
           &.primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            border: none;
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 
             &:hover {
               box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
-              transform: translateY(-2px);
+              transform: translateY(-1px);
             }
           }
 
           &.secondary {
+            background: transparent;
             border: 2px solid #667eea;
             color: #667eea;
 
@@ -499,22 +536,11 @@
             }
           }
 
-          ng-icon {
-            margin-right: 8px;
+          .btn-icon {
+            font-size: 18px;
           }
         }
       }
-    }
-  }
-}
-
-// More Options Menu
-::ng-deep .mat-mdc-menu-panel {
-  .danger-item {
-    color: #f44336 !important;
-
-    ng-icon {
-      color: #f44336 !important;
     }
   }
 }
@@ -545,13 +571,13 @@
     padding: 16px;
 
     .header-section {
-      padding: 24px;
+      padding: 20px;
       margin-bottom: 24px;
 
       .header-content {
         .header-info {
           h1 {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
           }
 
           .header-meta {
@@ -564,174 +590,17 @@
     }
 
     .content-grid {
-      mat-card {
-        mat-card-header {
-          padding: 16px;
-        }
-
-        mat-card-content {
-          padding: 16px;
-        }
-      }
-
       .overview-card {
         .overview-grid {
           grid-template-columns: 1fr;
         }
       }
 
-      .contact-card {
-        .contact-actions {
-          flex-direction: column;
-
-          .contact-btn {
-            min-width: auto;
-          }
+      .actions-card {
+        .actions-grid {
+          grid-template-columns: 1fr;
         }
       }
     }
   }
-}
-/* Card and General Layout */
-.form-card {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  background-color: #f7f9fc;
-  margin-bottom: 24px;
-}
-
-.tenants-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 16px;
-}
-
-.tenant-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px;
-  border-radius: 6px;
-  background-color: #ffffff;
-  border: 1px solid #e0e0e0;
-  transition: all 0.3s ease;
-}
-
-.tenant-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-/* Tenant Information Section */
-.tenant-info {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.tenant-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background-color: #64b5f6; /* A pleasant blue */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #ffffff;
-  font-size: 24px;
-}
-
-.tenant-details h4 {
-  margin: 0;
-  font-size: 1.1em;
-  font-weight: 600;
-  color: #333;
-}
-
-.tenant-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  font-size: 0.85em;
-  color: #666;
-  margin-top: 4px;
-}
-
-.meta-item {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.meta-item ng-icon {
-  font-size: 16px;
-  color: #999;
-}
-
-/* Badges */
-.tenant-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.badge {
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 0.75em;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.badge.primary {
-  background-color: #ffb74d; /* Orange */
-  color: #553c00;
-}
-
-.badge.active {
-  background-color: #81c784; /* Green */
-  color: #1b5e20;
-}
-
-.badge.verified {
-  background-color: #4db6ac; /* Teal */
-  color: #004d40;
-}
-
-/* Tenant Actions/Lease Info */
-.tenant-actions {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
-  font-size: 0.85em;
-  color: #666;
-  text-align: right;
-}
-
-.lease-info {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-/* Note Section */
-.tenants-note {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 16px;
-  background-color: #fff3e0; /* Light orange for a warning/info feel */
-  border-top: 1px solid #ffcc80;
-  border-bottom-left-radius: 8px;
-  border-bottom-right-radius: 8px;
-  color: #666;
-  font-size: 0.9em;
-}
-
-.tenants-note ng-icon {
-  color: #fb8c00; /* Darker orange for the icon */
 }
