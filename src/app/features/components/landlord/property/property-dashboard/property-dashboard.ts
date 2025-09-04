@@ -369,13 +369,6 @@ export class PropertyDashboard implements OnInit {
     });
   }
 
-  triggerFileInput(): void {
-    const fileInput = document.querySelector(
-      'input[type="file"]',
-    ) as HTMLInputElement;
-    fileInput?.click();
-  }
-
   onUploadFiles(): void {
     if (
       !this.selectedPropertyForUpload ||
@@ -396,44 +389,60 @@ export class PropertyDashboard implements OnInit {
 
     this.isUploading = true;
 
-    // Create FormData for API call
+    // Create FormData matching DocumentUploadRequestDto structure
     const formData = new FormData();
 
-    // Add property and category information
-    formData.append(
-      'propertyId',
-      this.selectedPropertyForUpload.id!.toString(),
-    );
-    formData.append('category', this.selectedDocumentCategory.toString());
-    formData.append(
-      'landlordId',
-      (
-        this.selectedPropertyForUpload.landlordId ||
-        Number(this.userdetail.userId) ||
-        1
-      ).toString(),
-    );
-
-    // Add each file to FormData
+    // Add each document following the DocumentDto structure
     this.selectedUploadFiles.forEach((uploadedFile, index) => {
-      formData.append(
-        `documents[${index}].file`,
-        uploadedFile.file,
-        uploadedFile.name,
-      );
-      formData.append(
-        `documents[${index}].description`,
-        uploadedFile.description || '',
-      );
+      // Add the file itself
+      formData.append(`Documents[${index}].File`, uploadedFile.file);
 
+      // Add DocumentDto properties
       formData.append(
-        `fileDescriptions[${index}]`,
+        `Documents[${index}].OwnerId`,
+        (
+          this.selectedPropertyForUpload!.landlordId ||
+          Number(this.userdetail.userId) ||
+          1
+        ).toString(),
+      );
+      formData.append(`Documents[${index}].OwnerType`, 'Landlord');
+      formData.append(
+        `Documents[${index}].Category`,
+        this.selectedDocumentCategory.toString(),
+      );
+      formData.append(
+        `Documents[${index}].LandlordId`,
+        (
+          this.selectedPropertyForUpload!.landlordId ||
+          Number(this.userdetail.userId) ||
+          1
+        ).toString(),
+      );
+      formData.append(
+        `Documents[${index}].PropertyId`,
+        this.selectedPropertyForUpload!.id!.toString(),
+      );
+      formData.append(`Documents[${index}].Name`, uploadedFile.name);
+      formData.append(`Documents[${index}].Size`, uploadedFile.size.toString());
+      formData.append(`Documents[${index}].Type`, uploadedFile.type);
+      formData.append(
+        `Documents[${index}].DocumentIdentifier`,
+        `PROP-DOC-${Date.now()}-${index}`,
+      );
+      formData.append(
+        `Documents[${index}].UploadedOn`,
+        new Date().toISOString(),
+      );
+      formData.append(`Documents[${index}].IsVerified`, 'false');
+      formData.append(
+        `Documents[${index}].Description`,
         `${this.getCategoryLabel(this.selectedDocumentCategory)} document for ${this.selectedPropertyForUpload!.title}`,
       );
     });
 
     // Log FormData contents for debugging
-    console.log('Uploading FormData with:', {
+    console.log('Uploading FormData with DocumentUploadRequestDto structure:', {
       propertyId: this.selectedPropertyForUpload.id,
       category: this.selectedDocumentCategory,
       filesCount: this.selectedUploadFiles.length,
@@ -455,9 +464,6 @@ export class PropertyDashboard implements OnInit {
 
             // Update the property in the list to reflect new document count
             this.updatePropertyInList(this.selectedPropertyForUpload!);
-
-            // Optionally refresh documents from API to ensure consistency
-            this.refreshPropertyDocuments(this.selectedPropertyForUpload!.id!);
 
             // Show success message
             this.alertService.success({
@@ -547,27 +553,11 @@ export class PropertyDashboard implements OnInit {
     }
   }
 
-  refreshPropertyDocuments(propertyId: number): void {
-    this.propertyService.getPropertyDocuments(propertyId).subscribe({
-      next: (response: Result<IDocument[]>) => {
-        if (response.success && response.entity) {
-          // Find and update the property with fresh document data
-          const propertyIndex = this.properties.findIndex(
-            (p) => p.id === propertyId,
-          );
-          if (propertyIndex !== -1) {
-            this.properties[propertyIndex].documents = response.entity;
-            // Re-transform to update display fields
-            this.properties[propertyIndex] = this.transformPropertyForTable(
-              this.properties[propertyIndex],
-            );
-          }
-        }
-      },
-      error: (error) => {
-        console.error('Error refreshing property documents:', error);
-      },
-    });
+  triggerFileInput(): void {
+    const fileInput = document.querySelector(
+      'input[type="file"]',
+    ) as HTMLInputElement;
+    fileInput?.click();
   }
 
   onDownloadDocument(doc: IDocument): void {

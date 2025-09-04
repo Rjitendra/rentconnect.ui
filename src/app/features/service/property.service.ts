@@ -156,7 +156,7 @@ export class PropertyService {
   }
 
   /**
-   * Upload documents for a property
+   * Upload documents for a property using DocumentUploadRequestDto format
    */
   uploadPropertyDocuments(
     propertyId: number,
