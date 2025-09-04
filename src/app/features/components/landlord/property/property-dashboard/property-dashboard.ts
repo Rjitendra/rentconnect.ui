@@ -16,16 +16,20 @@ import { catchError, filter, Observable, of, switchMap, tap } from 'rxjs';
 
 import {
   AlertService,
+  FileUploadConfig,
   NgButton,
   NgDialogService,
   NgDivider,
+  NgFileUploadComponent,
   NgIconComponent,
   NgMatTable,
   NgMenuComponent,
   NgMenuTriggerDirective,
   NgSelectComponent,
+  SelectOption,
   TableColumn,
   TableOptions,
+  UploadedFile,
 } from '../../../../../../../projects/shared/src/public-api';
 import { ApiError, Result } from '../../../../../common/models/common';
 import {
@@ -62,6 +66,7 @@ interface TenantChild {
     FormsModule,
     NgButton,
     NgDivider,
+    NgFileUploadComponent,
     NgIconComponent,
     NgSelectComponent,
     NgMatTable,
@@ -124,42 +129,64 @@ export class PropertyDashboard implements OnInit {
   selectedDownloadCategory: DocumentCategory | 'all' = 'all';
 
   // Document categories for dropdown
-  documentCategories = [
+  documentCategories: SelectOption[] = [
     {
       value: DocumentCategory.OwnershipProof,
       label: 'Ownership Proof',
-      description: 'Property ownership certificates',
     },
     {
       value: DocumentCategory.UtilityBill,
       label: 'Utility Bills',
-      description: 'Electricity, water, gas bills',
     },
     {
       value: DocumentCategory.PropertyImages,
       label: 'Property Photos',
-      description: 'Property images and videos',
+    },
+    {
+      value: DocumentCategory.NoObjectionCertificate,
+      label: 'NOC Certificate',
     },
   ];
 
-  downloadCategories = [
+  // File upload configuration
+  documentUploadConfig: FileUploadConfig = {
+    maxFileSize: 10 * 1024 * 1024, // 10MB
+    maxFiles: 10,
+    acceptedTypes: [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    ],
+    allowMultiple: true,
+  };
+
+  // Current upload state
+  selectedUploadFiles: UploadedFile[] = [];
+  isUploading = false;
+
+  downloadCategories: SelectOption[] = [
     {
       value: 'all',
       label: 'All Documents',
-      count: 0,
-      description: 'Download all available documents',
     },
     {
       value: DocumentCategory.OwnershipProof,
       label: 'Ownership Proof',
-      count: 0,
-      description: 'Property ownership certificates',
     },
     {
       value: DocumentCategory.UtilityBill,
       label: 'Utility Bills',
-      count: 0,
-      description: 'Electricity, water, gas bills',
+    },
+    {
+      value: DocumentCategory.PropertyImages,
+      label: 'Property Photos',
+    },
+    {
+      value: DocumentCategory.NoObjectionCertificate,
+      label: 'NOC Certificate',
     },
   ];
 
@@ -300,6 +327,7 @@ export class PropertyDashboard implements OnInit {
 
   onUploadDocument(property: IProperty): void {
     this.selectedPropertyForUpload = property;
+    this.resetUploadModal();
     this.showUploadModal = true;
   }
 
@@ -311,6 +339,7 @@ export class PropertyDashboard implements OnInit {
   onCloseUploadModal(): void {
     this.showUploadModal = false;
     this.selectedPropertyForUpload = null;
+    this.resetUploadModal();
   }
 
   onCloseDownloadModal(): void {
@@ -318,36 +347,26 @@ export class PropertyDashboard implements OnInit {
     this.selectedPropertyForDownload = null;
   }
 
-  onFileSelected(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    const file = target.files?.[0];
-    if (file && this.selectedPropertyForUpload) {
-      // Validate file size (10MB limit)
-      const maxSize = 10 * 1024 * 1024; // 10MB in bytes
-      if (file.size > maxSize) {
-        alert('File size exceeds 10MB limit. Please choose a smaller file.');
-        return;
-      }
+  onFilesSelected(files: UploadedFile[]): void {
+    this.selectedUploadFiles = files;
+  }
 
-      // Validate file type
-      const allowedTypes = [
-        'application/pdf',
-        'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'image/jpeg',
-        'image/jpg',
-        'image/png',
-      ];
+  onFileRemoved(file: UploadedFile): void {
+    this.selectedUploadFiles = this.selectedUploadFiles.filter(
+      (f) => f.url !== file.url,
+    );
+  }
 
-      if (!allowedTypes.includes(file.type)) {
-        alert(
-          'Invalid file type. Please upload PDF, DOC, DOCX, JPG, or PNG files only.',
-        );
-        return;
-      }
-
-      this.uploadFile(file, this.selectedPropertyForUpload);
-    }
+  onFileUploadError(error: { file: UploadedFile; error: string }): void {
+    this.alertService.error({
+      errors: [
+        {
+          message: `Error uploading ${error.file.name}: ${error.error}`,
+          errorType: 'error',
+        },
+      ],
+      timeout: 5000,
+    });
   }
 
   triggerFileInput(): void {
@@ -355,6 +374,200 @@ export class PropertyDashboard implements OnInit {
       'input[type="file"]',
     ) as HTMLInputElement;
     fileInput?.click();
+  }
+
+  onUploadFiles(): void {
+    if (
+      !this.selectedPropertyForUpload ||
+      !this.selectedDocumentCategory ||
+      this.selectedUploadFiles.length === 0
+    ) {
+      this.alertService.error({
+        errors: [
+          {
+            message: 'Please select a category and upload at least one file.',
+            errorType: 'error',
+          },
+        ],
+        timeout: 3000,
+      });
+      return;
+    }
+
+    this.isUploading = true;
+
+    // Create FormData for API call
+    const formData = new FormData();
+
+    // Add property and category information
+    formData.append(
+      'propertyId',
+      this.selectedPropertyForUpload.id!.toString(),
+    );
+    formData.append('category', this.selectedDocumentCategory.toString());
+    formData.append(
+      'landlordId',
+      (
+        this.selectedPropertyForUpload.landlordId ||
+        Number(this.userdetail.userId) ||
+        1
+      ).toString(),
+    );
+
+    // Add each file to FormData
+    this.selectedUploadFiles.forEach((uploadedFile, index) => {
+      formData.append(
+        `documents[${index}].file`,
+        uploadedFile.file,
+        uploadedFile.name,
+      );
+      formData.append(
+        `documents[${index}].description`,
+        uploadedFile.description || '',
+      );
+
+      formData.append(
+        `fileDescriptions[${index}]`,
+        `${this.getCategoryLabel(this.selectedDocumentCategory)} document for ${this.selectedPropertyForUpload!.title}`,
+      );
+    });
+
+    // Log FormData contents for debugging
+    console.log('Uploading FormData with:', {
+      propertyId: this.selectedPropertyForUpload.id,
+      category: this.selectedDocumentCategory,
+      filesCount: this.selectedUploadFiles.length,
+    });
+
+    // Make API call
+    this.propertyService
+      .uploadPropertyDocuments(this.selectedPropertyForUpload.id!, formData)
+      .subscribe({
+        next: (response: Result<IDocument[]>) => {
+          this.isUploading = false;
+
+          if (response.success && response.entity) {
+            // Update property documents with API response
+            if (!this.selectedPropertyForUpload!.documents) {
+              this.selectedPropertyForUpload!.documents = [];
+            }
+            this.selectedPropertyForUpload!.documents.push(...response.entity);
+
+            // Update the property in the list to reflect new document count
+            this.updatePropertyInList(this.selectedPropertyForUpload!);
+
+            // Optionally refresh documents from API to ensure consistency
+            this.refreshPropertyDocuments(this.selectedPropertyForUpload!.id!);
+
+            // Show success message
+            this.alertService.success({
+              errors: [
+                {
+                  message: `Successfully uploaded ${response.entity.length} document(s) to ${this.getCategoryLabel(this.selectedDocumentCategory)} category.`,
+                  errorType: 'success',
+                },
+              ],
+              timeout: 5000,
+            });
+
+            // Reset and close modal
+            this.resetUploadModal();
+            this.onCloseUploadModal();
+          } else {
+            // Handle API error response
+            this.alertService.error({
+              errors: [
+                {
+                  message: 'Failed to upload documents. Please try again.',
+                  errorType: 'error',
+                },
+              ],
+              timeout: 5000,
+            });
+          }
+        },
+        error: (error) => {
+          this.isUploading = false;
+          console.error('Error uploading documents:', error);
+
+          this.alertService.error({
+            errors: [
+              {
+                message:
+                  'An error occurred while uploading documents. Please try again.',
+                errorType: 'error',
+              },
+            ],
+            timeout: 5000,
+          });
+        },
+      });
+  }
+
+  resetUploadModal(): void {
+    this.selectedUploadFiles = [];
+    this.selectedDocumentCategory = DocumentCategory.OwnershipProof;
+    this.isUploading = false;
+  }
+
+  getCategoryLabel(category: DocumentCategory): string {
+    const categoryOption = this.documentCategories.find(
+      (c) => c.value === category,
+    );
+    return categoryOption?.label || 'Unknown Category';
+  }
+
+  getCategoryIcon(category: DocumentCategory): string {
+    switch (category) {
+      case DocumentCategory.OwnershipProof:
+        return 'home_work';
+      case DocumentCategory.UtilityBill:
+        return 'receipt_long';
+      case DocumentCategory.PropertyImages:
+        return 'photo_library';
+      case DocumentCategory.NoObjectionCertificate:
+        return 'verified';
+      default:
+        return 'upload_file';
+    }
+  }
+
+  getCategoryHint(category: DocumentCategory): string {
+    switch (category) {
+      case DocumentCategory.OwnershipProof:
+        return 'Property ownership documents, sale deed, or title documents';
+      case DocumentCategory.UtilityBill:
+        return 'Electricity, water, gas, or other utility bills';
+      case DocumentCategory.PropertyImages:
+        return 'Property photos, floor plans, or virtual tour images';
+      case DocumentCategory.NoObjectionCertificate:
+        return 'No objection certificates from authorities';
+      default:
+        return 'Upload relevant documents';
+    }
+  }
+
+  refreshPropertyDocuments(propertyId: number): void {
+    this.propertyService.getPropertyDocuments(propertyId).subscribe({
+      next: (response: Result<IDocument[]>) => {
+        if (response.success && response.entity) {
+          // Find and update the property with fresh document data
+          const propertyIndex = this.properties.findIndex(
+            (p) => p.id === propertyId,
+          );
+          if (propertyIndex !== -1) {
+            this.properties[propertyIndex].documents = response.entity;
+            // Re-transform to update display fields
+            this.properties[propertyIndex] = this.transformPropertyForTable(
+              this.properties[propertyIndex],
+            );
+          }
+        }
+      },
+      error: (error) => {
+        console.error('Error refreshing property documents:', error);
+      },
+    });
   }
 
   onDownloadDocument(doc: IDocument): void {
@@ -568,19 +781,31 @@ export class PropertyDashboard implements OnInit {
   }
 
   private updateDownloadCategoryCounts(property: IProperty): void {
+    // Update download categories to show counts in labels
     const documents = property.documents || [];
 
-    // Update download categories with actual document counts
-    this.downloadCategories = this.downloadCategories.map((category) => {
-      if (category.value === 'all') {
-        return { ...category, count: documents.length };
-      } else {
-        const count = documents.filter(
-          (doc) => doc.category === category.value,
-        ).length;
-        return { ...category, count: count };
-      }
-    });
+    this.downloadCategories = [
+      {
+        value: 'all',
+        label: `All Documents (${documents.length})`,
+      },
+      {
+        value: DocumentCategory.OwnershipProof,
+        label: `Ownership Proof (${documents.filter((d) => d.category === DocumentCategory.OwnershipProof).length})`,
+      },
+      {
+        value: DocumentCategory.UtilityBill,
+        label: `Utility Bills (${documents.filter((d) => d.category === DocumentCategory.UtilityBill).length})`,
+      },
+      {
+        value: DocumentCategory.PropertyImages,
+        label: `Property Photos (${documents.filter((d) => d.category === DocumentCategory.PropertyImages).length})`,
+      },
+      {
+        value: DocumentCategory.NoObjectionCertificate,
+        label: `NOC Certificate (${documents.filter((d) => d.category === DocumentCategory.NoObjectionCertificate).length})`,
+      },
+    ];
   }
 
   private refreshData(): void {
@@ -742,95 +967,6 @@ export class PropertyDashboard implements OnInit {
   private getDocumentsDisplay(documents: IDocument[]): string {
     if (!documents || documents.length === 0) return 'No documents';
     return `${documents.length} document${documents.length === 1 ? '' : 's'}`;
-  }
-
-  private uploadFile(file: File, property: IProperty): void {
-    console.log('Uploading file:', file.name, 'for property:', property.title);
-
-    // Mock upload process with progress indication
-    const uploadProgress = document.createElement('div');
-    uploadProgress.innerHTML = `
-      <div style="margin: 20px 0; text-align: center;">
-        <p>Uploading ${file.name}...</p>
-        <div style="width: 100%; background-color: #f0f0f0; border-radius: 5px; overflow: hidden;">
-          <div id="progress-bar" style="width: 0%; height: 20px; background-color: #4CAF50; transition: width 0.3s;"></div>
-        </div>
-        <span id="progress-text">0%</span>
-      </div>
-    `;
-
-    // Insert progress indicator in modal
-    const modalContent = document.querySelector('.upload-modal .modal-content');
-    if (modalContent) {
-      modalContent.appendChild(uploadProgress);
-    }
-
-    // Simulate upload progress
-    let progress = 0;
-    const progressInterval = setInterval(() => {
-      progress += Math.random() * 20;
-      if (progress > 100) progress = 100;
-
-      const progressBar = document.getElementById('progress-bar');
-      const progressText = document.getElementById('progress-text');
-      if (progressBar && progressText) {
-        progressBar.style.width = `${progress}%`;
-        progressText.textContent = `${Math.round(progress)}%`;
-      }
-
-      if (progress >= 100) {
-        clearInterval(progressInterval);
-
-        // Create document object
-        const newDocument: IDocument = {
-          ownerId: property.landlordId || 1,
-          ownerType: 'Landlord',
-          category: this.selectedDocumentCategory,
-          url: URL.createObjectURL(file), // In real app, this would be the server URL
-          name: file.name,
-          type: file.type,
-          size: file.size,
-          documentIdentifier: `DOC-${Date.now()}`,
-          uploadedOn: new Date().toISOString(),
-          isVerified: false,
-          description: `${this.getSelectedCategoryName()} document for ${property.title}`,
-        };
-
-        // Add the document to the property
-        if (!property.documents) {
-          property.documents = [];
-        }
-        property.documents.push(newDocument);
-
-        // Update the properties list to reflect changes
-        this.updatePropertyInList(property);
-
-        console.log('File uploaded successfully:', newDocument);
-
-        // Show success message
-        setTimeout(() => {
-          alert(
-            `File "${file.name}" uploaded successfully as ${this.getSelectedCategoryName()}`,
-          );
-          this.onCloseUploadModal();
-
-          // Reset file input
-          const fileInput = document.querySelector(
-            'input[type="file"]',
-          ) as HTMLInputElement;
-          if (fileInput) {
-            fileInput.value = '';
-          }
-        }, 500);
-      }
-    }, 200);
-  }
-
-  private getSelectedCategoryName(): string {
-    const category = this.documentCategories.find(
-      (cat) => cat.value === this.selectedDocumentCategory,
-    );
-    return category?.label || 'Document';
   }
 
   private updatePropertyInList(updatedProperty: IProperty): void {

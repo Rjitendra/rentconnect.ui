@@ -438,14 +438,55 @@
         flex-shrink: 0;
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        padding: 20px 24px;
+        align-items: flex-start;
+        padding: 24px;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        h3 {
-          margin: 0;
-          font-size: 1.25rem;
-          font-weight: 600;
+        border-radius: 16px 16px 0 0;
+
+        .header-content {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+
+          .header-icon {
+            font-size: 32px;
+            color: white;
+          }
+
+          h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+          }
+
+          p {
+            margin: 4px 0 0 0;
+            font-size: 0.875rem;
+            opacity: 0.9;
+          }
+        }
+
+        .close-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 32px;
+          height: 32px;
+          border: none;
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 50%;
+          cursor: pointer;
+          transition: all 0.2s ease;
+
+          &:hover {
+            background: rgba(255, 255, 255, 0.3);
+          }
+
+          ng-icon {
+            font-size: 18px;
+            color: white;
+          }
         }
       }
 
@@ -460,8 +501,14 @@
           gap: 12px;
           padding: 16px;
           background: #f8f9ff;
+          border: 1px solid #e3f2fd;
           border-radius: 8px;
           margin-bottom: 24px;
+
+          .property-icon {
+            font-size: 24px;
+            color: #2196f3;
+          }
 
           .property-details {
             display: flex;
@@ -471,11 +518,51 @@
             .property-title {
               font-weight: 600;
               color: #333;
+              font-size: 1rem;
             }
 
             .property-address {
               font-size: 0.875rem;
               color: #666;
+            }
+          }
+        }
+
+        .form-section {
+          margin-bottom: 24px;
+
+          .category-info {
+            margin-top: 16px;
+
+            .info-card {
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              padding: 16px;
+              background: #f8f9ff;
+              border: 1px solid #e3f2fd;
+              border-radius: 8px;
+
+              .category-icon {
+                font-size: 24px;
+                color: #2196f3;
+              }
+
+              .info-text {
+                h4 {
+                  margin: 0 0 4px 0;
+                  font-size: 0.875rem;
+                  font-weight: 600;
+                  color: #333;
+                }
+
+                p {
+                  margin: 0;
+                  font-size: 0.75rem;
+                  color: #666;
+                  line-height: 1.4;
+                }
+              }
             }
           }
         }

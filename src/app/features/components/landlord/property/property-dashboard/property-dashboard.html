@@ -114,23 +114,34 @@
     </div>
   }
 
-  <!-- Document Upload Modal -->
+  <!-- Enhanced Document Upload Modal -->
   @if (showUploadModal) {
-    <div class="upload-modal-overlay">
+    <div class="upload-modal-overlay" (click)="onCloseUploadModal()">
       <div class="upload-modal" (click)="$event.stopPropagation()">
         <div class="modal-header">
-          <h3>Upload Document</h3>
-          <ng-icon
-            name="close"
+          <div class="header-content">
+            <ng-icon name="upload_file" class="header-icon" />
+            <div>
+              <h3>Upload Property Documents</h3>
+              @if (selectedPropertyForUpload) {
+                <p>Add documents for {{ selectedPropertyForUpload.title }}</p>
+              }
+            </div>
+          </div>
+          <button
             type="button"
-            class="icon-clickable"
+            class="close-btn"
+            title="Close"
             (click)="onCloseUploadModal()"
-          />
+          >
+            <ng-icon name="close" />
+          </button>
         </div>
+
         <div class="modal-content">
           @if (selectedPropertyForUpload) {
             <div class="property-info">
-              <ng-icon name="home" />
+              <ng-icon name="home" class="property-icon" />
               <div class="property-details">
                 <span class="property-title">{{
                   selectedPropertyForUpload.title
@@ -142,41 +153,70 @@
               </div>
             </div>
           }
+
           <div class="upload-section">
             <!-- Document Category Selection -->
-            <div class="category-selection">
+            <div class="form-section">
               <ng-select
                 label="Document Category"
                 placeholder="Select the appropriate document category"
+                suffixIcon="category"
                 class="category-field"
                 [options]="documentCategories"
                 [required]="true"
                 [(ngModel)]="selectedDocumentCategory"
               />
+
+              @if (selectedDocumentCategory) {
+                <div class="category-info">
+                  <div class="info-card">
+                    <ng-icon
+                      class="category-icon"
+                      [name]="getCategoryIcon(selectedDocumentCategory)"
+                    />
+                    <div class="info-text">
+                      <h4>{{ getCategoryLabel(selectedDocumentCategory) }}</h4>
+                      <p>{{ getCategoryHint(selectedDocumentCategory) }}</p>
+                    </div>
+                  </div>
+                </div>
+              }
             </div>
-            <div class="upload-area">
-              <input
-                type="file"
-                id="fileInput"
-                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                class="hidden-input"
-                (change)="onFileSelected($event)"
-              />
-              <div class="upload-content" (click)="triggerFileInput()">
-                <ng-icon name="cloud_upload" class="upload-icon" />
-                <h4>Choose file to upload</h4>
-                <p>Drag and drop files here or click to browse</p>
-                <span class="file-types"
-                  >Supported: PDF, DOC, DOCX, JPG, PNG</span
-                >
+
+            <!-- File Upload Component -->
+            @if (selectedDocumentCategory) {
+              <div class="form-section">
+                <ng-file-upload
+                  [label]="
+                    'Upload ' + getCategoryLabel(selectedDocumentCategory)
+                  "
+                  [dragText]="
+                    'Drop ' +
+                    getCategoryLabel(selectedDocumentCategory) +
+                    ' files here or click to browse'
+                  "
+                  [hint]="getCategoryHint(selectedDocumentCategory)"
+                  [config]="documentUploadConfig"
+                  [disabled]="isUploading"
+                  [(ngModel)]="selectedUploadFiles"
+                  (filesSelected)="onFilesSelected($event)"
+                  (fileRemoved)="onFileRemoved($event)"
+                  (uploadError)="onFileUploadError($event)"
+                />
               </div>
-            </div>
+            }
+
+            <!-- Upload Instructions -->
             <div class="upload-instructions">
               <h5>Upload Guidelines:</h5>
               <ul>
                 <li><strong>File Size:</strong> Maximum 10MB per file</li>
                 <li>
                   <strong>File Types:</strong> PDF, DOC, DOCX, JPG, PNG only
+                </li>
+                <li>
+                  <strong>Multiple Files:</strong> You can upload up to 10 files
+                  at once
                 </li>
                 <li>
                   <strong>Quality:</strong> Ensure documents are clear and
@@ -190,19 +230,26 @@
             </div>
           </div>
         </div>
+
         <div class="modal-footer">
           <ng-button
             buttonType="button"
             type="text"
             label="Cancel"
+            [disabled]="isUploading"
             (buttonClick)="onCloseUploadModal()"
           />
           <ng-button
             buttonType="button"
             type="filled"
-            label="Select File"
-            icon="add"
-            (buttonClick)="triggerFileInput()"
+            [label]="isUploading ? 'Uploading...' : 'Upload Documents'"
+            [icon]="isUploading ? 'hourglass_empty' : 'upload'"
+            [disabled]="
+              !selectedDocumentCategory ||
+              selectedUploadFiles.length === 0 ||
+              isUploading
+            "
+            (buttonClick)="onUploadFiles()"
           />
         </div>
       </div>

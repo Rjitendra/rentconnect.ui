@@ -155,6 +155,28 @@ export class PropertyService {
     );
   }
 
+  /**
+   * Upload documents for a property
+   */
+  uploadPropertyDocuments(
+    propertyId: number,
+    formData: FormData,
+  ): Observable<Result<IDocument[]>> {
+    return this._http.post<Result<IDocument[]>>(
+      `${environment.apiBaseUrl}Property/${propertyId}/documents/upload`,
+      formData,
+    );
+  }
+
+  /**
+   * Get documents for a property
+   */
+  getPropertyDocuments(propertyId: number): Observable<Result<IDocument[]>> {
+    return this._http.get<Result<IDocument[]>>(
+      `${environment.apiBaseUrl}Property/${propertyId}/documents`,
+    );
+  }
+
   // Private helper methods
 
   private validatePropertyForPublish(
