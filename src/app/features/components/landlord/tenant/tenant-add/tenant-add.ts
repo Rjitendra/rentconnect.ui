@@ -35,7 +35,7 @@ import {
   OauthService,
 } from '../../../../../oauth/service/oauth.service';
 import { OwnerType } from '../../../../constants/owner-type.constants';
-import { DocumentCategory } from '../../../../enums/view.enum';
+import { DocumentCategory, PropertyStatus } from '../../../../enums/view.enum';
 import { IDocument } from '../../../../models/document';
 import { IProperty } from '../../../../models/property';
 import {
@@ -1112,7 +1112,7 @@ export class TenantAddComponent implements OnInit {
       this.propertyService.getProperties(landlordId).subscribe({
         next: (response: Result<IProperty[]>) => {
           this.propertyOptions = response.entity
-            // .filter((p) => p.status) // Only show published properties  !== PropertyStatus.Draft
+            .filter((p) => p.status === PropertyStatus.Listed) // Only show published properties  !== PropertyStatus.Draft
             .map((property) => ({
               value: property.id!.toString(),
               label: `${property.title} - ${property.locality}, ${property.city}`,

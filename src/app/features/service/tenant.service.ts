@@ -135,8 +135,6 @@ export class TenantService {
     },
   ];
 
-  private nextId = 22;
-
   constructor() {}
 
   // Get all tenants
@@ -149,83 +147,6 @@ export class TenantService {
     const tenant = this.tenants.find((t) => t.id === id);
     return of(tenant || null);
   }
-
-  // // Get tenants by property ID
-  // getTenantsByProperty(propertyId: number): Observable<ITenant[]> {
-  //   const propertyTenants = this.tenants.filter(
-  //     (t) => t.propertyId === propertyId,
-  //   );
-  //   return of(propertyTenants);
-  // }
-  // // Save tenant (create or update)
-  // saveTenant(tenant: Partial<ITenant>): Observable<TenantSaveResponse> {
-  //   return new Observable((observer) => {
-  //     setTimeout(() => {
-  //       try {
-  //         // Validate tenant data
-  //         const validationErrors = this.validateTenant(tenant);
-  //         if (validationErrors.length > 0) {
-  //           observer.next({
-  //             success: false,
-  //             message: 'Validation failed',
-  //             errors: validationErrors.map((e) => e.message),
-  //           });
-  //           observer.complete();
-  //           return;
-  //         }
-
-  //         if (tenant.id) {
-  //           // Update existing tenant
-  //           const index = this.tenants.findIndex((t) => t.id === tenant.id);
-  //           if (index !== -1) {
-  //             this.tenants[index] = {
-  //               ...this.tenants[index],
-  //               ...tenant,
-  //               dateModified: new Date().toISOString(),
-  //             };
-  //             observer.next({
-  //               success: true,
-  //               message: 'Tenant updated successfully',
-  //               tenant: this.tenants[index],
-  //             });
-  //           } else {
-  //             observer.next({
-  //               success: false,
-  //               message: 'Tenant not found',
-  //               errors: ['Tenant with the specified ID does not exist'],
-  //             });
-  //           }
-  //         } else {
-  //           // Create new tenant
-  //           const newTenant: ITenant = {
-  //             ...(tenant as ITenant),
-  //             id: this.nextId++,
-  //             landlordId: tenant.landlordId || 1,
-  //             age: this.calculateAge(tenant.dob as string),
-  //             tenantGroup: this.nextId - 1,
-  //             dateCreated: new Date().toISOString(),
-  //             dateModified: new Date().toISOString(),
-  //             documents: tenant.documents || [],
-  //             children: tenant.children || [],
-  //           };
-  //           this.tenants.push(newTenant);
-  //           observer.next({
-  //             success: true,
-  //             message: 'Tenant created successfully',
-  //             tenant: newTenant,
-  //           });
-  //         }
-  //       } catch (error) {
-  //         observer.next({
-  //           success: false,
-  //           message: 'An error occurred while saving tenant',
-  //           errors: ['Internal server error'],
-  //         });
-  //       }
-  //       observer.complete();
-  //     });
-  //   });
-  // }
 
   // Delete tenant
   deleteTenant(id: number): Observable<{ success: boolean; message: string }> {

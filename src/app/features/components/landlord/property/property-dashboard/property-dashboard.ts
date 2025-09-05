@@ -40,6 +40,7 @@ import { DocumentCategory, PropertyStatus } from '../../../../enums/view.enum';
 import { IDocument } from '../../../../models/document';
 import { IProperty } from '../../../../models/property';
 import { ITenant } from '../../../../models/tenant';
+import { CommonService } from '../../../../service/common.service';
 import { PropertyService } from '../../../../service/property.service';
 import { PropertyAdd } from '../property-add/property-add';
 import { PropertyDetail } from '../property-detail/property-detail';
@@ -202,6 +203,8 @@ export class PropertyDashboard implements OnInit {
 
   private $cdr = inject(ChangeDetectorRef);
 
+  private commonService = inject(CommonService);
+
   constructor() {
     this.userdetail = this.userService.getUserInfo();
   }
@@ -351,10 +354,8 @@ export class PropertyDashboard implements OnInit {
     this.selectedUploadFiles = files;
   }
 
-  onFileRemoved(file: UploadedFile): void {
-    this.selectedUploadFiles = this.selectedUploadFiles.filter(
-      (f) => f.url !== file.url,
-    );
+  onFileRemoved(removed: { file: UploadedFile; index: number }): void {
+    this.selectedUploadFiles.splice(removed.index, 1);
   }
 
   onFileUploadError(error: { file: UploadedFile; error: string }): void {
@@ -606,63 +607,67 @@ export class PropertyDashboard implements OnInit {
   }
 
   onDownloadSelectedCategory(): void {
-    if (!this.selectedPropertyForDownload?.documents) {
-      alert('No documents available for download.');
-      return;
-    }
-
-    let documentsToDownload: IDocument[] = [];
-
-    if (this.selectedDownloadCategory === 'all') {
-      documentsToDownload = this.selectedPropertyForDownload.documents;
-    } else {
-      documentsToDownload = this.selectedPropertyForDownload.documents.filter(
-        (doc) => doc.category === this.selectedDownloadCategory,
-      );
-    }
-
-    if (documentsToDownload.length === 0) {
-      alert('No documents found for the selected category.');
-      return;
-    }
-
-    console.log(
-      'Downloading documents for category:',
+    this.commonService.downloadDocumentsByCategory(
+      this.selectedPropertyForDownload?.documents ?? [],
       this.selectedDownloadCategory,
     );
+    // if (!this.selectedPropertyForDownload?.documents) {
+    //   alert('No documents available for download.');
+    //   return;
+    // }
 
-    // If only one document, download directly
-    if (documentsToDownload.length === 1) {
-      this.onDownloadDocument(documentsToDownload[0]);
-      this.onCloseDownloadModal();
-      return;
-    }
+    // let documentsToDownload: IDocument[] = [];
 
-    // Multiple documents - create a zip-like download experience
-    const confirmDownload = confirm(
-      `This will download ${documentsToDownload.length} documents. Continue?`,
-    );
+    // if (this.selectedDownloadCategory === 'all') {
+    //   documentsToDownload = this.selectedPropertyForDownload.documents;
+    // } else {
+    //   documentsToDownload = this.selectedPropertyForDownload.documents.filter(
+    //     (doc) => doc.category === this.selectedDownloadCategory,
+    //   );
+    // }
 
-    if (confirmDownload) {
-      // Download each document with a small delay
-      documentsToDownload.forEach((doc, index) => {
-        setTimeout(() => {
-          this.onDownloadDocument(doc);
-        }, index * 500); // 500ms delay between downloads
-      });
+    // if (documentsToDownload.length === 0) {
+    //   alert('No documents found for the selected category.');
+    //   return;
+    // }
 
-      // Show success message
-      setTimeout(() => {
-        const categoryName =
-          this.selectedDownloadCategory === 'all'
-            ? 'All Documents'
-            : this.getSelectedCategoryLabel();
-        alert(
-          `${documentsToDownload.length} documents from "${categoryName}" category have been downloaded.`,
-        );
-        this.onCloseDownloadModal();
-      }, documentsToDownload.length * 500);
-    }
+    // console.log(
+    //   'Downloading documents for category:',
+    //   this.selectedDownloadCategory,
+    // );
+
+    // // If only one document, download directly
+    // if (documentsToDownload.length === 1) {
+    //   this.onDownloadDocument(documentsToDownload[0]);
+    //   this.onCloseDownloadModal();
+    //   return;
+    // }
+
+    // // Multiple documents - create a zip-like download experience
+    // const confirmDownload = confirm(
+    //   `This will download ${documentsToDownload.length} documents. Continue?`,
+    // );
+
+    // if (confirmDownload) {
+    //   // Download each document with a small delay
+    //   documentsToDownload.forEach((doc, index) => {
+    //     setTimeout(() => {
+    //       this.onDownloadDocument(doc);
+    //     }, index * 500); // 500ms delay between downloads
+    //   });
+
+    //   // Show success message
+    //   setTimeout(() => {
+    //     const categoryName =
+    //       this.selectedDownloadCategory === 'all'
+    //         ? 'All Documents'
+    //         : this.getSelectedCategoryLabel();
+    //     alert(
+    //       `${documentsToDownload.length} documents from "${categoryName}" category have been downloaded.`,
+    //     );
+    //     this.onCloseDownloadModal();
+    //   }, documentsToDownload.length * 500);
+    // }
   }
 
   onTenantSelect(tenant: ITenant): void {

@@ -10,6 +10,7 @@
     border-radius: 16px;
     padding: 32px;
     margin-bottom: 32px;
+    color: white;
     box-shadow: 0 8px 32px rgba(102, 126, 234, 0.15);
 
     .header-content {
@@ -17,24 +18,16 @@
       align-items: center;
       gap: 20px;
 
-      /* Back Button - Using ng-icon instead of ng-button */
-      ng-icon[name="arrow_back"] {
+      .arrow_back {
         background: rgba(255, 255, 255, 0.2);
-        color: white !important;
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.3);
-        border-radius: 8px;
-        padding: 12px;
+        border-radius: 20px;
+        padding: 5px;
         cursor: pointer;
         transition: all 0.3s ease;
         font-size: 24px;
-
-        &:hover {
-          background: rgba(255, 255, 255, 0.3);
-          transform: translateX(-2px);
-        }
       }
-
       .header-text {
         color: white;
 

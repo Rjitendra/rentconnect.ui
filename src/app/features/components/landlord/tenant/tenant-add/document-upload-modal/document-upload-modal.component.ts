@@ -114,7 +114,7 @@ export interface DocumentUploadResult {
             <div class="form-section">
               <h4>Preview Files ({{ uploadedFiles.length }})</h4>
               <div class="file-preview-grid">
-                @for (file of uploadedFiles; track file.url) {
+                @for (file of uploadedFiles; track file.url; let i = $index) {
                   <div class="file-preview-card">
                     <div class="file-preview">
                       @if (isImageFile(file.type)) {
@@ -144,7 +144,7 @@ export interface DocumentUploadResult {
                       type="button"
                       class="remove-preview-btn"
                       title="Remove file"
-                      (click)="removeFile(file)"
+                      (click)="removeFile(file, i)"
                     >
                       <ng-icon name="close" />
                     </button>
@@ -479,13 +479,20 @@ export class DocumentUploadModalComponent implements OnInit {
     this.uploadForm.get('files')?.setValue(files);
   }
 
-  onFileRemoved(file: UploadedFile) {
-    this.uploadedFiles = this.uploadedFiles.filter((f) => f.url !== file.url);
+  onFileRemoved(file: { file: UploadedFile; index: number }) {
+    // Option 1: remove by index (fast & safe)
+    this.uploadedFiles.splice(file.index, 1);
+    // Update the form control
     this.uploadForm.get('files')?.setValue(this.uploadedFiles);
   }
 
-  removeFile(file: UploadedFile) {
-    this.onFileRemoved(file);
+  removeFile(file: UploadedFile, index: number): void {
+    const removed = {
+      file,
+      index,
+    };
+
+    this.onFileRemoved(removed);
   }
 
   canSubmit(): boolean {

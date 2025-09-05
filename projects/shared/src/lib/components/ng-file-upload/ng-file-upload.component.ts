@@ -1,20 +1,20 @@
 import {
-  Component,
-  forwardRef,
-  ElementRef,
   AfterViewInit,
-  viewChild,
-  output,
+  Component,
+  ElementRef,
+  forwardRef,
   input,
+  output,
+  viewChild,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { NgLabelComponent } from '../ng-label/ng-label.component';
 import { NgClarifyTextComponent } from '../ng-clarify-text/ng-clarify-text.component';
+import { NgLabelComponent } from '../ng-label/ng-label.component';
 
 export interface FileUploadConfig {
   maxFileSize?: number; // in bytes
@@ -24,6 +24,7 @@ export interface FileUploadConfig {
 }
 
 export interface UploadedFile {
+  id?: number;
   file: File;
   name: string;
   size: number;
@@ -71,7 +72,8 @@ export class NgFileUploadComponent
   readonly hint = input<string>('');
 
   readonly filesSelected = output<UploadedFile[]>();
-  readonly fileRemoved = output<UploadedFile>();
+  readonly fileRemoved = output<{ file: UploadedFile; index: number }>();
+
   readonly uploadProgress = output<{
     file: UploadedFile;
     progress: number;
@@ -147,7 +149,8 @@ export class NgFileUploadComponent
     if (index >= 0) {
       this.uploadedFiles.splice(index, 1);
       this.onChange(this.uploadedFiles);
-      this.fileRemoved.emit(file);
+      // Emit both file and index
+      this.fileRemoved.emit({ file, index });
     }
   }
 

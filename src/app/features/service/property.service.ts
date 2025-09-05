@@ -4,8 +4,13 @@ import { FormGroup } from '@angular/forms';
 import { Observable, of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 
+import {
+  AlertService,
+  UploadedFile,
+} from '../../../../projects/shared/src/public-api';
 import { environment } from '../../../environments/environment';
 import { Result } from '../../common/models/common';
+import { acceptedImageTypes } from '../constants/properties.constants';
 import {
   FurnishingType,
   LeaseType,
@@ -24,6 +29,11 @@ import {
   providedIn: 'root',
 })
 export class PropertyService {
+  readonly maxFileSize = 5 * 1024 * 1024; // 5MB
+  readonly maxFiles = 10;
+  readonly acceptedTypes = acceptedImageTypes;
+
+  private alertService = inject(AlertService);
   private _http = inject(HttpClient);
   private properties: IProperty[] = [];
 
@@ -155,6 +165,12 @@ export class PropertyService {
     );
   }
 
+  deletePropertyImage(id: number): Observable<Result<boolean>> {
+    return this._http.delete<Result<boolean>>(
+      `${environment.apiBaseUrl}Property/delete/${id}`,
+    );
+  }
+
   /**
    * Upload documents for a property using DocumentUploadRequestDto format
    */
@@ -176,7 +192,168 @@ export class PropertyService {
       `${environment.apiBaseUrl}Property/${propertyId}/documents`,
     );
   }
+  getFieldDisplayName(fieldName: string): string {
+    const fieldNames: { [key: string]: string } = {
+      // Basic Info
+      title: 'Property Title',
+      description: 'Description',
+      propertyType: 'Property Type',
+      bhkConfiguration: 'BHK Configuration',
+      floorNumber: 'Floor Number',
+      totalFloors: 'Total Floors',
+      carpetAreaSqFt: 'Carpet Area',
+      builtUpAreaSqFt: 'Built-up Area',
+      furnishingType: 'Furnishing Type',
+      numberOfBalconies: 'Number of Balconies',
+      numberOfBathrooms: 'Number of Bathrooms',
 
+      // Location
+      addressLine1: 'Address',
+      addressLine2: 'Address Line 2',
+      landmark: 'Landmark',
+      locality: 'Locality',
+      city: 'City',
+      state: 'State',
+      pinCode: 'PIN Code',
+
+      // Rent Details
+      monthlyRent: 'Monthly Rent',
+      securityDeposit: 'Security Deposit',
+      availableFrom: 'Available From',
+      leaseType: 'Lease Type',
+
+      // Additional fields
+      maintenanceCharges: 'Maintenance Charges',
+
+      bedrooms: 'Bedrooms',
+      bathrooms: 'Bathrooms',
+      area: 'Area',
+
+      zipCode: 'Zip Code',
+      contactEmail: 'Contact Email',
+      contactPhone: 'Contact Phone',
+    };
+
+    return fieldNames[fieldName] || fieldName;
+  }
+
+  convertPropertyToFormData(property: IProperty): FormData {
+    const formData = new FormData();
+
+    // Handle documents (files + metadata)
+    if (property.documents && Array.isArray(property.documents)) {
+      property.documents.forEach((doc: IDocument, index: number) => {
+        if (doc.file instanceof File) {
+          // Append the actual file
+          formData.append(`documents[${index}].file`, doc.file, doc.file.name);
+        }
+
+        // Append metadata fields individually (so .NET model binder can map)
+        if (doc.name) formData.append(`documents[${index}].name`, doc.name);
+        if (doc.type) formData.append(`documents[${index}].type`, doc.type);
+        if (doc.size)
+          formData.append(`documents[${index}].size`, doc.size.toString());
+        if (doc.category)
+          formData.append(
+            `documents[${index}].category`,
+            doc.category.toString(),
+          );
+        if (doc.description)
+          formData.append(`documents[${index}].description`, doc.description);
+        if (doc.ownerId)
+          formData.append(
+            `documents[${index}].ownerId`,
+            doc.ownerId.toString(),
+          );
+        if (doc.ownerType)
+          formData.append(`documents[${index}].ownerType`, doc.ownerType);
+      });
+    }
+
+    // Handle other property fields
+    Object.entries(property).forEach(([key, value]) => {
+      // Skip documents as they're handled above
+      if (key === 'documents') return;
+
+      // Skip null/undefined values
+      if (value === null || value === undefined) return;
+
+      // Handle arrays (excluding documents)
+      if (Array.isArray(value)) {
+        formData.append(key, JSON.stringify(value));
+      }
+      // Handle Date objects
+      else if (value instanceof Date) {
+        formData.append(key, value.toISOString());
+      }
+      // Handle nested objects
+      else if (typeof value === 'object') {
+        formData.append(key, JSON.stringify(value));
+      }
+      // Handle primitives (string, number, boolean)
+      else {
+        formData.append(key, String(value));
+      }
+    });
+
+    return formData;
+  }
+  // Helper method to validate uploaded files
+  validateUploadedFiles(files: UploadedFile[]): UploadedFile[] {
+    const validFiles: UploadedFile[] = [];
+
+    for (const file of files) {
+      let isValid = true;
+
+      // Check file size
+      if (file.size > this.maxFileSize) {
+        this.alertService.error({
+          errors: [
+            {
+              message: `File "${file.name}" is too large. Maximum size is ${this.maxFileSize / 1024 / 1024}MB.`,
+              errorType: 'error',
+            },
+          ],
+          timeout: 5000,
+        });
+        isValid = false;
+      }
+
+      // Check file type
+      if (!this.acceptedTypes.includes(file.type)) {
+        this.alertService.error({
+          errors: [
+            {
+              message: `File "${file.name}" has an unsupported format. Only ${this.acceptedTypes.join(', ')} are allowed.`,
+              errorType: 'error',
+            },
+          ],
+          timeout: 5000,
+        });
+        isValid = false;
+      }
+
+      // Check total number of files
+      if (validFiles.length >= this.maxFiles) {
+        this.alertService.error({
+          errors: [
+            {
+              message: `Maximum ${this.maxFiles} files allowed. Additional files will be ignored.`,
+              errorType: 'error',
+            },
+          ],
+          timeout: 5000,
+        });
+        break;
+      }
+
+      if (isValid) {
+        validFiles.push(file);
+      }
+    }
+
+    return validFiles;
+  }
   // Private helper methods
 
   private validatePropertyForPublish(
@@ -316,43 +493,6 @@ export class PropertyService {
       // Documents
       documents: data.documents || [],
     };
-  }
-
-  private getFieldDisplayName(fieldName: string): string {
-    const fieldNames: { [key: string]: string } = {
-      // Basic Info
-      title: 'Property Title',
-      description: 'Description',
-      propertyType: 'Property Type',
-      bhkConfiguration: 'BHK Configuration',
-      floorNumber: 'Floor Number',
-      totalFloors: 'Total Floors',
-      carpetAreaSqFt: 'Carpet Area',
-      builtUpAreaSqFt: 'Built-up Area',
-      furnishingType: 'Furnishing Type',
-      numberOfBalconies: 'Number of Balconies',
-      numberOfBathrooms: 'Number of Bathrooms',
-
-      // Location
-      addressLine1: 'Address',
-      addressLine2: 'Address Line 2',
-      landmark: 'Landmark',
-      locality: 'Locality',
-      city: 'City',
-      state: 'State',
-      pinCode: 'PIN Code',
-
-      // Rent Details
-      monthlyRent: 'Monthly Rent',
-      securityDeposit: 'Security Deposit',
-      availableFrom: 'Available From',
-      leaseType: 'Lease Type',
-
-      // Additional fields
-      maintenanceCharges: 'Maintenance Charges',
-    };
-
-    return fieldNames[fieldName] || fieldName;
   }
 
   private isValidEmail(email: string): boolean {

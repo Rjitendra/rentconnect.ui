@@ -6,16 +6,18 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-
 // Import shared library components
+import { catchError, filter, of, switchMap, tap } from 'rxjs';
 
 import {
+  AlertInfo,
   AlertService,
   FileUploadConfig,
   InputType,
   NgCardComponent,
   NgCheckbox,
   NgDatepickerComponent,
+  NgDialogService,
   NgFileUploadComponent,
   NgIconComponent,
   NgInputComponent,
@@ -28,7 +30,6 @@ import {
   IUserDetail,
   OauthService,
 } from '../../../../../oauth/service/oauth.service';
-import { OwnerType } from '../../../../constants/owner-type.constants';
 import {
   acceptedImageTypes,
   bhkConfigurationOptions,
@@ -37,7 +38,6 @@ import {
   propertyTypeOptions,
 } from '../../../../constants/properties.constants';
 import {
-  DocumentCategory,
   FurnishingType,
   LeaseType,
   PropertyStatus,
@@ -49,6 +49,7 @@ import {
   PropertySaveResponse,
   PropertyValidationError,
 } from '../../../../models/property';
+import { CommonService } from '../../../../service/common.service';
 import { PropertyService } from '../../../../service/property.service';
 
 @Component({
@@ -70,46 +71,54 @@ import { PropertyService } from '../../../../service/property.service';
   styleUrl: './property-add.scss',
 })
 export class PropertyAdd implements OnInit {
+  // Inputs and Outputs
   readonly property = input<IProperty | null>(null);
   readonly backToList = output<void>();
+
   // Image upload configuration
   readonly maxFileSize = 5 * 1024 * 1024; // 5MB
-  readonly maxFiles = 10;
+  readonly maxImageFiles = 10;
   readonly acceptedTypes = acceptedImageTypes;
-
-  // Select options for dropdowns using enums
-  propertyTypeOptions = propertyTypeOptions;
-  bhkConfigurationOptions = bhkConfigurationOptions;
-  furnishingTypeOptions = furnishingTypeOptions;
-  leaseTypeOptions = leaseTypeOptions;
-  imageUploadConfig: FileUploadConfig = {
+  readonly imageUploadConfig: FileUploadConfig = {
     maxFileSize: this.maxFileSize,
     acceptedTypes: ['image/*'],
-    maxFiles: this.maxFiles,
+    maxFiles: this.maxImageFiles,
     allowMultiple: true,
   };
-  // Expose InputType enum to template
-  InputType = InputType;
 
+  // Select options for dropdowns using enums
+  readonly propertyTypeOptions = propertyTypeOptions;
+  readonly bhkConfigurationOptions = bhkConfigurationOptions;
+  readonly furnishingTypeOptions = furnishingTypeOptions;
+  readonly leaseTypeOptions = leaseTypeOptions;
+
+  // Expose Enums to Template
+  readonly InputType = InputType;
+  readonly PropertyStatus = PropertyStatus;
+
+  // Form and State Management
   propertyForm!: FormGroup;
   uploadedImages: UploadedFile[] = [];
-  isDragOver = false;
   isEditMode = false;
-
-  // Loading states
   isSaving = false;
   isSavingDraft = false;
 
   // Validation errors
   validationErrors: PropertyValidationError[] = [];
   isShowingValidationErrors = false;
+
   userdetail: Partial<IUserDetail> = {};
   propertiesImages: IDocument[] = [];
 
-  private fb = inject(FormBuilder);
-  private propertyService = inject(PropertyService);
-  private alertService = inject(AlertService);
-  private userService = inject(OauthService);
+  private userDetail: Partial<IUserDetail> = {};
+  // Dependencies
+  private readonly fb = inject(FormBuilder);
+  private readonly propertyService = inject(PropertyService);
+  private readonly alertService = inject(AlertService);
+  private readonly userService = inject(OauthService);
+  private readonly commonService = inject(CommonService);
+  private dialogService = inject(NgDialogService);
+
   constructor() {
     this.userdetail = this.userService.getUserInfo();
   }
@@ -119,15 +128,13 @@ export class PropertyAdd implements OnInit {
     this.initializeForm();
 
     if (this.isEditMode && this.property()) {
-      this.getPropertyImages(
-        Number(this.userdetail.userId),
-        Number(this.property()?.id ?? 0),
-      );
+      this.populateFormForEdit();
     } else {
       this.populateTestDefaults();
     }
   }
 
+  // --- Form Actions ---
   onSubmit() {
     if (this.isSaving) return; // Prevent double submission
 
@@ -141,206 +148,88 @@ export class PropertyAdd implements OnInit {
       this.showValidationErrors();
       return;
     }
+    this.isSaving = true;
+
     if (this.propertyForm.invalid) {
       return;
     }
-    this.isSaving = true;
 
     try {
-      // Create property object with form data and documents
-      const propertyData: IProperty = {
-        ...this.propertyForm.value,
-        landlordId: Number(this.userdetail.userId),
-        documents: this.convertImagesToDocuments(),
-        status: PropertyStatus.Listed,
-        IsValid: true,
-        ...(this.isEditMode && this.property()
-          ? {
-              id: this.property()!.id,
-
-              createdOn: this.property()!.createdOn,
-              updatedOn: new Date(),
-            }
-          : {
-              status: PropertyStatus.Listed,
-              createdOn: new Date(),
-              updatedOn: new Date(),
-            }),
-      };
-      if (propertyData['propertyImages']) {
-        delete propertyData['propertyImages'];
-      }
-      // Convert to FormData for file upload support
+      const propertyData = this.preparePropertyData(
+        PropertyStatus.Listed,
+        true,
+      );
       const formData = this.convertPropertyToFormData(propertyData);
 
       this.propertyService.saveProperty(formData).subscribe({
         next: (response: Result<PropertySaveResponse>) => {
           this.isSaving = false;
           if (response.success) {
-            // Clear any previous errors
-            this.validationErrors = [];
-            this.isShowingValidationErrors = false;
-            const successMessgae = Array.isArray(response.message)
-              ? response.message.join(', ')
-              : this.isEditMode
-                ? 'Property updated successfully!'
-                : 'Property saved successfully!';
-
-            this.alertService.success({
-              errors: [
-                {
-                  message: successMessgae,
-                  errorType: 'success',
-                },
-              ],
-              timeout: 3000,
-            });
-            this.goBack();
-            // Show success message
+            this.handleSuccessfulSave(
+              response.message,
+              'Property saved successfully!',
+              'Property updated successfully!',
+            );
           }
         },
         error: () => {
           this.isSaving = false;
-
-          this.alertService.error({
-            errors: [
-              {
-                message:
-                  'An error occurred while saving the property. Please try again.',
-                errorType: 'error',
-              },
-            ],
-          });
+          this.handleError(
+            'An error occurred while saving the property. Please try again.',
+          );
         },
       });
     } catch (error) {
       this.isSaving = false;
-      this.alertService.error({
-        errors: [
-          {
-            message:
-              'Failed to prepare property data for saving. Please check your input and try again.',
-            errorType: 'error',
-          },
-        ],
-        timeout: 5000,
-      });
+      this.handleError(
+        'Failed to prepare property data for saving. Please check your input and try again.',
+      );
     }
   }
 
-  saveDraft() {
-    if (this.isSavingDraft) return; // Prevent double submission
+  saveDraft(): void {
+    if (this.isSavingDraft) {
+      return;
+    }
 
-    // Clear previous validation errors
     this.validationErrors = [];
-
     this.isSavingDraft = true;
 
     try {
-      // Create property object with form data and documents
-      const propertyData: IProperty = {
-        ...this.propertyForm.value,
-        landlordId: Number(this.userdetail.userId),
-        documents: this.convertImagesToDocuments(),
-        status: PropertyStatus.Draft,
-        IsValid: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-
-      // Convert to FormData for file upload support
+      const propertyData = this.preparePropertyData(
+        PropertyStatus.Draft,
+        false,
+      );
       const formData = this.convertPropertyToFormData(propertyData);
 
       this.propertyService.saveDraft(formData).subscribe({
         next: (response: Result<PropertySaveResponse>) => {
           this.isSavingDraft = false;
           if (response.success) {
-            // Clear any previous errors
-            this.validationErrors = [];
-            this.isShowingValidationErrors = false;
-
-            // Show success message
-
-            const successMessgae = Array.isArray(response.message)
-              ? response.message.join(', ')
-              : response.message || 'Draft saved successfully!';
-
-            this.alertService.success({
-              errors: [
-                {
-                  message: successMessgae,
-                  errorType: 'success',
-                },
-              ],
-              timeout: 3000,
-            });
-            this.goBack();
+            this.handleSuccessfulSave(
+              response.message,
+              'Draft saved successfully!',
+              'Draft updated successfully!',
+            );
           }
         },
         error: () => {
           this.isSavingDraft = false;
-
-          this.alertService.error({
-            errors: [
-              {
-                message:
-                  'An error occurred while saving the draft. Please try again.',
-                errorType: 'error',
-              },
-            ],
-            timeout: 5000,
-          });
+          this.handleError(
+            'An error occurred while saving the draft. Please try again.',
+          );
         },
       });
     } catch (error) {
       this.isSavingDraft = false;
-      this.alertService.error({
-        errors: [
-          {
-            message:
-              'Failed to prepare draft data for saving. Please check your input and try again.',
-            errorType: 'error',
-          },
-        ],
-        timeout: 5000,
-      });
+      this.handleError(
+        'Failed to prepare draft data for saving. Please check your input and try again.',
+      );
     }
   }
 
   goBack() {
     this.backToList.emit();
-  }
-
-  showValidationErrors() {
-    if (this.validationErrors.length > 0) {
-      this.isShowingValidationErrors = true;
-
-      // Clear any existing alerts first
-      this.alertService.clearAlert();
-
-      // Mark all form controls as touched to show validation errors
-      this.propertyForm.markAllAsTouched();
-
-      // Create individual error messages
-      const errorMessages = this.validationErrors.map((error) => ({
-        message: error.message,
-        errorType: 'error' as const,
-      }));
-
-      // Add header message
-      const allMessages = [
-        {
-          message: `Please fix the following ${this.validationErrors.length} validation error(s):`,
-          errorType: 'error' as const,
-        },
-        ...errorMessages,
-      ];
-
-      // Use a small timeout to ensure previous alerts are cleared
-      this.alertService.error({
-        errors: allMessages,
-      });
-    }
   }
 
   // Helper method to check if a field is invalid
@@ -349,63 +238,16 @@ export class PropertyAdd implements OnInit {
     return !!(control && control.invalid && control.touched);
   }
 
-  // Helper method to get field error message
-  getFieldErrorMessage(fieldName: string): string {
-    const control = this.propertyForm.get(fieldName);
-    if (control && control.errors && control.touched) {
-      const errors = control.errors;
-
-      if (errors['required']) {
-        return `${this.getFieldDisplayName(fieldName)} is required`;
-      }
-
-      if (errors['email']) {
-        return 'Please enter a valid email address';
-      }
-
-      if (errors['min']) {
-        const minError = errors['min'] as { min: number; actual: number };
-        return `Minimum value is ${minError.min}`;
-      }
-
-      if (errors['max']) {
-        const maxError = errors['max'] as { max: number; actual: number };
-        return `Maximum value is ${maxError.max}`;
-      }
-
-      if (errors['minlength']) {
-        const minLenError = errors['minlength'] as {
-          requiredLength: number;
-          actualLength: number;
-        };
-        return `Minimum length is ${minLenError.requiredLength}`;
-      }
-
-      if (errors['maxlength']) {
-        const maxLenError = errors['maxlength'] as {
-          requiredLength: number;
-          actualLength: number;
-        };
-        return `Maximum length is ${maxLenError.requiredLength}`;
-      }
-
-      if (errors['pattern']) {
-        return 'Invalid format';
-      }
-    }
-    return '';
-  }
-
   // Image upload handlers for shared component
   onImagesSelected(files: UploadedFile[]): void {
-    // Validate files before accepting them
-    const validFiles = this.validateUploadedFiles(files);
+    const validFiles = this.propertyService.validateUploadedFiles(files);
 
     if (validFiles.length !== files.length) {
+      const rejectedCount = files.length - validFiles.length;
       this.alertService.error({
         errors: [
           {
-            message: `${files.length - validFiles.length} file(s) were rejected due to validation errors.`,
+            message: `${rejectedCount} file(s) were rejected due to validation errors.`,
             errorType: 'error',
           },
         ],
@@ -419,17 +261,73 @@ export class PropertyAdd implements OnInit {
       ?.setValue(validFiles, { emitEvent: false });
   }
 
-  onImageRemoved(file: UploadedFile): void {
-    const index = this.uploadedImages.findIndex(
-      (img) => img.name === file.name && img.size === file.size,
-    );
+  onImageRemoved({ file, index }: { file: UploadedFile; index: number }): void {
+    this.dialogService
+      .confirm({
+        title: 'Confirm Deletion',
+        message: 'Are you sure you want to delete the image?',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        type: 'warning',
+        icon: 'warning',
+        disableClose: true,
+      })
+      .pipe(
+        filter((result) => result.action === 'confirm'),
+        switchMap(() => {
+          if (file.url && file.id) {
+            // ✅ Image exists in backend → call API delete
+            return this.propertyService
+              .deletePropertyImage(file.id as number)
+              .pipe(
+                tap((success: Result<boolean>) => {
+                  if (success.success) {
+                    this.uploadedImages = this.uploadedImages.filter(
+                      (img) => img !== file,
+                    );
+                    this.propertyForm
+                      .get('propertyImages')
+                      ?.setValue(this.uploadedImages, { emitEvent: false });
 
-    if (index >= 0) {
-      this.uploadedImages.splice(index, 1);
-      this.propertyForm
-        .get('propertyImages')
-        ?.setValue(this.uploadedImages, { emitEvent: false });
-    }
+                    this.alertService.success({
+                      errors: [
+                        {
+                          message: 'Image deleted successfully',
+                          errorType: 'success',
+                        },
+                      ],
+                    });
+                  }
+                }),
+                catchError(() => {
+                  this.alertService.error({
+                    errors: [
+                      { message: 'Failed to delete image', errorType: 'error' },
+                    ],
+                  });
+                  return of(null);
+                }),
+              );
+          } else {
+            // ✅ Soft delete → remove locally only using index
+            if (index >= 0) {
+              this.uploadedImages.splice(index, 1);
+              this.propertyForm
+                .get('propertyImages')
+                ?.setValue(this.uploadedImages, { emitEvent: false });
+
+              this.alertService.success({
+                errors: [
+                  { message: 'Image removed locally', errorType: 'info' },
+                ],
+              });
+            }
+
+            return of(null); // keep observable chain valid
+          }
+        }),
+      )
+      .subscribe();
   }
 
   onImageUploadError(error: { file: UploadedFile; error: string }): void {
@@ -444,217 +342,117 @@ export class PropertyAdd implements OnInit {
     });
   }
 
-  removeImage(image: UploadedFile): void {
-    // If it's an existing image (dummy file with size 0), call API to delete
-    const imageWithId = image as UploadedFile & { id?: string };
-    if (this.isEditMode && image.file.size === 0 && imageWithId.id) {
-      this.deleteExistingImage(imageWithId.id, image);
-    } else {
-      // For new uploads, just remove from array
-      this.removeImageFromList(image);
-    }
-  }
-
   getTenantsList() {
     const prop = this.property();
     return prop?.tenants || [];
   }
-
-  private deleteExistingImage(imageId: string, image: UploadedFile) {
-    // Here you would call your API to delete the image
-    console.log('Deleting existing image with ID:', imageId);
-
-    // TODO: Implement API call to delete image
-    // this.propertyService.deletePropertyImage(imageId).subscribe({
-    //   next: (response) => {
-    //     if (response.success) {
-    //       this.removeImageFromList(image);
-    //       this.alertService.success({
-    //         errors: [{ message: 'Image deleted successfully', errorType: 'success' }]
-    //       });
-    //     }
-    //   },
-    //   error: (error) => {
-    //     this.alertService.success({
-    //       errors: [{ message: 'Failed to delete image', errorType: 'error' }]
-    //     });
-    //   }
-    // });
-
-    // For now, just remove from display
-    this.removeImageFromList(image);
-
-    // Show success message
-    this.alertService.success({
-      errors: [
-        {
-          message:
-            'Image removed (Note: API integration needed for permanent deletion)',
-          errorType: 'success',
-        },
+  //Private method
+  private initializeForm() {
+    this.propertyForm = this.fb.group({
+      // Basic Information
+      title: ['test jitendra', [Validators.required, Validators.minLength(5)]],
+      description: [
+        'test jitendratest jitendratest jitendra',
+        [Validators.required, Validators.minLength(20)],
       ],
+      propertyType: ['', Validators.required],
+      bhkConfiguration: ['', Validators.required],
+      floorNumber: ['', [Validators.required, Validators.min(0)]],
+      totalFloors: ['', [Validators.required, Validators.min(1)]],
+      numberOfBathrooms: ['', [Validators.required, Validators.min(1)]],
+      numberOfBalconies: ['', [Validators.min(0)]],
+
+      // Area & Furnishing
+      carpetAreaSqFt: ['', [Validators.required, Validators.min(50)]],
+      builtUpAreaSqFt: ['', [Validators.required, Validators.min(100)]],
+      furnishingType: ['', Validators.required],
+
+      // Location
+      addressLine1: ['', Validators.required],
+      addressLine2: [''],
+      landmark: [''],
+      locality: ['', Validators.required],
+      city: ['', Validators.required],
+      state: ['', Validators.required],
+      pinCode: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]],
+
+      // Rent Details
+      monthlyRent: ['', [Validators.required, Validators.min(1000)]],
+      securityDeposit: ['', [Validators.required, Validators.min(0)]],
+      availableFrom: ['', Validators.required],
+      leaseType: ['', Validators.required],
+      isNegotiable: [false],
+
+      // Amenities
+      hasLift: [false],
+      hasParking: [false],
+      hasPowerBackup: [false],
+      hasWaterSupply: [false],
+      hasGasPipeline: [false],
+      hasSecurity: [false],
+      hasInternet: [false],
+
+      // Property Images
+      propertyImages: [null], // Remove required validation for images
     });
   }
 
-  private removeImageFromList(image: UploadedFile): void {
-    const index = this.uploadedImages.findIndex(
-      (img) => img.name === image.name && img.size === image.size,
-    );
+  private populateFormForEdit() {
+    const prop = this.property();
+    if (!prop) return;
 
-    if (index >= 0) {
-      // Clean up object URL to prevent memory leaks
-      if (this.uploadedImages[index].url) {
-        URL.revokeObjectURL(this.uploadedImages[index].url);
-      }
+    // Populate form with existing property data
+    this.propertyForm.patchValue({
+      title: prop.title,
+      description: prop.description,
+      propertyType: prop.propertyType,
+      bhkConfiguration: prop.bhkConfiguration,
+      floorNumber: prop.floorNumber,
+      totalFloors: prop.totalFloors,
+      numberOfBathrooms: prop.numberOfBathrooms,
+      numberOfBalconies: prop.numberOfBalconies,
+      carpetAreaSqFt: prop.carpetAreaSqFt,
+      builtUpAreaSqFt: prop.builtUpAreaSqFt,
+      furnishingType: prop.furnishingType,
 
-      // Remove from array
-      this.uploadedImages.splice(index, 1);
+      addressLine1: prop.addressLine1,
+      addressLine2: prop.addressLine2,
+      landmark: prop.landmark,
+      locality: prop.locality,
+      city: prop.city,
+      state: prop.state,
+      pinCode: prop.pinCode,
 
-      // Update form control without triggering validation
-      this.propertyForm
-        .get('propertyImages')
-        ?.setValue(this.uploadedImages, { emitEvent: false });
+      monthlyRent: prop.monthlyRent,
+      securityDeposit: prop.securityDeposit,
+      availableFrom: prop.availableFrom,
+      leaseType: prop.leaseType,
+      isNegotiable: prop.isNegotiable,
+
+      hasLift: prop.hasLift,
+      hasParking: prop.hasParking,
+      hasPowerBackup: prop.hasPowerBackup,
+      hasWaterSupply: prop.hasWaterSupply,
+      hasGasPipeline: prop.hasGasPipeline,
+      hasSecurity: prop.hasSecurity,
+      hasInternet: prop.hasInternet,
+    });
+
+    // Load existing images/documents
+    if (prop.documents && prop.documents.length > 0) {
+      this.loadExistingDocuments(prop.documents);
     }
-  }
-
-  // Helper method to validate uploaded files
-  private validateUploadedFiles(files: UploadedFile[]): UploadedFile[] {
-    const validFiles: UploadedFile[] = [];
-
-    for (const file of files) {
-      let isValid = true;
-
-      // Check file size
-      if (file.size > this.maxFileSize) {
-        this.alertService.error({
-          errors: [
-            {
-              message: `File "${file.name}" is too large. Maximum size is ${this.maxFileSize / 1024 / 1024}MB.`,
-              errorType: 'error',
-            },
-          ],
-          timeout: 5000,
-        });
-        isValid = false;
-      }
-
-      // Check file type
-      if (!this.acceptedTypes.includes(file.type)) {
-        this.alertService.error({
-          errors: [
-            {
-              message: `File "${file.name}" has an unsupported format. Only ${this.acceptedTypes.join(', ')} are allowed.`,
-              errorType: 'error',
-            },
-          ],
-          timeout: 5000,
-        });
-        isValid = false;
-      }
-
-      // Check total number of files
-      if (validFiles.length >= this.maxFiles) {
-        this.alertService.error({
-          errors: [
-            {
-              message: `Maximum ${this.maxFiles} files allowed. Additional files will be ignored.`,
-              errorType: 'error',
-            },
-          ],
-          timeout: 5000,
-        });
-        break;
-      }
-
-      if (isValid) {
-        validFiles.push(file);
-      }
-    }
-
-    return validFiles;
-  }
-
-  // Helper method to convert uploaded files to documents for the property model
-  private convertImagesToDocuments(): IDocument[] {
-    const ownerId = this.userdetail?.userId
-      ? Number(this.userdetail.userId)
-      : 0;
-    return this.uploadedImages.map((image, index) => ({
-      ownerId: ownerId, // Will be set when property is saved
-      ownerType: OwnerType.LANDLORD,
-      category: DocumentCategory.PropertyImages,
-      name: image.name,
-      type: image.type,
-      size: image.size,
-      url: image.url,
-      file: image.file, // Include the actual File object
-      uploadedOn: new Date().toISOString(),
-      isVerified: false,
-      description:
-        index === 0 ? 'Primary property image' : `Property image ${index + 1}`,
-    }));
   }
 
   private convertPropertyToFormData(property: IProperty): FormData {
-    const formData = new FormData();
+    return this.propertyService.convertPropertyToFormData(property);
+  }
 
-    // Handle documents (files + metadata)
-    if (property.documents && Array.isArray(property.documents)) {
-      property.documents.forEach((doc: IDocument, index: number) => {
-        if (doc.file instanceof File) {
-          // Append the actual file
-          formData.append(`documents[${index}].file`, doc.file, doc.file.name);
-        }
-
-        // Append metadata fields individually (so .NET model binder can map)
-        if (doc.name) formData.append(`documents[${index}].name`, doc.name);
-        if (doc.type) formData.append(`documents[${index}].type`, doc.type);
-        if (doc.size)
-          formData.append(`documents[${index}].size`, doc.size.toString());
-        if (doc.category)
-          formData.append(
-            `documents[${index}].category`,
-            doc.category.toString(),
-          );
-        if (doc.description)
-          formData.append(`documents[${index}].description`, doc.description);
-        if (doc.ownerId)
-          formData.append(
-            `documents[${index}].ownerId`,
-            doc.ownerId.toString(),
-          );
-        if (doc.ownerType)
-          formData.append(`documents[${index}].ownerType`, doc.ownerType);
-      });
-    }
-
-    // Handle other property fields
-    Object.entries(property).forEach(([key, value]) => {
-      // Skip documents as they're handled above
-      if (key === 'documents') return;
-
-      // Skip null/undefined values
-      if (value === null || value === undefined) return;
-
-      // Handle arrays (excluding documents)
-      if (Array.isArray(value)) {
-        formData.append(key, JSON.stringify(value));
-      }
-      // Handle Date objects
-      else if (value instanceof Date) {
-        formData.append(key, value.toISOString());
-      }
-      // Handle nested objects
-      else if (typeof value === 'object') {
-        formData.append(key, JSON.stringify(value));
-      }
-      // Handle primitives (string, number, boolean)
-      else {
-        formData.append(key, String(value));
-      }
-    });
-
-    return formData;
+  private loadExistingDocuments(documents: IDocument[]) {
+    this.uploadedImages = this.commonService.loadExistingDocuments(documents);
+    this.propertyForm
+      .get('propertyImages')
+      ?.setValue(this.uploadedImages, { emitEvent: false });
   }
 
   private populateTestDefaults() {
@@ -710,158 +508,77 @@ export class PropertyAdd implements OnInit {
     });
   }
 
-  // Helper method to get user-friendly field names
-  private getFieldDisplayName(fieldName: string): string {
-    const fieldNames: { [key: string]: string } = {
-      propertyTitle: 'Property Title',
-      propertyType: 'Property Type',
-      monthlyRent: 'Monthly Rent',
-      securityDeposit: 'Security Deposit',
-      bedrooms: 'Bedrooms',
-      bathrooms: 'Bathrooms',
-      area: 'Area',
-
-      city: 'City',
-      state: 'State',
-      zipCode: 'Zip Code',
-      description: 'Description',
-      furnishingType: 'Furnishing Type',
-      leaseType: 'Lease Type',
-      availableFrom: 'Available From',
-      contactEmail: 'Contact Email',
-      contactPhone: 'Contact Phone',
+  private preparePropertyData(
+    status: PropertyStatus,
+    isValid: boolean,
+  ): IProperty {
+    const property: IProperty = {
+      ...this.propertyForm.value,
+      landlordId: this.userdetail.userId,
+      documents: this.commonService.convertImagesToDocuments(
+        this.uploadedImages,
+        Number(this.userDetail.userId),
+      ),
+      status: status,
+      IsValid: isValid,
+      id: this.property()?.id,
     };
-    return fieldNames[fieldName] || fieldName;
-  }
-  private initializeForm() {
-    this.propertyForm = this.fb.group({
-      // Basic Information
-      title: ['test jitendra', [Validators.required, Validators.minLength(5)]],
-      description: [
-        'test jitendratest jitendratest jitendra',
-        [Validators.required, Validators.minLength(20)],
-      ],
-      propertyType: ['', Validators.required],
-      bhkConfiguration: ['', Validators.required],
-      floorNumber: ['', [Validators.required, Validators.min(0)]],
-      totalFloors: ['', [Validators.required, Validators.min(1)]],
-      numberOfBathrooms: ['', [Validators.required, Validators.min(1)]],
-      numberOfBalconies: ['', [Validators.min(0)]],
 
-      // Area & Furnishing
-      carpetAreaSqFt: ['', [Validators.required, Validators.min(50)]],
-      builtUpAreaSqFt: ['', [Validators.required, Validators.min(100)]],
-      furnishingType: ['', Validators.required],
-
-      // Location
-      addressLine1: ['', Validators.required],
-      addressLine2: [''],
-      landmark: [''],
-      locality: ['', Validators.required],
-      city: ['', Validators.required],
-      state: ['', Validators.required],
-      pinCode: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]],
-
-      // Rent Details
-      monthlyRent: ['', [Validators.required, Validators.min(1000)]],
-      securityDeposit: ['', [Validators.required, Validators.min(0)]],
-      availableFrom: ['', Validators.required],
-      leaseType: ['', Validators.required],
-      isNegotiable: [false],
-
-      // Amenities
-      hasLift: [false],
-      hasParking: [false],
-      hasPowerBackup: [false],
-      hasWaterSupply: [false],
-      hasGasPipeline: [false],
-      hasSecurity: [false],
-      hasInternet: [false],
-
-      // Property Images
-      propertyImages: [null], // Remove required validation for images
-    });
-  }
-  private populateFormForEdit() {
-    const prop = this.property();
-    if (!prop) return;
-
-    // Populate form with existing property data
-    this.propertyForm.patchValue({
-      title: prop.title,
-      description: prop.description,
-      propertyType: prop.propertyType,
-      bhkConfiguration: prop.bhkConfiguration,
-      floorNumber: prop.floorNumber,
-      totalFloors: prop.totalFloors,
-      numberOfBathrooms: prop.numberOfBathrooms,
-      numberOfBalconies: prop.numberOfBalconies,
-      carpetAreaSqFt: prop.carpetAreaSqFt,
-      builtUpAreaSqFt: prop.builtUpAreaSqFt,
-      furnishingType: prop.furnishingType,
-
-      addressLine1: prop.addressLine1,
-      addressLine2: prop.addressLine2,
-      landmark: prop.landmark,
-      locality: prop.locality,
-      city: prop.city,
-      state: prop.state,
-      pinCode: prop.pinCode,
-
-      monthlyRent: prop.monthlyRent,
-      securityDeposit: prop.securityDeposit,
-      availableFrom: prop.availableFrom,
-      leaseType: prop.leaseType,
-      isNegotiable: prop.isNegotiable,
-
-      hasLift: prop.hasLift,
-      hasParking: prop.hasParking,
-      hasPowerBackup: prop.hasPowerBackup,
-      hasWaterSupply: prop.hasWaterSupply,
-      hasGasPipeline: prop.hasGasPipeline,
-      hasSecurity: prop.hasSecurity,
-      hasInternet: prop.hasInternet,
-    });
-
-    // Load existing images/documents
-    if (prop.documents && prop.documents.length > 0) {
-      this.loadExistingDocuments(prop.documents);
+    if (property['propertyImages']) {
+      delete property['propertyImages'];
     }
+    return property;
   }
 
-  private loadExistingDocuments(documents: IDocument[]) {
-    // Convert existing documents to UploadedFile format for display
-    const imageDocuments = documents.filter(
-      (doc) => doc.category === DocumentCategory.PropertyImages && doc.url,
+  private showValidationErrors(): void {
+    if (this.validationErrors.length === 0) {
+      return;
+    }
+
+    this.isShowingValidationErrors = true;
+    this.alertService.clearAlert();
+    this.propertyForm.markAllAsTouched();
+
+    const errorMessages: AlertInfo[] = this.validationErrors.map(
+      (error: AlertInfo) => ({ message: error.message, errorType: 'error' }),
     );
 
-    this.uploadedImages = imageDocuments.map((doc, index) => ({
-      id: doc.id?.toString() || `existing_${index}`,
-      name: doc.name || `image_${index}`,
-      size: doc.size || 0,
-      type: doc.type || 'image/jpeg',
-      url: doc.url!,
-      uploadProgress: 100,
-      isUploaded: true,
-      file: new File([], doc.name || `image_${index}`, {
-        type: doc.type || 'image/jpeg',
-      }), // Create dummy file for existing images
-    })) as (UploadedFile & { id?: string })[];
-    this.propertyForm
-      .get('propertyImages')
-      ?.setValue(this.uploadedImages, { emitEvent: false });
+    const allMessages: AlertInfo[] = [
+      {
+        message: `Please fix the following ${this.validationErrors.length} validation error(s):`,
+        errorType: 'error',
+      },
+      ...errorMessages,
+    ];
+
+    this.alertService.error({ errors: allMessages });
   }
 
-  private getPropertyImages(landlordId: number, propertyId: number) {
-    this.propertyService
-      .getPropertyImagesUrl(landlordId, propertyId)
-      .subscribe((res: Result<IDocument[]>) => {
-        this.propertiesImages = res.entity;
-        const prop = this.property();
-        if (prop) {
-          prop.documents = this.propertiesImages;
-        }
-        this.populateFormForEdit();
-      });
+  private handleSuccessfulSave(
+    message: string | string[],
+    defaultMessageSuccess: string,
+    defaultMessageUpdate: string,
+  ): void {
+    this.validationErrors = [];
+    this.isShowingValidationErrors = false;
+
+    const successMessage = Array.isArray(message)
+      ? message.join(', ')
+      : this.isEditMode
+        ? defaultMessageUpdate
+        : defaultMessageSuccess;
+
+    this.alertService.success({
+      errors: [{ message: successMessage, errorType: 'success' }],
+      timeout: 3000,
+    });
+    this.goBack();
+  }
+
+  private handleError(errorMessage: string): void {
+    this.alertService.error({
+      errors: [{ message: errorMessage, errorType: 'error' }],
+      timeout: 5000,
+    });
   }
 }

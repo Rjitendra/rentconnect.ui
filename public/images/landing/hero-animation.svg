@@ -1,44 +1,103 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="450" height="300" viewBox="0 0 450 300">
-  <rect width="450" height="300" rx="12" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2"/>
-  
-  <!-- Building illustration -->
-  <rect x="150" y="80" width="150" height="160" fill="#3b82f6" rx="4"/>
-  <rect x="160" y="100" width="15" height="15" fill="#60a5fa" rx="2"/>
-  <rect x="180" y="100" width="15" height="15" fill="#60a5fa" rx="2"/>
-  <rect x="200" y="100" width="15" height="15" fill="#60a5fa" rx="2"/>
-  <rect x="220" y="100" width="15" height="15" fill="#60a5fa" rx="2"/>
-  <rect x="240" y="100" width="15" height="15" fill="#60a5fa" rx="2"/>
-  <rect x="260" y="100" width="15" height="15" fill="#60a5fa" rx="2"/>
-  <rect x="280" y="100" width="15" height="15" fill="#60a5fa" rx="2"/>
-  
-  <rect x="160" y="120" width="15" height="15" fill="#60a5fa" rx="2"/>
-  <rect x="180" y="120" width="15" height="15" fill="#60a5fa" rx="2"/>
-  <rect x="200" y="120" width="15" height="15" fill="#60a5fa" rx="2"/>
-  <rect x="220" y="120" width="15" height="15" fill="#60a5fa" rx="2"/>
-  <rect x="240" y="120" width="15" height="15" fill="#60a5fa" rx="2"/>
-  <rect x="260" y="120" width="15" height="15" fill="#60a5fa" rx="2"/>
-  <rect x="280" y="120" width="15" height="15" fill="#60a5fa" rx="2"/>
-  
-  <rect x="160" y="140" width="15" height="15" fill="#60a5fa" rx="2"/>
-  <rect x="180" y="140" width="15" height="15" fill="#60a5fa" rx="2"/>
-  <rect x="200" y="140" width="15" height="15" fill="#60a5fa" rx="2"/>
-  <rect x="220" y="140" width="15" height="15" fill="#60a5fa" rx="2"/>
-  <rect x="240" y="140" width="15" height="15" fill="#60a5fa" rx="2"/>
-  <rect x="260" y="140" width="15" height="15" fill="#60a5fa" rx="2"/>
-  <rect x="280" y="140" width="15" height="15" fill="#60a5fa" rx="2"/>
-  
-  <!-- Door -->
-  <rect x="210" y="200" width="30" height="40" fill="#1e40af" rx="2"/>
-  
-  <!-- Key icon -->
-  <circle cx="100" cy="150" r="8" fill="#fbbf24"/>
-  <rect x="95" y="145" width="10" height="3" fill="#fbbf24"/>
-  <rect x="92" y="147" width="3" height="3" fill="#fbbf24"/>
-  
-  <!-- Arrow pointing to building -->
-  <path d="M 120 150 L 140 150" stroke="#10b981" stroke-width="3" fill="none"/>
-  <path d="M 135 145 L 140 150 L 135 155" stroke="#10b981" stroke-width="3" fill="none"/>
-  
-  <!-- Text -->
-  <text x="225" y="270" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#1f2937">Simplifying Rental Management</text>
-</svg>
+ private deleteExistingImage(imageId: number, image: UploadedFile) {
+    // Here you would call your API to delete the image
+    console.log('Deleting existing image with ID:', imageId);
+
+    // TODO: Implement API call to delete image
+    this.propertyService.deletePropertyImage(imageId).subscribe({
+      next: (response: Result<boolean>) => {
+        if (response.success) {
+          this.removeImageFromList(image);
+          this.alertService.success({
+            errors: [
+              { message: 'Image deleted successfully', errorType: 'success' },
+            ],
+          });
+        }
+      },
+      error: () => {
+        this.alertService.success({
+          errors: [{ message: 'Failed to delete image', errorType: 'error' }],
+        });
+      },
+    });
+  }
+
+  private removeImageFromList(image: UploadedFile): void {
+    const index = this.uploadedImages.findIndex(
+      (img) => img.name === image.name && img.size === image.size,
+    );
+
+    if (index >= 0) {
+      // Clean up object URL to prevent memory leaks
+      if (this.uploadedImages[index].url) {
+        URL.revokeObjectURL(this.uploadedImages[index].url);
+      }
+
+      // Remove from array
+      this.uploadedImages.splice(index, 1);
+
+      // Update form control without triggering validation
+      this.propertyForm
+        .get('propertyImages')
+        ?.setValue(this.uploadedImages, { emitEvent: false });
+    }
+  }
+
+  // Helper method to get field error message
+  getFieldErrorMessage(fieldName: string): string {
+    const control = this.propertyForm.get(fieldName);
+    if (control && control.errors && control.touched) {
+      const errors = control.errors;
+
+      if (errors['required']) {
+        return `${this.getFieldDisplayName(fieldName)} is required`;
+      }
+
+      if (errors['email']) {
+        return 'Please enter a valid email address';
+      }
+
+      if (errors['min']) {
+        const minError = errors['min'] as { min: number; actual: number };
+        return `Minimum value is ${minError.min}`;
+      }
+
+      if (errors['max']) {
+        const maxError = errors['max'] as { max: number; actual: number };
+        return `Maximum value is ${maxError.max}`;
+      }
+
+      if (errors['minlength']) {
+        const minLenError = errors['minlength'] as {
+          requiredLength: number;
+          actualLength: number;
+        };
+        return `Minimum length is ${minLenError.requiredLength}`;
+      }
+
+      if (errors['maxlength']) {
+        const maxLenError = errors['maxlength'] as {
+          requiredLength: number;
+          actualLength: number;
+        };
+        return `Maximum length is ${maxLenError.requiredLength}`;
+      }
+
+      if (errors['pattern']) {
+        return 'Invalid format';
+      }
+    }
+    return '';
+  } private getPropertyImages(landlordId: number, propertyId: number) {
+    this.propertyService
+      .getPropertyImagesUrl(landlordId, propertyId)
+      .subscribe((res: Result<IDocument[]>) => {
+        this.propertiesImages = res.entity;
+        const prop = this.property();
+        if (prop) {
+          prop.documents = this.propertiesImages;
+        }
+        this.populateFormForEdit();
+      });
+  }
+}
