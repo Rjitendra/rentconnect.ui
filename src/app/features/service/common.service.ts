@@ -60,7 +60,7 @@ export class CommonService {
     ownerId: number,
   ): IDocument[] {
     return uploadedImages.map((image, index) => ({
-      ownerId,
+      ownerId: ownerId,
       ownerType: OwnerType.LANDLORD,
       category: DocumentCategory.PropertyImages,
       name: image.name,

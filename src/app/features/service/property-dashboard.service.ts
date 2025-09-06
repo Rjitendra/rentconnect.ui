@@ -7,7 +7,18 @@ import {
 } from '../../../../projects/shared/src/public-api';
 import { IUserDetail } from '../../oauth/service/oauth.service';
 import { documentCategories } from '../constants/document.constants';
-import { DocumentCategory, PropertyStatus } from '../enums/view.enum';
+import {
+  furnishingTypeOptions,
+  leaseTypeOptions,
+  propertyTypeOptions,
+} from '../constants/properties.constants';
+import {
+  DocumentCategory,
+  FurnishingType,
+  LeaseType,
+  PropertyStatus,
+  PropertyType,
+} from '../enums/view.enum';
 import { IDocument } from '../models/document';
 import { IProperty, TransformedProperty } from '../models/property';
 import { ITenant } from '../models/tenant';
@@ -16,6 +27,51 @@ import { ITenant } from '../models/tenant';
   providedIn: 'root',
 })
 export class PropertyDashboardService {
+  // New methods for Property Detail component
+  formatDate(date: Date | string | undefined): string {
+    if (!date) return 'Not specified';
+    const d = new Date(date);
+    return d.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  }
+
+  formatCurrency(amount: number | undefined): string {
+    if (!amount) return '0';
+    return amount.toLocaleString('en-IN');
+  }
+
+  getPropertyType(propertyTypes: PropertyType): string {
+    return propertyTypeOptions[propertyTypes].label;
+  }
+
+  getFurnishingType(furnishTypes: FurnishingType): string {
+    return furnishingTypeOptions[furnishTypes].label;
+  }
+
+  getLeaseType(leaseTypes: LeaseType): string {
+    return leaseTypeOptions[leaseTypes].label;
+  }
+  getStatusInfo(status: PropertyStatus): {
+    class: string;
+    icon: string;
+  } {
+    switch (status) {
+      case PropertyStatus.Listed:
+        return { class: 'status-listed', icon: 'visibility' };
+      case PropertyStatus.Draft:
+        return { class: 'status-draft', icon: 'edit' };
+      case PropertyStatus.Rented:
+        return { class: 'status-rented', icon: 'home' };
+      case PropertyStatus.Archived:
+        return { class: 'status-archived', icon: 'archive' };
+      default:
+        return { class: 'status-unknown', icon: 'help_outline' };
+    }
+  }
+
   getCategoryIcon(category: DocumentCategory): string {
     switch (category) {
       case DocumentCategory.OwnershipProof:

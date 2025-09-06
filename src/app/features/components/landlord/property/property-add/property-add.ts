@@ -112,7 +112,6 @@ export class PropertyAdd implements OnInit {
   userdetail: Partial<IUserDetail> = {};
   propertiesImages: IDocument[] = [];
 
-  private userDetail: Partial<IUserDetail> = {};
   // Dependencies
   private readonly fb = inject(FormBuilder);
   private readonly propertyService = inject(PropertyService);
@@ -517,7 +516,7 @@ export class PropertyAdd implements OnInit {
       landlordId: this.userdetail.userId,
       documents: this.commonService.convertImagesToDocuments(
         this.uploadedImages,
-        Number(this.userDetail.userId),
+        this.userdetail.userId!,
       ),
       status: status,
       IsValid: isValid,
