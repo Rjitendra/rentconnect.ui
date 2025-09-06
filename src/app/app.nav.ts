@@ -15,21 +15,21 @@ export const NAVITEMS: INav[] = [
   {
     name: 'Tenant Manager',
     icon: 'people',
-    url: '/landlord/tenant',
-    // children: [
-    //   {
-    //     name: 'Ongoing Tenancy',
-    //     url: '/landlord/tenant/ongoing',
-    //   },
-    //   {
-    //     name: 'Add Tenant',
-    //     url: '/landlord/tenant/add',
-    //   },
-    //   {
-    //     name: 'Issue Tracker',
-    //     url: '/landlord/tenant/issue-tracker',
-    //   },
-    // ],
+
+    children: [
+      // {
+      //   name: 'Ongoing Tenancy',
+      //   url: '/landlord/tenant/ongoing',
+      // },
+      {
+        name: 'Tenant',
+        url: '/landlord/tenant',
+      },
+      {
+        name: 'Issue Tracker',
+        url: '/landlord/issue-tracker',
+      },
+    ],
   },
   {
     name: 'Reports',

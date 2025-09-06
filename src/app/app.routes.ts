@@ -1,8 +1,9 @@
 import { Routes } from '@angular/router';
+
 import { authGuard } from './core/guards/auth-guard';
+import { userGuard } from './core/guards/user-guard';
 import { SigninCallback } from './oauth/components/signin-callback/signin-callback';
 import { SignoutCallback } from './oauth/components/signout-callback/signout-callback';
-import { userGuard } from './core/guards/user-guard';
 
 export const routes: Routes = [
   {
@@ -38,6 +39,13 @@ export const routes: Routes = [
           import(
             './features/components/landlord/tenant/tenant-dashboard/tenant-dashboard'
           ).then((m) => m.TenantDashboard),
+      },
+      {
+        path: 'issue-tracker',
+        loadComponent: () =>
+          import(
+            './features/components/tracker/issue-tracker/issue-tracker'
+          ).then((m) => m.IssueTracker),
       },
     ],
     canActivate: [userGuard],
