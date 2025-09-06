@@ -31,21 +31,6 @@ export class PropertyDashboardService {
     }
   }
 
-  // getCategoryLabel(category: string): string {
-  //   switch (category) {
-  //     case 'OwnershipProof':
-  //       return 'Ownership Proof';
-  //     case 'UtilityBill':
-  //       return 'Utility Bills';
-  //     case 'PropertyImages':
-  //       return 'Property Images';
-  //     case 'NoObjectionCertificate':
-  //       return 'No Objection Certificate';
-  //     default:
-  //       return 'Unknown Category';
-  //   }
-  // }
-
   getCategoryHint(category: DocumentCategory): string {
     switch (category) {
       case DocumentCategory.OwnershipProof:
@@ -62,7 +47,7 @@ export class PropertyDashboardService {
   }
 
   // Data transformation methods
-  public transformPropertyForTable(property: IProperty): TransformedProperty {
+  transformPropertyForTable(property: IProperty): TransformedProperty {
     return {
       ...property,
       fullAddress: this.getFullAddress(property),
@@ -75,7 +60,7 @@ export class PropertyDashboardService {
   }
 
   // UI utility methods
-  public getStatusIcon(status: PropertyStatus): string {
+  getStatusIcon(status: PropertyStatus): string {
     switch (status) {
       case PropertyStatus.Listed:
         return 'check_circle';
@@ -90,7 +75,7 @@ export class PropertyDashboardService {
     }
   }
 
-  public getSimplifiedStatus(status: PropertyStatus): string {
+  getSimplifiedStatus(status: PropertyStatus): string {
     switch (status) {
       case PropertyStatus.Listed:
         return 'LISTED';
@@ -105,7 +90,7 @@ export class PropertyDashboardService {
     }
   }
 
-  public getSimplifiedStatusIconColor(status: PropertyStatus): string {
+  getSimplifiedStatusIconColor(status: PropertyStatus): string {
     switch (status) {
       case PropertyStatus.Listed:
         return 'icon-info';
@@ -121,7 +106,7 @@ export class PropertyDashboardService {
   }
 
   // New method added here 👇
-  public getCategoryInfo(category: DocumentCategory): {
+  getCategoryInfo(category: DocumentCategory): {
     icon: string;
     label: string;
     hint: string;
@@ -160,14 +145,12 @@ export class PropertyDashboardService {
     }
   }
 
-  public getCategoryLabel(category: DocumentCategory | string): string {
+  getCategoryLabel(category: DocumentCategory | string): string {
     const categoryOption = documentCategories.find((c) => c.value === category);
     return categoryOption?.label || 'Unknown Category';
   }
 
-  public getDownloadCategoryOptions(
-    documents: IDocument[] = [],
-  ): SelectOption[] {
+  getDownloadCategoryOptions(documents: IDocument[] = []): SelectOption[] {
     const categories = [
       {
         value: 'all',
@@ -186,12 +169,12 @@ export class PropertyDashboardService {
     return categories;
   }
 
-  public getDocumentCategoryOptions(): SelectOption[] {
+  getDocumentCategoryOptions(): SelectOption[] {
     return [{ value: 'all', label: 'All Documents' }, ...documentCategories];
   }
 
   // Data formatting and export methods
-  public exportPropertiesToCSV(properties: TransformedProperty[]): void {
+  exportPropertiesToCSV(properties: TransformedProperty[]): void {
     const headers = [
       'ID',
       'Property Name',
@@ -227,7 +210,7 @@ export class PropertyDashboardService {
     document.body.removeChild(link);
   }
 
-  public initializeTableColumns(
+  initializeTableColumns(
     propertyNameTemplate: TemplateRef<unknown>,
     tenantTemplate: TemplateRef<unknown>,
     documentTemplate: TemplateRef<unknown>,
@@ -297,7 +280,7 @@ export class PropertyDashboardService {
     ];
   }
 
-  public createDocumentFormData(
+  createDocumentFormData(
     files: UploadedFile[],
     property: IProperty,
     category: DocumentCategory,
