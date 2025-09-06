@@ -441,10 +441,6 @@ export class PropertyDashboard implements OnInit {
     return property.documents || [];
   }
 
-  private exportPropertiesToCSV(properties: TransformedProperty[]): void {
-    this.dashboardService.exportPropertiesToCSV(properties);
-  }
-
   private refreshData(): void {
     if (this.userdetail?.userId) {
       this.loadApiData();

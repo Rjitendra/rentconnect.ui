@@ -173,43 +173,6 @@ export class PropertyDashboardService {
     return [{ value: 'all', label: 'All Documents' }, ...documentCategories];
   }
 
-  // Data formatting and export methods
-  exportPropertiesToCSV(properties: TransformedProperty[]): void {
-    const headers = [
-      'ID',
-      'Property Name',
-      'Address',
-      'Rent',
-      'Status',
-      'Tenants',
-      'Documents',
-    ];
-    const csvContent = [
-      headers.join(','),
-      ...properties.map((p) =>
-        [
-          p.id,
-          `"${p.title}"`,
-          `"${p.fullAddress}"`,
-          p.monthlyRent,
-          p.status,
-          `"${p.mappedTenants}"`,
-          `"${p.documentsCount}"`,
-        ].join(','),
-      ),
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', 'properties.csv');
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-
   initializeTableColumns(
     propertyNameTemplate: TemplateRef<unknown>,
     tenantTemplate: TemplateRef<unknown>,
