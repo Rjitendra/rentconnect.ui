@@ -10,7 +10,7 @@ import {
 } from '../../../../projects/shared/src/public-api';
 import { environment } from '../../../environments/environment';
 import { Result } from '../../common/models/common';
-import { acceptedImageTypes } from '../constants/properties.constants';
+import { acceptedTypes } from '../constants/document.constants';
 import {
   FurnishingType,
   LeaseType,
@@ -31,7 +31,9 @@ import {
 export class PropertyService {
   readonly maxFileSize = 5 * 1024 * 1024; // 5MB
   readonly maxFiles = 10;
-  readonly acceptedTypes = acceptedImageTypes;
+  readonly acceptedTypes = acceptedTypes.filter((type) =>
+    type.startsWith('image/'),
+  );
 
   private alertService = inject(AlertService);
   private _http = inject(HttpClient);

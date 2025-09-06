@@ -82,3 +82,8 @@ export interface PropertyFormData extends Partial<IProperty> {
   // Additional fields not in IProperty
   maintenanceCharges?: number;
 }
+export type TransformedProperty = IProperty & {
+  fullAddress: string;
+  mappedTenants: string;
+  documentsCount: string;
+};

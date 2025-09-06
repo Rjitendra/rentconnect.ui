@@ -7,7 +7,7 @@
         type="text"
         label="Back to Properties"
         icon="arrow_back"
-        (buttonClick)="showTable()"
+        (buttonClick)="goToTableView()"
       />
       <span class="divider">/</span>
       <span class="current-view">
@@ -99,7 +99,7 @@
     <div>
       <app-property-detail
         [selectedProperties]="selectedProperty"
-        (backToList)="showTable()"
+        (backToList)="goToTableView()"
       />
     </div>
   }
@@ -109,7 +109,7 @@
     <div>
       <app-property-add
         [property]="selectedProperty"
-        (backToList)="showTable()"
+        (backToList)="goToTableView()"
       />
     </div>
   }
@@ -162,7 +162,7 @@
                 placeholder="Select the appropriate document category"
                 suffixIcon="category"
                 class="category-field"
-                [options]="documentCategories"
+                [options]="documentCategoryOptions"
                 [required]="true"
                 [(ngModel)]="selectedDocumentCategory"
               />
@@ -170,13 +170,10 @@
               @if (selectedDocumentCategory) {
                 <div class="category-info">
                   <div class="info-card">
-                    <ng-icon
-                      class="category-icon"
-                      [name]="getCategoryIcon(selectedDocumentCategory)"
-                    />
+                    <ng-icon class="category-icon" [name]="getIcon()" />
                     <div class="info-text">
-                      <h4>{{ getCategoryLabel(selectedDocumentCategory) }}</h4>
-                      <p>{{ getCategoryHint(selectedDocumentCategory) }}</p>
+                      <h4>{{ getLabel() }}</h4>
+                      <p>{{ getHint() }}</p>
                     </div>
                   </div>
                 </div>
@@ -187,15 +184,13 @@
             @if (selectedDocumentCategory) {
               <div class="form-section">
                 <ng-file-upload
-                  [label]="
-                    'Upload ' + getCategoryLabel(selectedDocumentCategory)
-                  "
+                  [label]="'Upload ' + categoryInfo.label"
                   [dragText]="
                     'Drop ' +
-                    getCategoryLabel(selectedDocumentCategory) +
+                    categoryInfo.label +
                     ' files here or click to browse'
                   "
-                  [hint]="getCategoryHint(selectedDocumentCategory)"
+                  [hint]="categoryInfo.hint"
                   [config]="documentUploadConfig"
                   [disabled]="isUploading"
                   [(ngModel)]="selectedUploadFiles"

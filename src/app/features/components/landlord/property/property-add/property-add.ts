@@ -30,8 +30,8 @@ import {
   IUserDetail,
   OauthService,
 } from '../../../../../oauth/service/oauth.service';
+import { acceptedTypes } from '../../../../constants/document.constants';
 import {
-  acceptedImageTypes,
   bhkConfigurationOptions,
   furnishingTypeOptions,
   leaseTypeOptions,
@@ -78,7 +78,9 @@ export class PropertyAdd implements OnInit {
   // Image upload configuration
   readonly maxFileSize = 5 * 1024 * 1024; // 5MB
   readonly maxImageFiles = 10;
-  readonly acceptedTypes = acceptedImageTypes;
+  readonly acceptedTypes = acceptedTypes.filter((type) =>
+    type.startsWith('image/'),
+  );
   readonly imageUploadConfig: FileUploadConfig = {
     maxFileSize: this.maxFileSize,
     acceptedTypes: ['image/*'],
@@ -277,37 +279,35 @@ export class PropertyAdd implements OnInit {
         switchMap(() => {
           if (file.url && file.id) {
             // ✅ Image exists in backend → call API delete
-            return this.propertyService
-              .deletePropertyImage(file.id as number)
-              .pipe(
-                tap((success: Result<boolean>) => {
-                  if (success.success) {
-                    this.uploadedImages = this.uploadedImages.filter(
-                      (img) => img !== file,
-                    );
-                    this.propertyForm
-                      .get('propertyImages')
-                      ?.setValue(this.uploadedImages, { emitEvent: false });
+            return this.propertyService.deletePropertyImage(file.id).pipe(
+              tap((success: Result<boolean>) => {
+                if (success.success) {
+                  this.uploadedImages = this.uploadedImages.filter(
+                    (img) => img !== file,
+                  );
+                  this.propertyForm
+                    .get('propertyImages')
+                    ?.setValue(this.uploadedImages, { emitEvent: false });
 
-                    this.alertService.success({
-                      errors: [
-                        {
-                          message: 'Image deleted successfully',
-                          errorType: 'success',
-                        },
-                      ],
-                    });
-                  }
-                }),
-                catchError(() => {
-                  this.alertService.error({
+                  this.alertService.success({
                     errors: [
-                      { message: 'Failed to delete image', errorType: 'error' },
+                      {
+                        message: 'Image deleted successfully',
+                        errorType: 'success',
+                      },
                     ],
                   });
-                  return of(null);
-                }),
-              );
+                }
+              }),
+              catchError(() => {
+                this.alertService.error({
+                  errors: [
+                    { message: 'Failed to delete image', errorType: 'error' },
+                  ],
+                });
+                return of(null);
+              }),
+            );
           } else {
             // ✅ Soft delete → remove locally only using index
             if (index >= 0) {

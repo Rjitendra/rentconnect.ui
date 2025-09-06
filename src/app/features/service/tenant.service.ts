@@ -7,16 +7,16 @@ import { environment } from '../../../environments/environment';
 import { Result } from '../../common/models/common';
 import { DocumentCategory } from '../enums/view.enum';
 import { IDocument } from '../models/document';
-import { ITenant, TenantChildren } from '../models/tenant';
+import { ITenant, ITenantChildren } from '../models/tenant';
 
-export interface TenantSaveResponse {
+export interface ITenantSaveResponse {
   success: boolean;
   message: string;
   tenant?: ITenant;
   errors?: string[];
 }
 
-export interface TenantValidationError {
+export interface ITenantValidationError {
   field: string;
   message: string;
 }
@@ -234,13 +234,17 @@ export class TenantService {
   // Add tenant child/family member
   addTenantChild(
     tenantId: number,
-    child: Omit<TenantChildren, 'id'>,
-  ): Observable<{ success: boolean; message: string; child?: TenantChildren }> {
+    child: Omit<ITenantChildren, 'id'>,
+  ): Observable<{
+    success: boolean;
+    message: string;
+    child?: ITenantChildren;
+  }> {
     return new Observable((observer) => {
       setTimeout(() => {
         const tenant = this.tenants.find((t) => t.id === tenantId);
         if (tenant) {
-          const newChild: TenantChildren = {
+          const newChild: ITenantChildren = {
             ...child,
             id: Date.now(), // Simple ID generation
             age: this.calculateAge(child.dob as string),
@@ -271,7 +275,7 @@ export class TenantService {
   updateTenantChild(
     tenantId: number,
     childId: number,
-    childData: Partial<TenantChildren>,
+    childData: Partial<ITenantChildren>,
   ): Observable<{ success: boolean; message: string }> {
     return new Observable((observer) => {
       setTimeout(() => {
@@ -424,16 +428,16 @@ export class TenantService {
     );
   }
   // Save tenant using real API
-  saveTenant(formData: FormData): Observable<TenantSaveResponse> {
-    return this._http.post<TenantSaveResponse>(
+  saveTenant(formData: FormData): Observable<ITenantSaveResponse> {
+    return this._http.post<ITenantSaveResponse>(
       `${environment.apiBaseUrl}Tenant/create`,
       formData,
     );
   }
 
   // Update tenant using real API
-  updateTenant(formData: FormData): Observable<TenantSaveResponse> {
-    return this._http.put<TenantSaveResponse>(
+  updateTenant(formData: FormData): Observable<ITenantSaveResponse> {
+    return this._http.put<ITenantSaveResponse>(
       `${environment.apiBaseUrl}Tenant/update`,
       formData,
     );
@@ -555,8 +559,8 @@ export class TenantService {
   }
 
   // Validate form data using Angular FormGroup
-  validateForm(form: FormGroup): TenantValidationError[] {
-    const errors: TenantValidationError[] = [];
+  validateForm(form: FormGroup): ITenantValidationError[] {
+    const errors: ITenantValidationError[] = [];
 
     // Check each form control for errors
     Object.keys(form.controls).forEach((key) => {
@@ -596,8 +600,8 @@ export class TenantService {
     return errors;
   }
   // Private helper methods
-  private validateTenant(tenant: Partial<ITenant>): TenantValidationError[] {
-    const errors: TenantValidationError[] = [];
+  private validateTenant(tenant: Partial<ITenant>): ITenantValidationError[] {
+    const errors: ITenantValidationError[] = [];
 
     if (!tenant.name || tenant.name.trim().length < 2) {
       errors.push({

@@ -1,13 +1,6 @@
 import { SelectOption } from '../../../../projects/shared/src/public-api';
 import { FurnishingType, LeaseType, PropertyType } from '../enums/view.enum';
 
-export const acceptedImageTypes = [
-  'image/jpeg',
-  'image/jpg',
-  'image/png',
-  'image/gif',
-];
-
 // Select options for dropdowns using enums
 export const propertyTypeOptions: SelectOption[] = [
   { value: PropertyType.Apartment, label: 'Apartment' },

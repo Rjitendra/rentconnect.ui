@@ -6,8 +6,8 @@ import {
   UploadedFile,
 } from '../../../../projects/shared/src/public-api';
 import { environment } from '../../../environments/environment';
+import { acceptedTypes } from '../constants/document.constants';
 import { OwnerType } from '../constants/owner-type.constants';
-import { acceptedImageTypes } from '../constants/properties.constants';
 import { DocumentCategory } from '../enums/view.enum';
 import { IDocument } from '../models/document';
 
@@ -17,7 +17,9 @@ import { IDocument } from '../models/document';
 export class CommonService {
   private readonly maxFileSize = 5 * 1024 * 1024; // 5MB
   private readonly maxFiles = 10;
-  private readonly acceptedTypes = acceptedImageTypes;
+  private readonly acceptedTypes = acceptedTypes.filter((type) =>
+    type.startsWith('image/'),
+  );
 
   private readonly alertService = inject(AlertService);
 

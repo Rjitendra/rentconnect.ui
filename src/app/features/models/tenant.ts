@@ -1,3 +1,5 @@
+import { IUserDetail } from '../../oauth/service/oauth.service';
+
 import { IDocument } from './document';
 import { ILandlord } from './landlord';
 import { IProperty } from './property';
@@ -83,7 +85,7 @@ export interface ITenant {
   dateModified?: Date | string;
 
   // Identity mapping
-  user?: any; // map ApplicationUser interface if needed
+  user?: IUserDetail; // map ApplicationUser interface if needed
 
   // Extra grouping
   tenantGroup: string;
@@ -91,28 +93,28 @@ export interface ITenant {
   // Navigation collections
   tickets?: ITicket[];
   documents?: IDocument[];
-  children?: TenantChildren[];
+  children?: ITenantChildren[];
 }
 
-export interface TenantSaveResponse {
+export interface ITenantSaveResponse {
   success: boolean;
   message: string;
   tenant?: ITenant;
   errors?: string[];
 }
 
-export interface TenantValidationError {
+export interface ITenantValidationError {
   field: string;
   message: string;
 }
 
-export interface TenantChildren {
+export interface ITenantChildren {
   id?: number;
-  tenantGroupId: string;
-  name: string;
+  tenantGroupId?: string;
+  name?: string;
   email?: string;
-  dob: Date | string;
+  dob?: Date | string;
   age?: number; // Age in years
-  occupation: string;
+  occupation?: string;
   relation?: string; // Relationship to main tenant (e.g., Son, Daughter, etc.)
 }

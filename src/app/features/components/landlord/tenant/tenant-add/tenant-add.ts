@@ -40,8 +40,8 @@ import { IDocument } from '../../../../models/document';
 import { IProperty } from '../../../../models/property';
 import {
   ITenant,
-  TenantSaveResponse,
-  TenantValidationError,
+  ITenantSaveResponse,
+  ITenantValidationError,
 } from '../../../../models/tenant';
 import { PropertyService } from '../../../../service/property.service';
 import { TenantService } from '../../../../service/tenant.service';
@@ -92,7 +92,7 @@ export class TenantAddComponent implements OnInit {
   InputType = InputType;
 
   // Validation errors
-  validationErrors: TenantValidationError[] = [];
+  validationErrors: ITenantValidationError[] = [];
   isShowingValidationErrors = false;
   userdetail: Partial<IUserDetail> = {};
 
@@ -454,7 +454,7 @@ export class TenantAddComponent implements OnInit {
           : this.tenantService.saveTenant(apiFormData);
 
       apiCall.subscribe({
-        next: (response: TenantSaveResponse) => {
+        next: (response: ITenantSaveResponse) => {
           this.isSaving = false;
           if (response.success) {
             // Clear any previous errors
