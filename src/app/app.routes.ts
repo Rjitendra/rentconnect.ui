@@ -47,6 +47,13 @@ export const routes: Routes = [
             './features/components/tracker/issue-tracker/issue-tracker'
           ).then((m) => m.IssueTracker),
       },
+      {
+        path: 'issue-tracker/history/:id',
+        loadComponent: () =>
+          import(
+            './features/components/tracker/issue-tracker-history/issue-tracker-history'
+          ).then((m) => m.IssueTrackerHistory),
+      },
     ],
     canActivate: [userGuard],
   },

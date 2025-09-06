@@ -1,1 +1,364 @@
-<p>issue-tracker-history works!</p>
+<div class="issue-tracker-history">
+  <!-- Loading State -->
+  @if (isLoading) {
+    <div class="loading-state">
+      <ng-icon name="hourglass_empty" class="loading-icon" />
+      <p>Loading ticket details...</p>
+    </div>
+  }
+
+  <!-- Ticket Details -->
+  @if (!isLoading && ticket) {
+    <!-- Header -->
+    <div class="ticket-header">
+      <div class="header-content">
+        <ng-icon
+          name="arrow_back"
+          class="back-icon icon-clickable"
+          (click)="goBack()"
+        />
+        <div class="ticket-info">
+          <div class="ticket-title-section">
+            <h1>{{ ticket.title }}</h1>
+            <span class="ticket-number">{{
+              ticket.ticketNumber || "#" + ticket.id
+            }}</span>
+          </div>
+          <div class="ticket-meta">
+            <span class="property-info">
+              <ng-icon name="home" />
+              {{ ticket.property?.title || "N/A" }}
+            </span>
+            <span class="category-info">
+              <ng-icon [name]="getCategoryIcon(ticket.category)" />
+              {{ getCategoryLabel(ticket.category) }}
+            </span>
+            <span class="created-info">
+              <ng-icon name="schedule" />
+              Created {{ formatDateShort(ticket.dateCreated) }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <span
+          class="status-badge"
+          [ngClass]="getStatusClass(ticket.currentStatus)"
+        >
+          {{ ticket.currentStatus | titlecase }}
+        </span>
+        <span
+          class="priority-badge"
+          [ngClass]="getPriorityClass(ticket.priority)"
+        >
+          {{ ticket.priority | titlecase }}
+        </span>
+      </div>
+    </div>
+
+    <div class="ticket-content">
+      <!-- Ticket Details Card -->
+      <div class="main-content">
+        <!-- Ticket Description -->
+        <ng-card class="ticket-details-card">
+          <div class="card-header">
+            <h3>
+              <ng-icon name="description" />
+              Ticket Details
+            </h3>
+          </div>
+          <div class="ticket-description">
+            <p>{{ ticket.description }}</p>
+          </div>
+
+          <!-- Additional Info -->
+          <div class="ticket-additional-info">
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="info-label">Tenant:</span>
+                <span>{{ ticket.tenant?.name || "General Issue" }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Created By:</span>
+                <span>{{ ticket.createdByType | titlecase }}</span>
+              </div>
+              @if (ticket.assignedTo) {
+                <div class="info-item">
+                  <span class="info-label">Assigned To:</span>
+                  <span>Landlord</span>
+                </div>
+              }
+              @if (ticket.dateResolved) {
+                <div class="info-item">
+                  <span class="info-label">Resolved On:</span>
+                  <span>{{ formatDate(ticket.dateResolved) }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        </ng-card>
+
+        <!-- Comments Section -->
+        <ng-card class="comments-card">
+          <div class="card-header">
+            <h3>
+              <ng-icon name="chat" />
+              Communication History
+              @if (comments.length > 0) {
+                <span class="comment-count">({{ comments.length }})</span>
+              }
+            </h3>
+          </div>
+
+          <!-- Comments List -->
+          <div class="comments-list">
+            @if (isLoadingComments) {
+              <div class="loading-comments">
+                <ng-icon name="hourglass_empty" />
+                <span>Loading comments...</span>
+              </div>
+            }
+
+            @if (!isLoadingComments && comments.length === 0) {
+              <div class="no-comments">
+                <ng-icon name="chat_bubble_outline" />
+                <p>No comments yet. Be the first to add a comment!</p>
+              </div>
+            }
+
+            @for (comment of comments; track comment.id) {
+              <div
+                class="comment-item"
+                [ngClass]="getCommentAuthorClass(comment)"
+              >
+                <div class="comment-avatar">
+                  <ng-icon
+                    [name]="
+                      comment.addedByType === 'landlord'
+                        ? 'person'
+                        : 'person_outline'
+                    "
+                    [class]="
+                      comment.addedByType === 'landlord'
+                        ? 'landlord-avatar'
+                        : 'tenant-avatar'
+                    "
+                  />
+                </div>
+                <div class="comment-content">
+                  <div class="comment-header">
+                    <span class="comment-author">
+                      {{ comment.addedByName }}
+                      <span class="author-type"
+                        >({{ comment.addedByType | titlecase }})</span
+                      >
+                    </span>
+                    <span class="comment-date">{{
+                      formatDate(comment.dateCreated)
+                    }}</span>
+                  </div>
+                  <div class="comment-text">
+                    {{ comment.comment }}
+                  </div>
+
+                  <!-- Attachments -->
+                  @if (comment.attachments && comment.attachments.length > 0) {
+                    <div class="comment-attachments">
+                      <h5>Attachments:</h5>
+                      <div class="attachment-list">
+                        @for (
+                          attachment of comment.attachments;
+                          track attachment.id
+                        ) {
+                          <div
+                            class="attachment-item"
+                            (click)="downloadAttachment(attachment)"
+                          >
+                            <ng-icon name="attach_file" />
+                            <span>{{ attachment.fileName }}</span>
+                            <small
+                              >({{
+                                (attachment.fileSize / 1024 / 1024).toFixed(2)
+                              }}
+                              MB)</small
+                            >
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Add Comment Form -->
+          <div class="add-comment-section">
+            <h4>Add Comment</h4>
+            <form [formGroup]="commentForm" (ngSubmit)="onAddComment()">
+              <div class="comment-form-grid">
+                <ng-textarea
+                  label="Your Comment"
+                  placeholder="Type your message here..."
+                  formControlName="comment"
+                  [rows]="3"
+                  [required]="true"
+                />
+
+                <!-- File Attachments -->
+                <ng-file-upload
+                  label="Attachments (Optional)"
+                  dragText="Drop files here or click to browse"
+                  hint="Upload images, documents, or other relevant files"
+                  [config]="fileUploadConfig"
+                  [ngModelOptions]="{ standalone: true }"
+                  [(ngModel)]="commentAttachments"
+                  (filesSelected)="onCommentFilesSelected($event)"
+                  (fileRemoved)="onCommentFileRemoved($event)"
+                />
+              </div>
+
+              <div class="comment-actions">
+                <ng-button
+                  buttonType="submit"
+                  type="filled"
+                  [label]="isAddingComment ? 'Adding...' : 'Add Comment'"
+                  [icon]="isAddingComment ? 'hourglass_empty' : 'send'"
+                  [disabled]="commentForm.invalid || isAddingComment"
+                />
+              </div>
+            </form>
+          </div>
+        </ng-card>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <!-- Status Update Card -->
+        @if (canUpdateStatus()) {
+          <ng-card class="status-update-card">
+            <div class="card-header">
+              <h3>
+                <ng-icon name="update" />
+                Update Status
+              </h3>
+            </div>
+
+            <form [formGroup]="statusForm" (ngSubmit)="onUpdateStatus()">
+              <div class="status-form-content">
+                <ng-select
+                  label="Status"
+                  placeholder="Select new status"
+                  formControlName="status"
+                  [options]="statusOptions"
+                  [required]="true"
+                />
+
+                <ng-textarea
+                  label="Comment (Optional)"
+                  placeholder="Add a note about this status change..."
+                  formControlName="comment"
+                  [rows]="2"
+                />
+              </div>
+
+              <div class="status-actions">
+                <ng-button
+                  buttonType="submit"
+                  type="filled"
+                  [label]="isUpdatingStatus ? 'Updating...' : 'Update Status'"
+                  [icon]="isUpdatingStatus ? 'hourglass_empty' : 'update'"
+                  [disabled]="statusForm.invalid || isUpdatingStatus"
+                />
+              </div>
+            </form>
+          </ng-card>
+        }
+
+        <!-- Ticket Summary Card -->
+        <ng-card class="ticket-summary-card">
+          <div class="card-header">
+            <h3>
+              <ng-icon name="info" />
+              Ticket Summary
+            </h3>
+          </div>
+
+          <div class="summary-content">
+            <div class="summary-item">
+              <span class="info-label">Status:</span>
+              <span
+                class="status-badge small"
+                [ngClass]="getStatusClass(ticket.currentStatus)"
+              >
+                {{ ticket.currentStatus | titlecase }}
+              </span>
+            </div>
+
+            <div class="summary-item">
+              <span class="info-label">Priority:</span>
+              <span
+                class="priority-badge small"
+                [ngClass]="getPriorityClass(ticket.priority)"
+              >
+                {{ ticket.priority | titlecase }}
+              </span>
+            </div>
+
+            <div class="summary-item">
+              <span class="info-label">Category:</span>
+              <span class="category-info">
+                <ng-icon [name]="getCategoryIcon(ticket.category)" />
+                {{ getCategoryLabel(ticket.category) }}
+              </span>
+            </div>
+
+            <div class="summary-item">
+              <span class="info-label">Property:</span>
+              <span>{{ ticket.property?.title || "N/A" }}</span>
+            </div>
+
+            @if (ticket.tenant) {
+              <div class="summary-item">
+                <span class="info-label">Tenant:</span>
+                <span>{{ ticket.tenant.name }}</span>
+              </div>
+            }
+
+            <div class="summary-item">
+              <span class="info-label">Created:</span>
+              <span>{{ formatDate(ticket.dateCreated) }}</span>
+            </div>
+
+            @if (
+              ticket.dateModified && ticket.dateModified !== ticket.dateCreated
+            ) {
+              <div class="summary-item">
+                <span class="info-label">Last Updated:</span>
+                <span>{{ formatDate(ticket.dateModified) }}</span>
+              </div>
+            }
+          </div>
+        </ng-card>
+      </div>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (!isLoading && !ticket) {
+    <div class="error-state">
+      <ng-icon name="error_outline" class="error-icon" />
+      <h3>Ticket Not Found</h3>
+      <p>
+        The requested ticket could not be found or you don't have permission to
+        view it.
+      </p>
+      <ng-button
+        type="filled"
+        label="Go Back"
+        icon="arrow_back"
+        (buttonClick)="goBack()"
+      />
+    </div>
+  }
+</div>

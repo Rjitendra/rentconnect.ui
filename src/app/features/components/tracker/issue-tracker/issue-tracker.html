@@ -1,1 +1,214 @@
-<p>issue-tracker works!</p>
+<div class="issue-tracker">
+  <!-- Page Header -->
+  @if (currentView === "table") {
+    <div class="dashboard-header">
+      <div class="header-content">
+        <div>
+          <h1>Issue Tracker</h1>
+          <p>Manage property issues and maintenance requests</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <ng-button
+          type="filled"
+          label="Create New Ticket"
+          icon="add"
+          (buttonClick)="onCreateTicket()"
+        />
+      </div>
+    </div>
+  }
+
+  <!-- Create Ticket Form -->
+  @if (currentView === "create") {
+    <div class="create-ticket-view">
+      <div class="form-header">
+        <div class="header-content">
+          <ng-icon
+            name="arrow_back"
+            class="back-icon icon-clickable"
+            (click)="showTable()"
+          />
+          <div>
+            <h1>Create New Ticket</h1>
+            <p>Report an issue or request maintenance for your property</p>
+          </div>
+        </div>
+      </div>
+
+      <ng-card class="ticket-form-card">
+        <form [formGroup]="ticketForm" (ngSubmit)="onSubmit()">
+          <div class="form-grid">
+            <!-- Property Selection -->
+            <div class="form-section">
+              <ng-select
+                label="Property *"
+                placeholder="Select property"
+                suffixIcon="home"
+                formControlName="propertyId"
+                [options]="propertyOptions"
+                [required]="true"
+              />
+            </div>
+
+            <!-- Tenant Selection (Optional) -->
+            <div class="form-section">
+              <ng-select
+                label="Tenant (Optional)"
+                placeholder="Select tenant if specific to one"
+                suffixIcon="person"
+                formControlName="tenantId"
+                [options]="tenantOptions"
+              />
+            </div>
+
+            <!-- Category -->
+            <div class="form-section">
+              <ng-select
+                label="Category *"
+                placeholder="Select issue category"
+                suffixIcon="category"
+                formControlName="category"
+                [options]="categoryOptions"
+                [required]="true"
+              />
+            </div>
+
+            <!-- Priority -->
+            <div class="form-section">
+              <ng-select
+                label="Priority *"
+                placeholder="Select priority level"
+                suffixIcon="priority_high"
+                formControlName="priority"
+                [options]="priorityOptions"
+                [required]="true"
+              />
+            </div>
+
+            <!-- Title -->
+            <div class="form-section full-width">
+              <ng-input
+                label="Title *"
+                placeholder="Brief description of the issue"
+                suffixIcon="title"
+                formControlName="title"
+                [required]="true"
+              />
+            </div>
+
+            <!-- Description -->
+            <div class="form-section full-width">
+              <ng-textarea
+                label="Description *"
+                placeholder="Detailed description of the issue..."
+                formControlName="description"
+                [rows]="4"
+                [required]="true"
+              />
+            </div>
+
+            <!-- File Attachments -->
+            <div class="form-section full-width">
+              <ng-file-upload
+                label="Attachments (Optional)"
+                dragText="Drop files here or click to browse"
+                hint="Upload photos, documents, or other relevant files"
+                [config]="fileUploadConfig"
+                [ngModelOptions]="{ standalone: true }"
+                [(ngModel)]="attachments"
+                (filesSelected)="onFilesSelected($event)"
+                (fileRemoved)="onFileRemoved($event)"
+              />
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="form-actions">
+            <ng-button
+              type="text"
+              label="Cancel"
+              [disabled]="isSaving"
+              (buttonClick)="showTable()"
+            />
+            <ng-button
+              buttonType="submit"
+              type="filled"
+              [label]="isSaving ? 'Creating...' : 'Create Ticket'"
+              [icon]="isSaving ? 'hourglass_empty' : 'add'"
+              [disabled]="ticketForm.invalid || isSaving"
+            />
+          </div>
+        </form>
+      </ng-card>
+    </div>
+  }
+
+  <!-- Tickets Table -->
+  @if (currentView === "table") {
+    <div class="tickets-table-view">
+      <!-- Filters and Search -->
+      <div class="table-controls">
+        <div class="search-section">
+          <ng-input
+            placeholder="Search tickets..."
+            suffixIcon="search"
+            (input)="onSearch($event)"
+          />
+        </div>
+
+        <div class="filter-section">
+          <ng-select
+            label="Filter by Status"
+            placeholder="Filter by Status"
+            [options]="getStatusFilterOptions()"
+            (selectionChange)="onFilterByStatus($event)"
+          />
+
+          <ng-select
+            label="Filter by Category"
+            placeholder="Filter by Category"
+            [options]="getCategoryFilterOptions()"
+            (selectionChange)="onFilterByCategory($event)"
+          />
+        </div>
+      </div>
+
+      <!-- Tickets Table -->
+      <ng-card class="table-card">
+        <ng-mat-table
+          [data]="filteredTickets"
+          [columns]="tableColumns"
+          [isPaginator]="true"
+          [sorting]="true"
+          (rowClick)="onViewTicket($event)"
+        />
+      </ng-card>
+
+      <!-- Empty State -->
+      @if (!isLoading && filteredTickets.length === 0) {
+        <div class="empty-state">
+          <ng-icon name="confirmation_number" class="empty-icon" />
+          <h3>No Tickets Found</h3>
+          <p>
+            @if (tickets.length === 0) {
+              No tickets have been created yet. Create your first ticket to get
+              started.
+            } @else {
+              No tickets match your current filters. Try adjusting your search
+              criteria.
+            }
+          </p>
+          @if (tickets.length === 0) {
+            <ng-button
+              type="filled"
+              label="Create First Ticket"
+              icon="add"
+              (buttonClick)="onCreateTicket()"
+            />
+          }
+        </div>
+      }
+    </div>
+  }
+</div>
