@@ -6,6 +6,7 @@ import { Result } from '../../common/models/common';
 import { IProperty } from '../models/property';
 import { ITenant } from '../models/tenant';
 import {
+  CreatedByType,
   ITicket,
   ITicketComment,
   ITicketSaveResponse,
@@ -31,7 +32,7 @@ export class DemoTicketService {
       priority: TicketPriority.High,
       currentStatus: TicketStatusType.Open,
       createdBy: 1,
-      createdByType: 'tenant',
+      createdByType: CreatedByType.Tenant,
       dateCreated: '2024-01-15T10:30:00Z',
       dateModified: '2024-01-15T10:30:00Z',
       property: {
@@ -59,7 +60,7 @@ export class DemoTicketService {
       priority: TicketPriority.Medium,
       currentStatus: TicketStatusType.InProgress,
       createdBy: 1,
-      createdByType: 'landlord',
+      createdByType: CreatedByType.Landlord,
       dateCreated: '2024-01-14T14:20:00Z',
       dateModified: '2024-01-15T09:15:00Z',
       property: {
@@ -87,7 +88,7 @@ export class DemoTicketService {
       priority: TicketPriority.Low,
       currentStatus: TicketStatusType.Resolved,
       createdBy: 1,
-      createdByType: 'tenant',
+      createdByType: CreatedByType.Tenant,
       dateCreated: '2024-01-10T11:45:00Z',
       dateModified: '2024-01-12T16:30:00Z',
       dateResolved: '2024-01-12T16:30:00Z',
@@ -114,7 +115,7 @@ export class DemoTicketService {
         'I have reported this issue. The leak is getting worse and I am concerned about water damage to my belongings.',
       addedBy: 201,
       addedByName: 'John Doe',
-      addedByType: 'tenant',
+      addedByType: CreatedByType.Tenant,
       dateCreated: '2024-01-15T10:30:00Z',
     },
     {
@@ -124,7 +125,7 @@ export class DemoTicketService {
         'Thank you for reporting this. I have contacted our plumber and they will visit tomorrow morning between 9-11 AM. Please ensure someone is available.',
       addedBy: 1,
       addedByName: 'Property Manager',
-      addedByType: 'landlord',
+      addedByType: CreatedByType.Landlord,
       dateCreated: '2024-01-15T14:20:00Z',
     },
     {
@@ -134,7 +135,7 @@ export class DemoTicketService {
         'I noticed this issue during my routine inspection. Will arrange for an electrician to check the wiring.',
       addedBy: 1,
       addedByName: 'Property Manager',
-      addedByType: 'landlord',
+      addedByType: CreatedByType.Landlord,
       dateCreated: '2024-01-14T14:20:00Z',
     },
     {
@@ -144,7 +145,7 @@ export class DemoTicketService {
         'Electrician has identified the issue. It is a faulty GFCI outlet that needs replacement. Work will be completed by end of day.',
       addedBy: 1,
       addedByName: 'Property Manager',
-      addedByType: 'landlord',
+      addedByType: CreatedByType.Landlord,
       dateCreated: '2024-01-15T09:15:00Z',
     },
     {
@@ -154,7 +155,7 @@ export class DemoTicketService {
         'The maintenance charges include the monthly cleaning service and garden maintenance as per the lease agreement.',
       addedBy: 1,
       addedByName: 'Property Manager',
-      addedByType: 'landlord',
+      addedByType: CreatedByType.Landlord,
       dateCreated: '2024-01-12T16:30:00Z',
     },
   ];
@@ -219,13 +220,13 @@ export class DemoTicketService {
       ticketNumber: `TKT-2024-${String(this.mockTickets.length + 1).padStart(3, '0')}`,
       landlordId: 1,
       propertyId: Number(formData.get('propertyId')),
-      category: formData.get('category') as TicketCategory,
+      category: Number(formData.get('category')) as TicketCategory,
       title: formData.get('title') as string,
       description: formData.get('description') as string,
-      priority: formData.get('priority') as TicketPriority,
+      priority: Number(formData.get('priority')) as TicketPriority,
       currentStatus: TicketStatusType.Open,
       createdBy: Number(formData.get('createdBy')),
-      createdByType: formData.get('createdByType') as 'landlord' | 'tenant',
+      createdByType: Number(formData.get('createdByType')) as CreatedByType,
       dateCreated: new Date().toISOString(),
       dateModified: new Date().toISOString(),
       property: {
@@ -255,7 +256,7 @@ export class DemoTicketService {
     ticketId: number,
     comment: string,
     addedBy: number,
-    addedByType: 'landlord' | 'tenant',
+    addedByType: CreatedByType,
   ): Observable<Result<ITicketComment>> {
     const newComment: ITicketComment = {
       id: this.mockComments.length + 1,
@@ -263,7 +264,9 @@ export class DemoTicketService {
       comment,
       addedBy,
       addedByName:
-        addedByType === 'landlord' ? 'Property Manager' : 'Tenant User',
+        addedByType === CreatedByType.Landlord
+          ? 'Property Manager'
+          : 'Tenant User',
       addedByType,
       dateCreated: new Date().toISOString(),
     };
@@ -309,7 +312,7 @@ export class DemoTicketService {
           comment: `Status changed to ${status}. ${comment}`,
           addedBy: 1,
           addedByName: 'Property Manager',
-          addedByType: 'landlord',
+          addedByType: CreatedByType.Landlord,
           dateCreated: new Date().toISOString(),
         };
         this.mockComments.push(statusComment);

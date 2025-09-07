@@ -13,7 +13,7 @@ export interface ITicket {
   priority: TicketPriority;
   currentStatus: TicketStatusType;
   createdBy: number; // User ID who created the ticket
-  createdByType: 'landlord' | 'tenant'; // Who created it
+  createdByType: CreatedByType; // Who created it
   assignedTo?: number; // User ID assigned to handle the ticket
   dateCreated: Date | string;
   dateModified?: Date | string;
@@ -33,7 +33,7 @@ export interface ITicketComment {
   comment: string;
   addedBy: number;
   addedByName: string;
-  addedByType: 'landlord' | 'tenant';
+  addedByType: CreatedByType;
   dateCreated: Date | string;
   attachments?: ITicketAttachment[];
 }
@@ -56,7 +56,7 @@ export interface ITicketStatus {
   comment?: string;
   addedBy: number;
   addedByName: string;
-  addedByType: 'landlord' | 'tenant';
+  addedByType: CreatedByType;
   dateCreated: Date | string;
 }
 
@@ -80,36 +80,41 @@ export interface TicketStatus {
 
 // Enums
 export enum TicketCategory {
-  Electricity = 'electricity',
-  Plumbing = 'plumbing',
-  Rent = 'rent',
-  Maintenance = 'maintenance',
-  Appliances = 'appliances',
-  Security = 'security',
-  Cleaning = 'cleaning',
-  Pest = 'pest',
-  Noise = 'noise',
-  Parking = 'parking',
-  Internet = 'internet',
-  Heating = 'heating',
-  AirConditioning = 'air_conditioning',
-  Other = 'other',
+  Electricity = 0,
+  Plumbing = 1,
+  Rent = 2,
+  Maintenance = 3,
+  Appliances = 4,
+  Security = 5,
+  Cleaning = 6,
+  Pest = 7,
+  Noise = 8,
+  Parking = 9,
+  Internet = 10,
+  Heating = 11,
+  AirConditioning = 12,
+  Other = 13,
 }
 
 export enum TicketPriority {
-  Low = 'low',
-  Medium = 'medium',
-  High = 'high',
-  Urgent = 'urgent',
+  Low = 0,
+  Medium = 1,
+  High = 2,
+  Urgent = 3,
 }
 
 export enum TicketStatusType {
-  Open = 'open',
-  InProgress = 'in_progress',
-  Pending = 'pending',
-  Resolved = 'resolved',
-  Closed = 'closed',
-  Cancelled = 'cancelled',
+  Open = 0,
+  InProgress = 1,
+  Pending = 2,
+  Resolved = 3,
+  Closed = 4,
+  Cancelled = 5,
+}
+
+export enum CreatedByType {
+  Landlord = 0,
+  Tenant = 1,
 }
 
 // API Response interfaces

@@ -75,6 +75,7 @@ export class TenantDashboard implements OnInit {
     pageSizeOptions: [5, 10, 20],
   };
   initDashBoard$!: Observable<boolean>;
+
   private alertService = inject(AlertService);
   private tenantService = inject(TenantService);
   private propertyService = inject(PropertyService);

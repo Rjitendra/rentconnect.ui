@@ -29,6 +29,7 @@ import {
   OauthService,
 } from '../../../../oauth/service/oauth.service';
 import {
+  CreatedByType,
   ITicket,
   ITicketComment,
   TicketCategory,
@@ -147,7 +148,14 @@ export class IssueTrackerHistory implements OnInit {
 
     // Use demo service for testing
     this.demoTicketService
-      .addComment(this.ticket.id, commentText, userId, this.userType)
+      .addComment(
+        this.ticket.id,
+        commentText,
+        userId,
+        this.userType === 'landlord'
+          ? CreatedByType.Landlord
+          : CreatedByType.Tenant,
+      )
       .subscribe({
         next: (response: Result<ITicketComment>) => {
           this.isAddingComment = false;
@@ -279,7 +287,7 @@ export class IssueTrackerHistory implements OnInit {
   getCategoryLabel(category: TicketCategory): string {
     const categoryOptions = this.ticketService.getCategoryOptions();
     const option = categoryOptions.find((opt) => opt.value === category);
-    return option?.label || category;
+    return option?.label || 'Unknown';
   }
 
   getPriorityClass(priority: TicketPriority): string {
@@ -311,7 +319,7 @@ export class IssueTrackerHistory implements OnInit {
   }
 
   getCommentAuthorClass(comment: ITicketComment): string {
-    return comment.addedByType === 'landlord'
+    return comment.addedByType === CreatedByType.Landlord
       ? 'landlord-comment'
       : 'tenant-comment';
   }
@@ -334,7 +342,26 @@ export class IssueTrackerHistory implements OnInit {
       window.open(attachment.fileUrl, '_blank');
     }
   }
+  // Helper methods for enum display
+  getStatusDisplayValue(status: TicketStatusType): string {
+    return this.ticketService.getEnumDisplayValue(status, 'status');
+  }
 
+  getPriorityDisplayValue(priority: TicketPriority): string {
+    return this.ticketService.getEnumDisplayValue(priority, 'priority');
+  }
+
+  getCategoryDisplayValue(category: TicketCategory): string {
+    return this.ticketService.getEnumDisplayValue(category, 'category');
+  }
+
+  getCreatedByDisplayValue(createdByType: CreatedByType): string {
+    return this.ticketService.getEnumDisplayValue(createdByType, 'createdBy');
+  }
+
+  isLandlord(userType: CreatedByType): boolean {
+    return userType === CreatedByType.Landlord;
+  }
   private initializeForms() {
     // Comment form
     this.commentForm = this.fb.group({

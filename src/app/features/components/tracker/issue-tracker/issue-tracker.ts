@@ -34,6 +34,7 @@ import {
 } from '../../../../oauth/service/oauth.service';
 import { IProperty } from '../../../models/property';
 import {
+  CreatedByType,
   ITicket,
   ITicketSaveResponse,
   TicketCategory,
@@ -279,7 +280,10 @@ export class IssueTracker implements OnInit {
       description: formValue.description,
       priority: formValue.priority,
       createdBy: Number(this.userDetail.userId),
-      createdByType: this.userType,
+      createdByType:
+        this.userType === 'landlord'
+          ? CreatedByType.Landlord
+          : CreatedByType.Tenant,
     };
 
     // Convert to FormData for file upload support
@@ -289,8 +293,8 @@ export class IssueTracker implements OnInit {
       attachmentFiles,
     );
 
-    // Use demo service for testing, replace with real service later
-    this.demoTicketService.createTicket(formData).subscribe({
+    // Use real service for production
+    this.ticketService.createTicket(formData).subscribe({
       next: (response: ITicketSaveResponse) => {
         this.isSaving = false;
         if (response.success) {
@@ -364,7 +368,7 @@ export class IssueTracker implements OnInit {
 
   getCategoryLabel(category: TicketCategory): string {
     const option = this.categoryOptions.find((opt) => opt.value === category);
-    return option?.label || category;
+    return option?.label || 'Unknown';
   }
 
   getPriorityClass(priority: TicketPriority): string {
@@ -450,11 +454,18 @@ export class IssueTracker implements OnInit {
       dateModified: this.formatDate(
         ticket.dateModified || ticket.dateCreated || new Date(),
       ),
-      currentStatus: ticket.currentStatus?.replace('_', ' ') || 'Open',
-      priority:
-        ticket.priority?.charAt(0).toUpperCase() + ticket.priority?.slice(1) ||
-        'Medium',
-      category: this.getCategoryLabel(ticket.category),
+      currentStatus: this.ticketService.getEnumDisplayValue(
+        ticket.currentStatus,
+        'status',
+      ),
+      priority: this.ticketService.getEnumDisplayValue(
+        ticket.priority,
+        'priority',
+      ),
+      category: this.ticketService.getEnumDisplayValue(
+        ticket.category,
+        'category',
+      ),
     }));
   }
 
@@ -527,10 +538,10 @@ export class IssueTracker implements OnInit {
     console.log('User ID:', userId);
     console.log('User Type:', this.userType);
 
-    // Use demo service for testing, replace with real service later
+    // Use real service for production
     const ticketObservable =
       this.userType === 'landlord'
-        ? this.demoTicketService.getLandlordTickets(userId || 1) // Default to 1 for demo
+        ? this.ticketService.getLandlordTickets(userId || 1) // Default to 1 for demo
         : this.ticketService.getTenantTickets(userId);
 
     ticketObservable.subscribe({

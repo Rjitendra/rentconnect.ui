@@ -45,13 +45,13 @@
           class="status-badge"
           [ngClass]="getStatusClass(ticket.currentStatus)"
         >
-          {{ ticket.currentStatus | titlecase }}
+          {{ getStatusDisplayValue(ticket.currentStatus) }}
         </span>
         <span
           class="priority-badge"
           [ngClass]="getPriorityClass(ticket.priority)"
         >
-          {{ ticket.priority | titlecase }}
+          {{ getPriorityDisplayValue(ticket.priority) }}
         </span>
       </div>
     </div>
@@ -80,7 +80,9 @@
               </div>
               <div class="info-item">
                 <span class="info-label">Created By:</span>
-                <span>{{ ticket.createdByType | titlecase }}</span>
+                <span>{{
+                  getCreatedByDisplayValue(ticket.createdByType)
+                }}</span>
               </div>
               @if (ticket.assignedTo) {
                 <div class="info-item">
@@ -134,12 +136,12 @@
                 <div class="comment-avatar">
                   <ng-icon
                     [name]="
-                      comment.addedByType === 'landlord'
+                      isLandlord(comment.addedByType)
                         ? 'person'
                         : 'person_outline'
                     "
                     [class]="
-                      comment.addedByType === 'landlord'
+                      isLandlord(comment.addedByType)
                         ? 'landlord-avatar'
                         : 'tenant-avatar'
                     "
@@ -150,7 +152,9 @@
                     <span class="comment-author">
                       {{ comment.addedByName }}
                       <span class="author-type"
-                        >({{ comment.addedByType | titlecase }})</span
+                        >({{
+                          getCreatedByDisplayValue(comment.addedByType)
+                        }})</span
                       >
                     </span>
                     <span class="comment-date">{{
@@ -291,7 +295,7 @@
                 class="status-badge small"
                 [ngClass]="getStatusClass(ticket.currentStatus)"
               >
-                {{ ticket.currentStatus | titlecase }}
+                {{ getStatusDisplayValue(ticket.currentStatus) }}
               </span>
             </div>
 
@@ -301,7 +305,7 @@
                 class="priority-badge small"
                 [ngClass]="getPriorityClass(ticket.priority)"
               >
-                {{ ticket.priority | titlecase }}
+                {{ getPriorityDisplayValue(ticket.priority) }}
               </span>
             </div>
 

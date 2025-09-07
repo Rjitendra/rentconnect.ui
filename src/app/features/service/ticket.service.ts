@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Result } from '../../common/models/common';
 import {
+  CreatedByType,
   ITicket,
   ITicketComment,
   ITicketSaveResponse,
@@ -24,7 +25,7 @@ export class TicketService {
    */
   getLandlordTickets(landlordId: number): Observable<Result<ITicket[]>> {
     return this._http.get<Result<ITicket[]>>(
-      `${environment.apiBaseUrl}Ticket/landlord/${landlordId}`,
+      `${environment.apiBaseUrl}ticket/landlord/${landlordId}`,
     );
   }
 
@@ -33,7 +34,7 @@ export class TicketService {
    */
   getTenantTickets(tenantId: number): Observable<Result<ITicket[]>> {
     return this._http.get<Result<ITicket[]>>(
-      `${environment.apiBaseUrl}Ticket/tenant/${tenantId}`,
+      `${environment.apiBaseUrl}ticket/tenant/${tenantId}`,
     );
   }
 
@@ -42,7 +43,7 @@ export class TicketService {
    */
   getPropertyTickets(propertyId: number): Observable<Result<ITicket[]>> {
     return this._http.get<Result<ITicket[]>>(
-      `${environment.apiBaseUrl}Ticket/property/${propertyId}`,
+      `${environment.apiBaseUrl}ticket/property/${propertyId}`,
     );
   }
 
@@ -51,7 +52,7 @@ export class TicketService {
    */
   getTicketById(ticketId: number): Observable<Result<ITicket>> {
     return this._http.get<Result<ITicket>>(
-      `${environment.apiBaseUrl}Ticket/${ticketId}`,
+      `${environment.apiBaseUrl}ticket/${ticketId}`,
     );
   }
 
@@ -60,7 +61,7 @@ export class TicketService {
    */
   createTicket(formData: FormData): Observable<ITicketSaveResponse> {
     return this._http.post<ITicketSaveResponse>(
-      `${environment.apiBaseUrl}Ticket/create`,
+      `${environment.apiBaseUrl}ticket/create`,
       formData,
     );
   }
@@ -73,15 +74,18 @@ export class TicketService {
     status: TicketStatusType,
     comment?: string,
     updatedBy?: number,
+    updatedByType?: CreatedByType,
+    updatedByName?: string,
   ): Observable<Result<ITicket>> {
     const payload = {
-      ticketId,
       status,
       comment,
       updatedBy,
+      updatedByType,
+      updatedByName,
     };
     return this._http.put<Result<ITicket>>(
-      `${environment.apiBaseUrl}Ticket/${ticketId}/status`,
+      `${environment.apiBaseUrl}ticket/${ticketId}/status`,
       payload,
     );
   }
@@ -93,24 +97,25 @@ export class TicketService {
     ticketId: number,
     comment: string,
     addedBy: number,
-    addedByType: 'landlord' | 'tenant',
+    addedByName: string,
+    addedByType: CreatedByType,
     attachments?: File[],
   ): Observable<Result<ITicketComment>> {
     const formData = new FormData();
-    formData.append('ticketId', ticketId.toString());
     formData.append('comment', comment);
     formData.append('addedBy', addedBy.toString());
-    formData.append('addedByType', addedByType);
+    formData.append('addedByName', addedByName);
+    formData.append('addedByType', addedByType.toString());
 
     // Add attachments if any
     if (attachments && attachments.length > 0) {
-      attachments.forEach((file, index) => {
-        formData.append(`attachments[${index}]`, file);
+      attachments.forEach((file) => {
+        formData.append('attachments', file);
       });
     }
 
     return this._http.post<Result<ITicketComment>>(
-      `${environment.apiBaseUrl}Ticket/${ticketId}/comment`,
+      `${environment.apiBaseUrl}ticket/${ticketId}/comment`,
       formData,
     );
   }
@@ -120,7 +125,7 @@ export class TicketService {
    */
   getTicketComments(ticketId: number): Observable<Result<ITicketComment[]>> {
     return this._http.get<Result<ITicketComment[]>>(
-      `${environment.apiBaseUrl}Ticket/${ticketId}/comments`,
+      `${environment.apiBaseUrl}ticket/${ticketId}/comments`,
     );
   }
 
@@ -129,7 +134,7 @@ export class TicketService {
    */
   deleteTicket(ticketId: number): Observable<Result<boolean>> {
     return this._http.delete<Result<boolean>>(
-      `${environment.apiBaseUrl}Ticket/${ticketId}`,
+      `${environment.apiBaseUrl}ticket/${ticketId}`,
     );
   }
 
@@ -149,21 +154,25 @@ export class TicketService {
       formData.append('propertyId', ticket.propertyId.toString());
     if (ticket.tenantId)
       formData.append('tenantId', ticket.tenantId.toString());
-    if (ticket.category) formData.append('category', ticket.category);
+    if (ticket.tenantGroupId)
+      formData.append('tenantGroupId', ticket.tenantGroupId);
+    if (ticket.category)
+      formData.append('category', ticket.category.toString());
     if (ticket.title) formData.append('title', ticket.title);
     if (ticket.description) formData.append('description', ticket.description);
-    if (ticket.priority) formData.append('priority', ticket.priority);
+    if (ticket.priority)
+      formData.append('priority', ticket.priority.toString());
     if (ticket.createdBy)
       formData.append('createdBy', ticket.createdBy.toString());
     if (ticket.createdByType)
-      formData.append('createdByType', ticket.createdByType);
+      formData.append('createdByType', ticket.createdByType.toString());
     if (ticket.assignedTo)
       formData.append('assignedTo', ticket.assignedTo.toString());
 
     // Add attachments if any
     if (attachments && attachments.length > 0) {
-      attachments.forEach((file, index) => {
-        formData.append(`attachments[${index}]`, file);
+      attachments.forEach((file) => {
+        formData.append('attachments', file);
       });
     }
 
@@ -295,6 +304,41 @@ export class TicketService {
         return 'status-cancelled';
       default:
         return 'status-open';
+    }
+  }
+
+  /**
+   * Convert enum values to display strings
+   */
+  getEnumDisplayValue(
+    enumValue: number,
+    enumType: 'category' | 'priority' | 'status' | 'createdBy',
+  ): string {
+    switch (enumType) {
+      case 'category':
+        return (
+          this.getCategoryOptions().find(
+            (opt) => Number(opt.value) === Number(enumValue),
+          )?.label || 'Unknown'
+        );
+      case 'priority':
+        return (
+          this.getPriorityOptions().find(
+            (opt) => Number(opt.value) === Number(enumValue),
+          )?.label || 'Medium'
+        );
+      case 'status':
+        return (
+          this.getStatusOptions().find(
+            (opt) => Number(opt.value) === Number(enumValue),
+          )?.label || 'Open'
+        );
+      case 'createdBy':
+        return Number(enumValue) === Number(CreatedByType.Landlord)
+          ? 'Landlord'
+          : 'Tenant';
+      default:
+        return 'Unknown';
     }
   }
 }
