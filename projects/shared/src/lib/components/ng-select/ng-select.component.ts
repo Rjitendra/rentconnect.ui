@@ -63,7 +63,7 @@ export class NgSelectComponent
   readonly placeholder = input('');
   readonly options = input<SelectOption[]>([]);
   readonly multiple = input(false);
-  readonly disabled = input(false);
+  //readonly disable = input(false);
   readonly required = input(false);
   readonly appearance = input<'fill' | 'outline'>('outline');
   readonly uniqueId = input<string>('');

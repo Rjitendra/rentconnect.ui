@@ -1,17 +1,15 @@
 import { IUserDetail } from '../../oauth/service/oauth.service';
 
 import { IDocument } from './document';
-import { ILandlord } from './landlord';
-import { IProperty } from './property';
 import { ITicket } from './tickets';
 
 export interface ITenant {
   id?: number; // BaseEntity
   landlordId: number;
-  landlord?: ILandlord;
+  //  landlord?: ILandlord;
 
   propertyId: number;
-  property?: IProperty;
+  //  property?: IProperty;
 
   // Personal info
   name: string;
@@ -63,9 +61,9 @@ export interface ITenant {
   onboardingCompleted?: boolean;
 
   // File references
-  backgroundCheckFileUrl?: string;
-  rentGuideFileUrl?: string;
-  depositReceiptUrl?: string;
+  // backgroundCheckFileUrl?: string;
+  // rentGuideFileUrl?: string;
+  // depositReceiptUrl?: string;
 
   // Acknowledgement & verification
   isAcknowledge: boolean;

@@ -19,10 +19,9 @@
   }
 
   <mat-select
-    [value]="internalControl.value"
+    [formControl]="internalControl"
     [placeholder]="placeholder()"
     [multiple]="multiple()"
-    [disabled]="disabled()"
     [required]="required()"
     [id]="uniqueId()"
     (selectionChange)="onSelectionChange($event)"
@@ -41,10 +40,7 @@
 
   @if (clarifyText()) {
     <div matTextSuffix>
-      <ng-clarify-text
-        [clarifyText]="clarifyText()"
-        [isIconDisabled]="disabled()"
-      />
+      <ng-clarify-text [clarifyText]="clarifyText()" />
     </div>
   }
 

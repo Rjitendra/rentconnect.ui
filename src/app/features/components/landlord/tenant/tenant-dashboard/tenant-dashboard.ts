@@ -277,8 +277,8 @@ export class TenantDashboard implements OnInit {
     // Get all tenants in the same group for detail view
     const groupMembers = this.getGroupMembers(tenant.tenantGroup);
     this.editingTenants = groupMembers;
-    this.editingSingleTenant = tenant;
-    this.editMode = 'single';
+    this.editingSingleTenant = null;
+    this.editMode = 'group';
     this.currentView = 'detail';
   }
 

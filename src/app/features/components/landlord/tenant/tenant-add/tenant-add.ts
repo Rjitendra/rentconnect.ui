@@ -411,7 +411,7 @@ export class TenantAddComponent implements OnInit {
         : 0;
 
       // Prepare tenant data with documents
-      const tenantsWithDocuments = formData.tenants.map((tenant, index) => ({
+      let tenantsWithDocuments = formData.tenants.map((tenant, index) => ({
         ...tenant,
         age: this.calculateAge(tenant.dob as string),
         documents: this.convertCategorizedDocuments(index, landlordId),
@@ -419,17 +419,22 @@ export class TenantAddComponent implements OnInit {
         // tenantGroup: 0, // Use timestamp as group ID
         dateCreated: new Date().toISOString(),
         dateModified: new Date().toISOString(),
-        // Default status values
-        agreementSigned: false,
-        onboardingEmailSent: false,
-        onboardingCompleted: false,
-        isAcknowledge: false,
-        isVerified: false,
-        isNewTenant: true,
-        isActive: true,
-        needsOnboarding: true,
-      }));
 
+        // Default status values
+      }));
+      if (this.mode === 'add') {
+        tenantsWithDocuments = tenantsWithDocuments.map((t) => ({
+          ...t,
+          agreementSigned: false,
+          onboardingEmailSent: false,
+          onboardingCompleted: false,
+          isAcknowledge: false,
+          isVerified: false,
+          isNewTenant: true,
+          isActive: true,
+          needsOnboarding: true,
+        }));
+      }
       // Convert to FormData for file upload support
       const apiFormData = this.tenantService.convertTenantToFormData(
         tenantsWithDocuments as ITenant[],
@@ -443,6 +448,7 @@ export class TenantAddComponent implements OnInit {
           rentDueDate: formData.rentDueDate,
           leaseDuration: formData.leaseDuration,
           noticePeriod: formData.noticePeriod,
+          isSingleTenant: this.singleTenantToEdit() ? true : false,
         },
         landlordId,
       );
@@ -1111,12 +1117,25 @@ export class TenantAddComponent implements OnInit {
       this.isLoadingProperties = true;
       this.propertyService.getProperties(landlordId).subscribe({
         next: (response: Result<IProperty[]>) => {
-          this.propertyOptions = response.entity
-            .filter((p) => p.status === PropertyStatus.Listed) // Only show published properties  !== PropertyStatus.Draft
-            .map((property) => ({
-              value: property.id!.toString(),
-              label: `${property.title} - ${property.locality}, ${property.city}`,
-            }));
+          if (this.mode === 'add') {
+            this.propertyOptions = response.entity
+              .filter((p) => p.status === PropertyStatus.Listed) // Only show published properties  !== PropertyStatus.Draft
+              .map((property) => ({
+                value: property.id!.toString(),
+                label: `${property.title} - ${property.locality}, ${property.city}`,
+              }));
+          } else {
+            this.propertyOptions = response.entity
+              .filter(
+                (p) =>
+                  p.status === PropertyStatus.Rented &&
+                  this.editingTenants[0].propertyId,
+              ) // Only show published properties  !== PropertyStatus.Draft
+              .map((property) => ({
+                value: property.id!.toString(),
+                label: `${property.title} - ${property.locality}, ${property.city}`,
+              }));
+          }
           this.isLoadingProperties = false;
           this.cdr.detectChanges();
         },

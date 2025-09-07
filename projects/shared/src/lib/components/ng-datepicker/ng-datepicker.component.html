@@ -20,9 +20,8 @@
   <input
     matInput
     [matDatepicker]="picker"
-    [value]="value"
+    [formControl]="internalControl"
     [placeholder]="placeholder()"
-    [disabled]="disabled()"
     [required]="required()"
     [readonly]="readonly()"
     [min]="minDate()"
@@ -34,7 +33,11 @@
   />
 
   @if (showToggle()) {
-    <mat-datepicker-toggle matIconSuffix [for]="picker" [disabled]="disabled()">
+    <mat-datepicker-toggle
+      matIconSuffix
+      [for]="picker"
+      [disabled]="internalControl.disabled"
+    >
       @if (customIcon()) {
         <mat-icon matDatepickerToggleIcon>{{ customIcon() }}</mat-icon>
       }
@@ -45,7 +48,7 @@
     <div matTextSuffix>
       <ng-clarify-text
         [clarifyText]="clarifyText()"
-        [isIconDisabled]="disabled()"
+        [isIconDisabled]="internalControl.disabled"
       />
     </div>
   }
@@ -62,7 +65,7 @@
 <mat-datepicker
   #picker
   [startAt]="startAt()"
-  [disabled]="disabled()"
+  [disabled]="internalControl.disabled"
   [opened]="opened()"
   [touchUi]="touchUi()"
   (opened)="onOpened()"

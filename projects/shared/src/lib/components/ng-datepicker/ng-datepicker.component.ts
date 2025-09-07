@@ -1,31 +1,33 @@
 import {
   Component,
   forwardRef,
-  output,
-  input,
-  Injector,
   inject,
+  Injector,
+  input,
   OnInit,
+  output,
 } from '@angular/core';
 import {
   ControlValueAccessor,
+  FormControl,
   NG_VALUE_ACCESSOR,
   NgControl,
-  FormControl,
+  ReactiveFormsModule,
 } from '@angular/forms';
 
+import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
-import { NgLabelComponent } from '../ng-label/ng-label.component';
+import { MatInputModule } from '@angular/material/input';
 import { NgClarifyTextComponent } from '../ng-clarify-text/ng-clarify-text.component';
+import { NgLabelComponent } from '../ng-label/ng-label.component';
 
 @Component({
   selector: 'ng-datepicker',
   standalone: true,
   imports: [
+    ReactiveFormsModule,
     MatDatepickerModule,
     MatFormFieldModule,
     MatInputModule,
@@ -49,7 +51,7 @@ export class NgDatepickerComponent implements ControlValueAccessor, OnInit {
   public ngControl: NgControl | null = null;
   readonly label = input<string>('');
   readonly placeholder = input('');
-  readonly disabled = input(false);
+  //  readonly disabled = input(false);
   readonly readonly = input(false);
   readonly required = input(false);
   readonly appearance = input<'fill' | 'outline'>('outline');
