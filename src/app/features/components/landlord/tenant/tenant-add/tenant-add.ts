@@ -14,7 +14,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
-import { filter, firstValueFrom, tap } from 'rxjs';
+import { filter, firstValueFrom, switchMap, tap } from 'rxjs';
 
 // Shared library imports
 import {
@@ -714,6 +714,58 @@ export class TenantAddComponent implements OnInit {
       })
       .pipe(
         filter((result) => result.action === 'confirm'),
+
+        switchMap(() => {
+          if (file.url && file.id) {
+            // ✅ Image exists in backend → call API delete
+            return this.propertyService.deletePropertyImage(file.id).pipe(
+              tap((success: Result<boolean>) => {
+                if (success.success) {
+                  this.uploadedImages = this.uploadedImages.filter(
+                    (img) => img !== file,
+                  );
+                  this.propertyForm
+                    .get('propertyImages')
+                    ?.setValue(this.uploadedImages, { emitEvent: false });
+
+                  this.alertService.success({
+                    errors: [
+                      {
+                        message: 'Image deleted successfully',
+                        errorType: 'success',
+                      },
+                    ],
+                  });
+                }
+              }),
+              catchError(() => {
+                this.alertService.error({
+                  errors: [
+                    { message: 'Failed to delete image', errorType: 'error' },
+                  ],
+                });
+                return of(null);
+              }),
+            );
+          } else {
+            // ✅ Soft delete → remove locally only using index
+            if (index >= 0) {
+              this.uploadedImages.splice(index, 1);
+              this.propertyForm
+                .get('propertyImages')
+                ?.setValue(this.uploadedImages, { emitEvent: false });
+
+              this.alertService.success({
+                errors: [
+                  { message: 'Image removed locally', errorType: 'info' },
+                ],
+              });
+            }
+
+            return of(null); // keep observable chain valid
+          }
+        }),
+
         tap(() => {
           // If this is an existing document (has ID), add to deletion list
           if (file.id && this.mode === 'edit') {
