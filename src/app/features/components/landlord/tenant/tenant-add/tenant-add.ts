@@ -268,13 +268,64 @@ export class TenantAddComponent implements OnInit {
     if (!this.tenantDocuments.has(tenantIndex)) return;
 
     const tenantDocs = this.tenantDocuments.get(tenantIndex)!;
-    tenantDocs.delete(category);
+    const categoryFiles = tenantDocs.get(category) || [];
 
-    // Update form control with all documents
-    this.updateTenantFormDocuments(tenantIndex);
+    if (categoryFiles.length === 0) return;
 
-    // Trigger change detection to update the UI immediately
-    this.cdr.detectChanges();
+    // Show confirmation dialog
+    this.dialogService
+      .confirm({
+        title: 'Confirm Deletion',
+        message: `Are you sure you want to delete all ${this.getCategoryLabel(category).toLowerCase()} documents for this tenant? This will remove ${categoryFiles.length} file(s).`,
+        confirmText: 'Delete All',
+        cancelText: 'Cancel',
+        type: 'warning',
+        icon: 'warning',
+        disableClose: true,
+      })
+      .pipe(
+        filter((result) => result.action === 'confirm'),
+        tap(() => {
+          // If in edit mode, track existing documents for deletion
+          if (this.mode === 'edit') {
+            categoryFiles.forEach((file) => {
+              if (file.id) {
+                // Existing document - add to deletion list
+                this.documentsToDelete.push(file.id);
+              } else {
+                // New document - remove from upload list
+                const newDocs =
+                  this.newDocumentsToUpload.get(tenantIndex) || [];
+                const updatedNewDocs = newDocs.filter(
+                  (doc) => doc.name !== file.name,
+                );
+                this.newDocumentsToUpload.set(tenantIndex, updatedNewDocs);
+              }
+            });
+          }
+
+          // Remove category from UI for this specific tenant
+          tenantDocs.delete(category);
+
+          // Update form control with all documents for this tenant only
+          this.updateTenantFormDocuments(tenantIndex);
+
+          // Trigger change detection to update the UI immediately
+          this.cdr.detectChanges();
+
+          // Show success message
+          this.alertService.success({
+            errors: [
+              {
+                message: `All ${this.getCategoryLabel(category).toLowerCase()} documents removed successfully for this tenant`,
+                errorType: 'success',
+              },
+            ],
+            timeout: 3000,
+          });
+        }),
+      )
+      .subscribe();
   }
 
   addTenant() {

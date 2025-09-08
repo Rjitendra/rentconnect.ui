@@ -351,31 +351,76 @@
                             getDocumentsByCategory(i, category.value).length > 0
                           ) {
                             <div class="category-item">
-                              <div class="category-badge">
-                                <ng-icon
-                                  class="category-icon"
-                                  [name]="getCategoryIcon(category.value)"
-                                />
-                                <span class="category-name">{{
-                                  category.label
-                                }}</span>
-                                <span class="file-count">
-                                  {{
-                                    getDocumentsByCategory(i, category.value)
-                                      .length
-                                  }}
-                                </span>
+                              <div class="category-header">
+                                <div class="category-badge">
+                                  <ng-icon
+                                    class="category-icon"
+                                    [name]="getCategoryIcon(category.value)"
+                                  />
+                                  <span class="category-name">{{
+                                    category.label
+                                  }}</span>
+                                  <span class="file-count">
+                                    {{
+                                      getDocumentsByCategory(i, category.value)
+                                        .length
+                                    }}
+                                  </span>
+                                </div>
+                                <button
+                                  type="button"
+                                  class="remove-category-btn"
+                                  title="Remove all files from this category for this tenant"
+                                  (click)="
+                                    removeDocumentCategory(i, category.value)
+                                  "
+                                >
+                                  <ng-icon name="delete" />
+                                </button>
                               </div>
-                              <button
-                                type="button"
-                                class="remove-category-btn"
-                                title="Remove all files from this category"
-                                (click)="
-                                  removeDocumentCategory(i, category.value)
-                                "
-                              >
-                                <ng-icon name="delete" />
-                              </button>
+
+                              <!-- Individual Files List -->
+                              <div class="files-list">
+                                @for (
+                                  file of getDocumentsByCategory(
+                                    i,
+                                    category.value
+                                  );
+                                  track file.url
+                                ) {
+                                  <div class="file-item">
+                                    <div class="file-info">
+                                      <ng-icon
+                                        class="file-icon"
+                                        [name]="getFileIcon(file.type || '')"
+                                      />
+                                      <span
+                                        class="file-name"
+                                        [title]="file.name"
+                                      >
+                                        {{ file.name }}
+                                      </span>
+                                      <span class="file-size">
+                                        {{ formatFileSize(file.size || 0) }}
+                                      </span>
+                                    </div>
+                                    <button
+                                      type="button"
+                                      class="remove-file-btn"
+                                      title="Remove this file"
+                                      (click)="
+                                        onDocumentCategoryRemoved(
+                                          file,
+                                          i,
+                                          category.value
+                                        )
+                                      "
+                                    >
+                                      <ng-icon name="close" />
+                                    </button>
+                                  </div>
+                                }
+                              </div>
                             </div>
                           }
                         }
