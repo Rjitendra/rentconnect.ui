@@ -14,6 +14,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
+import { filter, firstValueFrom, tap } from 'rxjs';
 
 // Shared library imports
 import {
@@ -121,6 +122,12 @@ export class TenantAddComponent implements OnInit {
   // Categorized documents for each tenant
   tenantDocuments: Map<number, Map<DocumentCategory, UploadedFile[]>> =
     new Map();
+
+  // Track new documents to be uploaded (for edit mode)
+  newDocumentsToUpload: Map<number, IDocument[]> = new Map();
+
+  // Track documents to be deleted (for edit mode)
+  documentsToDelete: number[] = [];
 
   private fb = inject(FormBuilder);
   private router = inject(Router);
@@ -463,32 +470,21 @@ export class TenantAddComponent implements OnInit {
         next: (response: ITenantSaveResponse) => {
           this.isSaving = false;
           if (response.success) {
-            // Clear any previous errors
-            this.validationErrors = [];
-            this.isShowingValidationErrors = false;
-
-            // Show success message
-            const action = this.mode === 'edit' ? 'updated' : 'saved';
-            this.alertService.success({
-              errors: [
-                {
-                  message:
-                    response.message || `Tenants ${action} successfully!`,
-                  errorType: 'success',
-                },
-              ],
-              timeout: 5000,
-            });
-
-            // Emit completion event to parent
-            this.tenantAdded.emit();
+            // Handle document operations for edit mode
+            if (this.mode === 'edit') {
+              this.handleDocumentOperations()
+                .then(() => {
+                  this.showSuccessAndNavigate(response);
+                })
+                .catch((error) => {
+                  console.error('Document operations failed:', error);
+                  this.showSuccessAndNavigate(response); // Still show success for tenant update
+                });
+            } else {
+              this.showSuccessAndNavigate(response);
+            }
           } else {
-            this.validationErrors =
-              response.errors?.map((error) => ({
-                field: 'general',
-                message: error,
-              })) || [];
-            this.showValidationErrors();
+            this.handleErrorResponse(response);
           }
         },
         error: (error) => {
@@ -604,6 +600,39 @@ export class TenantAddComponent implements OnInit {
     const tenantDocs = this.tenantDocuments.get(tenantIndex)!;
     tenantDocs.set(category, files);
 
+    // If in edit mode, track new documents for upload
+    if (this.mode === 'edit') {
+      const newDocuments = files
+        .filter((file) => !file.id) // Only new files without existing ID
+        .map(
+          (file) =>
+            ({
+              id: 0,
+              ownerId: this.editingTenants[tenantIndex]?.id || 0,
+              ownerType: 'tenant',
+              category: category,
+              file: file.file,
+              name: file.name,
+              size: file.size,
+              type: file.type,
+              url: file.url,
+              uploadedOn: new Date().toISOString(),
+              description: `${this.getCategoryLabel(category)} - ${file.name}`,
+              tenantId: this.editingTenants[tenantIndex]?.id,
+              landlordId: Number(this.userdetail.userId),
+            }) as IDocument,
+        );
+
+      if (newDocuments.length > 0) {
+        const existingNewDocs =
+          this.newDocumentsToUpload.get(tenantIndex) || [];
+        this.newDocumentsToUpload.set(tenantIndex, [
+          ...existingNewDocs,
+          ...newDocuments,
+        ]);
+      }
+    }
+
     // Update form control with all documents
     this.updateTenantFormDocuments(tenantIndex);
 
@@ -621,22 +650,64 @@ export class TenantAddComponent implements OnInit {
   ) {
     if (!this.tenantDocuments.has(tenantIndex)) return;
 
-    const tenantDocs = this.tenantDocuments.get(tenantIndex)!;
-    const categoryFiles = tenantDocs.get(category) || [];
+    // Show confirmation dialog
+    this.dialogService
+      .confirm({
+        title: 'Confirm Deletion',
+        message: `Are you sure you want to delete this ${this.getCategoryLabel(category).toLowerCase()} document?`,
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        type: 'warning',
+        icon: 'warning',
+        disableClose: true,
+      })
+      .pipe(
+        filter((result) => result.action === 'confirm'),
+        tap(() => {
+          // If this is an existing document (has ID), add to deletion list
+          if (file.id && this.mode === 'edit') {
+            this.documentsToDelete.push(file.id);
+          }
 
-    const updatedFiles = categoryFiles.filter((f) => f.url !== file.url);
+          // If this is a new document, remove from new documents list
+          if (!file.id && this.mode === 'edit') {
+            const newDocs = this.newDocumentsToUpload.get(tenantIndex) || [];
+            const updatedNewDocs = newDocs.filter(
+              (doc) => doc.name !== file.name,
+            );
+            this.newDocumentsToUpload.set(tenantIndex, updatedNewDocs);
+          }
 
-    if (updatedFiles.length > 0) {
-      tenantDocs.set(category, updatedFiles);
-    } else {
-      tenantDocs.delete(category);
-    }
+          const tenantDocs = this.tenantDocuments.get(tenantIndex)!;
+          const categoryFiles = tenantDocs.get(category) || [];
 
-    // Update form control with all documents
-    this.updateTenantFormDocuments(tenantIndex);
+          const updatedFiles = categoryFiles.filter((f) => f.url !== file.url);
 
-    // Trigger change detection to update the UI immediately
-    this.cdr.detectChanges();
+          if (updatedFiles.length > 0) {
+            tenantDocs.set(category, updatedFiles);
+          } else {
+            tenantDocs.delete(category);
+          }
+
+          // Update form control with all documents
+          this.updateTenantFormDocuments(tenantIndex);
+
+          // Trigger change detection to update the UI immediately
+          this.cdr.detectChanges();
+
+          // Show success message
+          this.alertService.success({
+            errors: [
+              {
+                message: 'Document removed successfully',
+                errorType: 'success',
+              },
+            ],
+            timeout: 3000,
+          });
+        }),
+      )
+      .subscribe();
   }
 
   // Get documents for a specific category and tenant
@@ -860,6 +931,7 @@ export class TenantAddComponent implements OnInit {
 
       // Convert IDocument to UploadedFile format for the form
       const uploadedFile: UploadedFile = {
+        id: doc.id, // Include the document ID for deletion tracking
         name: doc.name || 'Unknown Document',
         size: doc.size || 0,
         type: doc.type || 'application/octet-stream',
@@ -1161,5 +1233,95 @@ export class TenantAddComponent implements OnInit {
     const allDocuments = this.getAllTenantDocuments(tenantIndex);
     const tenantFormGroup = this.getTenantFormGroup(tenantIndex);
     tenantFormGroup.patchValue({ documents: allDocuments });
+  }
+
+  /**
+   * Handle document operations for edit mode (upload new files and delete removed files)
+   */
+  private async handleDocumentOperations(): Promise<void> {
+    try {
+      // First, delete documents that were marked for deletion
+      if (this.documentsToDelete.length > 0) {
+        const deletePromises = this.documentsToDelete.map((documentId) =>
+          firstValueFrom(this.tenantService.deleteTenantDocument(documentId)),
+        );
+
+        await Promise.all(deletePromises);
+        console.log(`Deleted ${this.documentsToDelete.length} documents`);
+      }
+
+      // Then, upload new documents for each tenant
+      const uploadPromises: Promise<Result<IDocument[]>>[] = [];
+
+      this.newDocumentsToUpload.forEach((documents, tenantIndex) => {
+        if (documents.length > 0) {
+          // Get the actual tenant ID from the editing tenants
+          const tenant = this.editingTenants[tenantIndex];
+          if (tenant && tenant.id) {
+            const uploadPromise = firstValueFrom(
+              this.tenantService.uploadTenantDocuments(tenant.id, documents),
+            );
+            uploadPromises.push(uploadPromise);
+          }
+        }
+      });
+
+      if (uploadPromises.length > 0) {
+        await Promise.all(uploadPromises);
+        console.log(`Uploaded documents for ${uploadPromises.length} tenants`);
+      }
+
+      // Clear the tracking arrays
+      this.documentsToDelete = [];
+      this.newDocumentsToUpload.clear();
+    } catch (error) {
+      console.error('Error handling document operations:', error);
+      this.alertService.error({
+        errors: [
+          {
+            message:
+              'Some document operations failed. Please check and try again.',
+            errorType: 'error',
+          },
+        ],
+        timeout: 5000,
+      });
+    }
+  }
+
+  /**
+   * Show success message and navigate
+   */
+  private showSuccessAndNavigate(response: ITenantSaveResponse): void {
+    // Clear any previous errors
+    this.validationErrors = [];
+    this.isShowingValidationErrors = false;
+
+    // Show success message
+    const action = this.mode === 'edit' ? 'updated' : 'saved';
+    this.alertService.success({
+      errors: [
+        {
+          message: response.message || `Tenants ${action} successfully!`,
+          errorType: 'success',
+        },
+      ],
+      timeout: 5000,
+    });
+
+    // Emit completion event to parent
+    this.tenantAdded.emit();
+  }
+
+  /**
+   * Handle error response
+   */
+  private handleErrorResponse(response: ITenantSaveResponse): void {
+    this.validationErrors =
+      response.errors?.map((error) => ({
+        field: 'general',
+        message: error,
+      })) || [];
+    this.showValidationErrors();
   }
 }

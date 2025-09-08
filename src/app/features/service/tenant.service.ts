@@ -599,6 +599,38 @@ export class TenantService {
 
     return errors;
   }
+
+  /**
+   * Delete tenant document
+   */
+  deleteTenantDocument(documentId: number): Observable<Result<boolean>> {
+    return this._http.delete<Result<boolean>>(
+      `${environment.apiBaseUrl}Tenant/document/${documentId}`,
+    );
+  }
+
+  /**
+   * Upload new documents for existing tenant
+   */
+  uploadTenantDocuments(
+    tenantId: number,
+    documents: IDocument[],
+  ): Observable<Result<IDocument[]>> {
+    const formData = new FormData();
+
+    documents.forEach((doc, index) => {
+      if (doc.file) {
+        formData.append('files', doc.file);
+        formData.append(`categories[${index}]`, doc.category.toString());
+        formData.append(`descriptions[${index}]`, doc.description || '');
+      }
+    });
+
+    return this._http.post<Result<IDocument[]>>(
+      `${environment.apiBaseUrl}Tenant/${tenantId}/documents/upload`,
+      formData,
+    );
+  }
   // Private helper methods
   private validateTenant(tenant: Partial<ITenant>): ITenantValidationError[] {
     const errors: ITenantValidationError[] = [];

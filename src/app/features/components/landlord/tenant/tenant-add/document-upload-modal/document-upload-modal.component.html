@@ -1,1 +1,126 @@
-<p>document-upload-modal works!</p>
+<div class="document-upload-modal">
+  <!-- Header -->
+  <div class="modal-header">
+    <div class="header-content">
+      <ng-icon name="upload_file" class="header-icon" />
+      <div>
+        <h2>Upload Documents</h2>
+        <p>Add documents for {{ data.tenantName || "Tenant" }}</p>
+      </div>
+    </div>
+    <button type="button" class="close-btn" title="Close" (click)="onCancel()">
+      <ng-icon name="close" />
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div class="modal-content">
+    <form [formGroup]="uploadForm" (ngSubmit)="onSubmit()">
+      <!-- Category Selection -->
+      <div class="form-section">
+        <ng-select
+          formControlName="category"
+          label="Document Category"
+          placeholder="Select document category"
+          suffixIcon="category"
+          [options]="data.availableCategories"
+          [required]="true"
+        />
+
+        @if (isCategorySelected()) {
+          <div class="category-info">
+            <div class="info-card">
+              <ng-icon
+                class="category-icon"
+                [name]="getCategoryIcon(selectedCategory!)"
+              />
+              <div class="info-text">
+                <h4>{{ getCategoryLabel(selectedCategory!) }}</h4>
+                <p>{{ getCategoryHint(selectedCategory!) }}</p>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- File Upload -->
+      @if (isCategorySelected()) {
+        <div class="form-section">
+          <ng-file-upload
+            formControlName="files"
+            [label]="'Upload ' + getCategoryLabel(selectedCategory!)"
+            [dragText]="
+              'Drop ' +
+              getCategoryLabel(selectedCategory!) +
+              ' files here or click to browse'
+            "
+            [hint]="getCategoryHint(selectedCategory!)"
+            [config]="uploadConfig"
+            (filesSelected)="onFilesSelected($event)"
+            (fileRemoved)="onFileRemoved($event)"
+          />
+        </div>
+      }
+
+      <!-- Preview Section -->
+      @if (uploadedFiles.length > 0) {
+        <div class="form-section">
+          <h4>Preview Files ({{ uploadedFiles.length }})</h4>
+          <div class="file-preview-grid">
+            @for (file of uploadedFiles; track file.url; let i = $index) {
+              <div class="file-preview-card">
+                <div class="file-preview">
+                  @if (isImageFile(file.type)) {
+                    <img
+                      class="preview-image"
+                      [src]="file.url"
+                      [alt]="file.name"
+                    />
+                  } @else {
+                    <div class="file-icon-preview">
+                      <ng-icon
+                        class="large-file-icon"
+                        [name]="getFileIcon(file.type)"
+                      />
+                    </div>
+                  }
+                </div>
+                <div class="file-info">
+                  <span class="file-name" [title]="file.name">{{
+                    file.name
+                  }}</span>
+                  <span class="file-size">{{ formatFileSize(file.size) }}</span>
+                </div>
+                <button
+                  type="button"
+                  class="remove-preview-btn"
+                  title="Remove file"
+                  (click)="removeFile(file, i)"
+                >
+                  <ng-icon name="close" />
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </form>
+  </div>
+
+  <!-- Actions -->
+  <div class="modal-actions">
+    <ng-button
+      buttonType="button"
+      type="text"
+      label="Cancel"
+      (buttonClick)="onCancel()"
+    />
+    <ng-button
+      buttonType="button"
+      type="filled"
+      label="Add Documents"
+      [disabled]="!canSubmit()"
+      (buttonClick)="onSubmit()"
+    />
+  </div>
+</div>
