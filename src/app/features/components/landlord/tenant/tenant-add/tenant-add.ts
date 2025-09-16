@@ -14,15 +14,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
-import {
-  catchError,
-  filter,
-  firstValueFrom,
-  forkJoin,
-  of,
-  switchMap,
-  tap,
-} from 'rxjs';
+import { catchError, filter, firstValueFrom, of, switchMap, tap } from 'rxjs';
 
 // Shared library imports
 import {
@@ -293,106 +285,87 @@ export class TenantAddComponent implements OnInit {
       })
       .pipe(
         filter((result) => result.action === 'confirm'),
-        switchMap(() => {
-          // Get existing documents with IDs that need immediate API deletion
-          const existingFilesWithIds = categoryFiles.filter((file) => file.id);
-
-          if (existingFilesWithIds.length > 0 && this.mode === 'edit') {
-            // Create array of deletion observables for all files with IDs
-            const deletionObservables = existingFilesWithIds.map((file) =>
-              this.tenantService.deleteTenantDocument(file.id!).pipe(
-                tap((result) => {
-                  if (result.success) {
-                    console.log(
-                      `Document ${file.name} deleted successfully from backend`,
-                    );
-                  } else {
-                    console.error(
-                      `Failed to delete document ${file.name}:`,
-                      result.message,
-                    );
-                  }
-                }),
-                catchError((error) => {
-                  console.error(`Error deleting document ${file.name}:`, error);
-                  this.alertService.error({
-                    errors: [
-                      {
-                        message: `Failed to delete ${file.name}`,
-                        errorType: 'error',
-                      },
-                    ],
-                  });
-                  return of({ success: false, message: 'Delete failed' });
-                }),
-              ),
-            );
-
-            // Execute all deletions in parallel and wait for completion
-            return forkJoin(deletionObservables).pipe(
-              tap((results) => {
-                const successCount = results.filter((r) => r.success).length;
-                const failCount = results.length - successCount;
-
-                if (failCount === 0) {
-                  this.alertService.success({
-                    errors: [
-                      {
-                        message: `All ${successCount} ${this.getCategoryLabel(category).toLowerCase()} document(s) deleted successfully`,
-                        errorType: 'success',
-                      },
-                    ],
-                    timeout: 3000,
-                  });
-                } else {
-                  this.alertService.error({
-                    errors: [
-                      {
-                        message: `${successCount} documents deleted, but ${failCount} failed`,
-                        errorType: 'warning',
-                      },
-                    ],
-                  });
-                }
-              }),
-            );
-          } else {
-            // No existing files to delete via API, just show success
-            this.alertService.success({
-              errors: [
-                {
-                  message: `All ${this.getCategoryLabel(category).toLowerCase()} documents removed successfully`,
-                  errorType: 'success',
-                },
-              ],
-              timeout: 3000,
-            });
-            return of([]);
-          }
-        }),
         tap(() => {
-          // Handle tracking for edit mode - only for new documents without IDs
-          if (this.mode === 'edit') {
-            categoryFiles.forEach((file) => {
-              if (!file.id) {
-                // New document - remove from upload list
-                const newDocs =
-                  this.newDocumentsToUpload.get(tenantIndex) || [];
-                const updatedNewDocs = newDocs.filter(
-                  (doc) => doc.name !== file.name,
-                );
-                this.newDocumentsToUpload.set(tenantIndex, updatedNewDocs);
-              }
-            });
-          }
+          // Delete files that have id and url via API call
+          categoryFiles.forEach((file) => {
+            if (file.id && file.url) {
+              firstValueFrom(
+                this.tenantService.deleteTenantDocument(file.id),
+              ).catch(() => {
+                console.error('Failed to delete document:', file.name);
+              });
+            }
+          });
 
-          // Remove category from UI for this specific tenant
+          // Remove from newDocumentsToUpload for new files
+          const newDocs = this.newDocumentsToUpload.get(tenantIndex) || [];
+          const updatedNewDocs = newDocs.filter(
+            (doc) => doc.category !== category,
+          );
+          this.newDocumentsToUpload.set(tenantIndex, updatedNewDocs);
+
+          // Remove category from UI
           tenantDocs.delete(category);
 
-          // Update form control with all documents for this tenant only
+          // Update form and UI
           this.updateTenantFormDocuments(tenantIndex);
+          this.cdr.detectChanges();
+        }),
+      )
+      .subscribe();
+  }
 
-          // Trigger change detection to update the UI immediately
+  // Remove specific document file
+  removeDocument(
+    tenantIndex: number,
+    category: DocumentCategory,
+    file: UploadedFile,
+  ) {
+    if (!this.tenantDocuments.has(tenantIndex)) return;
+
+    // Show confirmation dialog
+    this.dialogService
+      .confirm({
+        title: 'Confirm Deletion',
+        message: `Are you sure you want to delete "${file.name}"?`,
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        type: 'warning',
+        icon: 'warning',
+        disableClose: true,
+      })
+      .pipe(
+        filter((result) => result.action === 'confirm'),
+        tap(() => {
+          // Delete file if it has id and url via API call
+          if (file.id && file.url) {
+            firstValueFrom(
+              this.tenantService.deleteTenantDocument(file.id),
+            ).catch(() => {
+              console.error('Failed to delete document:', file.name);
+            });
+          }
+
+          // Remove from newDocumentsToUpload for new files
+          const newDocs = this.newDocumentsToUpload.get(tenantIndex) || [];
+          const updatedNewDocs = newDocs.filter(
+            (doc) => doc.name !== file.name,
+          );
+          this.newDocumentsToUpload.set(tenantIndex, updatedNewDocs);
+
+          // Remove file from UI
+          const tenantDocs = this.tenantDocuments.get(tenantIndex)!;
+          const categoryFiles = tenantDocs.get(category) || [];
+          const updatedFiles = categoryFiles.filter((f) => f.url !== file.url);
+
+          if (updatedFiles.length > 0) {
+            tenantDocs.set(category, updatedFiles);
+          } else {
+            tenantDocs.delete(category);
+          }
+
+          // Update form and UI
+          this.updateTenantFormDocuments(tenantIndex);
           this.cdr.detectChanges();
         }),
       )
@@ -720,7 +693,13 @@ export class TenantAddComponent implements OnInit {
     }
 
     const tenantDocs = this.tenantDocuments.get(tenantIndex)!;
-    tenantDocs.set(category, files);
+
+    // Get existing files for this category
+    const existingFiles = tenantDocs.get(category) || [];
+
+    // Merge existing files with new files
+    const allFiles = [...existingFiles, ...files];
+    tenantDocs.set(category, allFiles);
 
     // If in edit mode, track new documents for upload
     if (this.mode === 'edit') {

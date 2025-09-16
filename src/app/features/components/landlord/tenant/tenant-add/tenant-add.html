@@ -380,7 +380,7 @@
                               </div>
 
                               <!-- Individual Files List -->
-                              <!-- <div class="files-list">
+                              <div class="files-list">
                                 @for (
                                   file of getDocumentsByCategory(
                                     i,
@@ -403,24 +403,27 @@
                                       <span class="file-size">
                                         {{ formatFileSize(file.size || 0) }}
                                       </span>
+                                      @if (file.id) {
+                                        <span class="file-status existing"
+                                          >Existing</span
+                                        >
+                                      } @else {
+                                        <span class="file-status new">New</span>
+                                      }
                                     </div>
                                     <button
                                       type="button"
                                       class="remove-file-btn"
                                       title="Remove this file"
                                       (click)="
-                                        onDocumentCategoryRemoved(
-                                          file,
-                                          i,
-                                          category.value
-                                        )
+                                        removeDocument(i, category.value, file)
                                       "
                                     >
                                       <ng-icon name="close" />
                                     </button>
                                   </div>
                                 }
-                              </div> -->
+                              </div>
                             </div>
                           }
                         }
