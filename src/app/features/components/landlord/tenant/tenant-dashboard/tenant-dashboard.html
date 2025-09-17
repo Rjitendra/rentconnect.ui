@@ -187,15 +187,17 @@
                       <span class="primary-badge">Primary</span>
                     }
                   </div>
-                  <div class="member-status">
-                    <ng-icon
-                      class="status-icon"
-                      [name]="getStatusIcon(member)"
-                    />
-                    <span [class]="getStatusClass(member)">
-                      {{ getStatusText(member) }}
-                    </span>
-                  </div>
+                  @if (member.isPrimary) {
+                    <div class="member-status">
+                      <ng-icon
+                        class="status-icon"
+                        [name]="getStatusIcon(member)"
+                      />
+                      <span [class]="getStatusClass(member)">
+                        {{ getStatusText(member) }}
+                      </span>
+                    </div>
+                  }
                 </div>
               </div>
 
@@ -217,7 +219,7 @@
 
                 <!-- Member Actions -->
                 <div class="member-actions">
-                  @if (!member.agreementSigned) {
+                  @if (!member.agreementAccepted && member.isPrimary) {
                     <ng-icon
                       name="description"
                       tooltip="Create Agreement"
@@ -225,12 +227,42 @@
                       (click)="onCreateAgreement(member)"
                     />
                   }
-                  @if (member.needsOnboarding) {
+                  @if (
+                    member.agreementSigned &&
+                    member.agreementEmailSent &&
+                    !member.agreementAccepted &&
+                    member.isPrimary
+                  ) {
+                    <ng-icon
+                      name="schedule"
+                      tooltip="Waiting for Agreement Acceptance"
+                      class="icon-warning"
+                    />
+                  }
+                  @if (member.agreementAccepted && member.isPrimary) {
+                    <ng-icon
+                      name="verified"
+                      tooltip="Agreement Accepted"
+                      class="icon-success"
+                    />
+                  }
+                  @if (
+                    member.agreementAccepted &&
+                    !member.onboardingEmailSent &&
+                    member.isPrimary
+                  ) {
                     <ng-icon
                       name="send"
                       tooltip="Send Onboarding Email"
                       class="icon-success icon-clickable"
                       (click)="onSendOnboardingEmail(member)"
+                    />
+                  }
+                  @if (member.onboardingEmailSent) {
+                    <ng-icon
+                      name="mark_email_read"
+                      tooltip="Onboarding Email Sent"
+                      class="icon-info"
                     />
                   }
 
@@ -277,18 +309,40 @@
       class="icon-orange icon-clickable"
       (click)="onEditTenantGroup(member)"
     />
-    <ng-icon
-      name="description"
-      tooltip="Create Agreement"
-      class="icon-teal icon-clickable"
-      (click)="onCreateAgreement(member)"
-    />
-    <ng-icon
-      name="send"
-      tooltip="Send Onboarding Email"
-      class="icon-success icon-clickable"
-      (click)="onSendOnboardingEmail(member)"
-    />
+    @if (!member.agreementAccepted) {
+      <ng-icon
+        name="description"
+        tooltip="Create Agreement"
+        class="icon-teal icon-clickable"
+        (click)="onCreateAgreement(member)"
+      />
+    }
+    @if (
+      member.agreementSigned &&
+      member.agreementEmailSent &&
+      !member.agreementAccepted
+    ) {
+      <ng-icon
+        name="schedule"
+        tooltip="Waiting for Agreement Acceptance"
+        class="icon-warning"
+      />
+    }
+    @if (member.agreementAccepted && !member.onboardingEmailSent) {
+      <ng-icon
+        name="send"
+        tooltip="Send Onboarding Email"
+        class="icon-success icon-clickable"
+        (click)="onSendOnboardingEmail(member)"
+      />
+    }
+    @if (member.onboardingEmailSent) {
+      <ng-icon
+        name="mark_email_read"
+        tooltip="Onboarding Complete"
+        class="icon-info"
+      />
+    }
     <ng-icon
       name="delete"
       tooltip="Delete Tenant Group"

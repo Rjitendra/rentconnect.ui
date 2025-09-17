@@ -56,6 +56,11 @@ export interface ITenant {
   agreementSigned?: boolean;
   agreementDate?: Date | string;
   agreementUrl?: string;
+  agreementEmailSent?: boolean;
+  agreementEmailDate?: Date | string;
+  agreementAccepted?: boolean;
+  agreementAcceptedDate?: Date | string;
+  agreementAcceptedBy?: string;
   onboardingEmailSent?: boolean;
   onboardingEmailDate?: Date | string;
   onboardingCompleted?: boolean;

@@ -19,6 +19,7 @@ import {
 } from '../../../../../../../projects/shared/src/public-api';
 // Models and enums
 import { Result } from '../../../../../common/models/common';
+import { ResultStatusType } from '../../../../../common/enums/common.enums';
 import {
   IUserDetail,
   OauthService,
@@ -98,7 +99,9 @@ export class TenantDashboard implements OnInit {
   }
 
   getPendingOnboarding(): number {
-    return this.tenants.filter((t) => t.needsOnboarding).length;
+    return this.tenants.filter(
+      (t) => t.agreementAccepted && !t.onboardingEmailSent,
+    ).length;
   }
 
   getTotalRentAmount(): number {
@@ -117,22 +120,32 @@ export class TenantDashboard implements OnInit {
 
   getStatusClass(tenant: ITenant): string {
     if (!tenant.isActive) return 'status-inactive';
-    if (tenant.needsOnboarding) return 'status-pending';
-    if (tenant.isNewTenant) return 'status-new';
+    if (!tenant.agreementSigned) return 'status-new';
+    if (tenant.agreementSigned && !tenant.agreementAccepted)
+      return 'status-pending';
+    if (tenant.agreementAccepted && !tenant.onboardingEmailSent)
+      return 'status-ready';
+    if (tenant.onboardingEmailSent) return 'status-active';
     return 'status-active';
   }
 
   getStatusIcon(tenant: ITenant): string {
     if (!tenant.isActive) return 'block';
-    if (tenant.needsOnboarding) return 'pending';
-    if (tenant.isNewTenant) return 'new_releases';
+    if (!tenant.agreementSigned) return 'description';
+    if (tenant.agreementSigned && !tenant.agreementAccepted) return 'schedule';
+    if (tenant.agreementAccepted && !tenant.onboardingEmailSent) return 'send';
+    if (tenant.onboardingEmailSent) return 'check_circle';
     return 'check_circle';
   }
 
   getStatusText(tenant: ITenant): string {
     if (!tenant.isActive) return 'Inactive';
-    if (tenant.needsOnboarding) return 'Pending Onboarding';
-    if (tenant.isNewTenant) return 'New';
+    if (!tenant.agreementSigned) return 'Agreement Pending';
+    if (tenant.agreementSigned && !tenant.agreementAccepted)
+      return 'Awaiting Acceptance';
+    if (tenant.agreementAccepted && !tenant.onboardingEmailSent)
+      return 'Ready for Onboarding';
+    if (tenant.onboardingEmailSent) return 'Onboarded';
     return 'Active';
   }
 
@@ -208,13 +221,16 @@ export class TenantDashboard implements OnInit {
       securityDeposit: tenant.securityDeposit,
     };
 
-    this.tenantService.createAgreement(agreementRequest).subscribe({
-      next: (response: { success: boolean; message: string }) => {
-        if (response.success) {
-          this.showSuccess(response.message);
+    this.tenantService.createAgreementAPI(agreementRequest).subscribe({
+      next: (response) => {
+        if (response.status === ResultStatusType.Success) {
+          this.showSuccess('Agreement created and email sent to tenant');
           this.loadTenants(); // Reload to get updated tenant data
         } else {
-          this.showError(response.message);
+          const errorMessage = Array.isArray(response.message) 
+            ? response.message.join(', ') 
+            : response.message || 'Failed to create agreement';
+          this.showError(errorMessage);
         }
       },
       error: (error: unknown) => {
@@ -227,25 +243,36 @@ export class TenantDashboard implements OnInit {
   onSendOnboardingEmail(tenant: ITenant) {
     this.showInfo(`Sending onboarding email to ${tenant.email}...`);
 
-    const emailRequest = {
-      tenantId: tenant.id!,
-      templateType: 'welcome' as const,
-    };
+    const landlordId = this.userdetail?.userId
+      ? Number(this.userdetail.userId)
+      : 0;
 
-    this.tenantService.sendOnboardingEmail(emailRequest).subscribe({
-      next: (response: { success: boolean; message: string }) => {
-        if (response.success) {
-          this.showSuccess(response.message);
-          this.loadTenants(); // Reload to get updated tenant data
-        } else {
-          this.showError(response.message);
-        }
-      },
-      error: (error: unknown) => {
-        this.showError('Failed to send onboarding email');
-        console.error('Error sending onboarding email:', error);
-      },
-    });
+    if (landlordId <= 0) {
+      this.showError('Invalid landlord information');
+      return;
+    }
+
+    this.tenantService
+      .sendOnboardingEmailsAPI(landlordId, tenant.propertyId)
+      .subscribe({
+        next: (response) => {
+          if (response.status === ResultStatusType.Success) {
+            this.showSuccess(
+              `Onboarding emails sent to ${response.entity} tenant(s)`,
+            );
+            this.loadTenants(); // Reload to get updated tenant data
+          } else {
+            const errorMessage = Array.isArray(response.message) 
+              ? response.message.join(', ') 
+              : response.message || 'Failed to send onboarding emails';
+            this.showError(errorMessage);
+          }
+        },
+        error: (error: unknown) => {
+          this.showError('Failed to send onboarding email');
+          console.error('Error sending onboarding email:', error);
+        },
+      });
   }
 
   onDeleteTenant(tenant: ITenant) {
@@ -377,13 +404,20 @@ export class TenantDashboard implements OnInit {
     this.tenantGroups.clear();
     this.primaryTenants = [];
 
+    if (!this.tenants || this.tenants.length === 0) {
+      this.initDashBoard$ = of(true);
+      return;
+    }
+
     // Group tenants by tenantGroup
     this.tenants.forEach((tenant) => {
-      const groupId = tenant.tenantGroup;
-      if (!this.tenantGroups.has(groupId)) {
-        this.tenantGroups.set(groupId, []);
+      if (tenant && tenant.tenantGroup) {
+        const groupId = tenant.tenantGroup;
+        if (!this.tenantGroups.has(groupId)) {
+          this.tenantGroups.set(groupId, []);
+        }
+        this.tenantGroups.get(groupId)!.push(tenant);
       }
-      this.tenantGroups.get(groupId)!.push(tenant);
     });
 
     // Extract primary tenants for table display and prepare for NgMatTable
@@ -402,9 +436,10 @@ export class TenantDashboard implements OnInit {
           statusIcon: this.getStatusIcon(primaryTenant),
         };
         this.primaryTenants.push(enhancedTenant as ITenant);
-        this.initDashBoard$ = of(true);
       }
     });
+
+    this.initDashBoard$ = of(true);
   }
   private loadTenants() {
     const landlordId = this.userdetail?.userId
@@ -412,13 +447,19 @@ export class TenantDashboard implements OnInit {
       : 0;
     if (landlordId > 0) {
       this.tenantService.getTenantsByLandlord(landlordId).subscribe({
-        next: (tenants: Result<ITenant[]>) => {
-          this.tenants = tenants.entity;
+        next: (response: Result<ITenant[]>) => {
+          if (response && response.entity) {
+            this.tenants = response.entity || [];
+          } else {
+            this.tenants = [];
+          }
           this.processTenantData();
         },
         error: (error: unknown) => {
           this.showError('Failed to load tenants');
           console.error('Error loading tenants:', error);
+          this.tenants = [];
+          this.processTenantData();
         },
       });
     }
@@ -432,10 +473,15 @@ export class TenantDashboard implements OnInit {
     if (landlordId > 0) {
       this.propertyService.getProperties(landlordId).subscribe({
         next: (response: Result<IProperty[]>) => {
-          this.properties = response.entity;
+          if (response && response.entity) {
+            this.properties = response.entity || [];
+          } else {
+            this.properties = [];
+          }
         },
         error: (error) => {
           console.error('Error loading properties:', error);
+          this.properties = [];
         },
       });
     }

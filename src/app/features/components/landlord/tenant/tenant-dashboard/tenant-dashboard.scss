@@ -281,6 +281,10 @@
               background: #ffebee;
               color: #f44336;
             }
+            &.status-ready {
+              background: #e8f5e8;
+              color: #4caf50;
+            }
           }
         }
 
@@ -441,6 +445,10 @@
                 &.status-inactive {
                   background: #ffebee;
                   color: #f44336;
+                }
+                &.status-ready {
+                  background: #e8f5e8;
+                  color: #4caf50;
                 }
               }
             }

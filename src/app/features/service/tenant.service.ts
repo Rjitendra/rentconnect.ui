@@ -37,6 +37,23 @@ export interface AgreementCreateRequest {
   securityDeposit: number;
 }
 
+export interface AgreementStatus {
+  tenantId: number;
+  tenantName?: string;
+  tenantGroup?: string;
+  isPrimaryTenant: boolean;
+  agreementCreated: boolean;
+  agreementDate?: Date | string;
+  agreementEmailSent: boolean;
+  agreementEmailDate?: Date | string;
+  agreementAccepted: boolean;
+  agreementAcceptedDate?: Date | string;
+  agreementAcceptedBy?: string;
+  canAcceptAgreement: boolean;
+  canLogin: boolean;
+  message?: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -629,6 +646,52 @@ export class TenantService {
     return this._http.post<Result<IDocument[]>>(
       `${environment.apiBaseUrl}Tenant/${tenantId}/documents/upload`,
       formData,
+    );
+  }
+
+  // Accept agreement (primary tenant only)
+  acceptAgreement(tenantId: number): Observable<Result<boolean>> {
+    return this._http.post<Result<boolean>>(
+      `${environment.apiBaseUrl}Tenant/agreement/accept/${tenantId}`,
+      {},
+    );
+  }
+
+  // Get agreement status
+  getAgreementStatus(tenantId: number): Observable<Result<AgreementStatus>> {
+    return this._http.get<Result<AgreementStatus>>(
+      `${environment.apiBaseUrl}Tenant/agreement/status/${tenantId}`,
+    );
+  }
+
+  // Create agreement using real API
+  createAgreementAPI(
+    request: AgreementCreateRequest,
+  ): Observable<Result<string>> {
+    return this._http.post<Result<string>>(
+      `${environment.apiBaseUrl}Tenant/agreement/create`,
+      request,
+    );
+  }
+
+  // Send onboarding emails using real API
+  sendOnboardingEmailsAPI(
+    landlordId: number,
+    propertyId: number,
+  ): Observable<Result<number>> {
+    return this._http.post<Result<number>>(
+      `${environment.apiBaseUrl}Tenant/onboarding/email/${landlordId}/${propertyId}`,
+      {},
+    );
+  }
+
+  // Get eligible tenants for onboarding
+  getEligibleTenantsForOnboarding(
+    landlordId: number,
+    propertyId: number,
+  ): Observable<Result<ITenant[]>> {
+    return this._http.get<Result<ITenant[]>>(
+      `${environment.apiBaseUrl}Tenant/onboarding/eligible/${landlordId}/${propertyId}`,
     );
   }
   // Private helper methods
