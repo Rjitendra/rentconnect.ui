@@ -250,7 +250,7 @@
                       class="icon-success"
                     />
                   }
-                  @if (member.agreementAccepted) {
+                  @if (isGroupAgreementAccepted(member.tenantGroup)) {
                     <ng-icon
                       name="send"
                       [tooltip]="
@@ -266,13 +266,13 @@
                       (click)="onSendOnboardingEmail(member)"
                     />
                   }
-                  <!-- @if (member.onboardingEmailSent) {
+                  @if (member.onboardingEmailSent) {
                     <ng-icon
                       name="mark_email_read"
                       tooltip="Onboarding Email Previously Sent"
                       class="icon-info"
                     />
-                  } -->
+                  }
 
                   <ng-icon
                     name="visibility"
@@ -336,7 +336,7 @@
         class="icon-warning"
       />
     }
-    @if (member.agreementAccepted && member.isPrimary) {
+    @if (isGroupAgreementAccepted(member.tenantGroup)) {
       <ng-icon
         name="send"
         [tooltip]="
@@ -349,7 +349,7 @@
             ? 'icon-warning icon-clickable'
             : 'icon-success icon-clickable'
         "
-        (click)="onSendOnboardingEmail(member)"
+        (click)="onSendBulkOnboardingEmails(member.propertyId)"
       />
     }
     @if (member.onboardingEmailSent) {

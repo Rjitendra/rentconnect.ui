@@ -239,7 +239,12 @@ export class TenantDashboard implements OnInit {
       },
     });
   }
-
+  // Check if any primary tenant in the group has accepted the agreement
+  isGroupAgreementAccepted(tenantGroup: string): boolean {
+    const groupMembers = this.tenantGroups.get(tenantGroup) || [];
+    const primaryTenant = groupMembers.find((member) => member.isPrimary);
+    return primaryTenant?.agreementAccepted || false;
+  }
   onSendOnboardingEmail(tenant: ITenant) {
     const isResend = tenant.onboardingEmailSent;
     const action = isResend ? 'Resending' : 'Sending';
