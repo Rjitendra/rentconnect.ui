@@ -694,6 +694,15 @@ export class TenantService {
       `${environment.apiBaseUrl}Tenant/onboarding/eligible/${landlordId}/${propertyId}`,
     );
   }
+  // Send onboarding emails to specific tenant IDs
+  sendOnboardingEmailsByTenantIds(
+    tenantIds: number[],
+  ): Observable<Result<number>> {
+    return this._http.post<Result<number>>(
+      `${environment.apiBaseUrl}Tenant/onboarding/email/by-ids`,
+      tenantIds,
+    );
+  }
   // Private helper methods
   private validateTenant(tenant: Partial<ITenant>): ITenantValidationError[] {
     const errors: ITenantValidationError[] = [];

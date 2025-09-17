@@ -40,11 +40,15 @@
             <span class="stat-label">Active Tenants</span>
           </div>
         </div>
-        <div class="stat-card">
+        <div
+          class="stat-card clickable-card"
+          (click)="onSendAllOnboardingEmails()"
+        >
           <ng-icon name="pending" class="stat-icon pending" />
           <div class="stat-content">
             <span class="stat-number">{{ getPendingOnboarding() }}</span>
             <span class="stat-label">Pending Onboarding</span>
+            <span class="stat-sublabel">Click to send all</span>
           </div>
         </div>
         <div class="stat-card">
@@ -219,7 +223,7 @@
 
                 <!-- Member Actions -->
                 <div class="member-actions">
-                  @if (!member.agreementAccepted && member.isPrimary) {
+                  @if (!member.agreementSigned && member.isPrimary) {
                     <ng-icon
                       name="description"
                       tooltip="Create Agreement"
@@ -246,25 +250,29 @@
                       class="icon-success"
                     />
                   }
-                  @if (
-                    member.agreementAccepted &&
-                    !member.onboardingEmailSent &&
-                    member.isPrimary
-                  ) {
+                  @if (member.agreementAccepted) {
                     <ng-icon
                       name="send"
-                      tooltip="Send Onboarding Email"
-                      class="icon-success icon-clickable"
+                      [tooltip]="
+                        member.onboardingEmailSent
+                          ? 'Resend Onboarding Email'
+                          : 'Send Onboarding Email'
+                      "
+                      [class]="
+                        member.onboardingEmailSent
+                          ? 'icon-warning icon-clickable'
+                          : 'icon-success icon-clickable'
+                      "
                       (click)="onSendOnboardingEmail(member)"
                     />
                   }
-                  @if (member.onboardingEmailSent) {
+                  <!-- @if (member.onboardingEmailSent) {
                     <ng-icon
                       name="mark_email_read"
-                      tooltip="Onboarding Email Sent"
+                      tooltip="Onboarding Email Previously Sent"
                       class="icon-info"
                     />
-                  }
+                  } -->
 
                   <ng-icon
                     name="visibility"
@@ -309,7 +317,7 @@
       class="icon-orange icon-clickable"
       (click)="onEditTenantGroup(member)"
     />
-    @if (!member.agreementAccepted) {
+    @if (!member.agreementSigned) {
       <ng-icon
         name="description"
         tooltip="Create Agreement"
@@ -328,18 +336,26 @@
         class="icon-warning"
       />
     }
-    @if (member.agreementAccepted && !member.onboardingEmailSent) {
+    @if (member.agreementAccepted && member.isPrimary) {
       <ng-icon
         name="send"
-        tooltip="Send Onboarding Email"
-        class="icon-success icon-clickable"
+        [tooltip]="
+          member.onboardingEmailSent
+            ? 'Resend Onboarding Email'
+            : 'Send Onboarding Email'
+        "
+        [class]="
+          member.onboardingEmailSent
+            ? 'icon-warning icon-clickable'
+            : 'icon-success icon-clickable'
+        "
         (click)="onSendOnboardingEmail(member)"
       />
     }
     @if (member.onboardingEmailSent) {
       <ng-icon
         name="mark_email_read"
-        tooltip="Onboarding Complete"
+        tooltip="Onboarding Email Previously Sent"
         class="icon-info"
       />
     }

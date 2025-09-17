@@ -18,8 +18,8 @@ import {
   TableOptions,
 } from '../../../../../../../projects/shared/src/public-api';
 // Models and enums
-import { Result } from '../../../../../common/models/common';
 import { ResultStatusType } from '../../../../../common/enums/common.enums';
+import { Result } from '../../../../../common/models/common';
 import {
   IUserDetail,
   OauthService,
@@ -145,7 +145,7 @@ export class TenantDashboard implements OnInit {
       return 'Awaiting Acceptance';
     if (tenant.agreementAccepted && !tenant.onboardingEmailSent)
       return 'Ready for Onboarding';
-    if (tenant.onboardingEmailSent) return 'Onboarded';
+    if (tenant.onboardingEmailSent) return 'Email Sent';
     return 'Active';
   }
 
@@ -227,8 +227,8 @@ export class TenantDashboard implements OnInit {
           this.showSuccess('Agreement created and email sent to tenant');
           this.loadTenants(); // Reload to get updated tenant data
         } else {
-          const errorMessage = Array.isArray(response.message) 
-            ? response.message.join(', ') 
+          const errorMessage = Array.isArray(response.message)
+            ? response.message.join(', ')
             : response.message || 'Failed to create agreement';
           this.showError(errorMessage);
         }
@@ -241,7 +241,40 @@ export class TenantDashboard implements OnInit {
   }
 
   onSendOnboardingEmail(tenant: ITenant) {
-    this.showInfo(`Sending onboarding email to ${tenant.email}...`);
+    const isResend = tenant.onboardingEmailSent;
+    const action = isResend ? 'Resending' : 'Sending';
+    const actionPast = isResend ? 'resent' : 'sent';
+
+    this.showInfo(`${action} onboarding email to ${tenant.email}...`);
+
+    // Send email to specific tenant
+    this.tenantService.sendOnboardingEmailsByTenantIds([tenant.id!]).subscribe({
+      next: (response) => {
+        if (response.status === ResultStatusType.Success) {
+          this.showSuccess(
+            `Onboarding email ${actionPast} to ${tenant.name}${isResend ? ' (resent successfully)' : ''}`,
+          );
+          this.loadTenants(); // Reload to get updated tenant data
+        } else {
+          const errorMessage = Array.isArray(response.message)
+            ? response.message.join(', ')
+            : response.message ||
+              `Failed to ${isResend ? 'resend' : 'send'} onboarding email`;
+          this.showError(errorMessage);
+        }
+      },
+      error: (error: unknown) => {
+        this.showError(
+          `Failed to ${isResend ? 'resend' : 'send'} onboarding email`,
+        );
+        console.error('Error sending onboarding email:', error);
+      },
+    });
+  }
+
+  // Send onboarding emails to all tenants in a property
+  onSendBulkOnboardingEmails(propertyId: number) {
+    this.showInfo('Sending onboarding emails to all eligible tenants...');
 
     const landlordId = this.userdetail?.userId
       ? Number(this.userdetail.userId)
@@ -253,7 +286,7 @@ export class TenantDashboard implements OnInit {
     }
 
     this.tenantService
-      .sendOnboardingEmailsAPI(landlordId, tenant.propertyId)
+      .sendOnboardingEmailsAPI(landlordId, propertyId)
       .subscribe({
         next: (response) => {
           if (response.status === ResultStatusType.Success) {
@@ -262,17 +295,97 @@ export class TenantDashboard implements OnInit {
             );
             this.loadTenants(); // Reload to get updated tenant data
           } else {
-            const errorMessage = Array.isArray(response.message) 
-              ? response.message.join(', ') 
+            const errorMessage = Array.isArray(response.message)
+              ? response.message.join(', ')
               : response.message || 'Failed to send onboarding emails';
             this.showError(errorMessage);
           }
         },
         error: (error: unknown) => {
-          this.showError('Failed to send onboarding email');
-          console.error('Error sending onboarding email:', error);
+          this.showError('Failed to send onboarding emails');
+          console.error('Error sending onboarding emails:', error);
         },
       });
+  }
+
+  // Send onboarding emails to all tenants across all properties
+  onSendAllOnboardingEmails() {
+    if (
+      !confirm(
+        'Are you sure you want to send onboarding emails to all eligible tenants across all properties?',
+      )
+    ) {
+      return;
+    }
+
+    this.showInfo('Sending onboarding emails to all eligible tenants...');
+
+    // Get all unique property IDs from current tenants
+    const propertyIds = [...new Set(this.tenants.map((t) => t.propertyId))];
+
+    if (propertyIds.length === 0) {
+      this.showError('No properties found');
+      return;
+    }
+
+    const landlordId = this.userdetail?.userId
+      ? Number(this.userdetail.userId)
+      : 0;
+
+    if (landlordId <= 0) {
+      this.showError('Invalid landlord information');
+      return;
+    }
+
+    let totalEmailsSent = 0;
+    let completedRequests = 0;
+
+    // Send emails for each property
+    propertyIds.forEach((propertyId) => {
+      this.tenantService
+        .sendOnboardingEmailsAPI(landlordId, propertyId)
+        .subscribe({
+          next: (response) => {
+            completedRequests++;
+            if (response.status === ResultStatusType.Success) {
+              totalEmailsSent += response.entity || 0;
+            }
+
+            // Check if all requests are completed
+            if (completedRequests === propertyIds.length) {
+              if (totalEmailsSent > 0) {
+                this.showSuccess(
+                  `Onboarding emails sent to ${totalEmailsSent} tenant(s) across all properties`,
+                );
+              } else {
+                this.showInfo(
+                  'No eligible tenants found for onboarding emails',
+                );
+              }
+              this.loadTenants(); // Reload to get updated tenant data
+            }
+          },
+          error: (error: unknown) => {
+            completedRequests++;
+            console.error(
+              `Error sending onboarding emails for property ${propertyId}:`,
+              error,
+            );
+
+            // Check if all requests are completed
+            if (completedRequests === propertyIds.length) {
+              if (totalEmailsSent > 0) {
+                this.showSuccess(
+                  `Onboarding emails sent to ${totalEmailsSent} tenant(s). Some requests failed.`,
+                );
+              } else {
+                this.showError('Failed to send onboarding emails');
+              }
+              this.loadTenants(); // Reload to get updated tenant data
+            }
+          },
+        });
+    });
   }
 
   onDeleteTenant(tenant: ITenant) {
