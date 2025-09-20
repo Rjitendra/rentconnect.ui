@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { NgButton } from 'shared';
 
+import { NgButton } from '../../../../../../projects/shared/src/public-api';
 import { ResultStatusType } from '../../../../common/enums/common.enums';
 import {
   IUserDetail,
@@ -10,8 +12,8 @@ import {
 } from '../../../../oauth/service/oauth.service';
 import { ITenant } from '../../../models/tenant';
 import { TenantService } from '../../../service/tenant.service';
-import { ChatbotComponent } from '../../chatbot/chatbot.component';
-import { AgreementModalComponent } from '../agreement-modal/agreement-modal.component';
+import { ChatbotComponent } from '../../chatbot/chatbot/chatbot';
+import { AgreementModalComponent } from '../agreement-modal/agreement-modal';
 
 @Component({
   selector: 'app-tenant-portal',
@@ -36,9 +38,9 @@ export class TenantPortalComponent implements OnInit {
   agreementStatus: unknown = null;
 
   // private alertService = inject(AlertService); // TODO: Add alert service
+  public router = inject(Router);
   private tenantService = inject(TenantService);
   private userService = inject(OauthService);
-  public router = inject(Router);
 
   constructor() {
     this.userDetail = this.userService.getUserInfo();
@@ -46,6 +48,37 @@ export class TenantPortalComponent implements OnInit {
 
   ngOnInit() {
     this.loadTenantData();
+  }
+
+  onAgreementAccepted() {
+    this.showAgreementModal = false;
+    this.isAgreementAccepted = true;
+    this.showSuccess(
+      'Agreement accepted successfully! Welcome to your tenant portal.',
+    );
+  }
+
+  onAgreementCancelled() {
+    this.showAgreementModal = false;
+    this.showInfo(
+      'Please accept the agreement to activate your tenancy and access all portal features.',
+    );
+  }
+
+  navigateToSection(section: string) {
+    if (!this.isAgreementAccepted) {
+      this.showWarning(
+        'Please accept the rental agreement first to access portal features.',
+      );
+      return;
+    }
+    this.router.navigate(['/tenant', section]);
+  }
+
+  showAgreementDetails() {
+    if (this.isPrimaryTenant && !this.isAgreementAccepted) {
+      this.showAgreementModal = true;
+    }
   }
 
   private async loadTenantData() {
@@ -116,38 +149,6 @@ export class TenantPortalComponent implements OnInit {
       console.error('Error checking agreement status:', error);
     }
   }
-
-  onAgreementAccepted() {
-    this.showAgreementModal = false;
-    this.isAgreementAccepted = true;
-    this.showSuccess(
-      'Agreement accepted successfully! Welcome to your tenant portal.',
-    );
-  }
-
-  onAgreementCancelled() {
-    this.showAgreementModal = false;
-    this.showInfo(
-      'Please accept the agreement to activate your tenancy and access all portal features.',
-    );
-  }
-
-  navigateToSection(section: string) {
-    if (!this.isAgreementAccepted) {
-      this.showWarning(
-        'Please accept the rental agreement first to access portal features.',
-      );
-      return;
-    }
-    this.router.navigate(['/tenant', section]);
-  }
-
-  showAgreementDetails() {
-    if (this.isPrimaryTenant && !this.isAgreementAccepted) {
-      this.showAgreementModal = true;
-    }
-  }
-
   // Alert helper methods
   private showSuccess(message: string) {
     console.log('Success:', message);

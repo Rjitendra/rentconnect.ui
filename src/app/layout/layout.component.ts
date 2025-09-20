@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 
-import { NAVITEMS } from '../app.nav';
 import {
   LibLayoutComponent,
   NgAlertComponent,
 } from '../../../projects/shared/src/public-api';
+import { NAVITEMS } from '../app.nav';
 import { OauthService } from '../oauth/service/oauth.service';
 
 @Component({
-  selector: 'ng-layout',
+  selector: 'app-layout',
   imports: [LibLayoutComponent, NgAlertComponent],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.scss',
@@ -16,6 +16,7 @@ import { OauthService } from '../oauth/service/oauth.service';
 export class LayoutComponent implements OnInit {
   navItes = NAVITEMS;
   isLogIn = false;
+
   constructor(private authService: OauthService) {}
 
   ngOnInit() {
@@ -25,6 +26,7 @@ export class LayoutComponent implements OnInit {
   onLogIn(): void {
     this.authService.login();
   }
+
   async onLogout(): Promise<void> {
     try {
       this.authService.logout();
@@ -37,7 +39,7 @@ export class LayoutComponent implements OnInit {
       const user = await this.authService.getUser();
       if (user && user.access_token) {
         const res = user.profile['roleName'];
-        if (res == 'Landlord') {
+        if (res === 'Landlord') {
           this.authService.setUserInfo(user.profile);
           this.isLogIn = true;
           return true;
