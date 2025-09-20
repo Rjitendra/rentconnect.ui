@@ -13,6 +13,7 @@ export * from './lib/components/ng-input/ng-input.component';
 export * from './lib/components/ng-label/ng-label.component';
 export * from './lib/components/ng-mat-table/ng-mat-table';
 export * from './lib/components/ng-tree/ng-tree.component';
+export type { TableColumn } from './lib/models/mat-table';
 
 export * from './lib/models/alert';
 export * from './lib/models/inav';
@@ -26,9 +27,14 @@ export * from './lib/components/ng-autocomplete/ng-autocomplete.component';
 export * from './lib/components/ng-chips/ng-chips.component';
 export * from './lib/components/ng-datepicker/ng-datepicker.component';
 export * from './lib/components/ng-file-upload/ng-file-upload.component';
+export type {
+  FileUploadConfig,
+  UploadedFile,
+} from './lib/components/ng-file-upload/ng-file-upload.component';
 export * from './lib/components/ng-progress-bar/ng-progress-bar.component';
 export * from './lib/components/ng-radio-group/ng-radio-group.component';
 export * from './lib/components/ng-select/ng-select.component';
+export type { SelectOption } from './lib/components/ng-select/ng-select.component';
 export * from './lib/components/ng-slider/ng-slider.component';
 export * from './lib/components/ng-stepper/ng-stepper.component';
 export * from './lib/components/ng-textarea/ng-textarea.component';

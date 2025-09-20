@@ -1,0 +1,428 @@
+.documents {
+  padding: 24px;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: #4a5568;
+      font-size: 0.9rem;
+
+      &:hover {
+        background: #f7fafc;
+        border-color: #cbd5e0;
+        transform: translateX(-2px);
+      }
+
+      i {
+        font-size: 20px;
+      }
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 600;
+      color: #2d3748;
+    }
+  }
+
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 60vh;
+    gap: 20px;
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #e3f2fd;
+      border-top: 4px solid #2196f3;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    p {
+      font-size: 16px;
+      color: #666;
+      margin: 0;
+    }
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  // Card styles
+  ng-card {
+    margin-bottom: 24px;
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #e2e8f0;
+
+      i {
+        font-size: 24px;
+        color: #4299e1;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #2d3748;
+      }
+    }
+  }
+
+  // Agreement section
+  .agreement-section {
+    .agreement-info {
+      display: flex;
+      align-items: flex-start;
+      gap: 32px;
+      padding: 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      color: white;
+
+      .agreement-details {
+        flex: 1;
+
+        h3 {
+          margin: 0 0 16px 0;
+          font-size: 1.3rem;
+          font-weight: 600;
+        }
+
+        .agreement-meta {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 12px;
+
+          .meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+
+            label {
+              font-size: 0.875rem;
+              opacity: 0.8;
+              font-weight: 500;
+            }
+
+            span {
+              font-size: 1rem;
+              font-weight: 600;
+
+              &.status {
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-size: 0.875rem;
+                background: rgba(255, 255, 255, 0.2);
+                display: inline-block;
+                width: fit-content;
+
+                &.accepted {
+                  background: #48bb78;
+                  color: white;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      .agreement-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        flex-shrink: 0;
+      }
+    }
+  }
+
+  // Upload section
+  .upload-section {
+    .upload-info {
+      margin-bottom: 24px;
+
+      p {
+        margin: 0 0 12px 0;
+        color: #4a5568;
+        font-size: 1rem;
+      }
+
+      ul {
+        margin: 0;
+        padding-left: 20px;
+        color: #718096;
+
+        li {
+          margin-bottom: 4px;
+          font-size: 0.9rem;
+        }
+      }
+    }
+
+    .upload-area {
+      .upload-actions {
+        margin-top: 16px;
+        text-align: right;
+      }
+    }
+  }
+
+  // Documents list
+  .documents-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .document-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+
+      &:hover {
+        border-color: #cbd5e0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .document-icon {
+        flex-shrink: 0;
+
+        i {
+          font-size: 32px;
+          color: #4299e1;
+          padding: 8px;
+          background: #ebf8ff;
+          border-radius: 8px;
+        }
+      }
+
+      .document-info {
+        flex: 1;
+
+        h4 {
+          margin: 0 0 8px 0;
+          font-size: 1rem;
+          font-weight: 600;
+          color: #2d3748;
+        }
+
+        .document-meta {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          margin-bottom: 4px;
+
+          span {
+            font-size: 0.875rem;
+            color: #718096;
+
+            &.category {
+              background: #edf2f7;
+              padding: 2px 8px;
+              border-radius: 12px;
+              font-weight: 500;
+            }
+          }
+        }
+
+        .description {
+          margin: 0;
+          font-size: 0.875rem;
+          color: #718096;
+          font-style: italic;
+        }
+      }
+
+      .document-status {
+        flex-shrink: 0;
+
+        .status-badge {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          padding: 6px 12px;
+          border-radius: 16px;
+          font-size: 0.8rem;
+          font-weight: 500;
+
+          &.verified {
+            background: #c6f6d5;
+            color: #2f855a;
+          }
+
+          &.pending {
+            background: #fed7d7;
+            color: #c53030;
+          }
+
+          i {
+            font-size: 16px;
+          }
+        }
+      }
+
+      .document-actions {
+        display: flex;
+        gap: 8px;
+        flex-shrink: 0;
+
+        .action-btn {
+          background: none;
+          border: 1px solid #e2e8f0;
+          color: #4a5568;
+          width: 36px;
+          height: 36px;
+          border-radius: 6px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.3s ease;
+
+          &:hover {
+            background: #f7fafc;
+            border-color: #cbd5e0;
+          }
+
+          &.delete {
+            color: #e53e3e;
+
+            &:hover {
+              background: #fed7d7;
+              border-color: #feb2b2;
+            }
+          }
+
+          i {
+            font-size: 18px;
+          }
+        }
+      }
+    }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #718096;
+
+    i {
+      font-size: 48px;
+      color: #cbd5e0;
+      margin-bottom: 16px;
+    }
+
+    p {
+      margin: 0 0 8px 0;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .sub-text {
+      font-size: 0.9rem;
+      font-weight: normal;
+    }
+  }
+
+  // Responsive design
+  @media (max-width: 768px) {
+    padding: 16px;
+
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+
+      h1 {
+        font-size: 1.5rem;
+      }
+    }
+
+    .agreement-info {
+      flex-direction: column;
+      gap: 20px;
+
+      .agreement-meta {
+        grid-template-columns: 1fr;
+      }
+
+      .agreement-actions {
+        flex-direction: row;
+        justify-content: flex-start;
+      }
+    }
+
+    .document-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+
+      .document-info {
+        order: 1;
+      }
+
+      .document-status {
+        order: 2;
+        align-self: flex-start;
+      }
+
+      .document-actions {
+        order: 3;
+        align-self: flex-end;
+      }
+    }
+  }
+
+  @media (max-width: 480px) {
+    padding: 12px;
+
+    .agreement-actions {
+      flex-direction: column;
+      width: 100%;
+    }
+
+    .document-item {
+      .document-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+    }
+  }
+}

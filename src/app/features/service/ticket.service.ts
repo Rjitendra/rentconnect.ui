@@ -341,4 +341,12 @@ export class TicketService {
         return 'Unknown';
     }
   }
+
+  // Create ticket from chatbot
+  createTicketFromChatbot(ticketData: any): Observable<Result<any>> {
+    return this._http.post<Result<any>>(
+      `${this.apiUrl}/chatbot/create`,
+      ticketData,
+    );
+  }
 }

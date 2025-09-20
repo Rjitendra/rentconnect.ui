@@ -1,11 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { Result } from '../../common/models/common';
-import { DocumentCategory } from '../enums/view.enum';
 import { IDocument } from '../models/document';
 import { ITenant, ITenantChildren } from '../models/tenant';
 
@@ -59,386 +58,114 @@ export interface AgreementStatus {
 })
 export class TenantService {
   private _http = inject(HttpClient);
-  private tenants: ITenant[] = [
-    {
-      id: 1,
-      landlordId: 1,
-      propertyId: 1,
-      name: 'Rajesh Kumar',
-      email: 'rajesh.kumar@email.com',
-      phoneNumber: '+91 9876543210',
-      alternatePhoneNumber: '+91 9876543211',
-      dob: '1990-05-15',
-      age: 34,
-      occupation: 'Software Engineer',
-      gender: 'Male',
-      maritalStatus: 'Married',
-      currentAddress: '123, Tech Park, Sector 15, Gurgaon, Haryana - 122001',
-      permanentAddress: '456, Village Road, Rohtak, Haryana - 124001',
-      emergencyContactName: 'Sunita Kumar',
-      emergencyContactPhone: '+91 9876543212',
-      emergencyContactRelation: 'Wife',
-      aadhaarNumber: '123456789012',
-      panNumber: 'ABCDE1234F',
-      drivingLicenseNumber: 'HR0619850034761',
-      employerName: 'Tech Solutions Pvt Ltd',
-      employerAddress: 'Cyber City, Gurgaon',
-      employerPhone: '+91 1244567890',
-      monthlyIncome: 80000,
-      workExperience: 8,
-      tenancyStartDate: '2024-01-01',
-      tenancyEndDate: '2025-01-01',
-      rentDueDate: '2024-01-05',
-      rentAmount: 25000,
-      securityDeposit: 50000,
-      maintenanceCharges: 2000,
-      leaseDuration: 12,
-      noticePeriod: 30,
-      agreementSigned: true,
-      agreementDate: '2023-12-15',
-      agreementUrl: '/documents/agreement_1.pdf',
-      onboardingEmailSent: true,
-      onboardingEmailDate: '2023-12-20',
-      onboardingCompleted: true,
-      isAcknowledge: true,
-      acknowledgeDate: '2024-01-01',
-      isVerified: true,
-      verificationNotes: 'All documents verified',
-      isNewTenant: false,
-      isPrimary: true,
-      isActive: true,
-      needsOnboarding: false,
-      tenantGroup: '1',
-      dateCreated: '2023-12-15',
-      dateModified: '2024-01-01',
-      documents: [
-        {
-          ownerId: 1,
-          ownerType: 'Tenant',
-          category: DocumentCategory.Aadhaar,
-          url: '/documents/aadhaar_1.pdf',
-          name: 'Rajesh_Aadhaar.pdf',
-          type: 'application/pdf',
-          size: 1024000,
-          uploadedOn: '2023-12-15T10:00:00Z',
-          isVerified: true,
-          verifiedBy: 'System Admin',
-        },
-        {
-          ownerId: 1,
-          ownerType: 'Tenant',
-          category: DocumentCategory.PAN,
-          url: '/documents/pan_1.pdf',
-          name: 'Rajesh_PAN.pdf',
-          type: 'application/pdf',
-          size: 512000,
-          uploadedOn: '2023-12-15T10:05:00Z',
-          isVerified: true,
-          verifiedBy: 'System Admin',
-        },
-      ],
-      children: [
-        {
-          id: 1,
-          tenantGroupId: '1',
-          name: 'Arjun Kumar',
-          email: 'arjun.kumar@email.com',
-          dob: '2015-03-10',
-          age: 9,
-          occupation: 'Student',
-          relation: 'Son',
-        },
-      ],
-    },
-  ];
 
   constructor() {}
 
   // Get all tenants
-  getAllTenants(): Observable<ITenant[]> {
-    return of([...this.tenants]);
+  getAllTenants(): Observable<Result<ITenant[]>> {
+    return this._http.get<Result<ITenant[]>>(`${environment.apiBaseUrl}Tenant`);
   }
 
   // Get tenant by ID
-  getTenantById(id: number): Observable<ITenant | null> {
-    const tenant = this.tenants.find((t) => t.id === id);
-    return of(tenant || null);
+  getTenantById(id: number): Observable<Result<ITenant>> {
+    return this._http.get<Result<ITenant>>(
+      `${environment.apiBaseUrl}Tenant/${id}`,
+    );
   }
 
   // Delete tenant
-  deleteTenant(id: number): Observable<{ success: boolean; message: string }> {
-    return new Observable((observer) => {
-      setTimeout(() => {
-        const index = this.tenants.findIndex((t) => t.id === id);
-        if (index !== -1) {
-          const deletedTenant = this.tenants.splice(index, 1)[0];
-          observer.next({
-            success: true,
-            message: `Tenant ${deletedTenant.name} deleted successfully`,
-          });
-        } else {
-          observer.next({
-            success: false,
-            message: 'Tenant not found',
-          });
-        }
-        observer.complete();
-      });
-    });
+  deleteTenant(id: number): Observable<Result<boolean>> {
+    return this._http.delete<Result<boolean>>(
+      `${environment.apiBaseUrl}Tenant/${id}`,
+    );
   }
 
   // Send onboarding email
   sendOnboardingEmail(
     request: OnboardingEmailRequest,
-  ): Observable<{ success: boolean; message: string }> {
-    return new Observable((observer) => {
-      setTimeout(() => {
-        const tenant = this.tenants.find((t) => t.id === request.tenantId);
-        if (tenant) {
-          // Update tenant onboarding status
-          tenant.onboardingEmailSent = true;
-          tenant.onboardingEmailDate = new Date().toISOString();
-          tenant.needsOnboarding = false;
-
-          observer.next({
-            success: true,
-            message: `Onboarding email sent to ${tenant.email}`,
-          });
-        } else {
-          observer.next({
-            success: false,
-            message: 'Tenant not found',
-          });
-        }
-        observer.complete();
-      });
-    });
+  ): Observable<Result<boolean>> {
+    return this._http.post<Result<boolean>>(
+      `${environment.apiBaseUrl}Tenant/onboarding/email/${request.tenantId}`,
+      request,
+    );
   }
 
   // Create agreement
-  createAgreement(
-    request: AgreementCreateRequest,
-  ): Observable<{ success: boolean; message: string; agreementUrl?: string }> {
-    return new Observable((observer) => {
-      setTimeout(() => {
-        const tenant = this.tenants.find((t) => t.id === request.tenantId);
-        if (tenant) {
-          // Update tenant agreement status
-          tenant.agreementSigned = true;
-          tenant.agreementDate = new Date().toISOString();
-          tenant.agreementUrl = `/documents/agreement_${tenant.id}.pdf`;
-          tenant.tenancyStartDate = request.startDate;
-          tenant.tenancyEndDate = request.endDate;
-          tenant.rentAmount = request.rentAmount;
-          tenant.securityDeposit = request.securityDeposit;
-
-          observer.next({
-            success: true,
-            message: `Agreement created for ${tenant.name}`,
-            agreementUrl: tenant.agreementUrl,
-          });
-        } else {
-          observer.next({
-            success: false,
-            message: 'Tenant not found',
-          });
-        }
-        observer.complete();
-      });
-    });
+  createAgreement(request: AgreementCreateRequest): Observable<Result<string>> {
+    return this._http.post<Result<string>>(
+      `${environment.apiBaseUrl}Tenant/agreement/create`,
+      request,
+    );
   }
 
   // Add tenant child/family member
   addTenantChild(
     tenantId: number,
-    child: Omit<ITenantChildren, 'id'>,
-  ): Observable<{
-    success: boolean;
-    message: string;
-    child?: ITenantChildren;
-  }> {
-    return new Observable((observer) => {
-      setTimeout(() => {
-        const tenant = this.tenants.find((t) => t.id === tenantId);
-        if (tenant) {
-          const newChild: ITenantChildren = {
-            ...child,
-            id: Date.now(), // Simple ID generation
-            age: this.calculateAge(child.dob as string),
-          };
-
-          if (!tenant.children) {
-            tenant.children = [];
-          }
-          tenant.children.push(newChild);
-
-          observer.next({
-            success: true,
-            message: `Family member ${child.name} added successfully`,
-            child: newChild,
-          });
-        } else {
-          observer.next({
-            success: false,
-            message: 'Tenant not found',
-          });
-        }
-        observer.complete();
-      });
-    });
+    child: ITenantChildren,
+  ): Observable<Result<ITenantChildren>> {
+    return this._http.post<Result<ITenantChildren>>(
+      `${environment.apiBaseUrl}Tenant/${tenantId}/children`,
+      child,
+    );
   }
 
   // Update tenant child
   updateTenantChild(
     tenantId: number,
     childId: number,
-    childData: Partial<ITenantChildren>,
-  ): Observable<{ success: boolean; message: string }> {
-    return new Observable((observer) => {
-      setTimeout(() => {
-        const tenant = this.tenants.find((t) => t.id === tenantId);
-        if (tenant && tenant.children) {
-          const childIndex = tenant.children.findIndex((c) => c.id === childId);
-          if (childIndex !== -1) {
-            tenant.children[childIndex] = {
-              ...tenant.children[childIndex],
-              ...childData,
-              age: childData.dob
-                ? this.calculateAge(childData.dob as string)
-                : tenant.children[childIndex].age,
-            };
-
-            observer.next({
-              success: true,
-              message: 'Family member updated successfully',
-            });
-          } else {
-            observer.next({
-              success: false,
-              message: 'Family member not found',
-            });
-          }
-        } else {
-          observer.next({
-            success: false,
-            message: 'Tenant not found',
-          });
-        }
-        observer.complete();
-      });
-    });
+    childData: ITenantChildren,
+  ): Observable<Result<boolean>> {
+    return this._http.put<Result<boolean>>(
+      `${environment.apiBaseUrl}Tenant/${tenantId}/children/${childId}`,
+      childData,
+    );
   }
 
   // Delete tenant child
   deleteTenantChild(
     tenantId: number,
     childId: number,
-  ): Observable<{ success: boolean; message: string }> {
-    return new Observable((observer) => {
-      setTimeout(() => {
-        const tenant = this.tenants.find((t) => t.id === tenantId);
-        if (tenant && tenant.children) {
-          const childIndex = tenant.children.findIndex((c) => c.id === childId);
-          if (childIndex !== -1) {
-            const deletedChild = tenant.children.splice(childIndex, 1)[0];
-            observer.next({
-              success: true,
-              message: `Family member ${deletedChild.name} removed successfully`,
-            });
-          } else {
-            observer.next({
-              success: false,
-              message: 'Family member not found',
-            });
-          }
-        } else {
-          observer.next({
-            success: false,
-            message: 'Tenant not found',
-          });
-        }
-        observer.complete();
-      });
-    });
+  ): Observable<Result<boolean>> {
+    return this._http.delete<Result<boolean>>(
+      `${environment.apiBaseUrl}Tenant/${tenantId}/children/${childId}`,
+    );
   }
 
   // Upload tenant document
   uploadTenantDocument(
     tenantId: number,
-    document: Omit<IDocument, 'ownerId' | 'ownerType'>,
-  ): Observable<{ success: boolean; message: string }> {
-    return new Observable((observer) => {
-      setTimeout(() => {
-        const tenant = this.tenants.find((t) => t.id === tenantId);
-        if (tenant) {
-          const newDocument: IDocument = {
-            ...document,
-            ownerId: tenantId,
-            ownerType: 'Tenant',
-            uploadedOn: new Date().toISOString(),
-            isVerified: false,
-          };
+    file: File,
+    category: string,
+    description: string = '',
+  ): Observable<Result<IDocument>> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('category', category);
+    formData.append('description', description);
 
-          if (!tenant.documents) {
-            tenant.documents = [];
-          }
-          tenant.documents.push(newDocument);
-
-          observer.next({
-            success: true,
-            message: 'Document uploaded successfully',
-          });
-        } else {
-          observer.next({
-            success: false,
-            message: 'Tenant not found',
-          });
-        }
-        observer.complete();
-      });
-    });
+    return this._http.post<Result<IDocument>>(
+      `${environment.apiBaseUrl}Tenant/${tenantId}/documents`,
+      formData,
+    );
   }
 
   // Get tenant statistics
-  getTenantStatistics(): Observable<{
-    total: number;
-    active: number;
-    inactive: number;
-    pendingOnboarding: number;
-    totalMonthlyRent: number;
-    averageRent: number;
-  }> {
-    return new Observable((observer) => {
-      setTimeout(() => {
-        const active = this.tenants.filter((t) => t.isActive);
-        const inactive = this.tenants.filter((t) => !t.isActive);
-        const pendingOnboarding = this.tenants.filter((t) => t.needsOnboarding);
-        const totalMonthlyRent = active.reduce(
-          (sum, t) => sum + t.rentAmount,
-          0,
-        );
-
-        observer.next({
-          total: this.tenants.length,
-          active: active.length,
-          inactive: inactive.length,
-          pendingOnboarding: pendingOnboarding.length,
-          totalMonthlyRent,
-          averageRent: active.length > 0 ? totalMonthlyRent / active.length : 0,
-        });
-        observer.complete();
-      });
-    });
+  getTenantStatistics(landlordId: number): Observable<Result<any>> {
+    return this._http.get<Result<any>>(
+      `${environment.apiBaseUrl}Tenant/statistics/${landlordId}`,
+    );
   }
 
   // Get tenants by property ID using API
-  getTenantsByProperty(propertyId: number): Observable<ITenant[]> {
-    return this._http.get<ITenant[]>(
+  // WARNING: This endpoint needs proper authorization - use getCoTenants() for tenant access
+  getTenantsByProperty(propertyId: number): Observable<Result<ITenant[]>> {
+    return this._http.get<Result<ITenant[]>>(
       `${environment.apiBaseUrl}Tenant/property/${propertyId}`,
     );
   }
 
   // Get tenants by landlord ID using API
+  // WARNING: This should only be used by landlords, not tenants
   getTenantsByLandlord(landlordId: number): Observable<Result<ITenant[]>> {
     return this._http.get<Result<ITenant[]>>(
       `${environment.apiBaseUrl}Tenant/landlord/${landlordId}`,
@@ -622,7 +349,16 @@ export class TenantService {
    */
   deleteTenantDocument(documentId: number): Observable<Result<boolean>> {
     return this._http.delete<Result<boolean>>(
-      `${environment.apiBaseUrl}Tenant/document/${documentId}`,
+      `${environment.apiBaseUrl}Tenant/documents/${documentId}`,
+    );
+  }
+
+  /**
+   * Get tenant documents
+   */
+  getTenantDocuments(tenantId: number): Observable<Result<IDocument[]>> {
+    return this._http.get<Result<IDocument[]>>(
+      `${environment.apiBaseUrl}Tenant/${tenantId}/documents`,
     );
   }
 
@@ -631,16 +367,19 @@ export class TenantService {
    */
   uploadTenantDocuments(
     tenantId: number,
-    documents: IDocument[],
+    documents: Array<{ file: File; category: string; description?: string }>,
   ): Observable<Result<IDocument[]>> {
     const formData = new FormData();
 
     documents.forEach((doc, index) => {
-      if (doc.file) {
-        formData.append('files', doc.file);
-        formData.append(`categories[${index}]`, doc.category.toString());
-        formData.append(`descriptions[${index}]`, doc.description || '');
-      }
+      // Add file
+      formData.append(`Documents[${index}].File`, doc.file);
+      // Add metadata
+      formData.append(`Documents[${index}].Category`, doc.category);
+      formData.append(`Documents[${index}].Description`, doc.description || '');
+      formData.append(`Documents[${index}].OwnerId`, tenantId.toString());
+      formData.append(`Documents[${index}].OwnerType`, 'Tenant');
+      formData.append(`Documents[${index}].TenantId`, tenantId.toString());
     });
 
     return this._http.post<Result<IDocument[]>>(
@@ -664,16 +403,6 @@ export class TenantService {
     );
   }
 
-  // Create agreement using real API
-  createAgreementAPI(
-    request: AgreementCreateRequest,
-  ): Observable<Result<string>> {
-    return this._http.post<Result<string>>(
-      `${environment.apiBaseUrl}Tenant/agreement/create`,
-      request,
-    );
-  }
-
   // Send onboarding emails using real API
   sendOnboardingEmailsAPI(
     landlordId: number,
@@ -694,6 +423,21 @@ export class TenantService {
       `${environment.apiBaseUrl}Tenant/onboarding/eligible/${landlordId}/${propertyId}`,
     );
   }
+
+  // Get tenant by email
+  getTenantByEmail(email: string): Observable<Result<ITenant>> {
+    return this._http.get<Result<ITenant>>(
+      `${environment.apiBaseUrl}Tenant/by-email/${encodeURIComponent(email)}`,
+    );
+  }
+
+  // Get co-tenants (same property only) - Secure endpoint for tenants
+  getCoTenants(tenantId: number): Observable<Result<ITenant[]>> {
+    return this._http.get<Result<ITenant[]>>(
+      `${environment.apiBaseUrl}Tenant/${tenantId}/co-tenants`,
+    );
+  }
+
   // Send onboarding emails to specific tenant IDs
   sendOnboardingEmailsByTenantIds(
     tenantIds: number[],

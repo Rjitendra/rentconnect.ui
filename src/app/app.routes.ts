@@ -57,6 +57,56 @@ export const routes: Routes = [
     ],
     canActivate: [userGuard],
   },
+  {
+    path: 'tenant',
+    loadComponent: () =>
+      import('./layout/layout.component').then((m) => m.LayoutComponent),
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import(
+            './features/components/tenant/tenant-portal/tenant-portal'
+          ).then((m) => m.TenantPortalComponent),
+      },
+      {
+        path: 'property',
+        loadComponent: () =>
+          import(
+            './features/components/tenant/property-info/property-info'
+          ).then((m) => m.PropertyInfoComponent),
+      },
+      {
+        path: 'documents',
+        loadComponent: () =>
+          import('./features/components/tenant/documents/documents').then(
+            (m) => m.DocumentsComponent,
+          ),
+      },
+      {
+        path: 'payments',
+        loadComponent: () =>
+          import('./features/components/tenant/payments/payments').then(
+            (m) => m.PaymentsComponent,
+          ),
+      },
+      {
+        path: 'issues',
+        loadComponent: () =>
+          import('./features/components/tenant/issues/issues').then(
+            (m) => m.IssuesComponent,
+          ),
+      },
+      {
+        path: 'issues/:id',
+        loadComponent: () =>
+          import('./features/components/tenant/issue-detail/issue-detail').then(
+            (m) => m.IssueDetailComponent,
+          ),
+      },
+    ],
+    canActivate: [userGuard],
+  },
   { path: 'signin-callback', component: SigninCallback },
   { path: 'signout-callback', component: SignoutCallback },
   { path: '**', redirectTo: '' },

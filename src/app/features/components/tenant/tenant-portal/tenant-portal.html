@@ -1,0 +1,198 @@
+<div class="tenant-portal">
+  <!-- Loading State -->
+  @if (loading) {
+    <div class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Loading your tenant portal...</p>
+    </div>
+  }
+
+  <!-- Main Portal Content -->
+  @if (!loading) {
+    <!-- Header Section -->
+    <div class="portal-header">
+      <div class="welcome-section">
+        <h1>Welcome to Your Tenant Portal</h1>
+        @if (currentTenant) {
+          <p class="tenant-info">
+            Hello <strong>{{ currentTenant.name }}</strong>
+            @if (isPrimaryTenant) {
+              <span class="primary-badge">Primary Tenant</span>
+            }
+          </p>
+        }
+      </div>
+
+      <!-- Agreement Status Banner -->
+      @if (!isAgreementAccepted) {
+        <div class="status-banner">
+          @if (isPrimaryTenant) {
+            <div class="banner warning">
+              <i class="material-icons banner-icon">warning</i>
+              <div class="banner-content">
+                <h3>Agreement Acceptance Required</h3>
+                <p>
+                  Please review and accept your rental agreement to activate
+                  your tenancy.
+                </p>
+                <ng-button
+                  [type]="'outlined'"
+                  [label]="'Review Agreement'"
+                  [buttonType]="'button'"
+                  [cssClass]="'review-agreement-btn'"
+                  (buttonClick)="showAgreementDetails()"
+                />
+              </div>
+            </div>
+          } @else {
+            <div class="banner info">
+              <i class="material-icons banner-icon">info</i>
+              <div class="banner-content">
+                <h3>Waiting for Primary Tenant</h3>
+                <p>
+                  {{ primaryTenantName || "Primary tenant" }} needs to accept
+                  the rental agreement before you can access the tenant portal.
+                </p>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="banner success">
+          <i class="material-icons banner-icon">check_circle</i>
+          <div class="banner-content">
+            <h3>Tenancy Active</h3>
+            <p>Your rental agreement is accepted. Welcome to your new home!</p>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Portal Navigation Grid -->
+    <div class="portal-grid">
+      <!-- Property Information -->
+      <div
+        class="portal-card"
+        [class.disabled]="!isAgreementAccepted"
+        (click)="navigateToSection('property')"
+      >
+        <div class="card-icon">
+          <i class="material-icons icon-primary">home</i>
+        </div>
+        <div class="card-content">
+          <h3>Property Information</h3>
+          <p>View property details, address, and photos</p>
+        </div>
+        <i class="material-icons card-arrow">arrow_forward</i>
+      </div>
+
+      <!-- Agreement & Documents -->
+      <div
+        class="portal-card"
+        [class.disabled]="!isAgreementAccepted"
+        (click)="navigateToSection('documents')"
+      >
+        <div class="card-icon">
+          <i class="material-icons icon-teal">description</i>
+        </div>
+        <div class="card-content">
+          <h3>Agreement & Documents</h3>
+          <p>Download tenancy agreement and upload documents</p>
+        </div>
+        <i class="material-icons card-arrow">arrow_forward</i>
+      </div>
+
+      <!-- Rent & Payments -->
+      <div
+        class="portal-card"
+        [class.disabled]="!isAgreementAccepted"
+        (click)="navigateToSection('payments')"
+      >
+        <div class="card-icon">
+          <i class="material-icons icon-success">payment</i>
+        </div>
+        <div class="card-content">
+          <h3>Rent & Payments</h3>
+          <p>Pay rent online and view payment history</p>
+        </div>
+        <i class="material-icons card-arrow">arrow_forward</i>
+      </div>
+
+      <!-- Issue Tracker -->
+      <div
+        class="portal-card"
+        [class.disabled]="!isAgreementAccepted"
+        (click)="navigateToSection('issues')"
+      >
+        <div class="card-icon">
+          <i class="material-icons icon-warning">build</i>
+        </div>
+        <div class="card-content">
+          <h3>Issue Tracker</h3>
+          <p>Report and track maintenance issues</p>
+        </div>
+        <i class="material-icons card-arrow">arrow_forward</i>
+      </div>
+    </div>
+
+    <!-- Quick Stats Section -->
+    @if (isAgreementAccepted && currentTenant) {
+      <div class="quick-stats">
+        <h2>Quick Overview</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <i class="material-icons stat-icon">home</i>
+            <div class="stat-content">
+              <span class="stat-value">{{
+                currentTenant.propertyName || "N/A"
+              }}</span>
+              <span class="stat-label">Property</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <i class="material-icons stat-icon">attach_money</i>
+            <div class="stat-content">
+              <span class="stat-value"
+                >₹{{ (currentTenant.rentAmount | number) || 0 }}</span
+              >
+              <span class="stat-label">Monthly Rent</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <i class="material-icons stat-icon">calendar_today</i>
+            <div class="stat-content">
+              <span class="stat-value">
+                {{
+                  (currentTenant.tenancyStartDate | date: "MMM yyyy") || "N/A"
+                }}
+              </span>
+              <span class="stat-label">Tenancy Start</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <i class="material-icons stat-icon">schedule</i>
+            <div class="stat-content">
+              <span class="stat-value">
+                {{ (currentTenant.rentDueDate | date: "dd") || "N/A" }}
+              </span>
+              <span class="stat-label">Rent Due Date</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  }
+
+  <!-- Agreement Modal -->
+  @if (showAgreementModal && currentTenant) {
+    <app-agreement-modal
+      [tenant]="currentTenant"
+      [isPrimaryTenant]="isPrimaryTenant"
+      (accepted)="onAgreementAccepted()"
+      (cancelled)="onAgreementCancelled()"
+    />
+  }
+
+  <!-- AI Chatbot -->
+  <app-chatbot />
+</div>

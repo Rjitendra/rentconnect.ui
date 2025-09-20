@@ -39,6 +39,7 @@ export enum DocumentCategory {
   ProfilePhoto = 10,
   EmploymentProof = 11,
   PersonPhoto = 12,
+  PropertyCondition = 13,
 }
 
 export enum TenantStatus {

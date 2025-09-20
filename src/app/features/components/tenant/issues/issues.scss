@@ -1,0 +1,487 @@
+.issues {
+  padding: 24px;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    gap: 16px;
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: #4a5568;
+      font-size: 0.9rem;
+
+      &:hover {
+        background: #f7fafc;
+        border-color: #cbd5e0;
+        transform: translateX(-2px);
+      }
+
+      i {
+        font-size: 20px;
+      }
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 600;
+      color: #2d3748;
+      flex: 1;
+    }
+  }
+
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 60vh;
+    gap: 20px;
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #e3f2fd;
+      border-top: 4px solid #2196f3;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    p {
+      font-size: 16px;
+      color: #666;
+      margin: 0;
+    }
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  // Card styles
+  ng-card {
+    margin-bottom: 24px;
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #e2e8f0;
+
+      > div:first-child {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      i {
+        font-size: 24px;
+        color: #4299e1;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #2d3748;
+      }
+
+      .filters {
+        display: flex;
+        gap: 16px;
+        align-items: flex-end;
+      }
+    }
+  }
+
+  // Form styles
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-bottom: 24px;
+
+    .form-group {
+      &.full-width {
+        grid-column: 1 / -1;
+      }
+    }
+
+    .upload-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 20px;
+    border-top: 1px solid #e2e8f0;
+  }
+
+  // Issues list
+  .issues-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .issue-item {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &:hover {
+        border-color: #cbd5e0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+      }
+
+      .issue-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 12px;
+
+        .issue-meta {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          flex-wrap: wrap;
+
+          .issue-number {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #4a5568;
+            background: #edf2f7;
+            padding: 4px 8px;
+            border-radius: 4px;
+          }
+
+          .category-badge {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+
+            i {
+              font-size: 16px;
+            }
+
+            &[data-category="0"] {
+              // Electricity
+              background: #fef5e7;
+              color: #92400e;
+            }
+
+            &[data-category="1"] {
+              // Plumbing
+              background: #e0f2fe;
+              color: #0277bd;
+            }
+
+            &[data-category="2"] {
+              // Rent
+              background: #f3e8ff;
+              color: #6b46c1;
+            }
+
+            &[data-category="3"] {
+              // Maintenance
+              background: #ecfdf5;
+              color: #059669;
+            }
+          }
+
+          .priority-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+
+            &[data-priority="priority-low"] {
+              background: #ecfdf5;
+              color: #059669;
+            }
+
+            &[data-priority="priority-medium"] {
+              background: #fef3c7;
+              color: #d97706;
+            }
+
+            &[data-priority="priority-high"] {
+              background: #fee2e2;
+              color: #dc2626;
+            }
+
+            &[data-priority="priority-urgent"] {
+              background: #fdf2f8;
+              color: #be185d;
+            }
+          }
+        }
+
+        .issue-status {
+          .status-badge {
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 0.8rem;
+            font-weight: 500;
+
+            &[data-status="status-open"] {
+              background: #dbeafe;
+              color: #1d4ed8;
+            }
+
+            &[data-status="status-in-progress"] {
+              background: #fef3c7;
+              color: #d97706;
+            }
+
+            &[data-status="status-pending"] {
+              background: #fef9c3;
+              color: #ca8a04;
+            }
+
+            &[data-status="status-resolved"] {
+              background: #dcfce7;
+              color: #16a34a;
+            }
+
+            &[data-status="status-closed"] {
+              background: #f3f4f6;
+              color: #6b7280;
+            }
+
+            &[data-status="status-cancelled"] {
+              background: #fee2e2;
+              color: #dc2626;
+            }
+          }
+        }
+      }
+
+      .issue-content {
+        h3 {
+          margin: 0 0 8px 0;
+          font-size: 1.1rem;
+          font-weight: 600;
+          color: #1f2937;
+        }
+
+        .description {
+          margin: 0 0 12px 0;
+          color: #6b7280;
+          line-height: 1.5;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+
+        .issue-footer {
+          display: flex;
+          gap: 16px;
+          font-size: 0.875rem;
+          color: #9ca3af;
+
+          .date {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+          }
+        }
+      }
+
+      .issue-actions {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #f3f4f6;
+        color: #6b7280;
+        transition: all 0.3s ease;
+
+        i {
+          font-size: 20px;
+        }
+      }
+
+      &:hover .issue-actions {
+        background: #4f46e5;
+        color: white;
+      }
+    }
+  }
+
+  // Quick issues
+  .quick-issues-card {
+    .quick-info {
+      margin: 0 0 20px 0;
+      color: #6b7280;
+      font-size: 1rem;
+    }
+
+    .quick-issues-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+
+      .quick-issue-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        padding: 20px;
+        background: #f8fafc;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+
+        &:hover {
+          border-color: #4f46e5;
+          background: #eef2ff;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
+        }
+
+        i {
+          font-size: 32px;
+          color: #4f46e5;
+          margin-bottom: 4px;
+        }
+
+        span {
+          font-size: 0.9rem;
+          font-weight: 500;
+          color: #374151;
+        }
+      }
+    }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #9ca3af;
+
+    i {
+      font-size: 64px;
+      color: #d1d5db;
+      margin-bottom: 20px;
+    }
+
+    p {
+      margin: 0 0 8px 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #6b7280;
+    }
+
+    .sub-text {
+      font-size: 0.95rem;
+      font-weight: normal;
+      color: #9ca3af;
+    }
+  }
+
+  // Responsive design
+  @media (max-width: 768px) {
+    padding: 16px;
+
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+
+      h1 {
+        font-size: 1.5rem;
+      }
+    }
+
+    .form-grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .card-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+
+      .filters {
+        width: 100%;
+        flex-direction: column;
+        gap: 12px;
+      }
+    }
+
+    .issue-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+
+      .issue-meta {
+        flex-wrap: wrap;
+      }
+    }
+
+    .quick-issues-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 480px) {
+    padding: 12px;
+
+    .quick-issues-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .issue-meta {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .form-actions {
+      flex-direction: column-reverse;
+    }
+  }
+}
