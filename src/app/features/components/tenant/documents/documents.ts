@@ -1,23 +1,23 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
+
 import {
   FileUploadConfig,
   NgButton,
   NgCardComponent,
   NgFileUploadComponent,
-  NgIconComponent,
   NgLabelComponent,
   UploadedFile,
-} from 'shared';
-
+} from '../../../../../../projects/shared/src/public-api';
 import { ResultStatusType } from '../../../../common/enums/common.enums';
 import {
   IUserDetail,
   OauthService,
 } from '../../../../oauth/service/oauth.service';
+import { IDocument } from '../../../models/document';
 import { ITenant } from '../../../models/tenant';
-import { DocumentService } from '../../../service/document.service';
+import { PropertyService } from '../../../service/document.service';
 import { TenantService } from '../../../service/tenant.service';
 
 interface DocumentItem {
@@ -39,7 +39,6 @@ interface DocumentItem {
     CommonModule,
     NgCardComponent,
     NgButton,
-    NgIconComponent,
     NgLabelComponent,
     NgFileUploadComponent,
   ],
@@ -84,7 +83,7 @@ interface DocumentItem {
                         [toolTip]="'Date when the agreement was created'"
                       />
                       <span>{{
-                        (tenant.agreementDate | date: 'MMM dd, yyyy') || 'N/A'
+                        (tenant?.agreementDate | date: 'MMM dd, yyyy') || 'N/A'
                       }}</span>
                     </div>
                     <div class="meta-item">
@@ -94,19 +93,19 @@ interface DocumentItem {
                       />
                       <span
                         class="status"
-                        [class.accepted]="tenant.agreementAccepted"
+                        [class.accepted]="tenant?.agreementAccepted"
                       >
-                        {{ tenant.agreementAccepted ? 'Accepted' : 'Pending' }}
+                        {{ tenant?.agreementAccepted ? 'Accepted' : 'Pending' }}
                       </span>
                     </div>
-                    @if (tenant.agreementAccepted) {
+                    @if (tenant?.agreementAccepted) {
                       <div class="meta-item">
                         <ng-label
                           [label]="'Accepted On:'"
                           [toolTip]="'Date when the agreement was accepted'"
                         />
                         <span>{{
-                          (tenant.agreementAcceptedDate
+                          (tenant?.agreementAcceptedDate
                             | date: 'MMM dd, yyyy') || 'N/A'
                         }}</span>
                       </div>
@@ -115,7 +114,7 @@ interface DocumentItem {
                           [label]="'Accepted By:'"
                           [toolTip]="'Person who accepted the agreement'"
                         />
-                        <span>{{ tenant.agreementAcceptedBy || 'N/A' }}</span>
+                        <span>{{ tenant?.agreementAcceptedBy || 'N/A' }}</span>
                       </div>
                     }
                   </div>
@@ -125,7 +124,6 @@ interface DocumentItem {
                     variant="primary"
                     size="medium"
                     [disabled]="downloadingAgreement"
-                    [loading]="downloadingAgreement"
                     (click)="downloadAgreement()"
                   >
                     <i class="material-icons">download</i>
@@ -188,7 +186,6 @@ interface DocumentItem {
                   <ng-button
                     variant="primary"
                     [disabled]="uploading"
-                    [loading]="uploading"
                     (click)="uploadDocuments()"
                   >
                     {{ uploading ? 'Uploading...' : 'Upload Documents' }}
@@ -323,7 +320,7 @@ export class DocumentsComponent implements OnInit {
   private router = inject(Router);
   private oauthService = inject(OauthService);
   private tenantService = inject(TenantService);
-  private documentService = inject(DocumentService);
+  private documentService = inject(PropertyService);
 
   constructor() {
     this.userDetail = this.oauthService.getUserInfo();
@@ -333,70 +330,13 @@ export class DocumentsComponent implements OnInit {
     this.loadTenantData();
   }
 
-  private async loadTenantData() {
-    try {
-      this.loading = true;
-
-      // Get current tenant
-      const userEmail = this.userDetail.email;
-      if (!userEmail) {
-        console.error('User email not found');
-        return;
-      }
-
-      const tenantResult = await this.tenantService
-        .getTenantByEmail(userEmail)
-        .toPromise();
-      if (
-        tenantResult?.status === ResultStatusType.Success &&
-        tenantResult.entity
-      ) {
-        this.tenant = tenantResult.entity;
-        await this.loadDocuments();
-      }
-    } catch (error) {
-      console.error('Error loading tenant data:', error);
-    } finally {
-      this.loading = false;
-    }
-  }
-
-  private async loadDocuments() {
-    if (!this.tenant?.id) return;
-
-    try {
-      // Load tenant documents from backend
-      const result = await this.documentService
-        .getDocumentsByOwner(this.tenant.id, 'Tenant')
-        .toPromise();
-
-      if (result?.success && result.entity) {
-        this.documents = result.entity.map((doc: any) => ({
-          id: doc.id,
-          name: doc.name || 'Untitled',
-          type: doc.type || 'application/octet-stream',
-          size: doc.size || 0,
-          url: doc.url || '',
-          category: doc.category?.toString() || 'Other',
-          uploadedOn: doc.uploadedOn || new Date(),
-          isVerified: doc.isVerified || false,
-          description: doc.description,
-        }));
-      }
-    } catch (error) {
-      console.error('Error loading documents:', error);
-      this.documents = [];
-    }
-  }
-
   onFilesSelected(files: UploadedFile[]) {
     this.selectedFiles = files;
   }
 
   onFileRemoved(event: { file: UploadedFile; index: number }) {
-    this.selectedFiles = this.selectedFiles.filter(
-      (f) => f.url !== event.file.url,
-    );
+    const file = event.file;
+    this.selectedFiles = this.selectedFiles.filter((f) => f.url !== file.url);
   }
 
   async uploadDocuments() {
@@ -496,5 +436,61 @@ export class DocumentsComponent implements OnInit {
 
   goBack() {
     this.router.navigate(['/tenant']);
+  }
+
+  private async loadTenantData() {
+    try {
+      this.loading = true;
+
+      // Get current tenant
+      const userEmail = this.userDetail.email;
+      if (!userEmail) {
+        console.error('User email not found');
+        return;
+      }
+
+      const tenantResult = await this.tenantService
+        .getTenantByEmail(userEmail)
+        .toPromise();
+      if (
+        tenantResult?.status === ResultStatusType.Success &&
+        tenantResult.entity
+      ) {
+        this.tenant = tenantResult.entity;
+        await this.loadDocuments();
+      }
+    } catch (error) {
+      console.error('Error loading tenant data:', error);
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  private async loadDocuments() {
+    if (!this.tenant?.id) return;
+
+    try {
+      // Load tenant documents from backend
+      const result = await this.documentService
+        .getPropertyDocuments(this.tenant.propertyId)
+        .toPromise();
+
+      if (result?.success && result.entity) {
+        this.documents = result.entity.map((doc: IDocument) => ({
+          id: doc.id,
+          name: doc.name || 'Untitled',
+          type: doc.type || 'application/octet-stream',
+          size: doc.size || 0,
+          url: doc.url || '',
+          category: doc.category?.toString() || 'Other',
+          uploadedOn: doc.uploadedOn || new Date(),
+          isVerified: doc.isVerified || false,
+          description: doc.description,
+        }));
+      }
+    } catch (error) {
+      console.error('Error loading documents:', error);
+      this.documents = [];
+    }
   }
 }

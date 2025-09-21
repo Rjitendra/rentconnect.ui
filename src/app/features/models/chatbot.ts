@@ -26,7 +26,7 @@ export interface ChatAction {
     | 'view_payments'
     | 'download_agreement'
     | 'contact_support';
-  data?: any;
+  data?: unknown;
 }
 
 export interface IssueCreationData {

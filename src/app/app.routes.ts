@@ -86,9 +86,9 @@ export const routes: Routes = [
       {
         path: 'payments',
         loadComponent: () =>
-          import('./features/components/tenant/payments/payments').then(
-            (m) => m.PaymentsComponent,
-          ),
+          import(
+            './features/components/tenant/payments/payments/payments'
+          ).then((m) => m.PaymentsComponent),
       },
       {
         path: 'issues',
@@ -100,9 +100,9 @@ export const routes: Routes = [
       {
         path: 'issues/:id',
         loadComponent: () =>
-          import('./features/components/tenant/issue-detail/issue-detail').then(
-            (m) => m.IssueDetailComponent,
-          ),
+          import(
+            './features/components/tenant/issues-details/issues-details'
+          ).then((m) => m.IssueDetailComponent),
       },
     ],
     canActivate: [userGuard],

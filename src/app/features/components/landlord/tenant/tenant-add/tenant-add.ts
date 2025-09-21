@@ -1399,8 +1399,21 @@ export class TenantAddComponent implements OnInit {
           // Get the actual tenant ID from the editing tenants
           const tenant = this.editingTenants[tenantIndex];
           if (tenant && tenant.id) {
+            const transformedDocuments = documents
+              .filter((doc) => doc.file) // Only include documents with files
+              .map((doc) => ({
+                file: doc.file!,
+                category:
+                  typeof doc.category === 'string'
+                    ? doc.category
+                    : String(doc.category || 'Other'),
+                description: doc.description,
+              }));
             const uploadPromise = firstValueFrom(
-              this.tenantService.uploadTenantDocuments(tenant.id, documents),
+              this.tenantService.uploadTenantDocuments(
+                tenant.id,
+                transformedDocuments,
+              ),
             );
             uploadPromises.push(uploadPromise);
           }

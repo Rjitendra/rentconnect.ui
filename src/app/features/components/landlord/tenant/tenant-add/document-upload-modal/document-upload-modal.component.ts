@@ -128,6 +128,7 @@ export class DocumentUploadModalComponent implements OnInit {
       [DocumentCategory.NoObjectionCertificate]: 'NOC',
       [DocumentCategory.PropertyImages]: 'Property Images',
       [DocumentCategory.PersonPhoto]: 'Person Photo',
+      [DocumentCategory.PropertyCondition]: 'Property Condition',
     };
     return categories[category] || 'Unknown Category';
   }

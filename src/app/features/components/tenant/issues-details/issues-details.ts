@@ -7,17 +7,16 @@ import {
   Validators,
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+
 import {
   FileUploadConfig,
   NgButton,
   NgCardComponent,
   NgFileUploadComponent,
-  NgIconComponent,
   NgLabelComponent,
   NgTextareaComponent,
   UploadedFile,
-} from 'shared';
-
+} from '../../../../../../projects/shared/src/public-api';
 import { ResultStatusType } from '../../../../common/enums/common.enums';
 import {
   IUserDetail,
@@ -43,7 +42,6 @@ import { TicketService } from '../../../service/ticket.service';
     ReactiveFormsModule,
     NgCardComponent,
     NgButton,
-    NgIconComponent,
     NgLabelComponent,
     NgTextareaComponent,
     NgFileUploadComponent,
@@ -241,7 +239,7 @@ import { TicketService } from '../../../service/ticket.service';
                     id="file-upload"
                     [config]="fileUploadConfig"
                     (filesSelected)="onFilesSelected($event)"
-                    (fileRemoved)="onFileRemoved($event)"
+                    (fileRemoved)="onFileRemoved($event.file)"
                   />
                 </div>
 
@@ -250,7 +248,6 @@ import { TicketService } from '../../../service/ticket.service';
                     type="submit"
                     variant="primary"
                     [disabled]="commentForm.invalid || isSubmittingComment"
-                    [loading]="isSubmittingComment"
                   >
                     {{
                       isSubmittingComment ? 'Adding Comment...' : 'Add Comment'
@@ -335,7 +332,7 @@ import { TicketService } from '../../../service/ticket.service';
       }
     </div>
   `,
-  styleUrl: './issue-detail.scss',
+  styleUrl: './issues-details.scss',
 })
 export class IssueDetailComponent implements OnInit {
   // Data
@@ -395,78 +392,12 @@ export class IssueDetailComponent implements OnInit {
     });
   }
 
-  private initializeForm() {
-    this.commentForm = this.fb.group({
-      comment: ['', [Validators.required, Validators.minLength(5)]],
-    });
-  }
-
-  private async loadIssueDetails() {
-    try {
-      this.loading = true;
-
-      // Get current tenant first
-      const userEmail = this.userDetail.email;
-      if (userEmail) {
-        const tenantResult = await this.tenantService
-          .getTenantByEmail(userEmail)
-          .toPromise();
-        if (
-          tenantResult &&
-          tenantResult.status === ResultStatusType.Success &&
-          tenantResult.entity
-        ) {
-          this.tenant = tenantResult.entity;
-        }
-      }
-
-      // Load issue details
-      const result = await this.ticketService
-        .getTicketById(this.issueId)
-        .toPromise();
-
-      if (result && result.success && result.entity) {
-        this.issue = result.entity;
-        await this.loadComments();
-      } else {
-        // Issue not found
-        console.error('Issue not found or could not be loaded');
-        this.issue = null;
-      }
-    } catch (error) {
-      console.error('Error loading issue details:', error);
-    } finally {
-      this.loading = false;
-    }
-  }
-
-  private async loadComments() {
-    if (!this.issue?.id) return;
-
-    try {
-      const result = await this.ticketService
-        .getTicketComments(this.issue.id)
-        .toPromise();
-
-      if (result && result.success && result.entity) {
-        this.comments = result.entity;
-      } else {
-        // No comments found or error loading
-        this.comments = [];
-      }
-    } catch (error) {
-      console.error('Error loading comments:', error);
-    }
-  }
-
   onFilesSelected(files: UploadedFile[]) {
     this.selectedFiles = files;
   }
 
-  onFileRemoved(event: { file: UploadedFile; index: number }) {
-    this.selectedFiles = this.selectedFiles.filter(
-      (f) => f.url !== event.file.url,
-    );
+  onFileRemoved(file: UploadedFile) {
+    this.selectedFiles = this.selectedFiles.filter((f) => f.url !== file.url);
   }
 
   async onSubmitComment() {
@@ -555,5 +486,69 @@ export class IssueDetailComponent implements OnInit {
 
   goBack() {
     this.router.navigate(['/tenant/issues']);
+  }
+
+  private initializeForm() {
+    this.commentForm = this.fb.group({
+      comment: ['', [Validators.required, Validators.minLength(5)]],
+    });
+  }
+
+  private async loadIssueDetails() {
+    try {
+      this.loading = true;
+
+      // Get current tenant first
+      const userEmail = this.userDetail.email;
+      if (userEmail) {
+        const tenantResult = await this.tenantService
+          .getTenantByEmail(userEmail)
+          .toPromise();
+        if (
+          tenantResult &&
+          tenantResult.status === ResultStatusType.Success &&
+          tenantResult.entity
+        ) {
+          this.tenant = tenantResult.entity;
+        }
+      }
+
+      // Load issue details
+      const result = await this.ticketService
+        .getTicketById(this.issueId)
+        .toPromise();
+
+      if (result && result.success && result.entity) {
+        this.issue = result.entity;
+        await this.loadComments();
+      } else {
+        // Issue not found
+        console.error('Issue not found or could not be loaded');
+        this.issue = null;
+      }
+    } catch (error) {
+      console.error('Error loading issue details:', error);
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  private async loadComments() {
+    if (!this.issue?.id) return;
+
+    try {
+      const result = await this.ticketService
+        .getTicketComments(this.issue.id)
+        .toPromise();
+
+      if (result && result.success && result.entity) {
+        this.comments = result.entity;
+      } else {
+        // No comments found or error loading
+        this.comments = [];
+      }
+    } catch (error) {
+      console.error('Error loading comments:', error);
+    }
   }
 }

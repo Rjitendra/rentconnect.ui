@@ -343,10 +343,17 @@ export class TicketService {
   }
 
   // Create ticket from chatbot
-  createTicketFromChatbot(ticketData: any): Observable<Result<any>> {
-    return this._http.post<Result<any>>(
-      `${this.apiUrl}/chatbot/create`,
-      ticketData,
-    );
+  createTicketFromChatbot(ticketData: {
+    title: string;
+    description: string;
+    category: number;
+    priority: number;
+    tenantId: number;
+  }): Observable<
+    Result<{ ticketId: number; success: boolean; message: string }>
+  > {
+    return this._http.post<
+      Result<{ ticketId: number; success: boolean; message: string }>
+    >(`${environment.apiBaseUrl}Chatbot/create-issue`, ticketData);
   }
 }

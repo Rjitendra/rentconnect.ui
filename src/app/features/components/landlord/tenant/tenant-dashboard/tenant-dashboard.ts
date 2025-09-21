@@ -221,7 +221,7 @@ export class TenantDashboard implements OnInit {
       securityDeposit: tenant.securityDeposit,
     };
 
-    this.tenantService.createAgreementAPI(agreementRequest).subscribe({
+    this.tenantService.createAgreement(agreementRequest).subscribe({
       next: (response) => {
         if (response.status === ResultStatusType.Success) {
           this.showSuccess('Agreement created and email sent to tenant');
@@ -396,9 +396,13 @@ export class TenantDashboard implements OnInit {
   onDeleteTenant(tenant: ITenant) {
     if (confirm(`Are you sure you want to delete tenant ${tenant.name}?`)) {
       this.tenantService.deleteTenant(tenant.id!).subscribe({
-        next: (response: { success: boolean; message: string }) => {
-          if (response.success) {
-            this.showSuccess(response.message);
+        next: (response) => {
+          if (response.status === ResultStatusType.Success) {
+            this.showSuccess(
+              Array.isArray(response.message)
+                ? response.message.join(', ')
+                : response.message,
+            );
             this.loadTenants(); // Reload the tenant list
             if (
               this.currentView === 'detail' &&
@@ -407,7 +411,11 @@ export class TenantDashboard implements OnInit {
               this.showTable();
             }
           } else {
-            this.showError(response.message);
+            this.showError(
+              Array.isArray(response.message)
+                ? response.message.join(', ')
+                : response.message,
+            );
           }
         },
         error: (error: unknown) => {

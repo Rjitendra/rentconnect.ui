@@ -1,9 +1,12 @@
+/* eslint-disable quotes */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { environment } from '../../../environments/environment';
+import { ResultStatusType } from '../../common/enums/common.enums';
 import { Result } from '../../common/models/common';
 import {
   ChatAction,
@@ -29,9 +32,11 @@ export class ChatbotService {
   private readonly ticketService = inject(TicketService);
 
   private messagesSubject = new BehaviorSubject<ChatMessage[]>([]);
+  // eslint-disable-next-line @typescript-eslint/member-ordering
   public messages$ = this.messagesSubject.asObservable();
 
   private contextSubject = new BehaviorSubject<ChatbotContext | null>(null);
+  // eslint-disable-next-line @typescript-eslint/member-ordering
   public context$ = this.contextSubject.asObservable();
 
   // Initialize chatbot with user context
@@ -91,7 +96,7 @@ export class ChatbotService {
         this.addMessage(botMessage);
         return botMessage;
       }),
-      catchError((error) => {
+      catchError(() => {
         const errorMessage: ChatMessage = {
           id: this.generateMessageId(),
           content:
@@ -104,6 +109,50 @@ export class ChatbotService {
         return of(errorMessage);
       }),
     );
+  }
+  // Clear chat history
+  clearChat(): void {
+    this.messagesSubject.next([]);
+    const context = this.contextSubject.value;
+    if (context) {
+      context.conversationHistory = [];
+      this.contextSubject.next(context);
+    }
+  }
+
+  // Get current messages
+  getCurrentMessages(): ChatMessage[] {
+    return this.messagesSubject.value;
+  }
+
+  // Handle quick reply selection
+  handleQuickReply(payload: string): Observable<ChatMessage> {
+    const context = this.contextSubject.value;
+    if (!context) {
+      throw new Error('Chatbot not initialized');
+    }
+
+    // Convert payload to appropriate message
+    const message = this.payloadToMessage(payload);
+    return this.sendMessage(message);
+  }
+
+  // Handle action execution
+  executeAction(
+    action: ChatAction,
+  ): Observable<{ success: boolean; message: string; data?: unknown }> {
+    switch (action.action) {
+      case 'create_issue':
+        return this.createIssueFromChat(action.data as IssueCreationData);
+      case 'view_property':
+        return this.getPropertyInfo();
+      case 'view_payments':
+        return this.getPaymentInfo();
+      case 'download_agreement':
+        return this.downloadAgreement();
+      default:
+        return of({ success: false, message: 'Unknown action' });
+    }
   }
 
   // Process user message and generate AI response
@@ -132,7 +181,7 @@ export class ChatbotService {
       >(`${environment.apiBaseUrl}Chatbot/process`, request)
       .pipe(
         map((result) => {
-          if (result.status === 'Success' && result.entity) {
+          if (result.status === ResultStatusType.Success && result.entity) {
             return result.entity;
           }
           throw new Error('Failed to get chatbot response');
@@ -244,6 +293,7 @@ export class ChatbotService {
   ): ChatbotResponse {
     return {
       message:
+        // eslint-disable-next-line prettier/prettier
         "I'd be happy to help you with property information! Let me fetch your current details...",
       actions: [
         {
@@ -260,6 +310,7 @@ export class ChatbotService {
       quickReplies: [
         {
           id: 'rent_amount',
+          // eslint-disable-next-line prettier/prettier
           text: "What's my rent amount?",
           payload: 'rent_amount',
         },
@@ -352,36 +403,10 @@ export class ChatbotService {
     }
   }
 
-  // Handle quick reply selection
-  handleQuickReply(payload: string): Observable<ChatMessage> {
-    const context = this.contextSubject.value;
-    if (!context) {
-      throw new Error('Chatbot not initialized');
-    }
-
-    // Convert payload to appropriate message
-    const message = this.payloadToMessage(payload);
-    return this.sendMessage(message);
-  }
-
-  // Handle action execution
-  executeAction(action: ChatAction): Observable<any> {
-    switch (action.action) {
-      case 'create_issue':
-        return this.createIssueFromChat(action.data);
-      case 'view_property':
-        return this.getPropertyInfo();
-      case 'view_payments':
-        return this.getPaymentInfo();
-      case 'download_agreement':
-        return this.downloadAgreement();
-      default:
-        return of({ success: false, message: 'Unknown action' });
-    }
-  }
-
   // Create issue from chatbot conversation
-  private createIssueFromChat(issueData: IssueCreationData): Observable<any> {
+  private createIssueFromChat(
+    issueData: IssueCreationData,
+  ): Observable<{ success: boolean; message: string; data?: unknown }> {
     const context = this.contextSubject.value;
     if (!context || context.userType !== 'tenant') {
       return of({ success: false, message: 'Only tenants can create issues' });
@@ -396,7 +421,15 @@ export class ChatbotService {
       tenantId: context.tenantId || context.userId,
     };
 
-    return this.ticketService.createTicketFromChatbot(ticketData);
+    return this.ticketService.createTicketFromChatbot(ticketData).pipe(
+      map((result) => ({
+        success: result.status === ResultStatusType.Success,
+        message: Array.isArray(result.message)
+          ? result.message.join(', ')
+          : result.message,
+        data: result.entity,
+      })),
+    );
   }
 
   // Utility methods
@@ -499,38 +532,44 @@ export class ChatbotService {
   }
 
   // API integration methods (to be implemented)
-  private getPropertyInfo(): Observable<any> {
+  private getPropertyInfo(): Observable<{
+    success: boolean;
+    message: string;
+    data?: unknown;
+  }> {
     const context = this.contextSubject.value;
-    if (!context) return of(null);
+    if (!context)
+      return of({ success: false, message: 'No context available' });
 
     if (context.propertyId) {
-      return this.propertyService.getPropertyById(context.propertyId);
+      return this.propertyService.getPropertyById(context.propertyId).pipe(
+        map((result) => ({
+          success: result.status === ResultStatusType.Success,
+          message: Array.isArray(result.message)
+            ? result.message.join(', ')
+            : result.message,
+          data: result.entity,
+        })),
+      );
     }
-    return of(null);
+    return of({ success: false, message: 'No property ID available' });
   }
 
-  private getPaymentInfo(): Observable<any> {
+  private getPaymentInfo(): Observable<{
+    success: boolean;
+    message: string;
+    data?: unknown;
+  }> {
     // Implementation for payment info retrieval
-    return of({ message: 'Payment information retrieved' });
+    return of({ success: true, message: 'Payment information retrieved' });
   }
 
-  private downloadAgreement(): Observable<any> {
+  private downloadAgreement(): Observable<{
+    success: boolean;
+    message: string;
+    data?: unknown;
+  }> {
     // Implementation for agreement download
-    return of({ message: 'Agreement download initiated' });
-  }
-
-  // Clear chat history
-  clearChat(): void {
-    this.messagesSubject.next([]);
-    const context = this.contextSubject.value;
-    if (context) {
-      context.conversationHistory = [];
-      this.contextSubject.next(context);
-    }
-  }
-
-  // Get current messages
-  getCurrentMessages(): ChatMessage[] {
-    return this.messagesSubject.value;
+    return of({ success: true, message: 'Agreement download initiated' });
   }
 }

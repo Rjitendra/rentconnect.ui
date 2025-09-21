@@ -12,13 +12,12 @@ import {
 } from '../../../../oauth/service/oauth.service';
 import { ITenant } from '../../../models/tenant';
 import { TenantService } from '../../../service/tenant.service';
-import { ChatbotComponent } from '../../chatbot/chatbot/chatbot';
 import { AgreementModalComponent } from '../agreement-modal/agreement-modal';
 
 @Component({
   selector: 'app-tenant-portal',
   standalone: true,
-  imports: [CommonModule, AgreementModalComponent, ChatbotComponent, NgButton],
+  imports: [CommonModule, AgreementModalComponent, NgButton],
   templateUrl: './tenant-portal.html',
   styleUrl: './tenant-portal.scss',
 })
@@ -131,7 +130,7 @@ export class TenantPortalComponent implements OnInit {
         statusResult.status === ResultStatusType.Success &&
         statusResult.entity
       ) {
-        const status = statusResult.entity as any;
+        const status = statusResult.entity;
         this.agreementStatus = status;
         this.isAgreementAccepted = status.agreementAccepted || false;
         this.primaryTenantName = status.tenantName || '';

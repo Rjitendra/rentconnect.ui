@@ -1,10 +1,7 @@
-import {
-  HttpClient,
-  HttpErrorResponse,
-  HttpHeaders,
-} from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { User } from 'oidc-client';
+
 import { OauthService } from './oauth.service';
 
 @Injectable({
@@ -14,13 +11,10 @@ export class TestService {
   private httpClient = inject(HttpClient);
   private authService = inject(OauthService);
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
   constructor() {}
 
-  public callApi(): Promise<any> {
-    return this.authService.getUser().then((user: any) => {
+  public callApi(): Promise<unknown> {
+    return this.authService.getUser().then((user: User | null) => {
       if (user && user.access_token) {
         return this._callApi(user.access_token);
       } else if (user) {
@@ -33,7 +27,7 @@ export class TestService {
     });
   }
 
-  _callApi(token: string): any {
+  _callApi(token: string): Promise<unknown> {
     const headers = new HttpHeaders({
       Accept: 'application/json',
       Authorization: 'Bearer ' + token,

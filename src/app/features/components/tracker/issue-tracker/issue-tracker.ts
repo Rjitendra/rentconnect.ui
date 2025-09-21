@@ -514,8 +514,8 @@ export class IssueTracker implements OnInit {
       // Load tenants
       this.tenantService.getAllTenants().subscribe({
         next: (response) => {
-          if (response && response.length > 0) {
-            this.tenantOptions = response.map((tenant) => ({
+          if (response && response.entity && response.entity.length > 0) {
+            this.tenantOptions = response.entity.map((tenant) => ({
               value: tenant.id!.toString(),
               label: `${tenant.name} - ${tenant.email}`,
             }));

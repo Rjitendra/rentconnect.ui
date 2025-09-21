@@ -1,25 +1,25 @@
+/* eslint-disable @typescript-eslint/require-await */
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+
 import {
   NgButton,
   NgCardComponent,
-  NgIconComponent,
   NgLabelComponent,
   NgMatTable,
   NgSelectComponent,
   SelectOption,
   TableColumn,
-} from 'shared';
-
-import { ResultStatusType } from '../../../../common/enums/common.enums';
+} from '../../../../../../../projects/shared/src/public-api';
+import { ResultStatusType } from '../../../../../common/enums/common.enums';
 import {
   IUserDetail,
   OauthService,
-} from '../../../../oauth/service/oauth.service';
-import { ITenant } from '../../../models/tenant';
-import { TenantService } from '../../../service/tenant.service';
+} from '../../../../../oauth/service/oauth.service';
+import { ITenant } from '../../../../models/tenant';
+import { TenantService } from '../../../../service/tenant.service';
 
 interface PaymentRecord {
   id: number;
@@ -54,7 +54,6 @@ interface PaymentSummary {
     FormsModule,
     NgCardComponent,
     NgButton,
-    NgIconComponent,
     NgLabelComponent,
     NgMatTable,
     NgSelectComponent,
@@ -269,12 +268,7 @@ interface PaymentSummary {
 
           @if (filteredPayments.length > 0) {
             <div class="payment-history-table">
-              <ng-mat-table
-                [data]="filteredPayments"
-                [columns]="tableColumns"
-                [showPagination]="true"
-                [pageSize]="12"
-              >
+              <ng-mat-table [data]="filteredPayments" [columns]="tableColumns">
                 <!-- Custom cell templates -->
                 <ng-template #monthCell let-row="row">
                   <div class="month-cell">
@@ -480,7 +474,57 @@ export class PaymentsComponent implements OnInit {
   ngOnInit() {
     this.loadPaymentData();
   }
+  filterPayments() {
+    this.filteredPayments = this.paymentRecords.filter((payment) => {
+      const yearMatch =
+        this.selectedYear === '' || payment.year === this.selectedYear;
+      const statusMatch =
+        this.selectedStatus === '' || payment.status === this.selectedStatus;
+      return yearMatch && statusMatch;
+    });
+  }
 
+  payNow(payment: PaymentRecord) {
+    // In a real app, this would redirect to payment gateway
+    alert(`Redirecting to payment gateway for ₹${payment.pendingAmount}`);
+    console.log('Payment initiated for:', payment);
+  }
+
+  downloadReceipt(payment: PaymentRecord) {
+    if (payment.status === 'pending') {
+      alert('Receipt not available for pending payments');
+      return;
+    }
+
+    // In a real app, this would download the actual receipt
+    alert(`Downloading receipt for ${payment.month} ${payment.year}`);
+    console.log('Downloading receipt for:', payment);
+  }
+
+  viewDetails(payment: PaymentRecord) {
+    // In a real app, this might open a modal or navigate to a detail page
+    alert(`Viewing details for ${payment.month} ${payment.year}`);
+    console.log('Viewing details for:', payment);
+  }
+
+  getStatusLabel(status: string): string {
+    switch (status) {
+      case 'paid':
+        return 'Paid';
+      case 'pending':
+        return 'Pending';
+      case 'overdue':
+        return 'Overdue';
+      case 'partial':
+        return 'Partial';
+      default:
+        return 'Unknown';
+    }
+  }
+
+  goBack() {
+    this.router.navigate(['/tenant']);
+  }
   private async loadPaymentData() {
     try {
       this.loading = true;
@@ -671,57 +715,5 @@ export class PaymentsComponent implements OnInit {
       ...new Set(this.paymentRecords.map((record) => record.year)),
     ];
     this.availableYears = years.sort((a, b) => b - a);
-  }
-
-  filterPayments() {
-    this.filteredPayments = this.paymentRecords.filter((payment) => {
-      const yearMatch =
-        this.selectedYear === '' || payment.year === this.selectedYear;
-      const statusMatch =
-        this.selectedStatus === '' || payment.status === this.selectedStatus;
-      return yearMatch && statusMatch;
-    });
-  }
-
-  payNow(payment: PaymentRecord) {
-    // In a real app, this would redirect to payment gateway
-    alert(`Redirecting to payment gateway for ₹${payment.pendingAmount}`);
-    console.log('Payment initiated for:', payment);
-  }
-
-  downloadReceipt(payment: PaymentRecord) {
-    if (payment.status === 'pending') {
-      alert('Receipt not available for pending payments');
-      return;
-    }
-
-    // In a real app, this would download the actual receipt
-    alert(`Downloading receipt for ${payment.month} ${payment.year}`);
-    console.log('Downloading receipt for:', payment);
-  }
-
-  viewDetails(payment: PaymentRecord) {
-    // In a real app, this might open a modal or navigate to a detail page
-    alert(`Viewing details for ${payment.month} ${payment.year}`);
-    console.log('Viewing details for:', payment);
-  }
-
-  getStatusLabel(status: string): string {
-    switch (status) {
-      case 'paid':
-        return 'Paid';
-      case 'pending':
-        return 'Pending';
-      case 'overdue':
-        return 'Overdue';
-      case 'partial':
-        return 'Partial';
-      default:
-        return 'Unknown';
-    }
-  }
-
-  goBack() {
-    this.router.navigate(['/tenant']);
   }
 }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import {
@@ -8,20 +9,19 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
+
 import {
   FileUploadConfig,
   NgButton,
   NgCardComponent,
   NgFileUploadComponent,
-  NgIconComponent,
   NgInputComponent,
   NgLabelComponent,
   NgSelectComponent,
   NgTextareaComponent,
   SelectOption,
   UploadedFile,
-} from 'shared';
-
+} from '../../../../../../projects/shared/src/public-api';
 import { ResultStatusType } from '../../../../common/enums/common.enums';
 import {
   IUserDetail,
@@ -47,7 +47,6 @@ import { TicketService } from '../../../service/ticket.service';
     FormsModule,
     NgCardComponent,
     NgButton,
-    NgIconComponent,
     NgInputComponent,
     NgLabelComponent,
     NgSelectComponent,
@@ -159,7 +158,6 @@ import { TicketService } from '../../../service/ticket.service';
                   type="submit"
                   variant="primary"
                   [disabled]="issueForm.invalid || isSubmitting"
-                  [loading]="isSubmitting"
                 >
                   {{ isSubmitting ? 'Submitting...' : 'Submit Issue' }}
                 </ng-button>
@@ -399,86 +397,13 @@ export class IssuesComponent implements OnInit {
   ngOnInit() {
     this.loadTenantData();
   }
-
-  private initializeForm() {
-    this.issueForm = this.fb.group({
-      category: ['', Validators.required],
-      priority: [TicketPriority.Medium, Validators.required],
-      title: ['', [Validators.required, Validators.minLength(5)]],
-      description: ['', [Validators.required, Validators.minLength(10)]],
-    });
-  }
-
-  private loadDropdownOptions() {
-    this.categoryOptions = this.ticketService.getCategoryOptions();
-    this.priorityOptions = this.ticketService.getPriorityOptions();
-
-    this.statusFilterOptions = [
-      { value: '', label: 'All Statuses' },
-      ...this.ticketService.getStatusOptions(),
-    ];
-
-    this.categoryFilterOptions = [
-      { value: '', label: 'All Categories' },
-      ...this.categoryOptions,
-    ];
-  }
-
-  private async loadTenantData() {
-    try {
-      this.loading = true;
-
-      // Get current tenant
-      const userEmail = this.userDetail.email;
-      if (!userEmail) {
-        console.error('User email not found');
-        return;
-      }
-
-      const tenantResult = await this.tenantService
-        .getTenantByEmail(userEmail)
-        .toPromise();
-      if (
-        tenantResult?.status === ResultStatusType.Success &&
-        tenantResult.entity
-      ) {
-        this.tenant = tenantResult.entity;
-        await this.loadIssues();
-      }
-    } catch (error) {
-      console.error('Error loading tenant data:', error);
-    } finally {
-      this.loading = false;
-    }
-  }
-
-  private async loadIssues() {
-    if (!this.tenant?.id) return;
-
-    try {
-      const result = await this.ticketService
-        .getTenantTickets(this.tenant.id)
-        .toPromise();
-
-      if (result?.success && result.entity) {
-        this.issues = result.entity;
-        this.filteredIssues = [...this.issues];
-      }
-    } catch (error) {
-      console.error('Error loading issues:', error);
-      this.issues = [];
-      this.filteredIssues = [];
-    }
-  }
-
   onFilesSelected(files: UploadedFile[]) {
     this.selectedFiles = files;
   }
 
   onFileRemoved(event: { file: UploadedFile; index: number }) {
-    this.selectedFiles = this.selectedFiles.filter(
-      (f) => f.url !== event.file.url,
-    );
+    const file = event.file;
+    this.selectedFiles = this.selectedFiles.filter((f) => f.url !== file.url);
   }
 
   async onSubmit() {
@@ -536,7 +461,11 @@ export class IssuesComponent implements OnInit {
     }
   }
 
-  createQuickIssue(quickIssue: any) {
+  createQuickIssue(quickIssue: {
+    category: number;
+    title: string;
+    description: string;
+  }) {
     this.issueForm.patchValue({
       category: quickIssue.category,
       priority: TicketPriority.Medium,
@@ -606,5 +535,75 @@ export class IssuesComponent implements OnInit {
 
   goBack() {
     this.router.navigate(['/tenant']);
+  }
+  private initializeForm() {
+    this.issueForm = this.fb.group({
+      category: ['', Validators.required],
+      priority: [TicketPriority.Medium, Validators.required],
+      title: ['', [Validators.required, Validators.minLength(5)]],
+      description: ['', [Validators.required, Validators.minLength(10)]],
+    });
+  }
+
+  private loadDropdownOptions() {
+    this.categoryOptions = this.ticketService.getCategoryOptions();
+    this.priorityOptions = this.ticketService.getPriorityOptions();
+
+    this.statusFilterOptions = [
+      { value: '', label: 'All Statuses' },
+      ...this.ticketService.getStatusOptions(),
+    ];
+
+    this.categoryFilterOptions = [
+      { value: '', label: 'All Categories' },
+      ...this.categoryOptions,
+    ];
+  }
+
+  private async loadTenantData() {
+    try {
+      this.loading = true;
+
+      // Get current tenant
+      const userEmail = this.userDetail.email;
+      if (!userEmail) {
+        console.error('User email not found');
+        return;
+      }
+
+      const tenantResult = await this.tenantService
+        .getTenantByEmail(userEmail)
+        .toPromise();
+      if (
+        tenantResult?.status === ResultStatusType.Success &&
+        tenantResult.entity
+      ) {
+        this.tenant = tenantResult.entity;
+        await this.loadIssues();
+      }
+    } catch (error) {
+      console.error('Error loading tenant data:', error);
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  private async loadIssues() {
+    if (!this.tenant?.id) return;
+
+    try {
+      const result = await this.ticketService
+        .getTenantTickets(this.tenant.id)
+        .toPromise();
+
+      if (result?.success && result.entity) {
+        this.issues = result.entity;
+        this.filteredIssues = [...this.issues];
+      }
+    } catch (error) {
+      console.error('Error loading issues:', error);
+      this.issues = [];
+      this.filteredIssues = [];
+    }
   }
 }

@@ -1,15 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+
 import {
   NgButton,
-  NgCardComponent,
   NgCheckbox,
   NgDialogService,
-  NgIconComponent,
   NgLabelComponent,
-} from 'shared';
-
+} from '../../../../../../projects/shared/src/public-api';
 import { ResultStatusType } from '../../../../common/enums/common.enums';
 import { ITenant } from '../../../models/tenant';
 import { TenantService } from '../../../service/tenant.service';
@@ -17,15 +15,7 @@ import { TenantService } from '../../../service/tenant.service';
 @Component({
   selector: 'app-agreement-modal',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    NgCardComponent,
-    NgButton,
-    NgCheckbox,
-    NgIconComponent,
-    NgLabelComponent,
-  ],
+  imports: [CommonModule, FormsModule, NgButton, NgCheckbox, NgLabelComponent],
   template: `
     <div class="modal-overlay" (click)="onBackdropClick($event)">
       <div class="modal-container" (click)="$event.stopPropagation()">
@@ -54,7 +44,7 @@ import { TenantService } from '../../../service/tenant.service';
                       [label]="'Property:'"
                       [toolTip]="'Property name'"
                     />
-                    <span>{{ tenant.propertyName || 'N/A' }}</span>
+                    <span>Property #{{ tenant.propertyId || 'N/A' }}</span>
                   </div>
                   <div class="info-item">
                     <ng-label [label]="'Tenant:'" [toolTip]="'Tenant name'" />
@@ -184,7 +174,6 @@ import { TenantService } from '../../../service/tenant.service';
             variant="primary"
             size="medium"
             [disabled]="!agreementAccepted || isAccepting"
-            [loading]="isAccepting"
             (click)="onAccept()"
           >
             {{ isAccepting ? 'Accepting...' : 'Accept Agreement' }}

@@ -150,10 +150,24 @@ export class TenantService {
   }
 
   // Get tenant statistics
-  getTenantStatistics(landlordId: number): Observable<Result<any>> {
-    return this._http.get<Result<any>>(
-      `${environment.apiBaseUrl}Tenant/statistics/${landlordId}`,
-    );
+  getTenantStatistics(landlordId: number): Observable<
+    Result<{
+      [key: string]: unknown;
+      totalTenants: number;
+      activeTenants: number;
+      pendingOnboarding: number;
+      overdueRent: number;
+    }>
+  > {
+    return this._http.get<
+      Result<{
+        [key: string]: unknown;
+        totalTenants: number;
+        activeTenants: number;
+        pendingOnboarding: number;
+        overdueRent: number;
+      }>
+    >(`${environment.apiBaseUrl}Tenant/statistics/${landlordId}`);
   }
 
   // Get tenants by property ID using API
