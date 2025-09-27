@@ -1,5 +1,6 @@
 import { inject } from '@angular/core';
-import { CanActivateChildFn, CanActivateFn, Router } from '@angular/router';
+import { CanActivateFn, Router } from '@angular/router';
+
 import { OauthService } from '../../oauth/service/oauth.service';
 
 export const userGuard: CanActivateFn = async (route, state) => {
@@ -9,8 +10,8 @@ export const userGuard: CanActivateFn = async (route, state) => {
   try {
     const user = await authService.getUser();
     if (user && user.access_token) {
-      var res = user.profile['roleName'];
-      if (res == 'Landlord') {
+      const res = user.profile['roleName'];
+      if (res === 'Landlord' || res === 'Tenant') {
         authService.setUserInfo(user.profile);
         return true;
       }

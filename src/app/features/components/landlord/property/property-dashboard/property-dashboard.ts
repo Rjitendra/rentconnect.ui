@@ -41,7 +41,7 @@ import {
 import { DocumentCategory, PropertyStatus } from '../../../../enums/view.enum';
 import { IDocument } from '../../../../models/document';
 import { IProperty, TransformedProperty } from '../../../../models/property';
-import { ITenant, ITenantChildren } from '../../../../models/tenant';
+import { ITenant } from '../../../../models/tenant';
 import { CommonService } from '../../../../service/common.service';
 import { PropertyDashboardService } from '../../../../service/property-dashboard.service';
 import { PropertyService } from '../../../../service/property.service';
@@ -430,11 +430,6 @@ export class PropertyDashboard implements OnInit {
 
   getTenantsList(property: IProperty): ITenant[] {
     return property.tenants || [];
-  }
-
-  getTenantChildren(tenant: ITenant): ITenantChildren[] {
-    console.log(tenant);
-    return [];
   }
 
   getPropertyDocuments(property: IProperty): IDocument[] {

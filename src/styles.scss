@@ -494,3 +494,162 @@ body {
   font-size: 0.75rem !important;
   margin-left: auto !important;
 }
+
+/* Enhanced Modal Styles for Tenant Dashboard Delete Operations */
+/* Delete Confirmation Modal */
+.delete-confirmation-modal {
+  .ng-dialog-container {
+    .dialog-warning {
+      .dialog-icon {
+        color: #ff9800 !important;
+        animation: shake 0.5s ease-in-out;
+      }
+
+      .dialog-title {
+        color: #f57c00;
+        font-weight: 600;
+      }
+    }
+
+    .ng-dialog-actions {
+      ng-button:has([data-ng-button-label="Delete"]) {
+        button {
+          background: linear-gradient(135deg, #f44336, #d32f2f) !important;
+          color: white !important;
+
+          &:hover {
+            background: linear-gradient(135deg, #d32f2f, #b71c1c) !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+          }
+        }
+      }
+    }
+  }
+}
+
+/* Hard Delete Modal */
+.hard-delete-modal {
+  .ng-dialog-container {
+    .dialog-error {
+      .dialog-icon {
+        color: #f44336 !important;
+        animation: pulse 2s infinite;
+      }
+
+      .dialog-title {
+        color: #d32f2f;
+        font-weight: 600;
+      }
+    }
+
+    .ng-dialog-actions {
+      ng-button:has([data-ng-button-label="Hard Delete"]) {
+        button {
+          background: linear-gradient(135deg, #d32f2f, #b71c1c) !important;
+          color: white !important;
+          border: 2px solid #ff5722 !important;
+
+          &:hover {
+            background: linear-gradient(135deg, #b71c1c, #8f0000) !important;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(183, 28, 28, 0.4);
+          }
+        }
+      }
+    }
+  }
+}
+
+/* Danger Modal - Additional styling for critical operations */
+.danger-modal {
+  .ng-dialog-container {
+    border: 2px solid #f44336;
+    border-radius: 8px;
+
+    .ng-dialog-header {
+      background: linear-gradient(135deg, #ffebee, #ffcdd2);
+      border-bottom: 2px solid #f44336;
+    }
+  }
+}
+
+/* Primary Tenant Delete - Special styling for primary tenant operations */
+.primary-tenant-delete {
+  .ng-dialog-container {
+    .ng-dialog-header {
+      background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+      border-bottom: 2px solid #ff9800;
+    }
+
+    .dialog-message {
+      font-weight: 500;
+      color: #e65100;
+    }
+  }
+}
+
+/* Bulk Email Modal */
+.bulk-email-modal {
+  .ng-dialog-container {
+    .dialog-confirm {
+      .dialog-icon {
+        color: #2196f3 !important;
+        animation: pulse 2s infinite;
+      }
+
+      .dialog-title {
+        color: #1976d2;
+        font-weight: 600;
+      }
+    }
+
+    .ng-dialog-actions {
+      ng-button:has([data-ng-button-label="Send All"]) {
+        button {
+          background: linear-gradient(135deg, #2196f3, #1976d2) !important;
+          color: white !important;
+
+          &:hover {
+            background: linear-gradient(135deg, #1976d2, #1565c0) !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+          }
+        }
+      }
+    }
+  }
+}
+
+/* Animations for modal icons */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-2px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(2px);
+  }
+}

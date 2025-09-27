@@ -442,24 +442,6 @@
                   </div>
                 </div>
               </div>
-              <!-- Tenant Children -->
-              @if (getTenantChildren(tenant).length > 0) {
-                <div class="tenant-children">
-                  <div class="children-header">
-                    <ng-icon name="child_care" />
-                    <span>Family Members</span>
-                  </div>
-                  @for (child of getTenantChildren(tenant); track child) {
-                    <div class="child-item">
-                      <ng-icon name="person" class="child-icon" />
-                      <span class="child-name">{{ child.name }}</span>
-                      <span class="child-relation"
-                        >({{ child.relation }}, {{ child.age }} years)</span
-                      >
-                    </div>
-                  }
-                </div>
-              }
             </div>
             <ng-divider />
           </div>

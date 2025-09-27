@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Result } from '../../common/models/common';
 import { IDocument } from '../models/document';
-import { ITenant, ITenantChildren } from '../models/tenant';
+import { ITenant } from '../models/tenant';
 
 export interface ITenantSaveResponse {
   success: boolean;
@@ -80,6 +80,13 @@ export class TenantService {
     );
   }
 
+  // Hard delete tenant (force delete when agreement has started)
+  hardDeleteTenant(id: number): Observable<Result<boolean>> {
+    return this._http.delete<Result<boolean>>(
+      `${environment.apiBaseUrl}Tenant/hard-delete/${id}`,
+    );
+  }
+
   // Send onboarding email
   sendOnboardingEmail(
     request: OnboardingEmailRequest,
@@ -95,39 +102,6 @@ export class TenantService {
     return this._http.post<Result<string>>(
       `${environment.apiBaseUrl}Tenant/agreement/create`,
       request,
-    );
-  }
-
-  // Add tenant child/family member
-  addTenantChild(
-    tenantId: number,
-    child: ITenantChildren,
-  ): Observable<Result<ITenantChildren>> {
-    return this._http.post<Result<ITenantChildren>>(
-      `${environment.apiBaseUrl}Tenant/${tenantId}/children`,
-      child,
-    );
-  }
-
-  // Update tenant child
-  updateTenantChild(
-    tenantId: number,
-    childId: number,
-    childData: ITenantChildren,
-  ): Observable<Result<boolean>> {
-    return this._http.put<Result<boolean>>(
-      `${environment.apiBaseUrl}Tenant/${tenantId}/children/${childId}`,
-      childData,
-    );
-  }
-
-  // Delete tenant child
-  deleteTenantChild(
-    tenantId: number,
-    childId: number,
-  ): Observable<Result<boolean>> {
-    return this._http.delete<Result<boolean>>(
-      `${environment.apiBaseUrl}Tenant/${tenantId}/children/${childId}`,
     );
   }
 

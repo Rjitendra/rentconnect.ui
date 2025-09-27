@@ -12,6 +12,7 @@ import { Observable, of } from 'rxjs';
 import {
   AlertService,
   NgButton,
+  NgDialogService,
   NgIconComponent,
   NgMatTable,
   TableColumn,
@@ -78,6 +79,7 @@ export class TenantDashboard implements OnInit {
   initDashBoard$!: Observable<boolean>;
 
   private alertService = inject(AlertService);
+  private dialogService = inject(NgDialogService);
   private tenantService = inject(TenantService);
   private propertyService = inject(PropertyService);
   private userService = inject(OauthService);
@@ -147,6 +149,21 @@ export class TenantDashboard implements OnInit {
       return 'Ready for Onboarding';
     if (tenant.onboardingEmailSent) return 'Email Sent';
     return 'Active';
+  }
+
+  getDeleteIconClass(tenant: ITenant): string {
+    let classes = 'icon-error icon-clickable delete-action';
+
+    if (tenant.isPrimary) {
+      classes += ' primary-tenant-delete';
+    }
+
+    // Check if agreement has started (primary tenant accepted)
+    if (this.isGroupAgreementAccepted(tenant.tenantGroup)) {
+      classes += ' agreement-started-delete';
+    }
+
+    return classes;
   }
 
   // NgMatTable event handlers
@@ -315,14 +332,75 @@ export class TenantDashboard implements OnInit {
 
   // Send onboarding emails to all tenants across all properties
   onSendAllOnboardingEmails() {
-    if (
-      !confirm(
-        'Are you sure you want to send onboarding emails to all eligible tenants across all properties?',
-      )
-    ) {
-      return;
-    }
+    this.dialogService
+      .confirm({
+        title: 'Send All Onboarding Emails',
+        message:
+          'Are you sure you want to send onboarding emails to all eligible tenants across all properties?',
+        icon: 'send',
+        type: 'confirm',
+        confirmText: 'Send All',
+        cancelText: 'Cancel',
+        width: '450px',
+        panelClass: ['bulk-email-modal', 'confirmation-modal'],
+      })
+      .subscribe((result) => {
+        if (result.action === 'confirm') {
+          this.performSendAllOnboardingEmails();
+        }
+      });
+  }
+  onDeleteTenant(tenant: ITenant) {
+    const tenantType = tenant.isPrimary ? 'primary tenant' : 'tenant';
+    const isPrimary = tenant.isPrimary;
 
+    this.dialogService
+      .confirm({
+        title: `Delete ${tenantType}`,
+        message: `Are you sure you want to delete ${tenantType} "${tenant.name}"?${isPrimary ? '\n\nNote: This is a primary tenant and may have restrictions.' : ''}`,
+        icon: 'delete',
+        type: 'warning',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        width: '450px',
+        panelClass: [
+          'delete-confirmation-modal',
+          isPrimary ? 'primary-tenant-delete' : 'regular-tenant-delete',
+        ],
+      })
+      .subscribe((result) => {
+        if (result.action === 'confirm') {
+          this.performDelete(tenant);
+        }
+      });
+  }
+
+  onViewTenant(tenant: ITenant) {
+    // Get all tenants in the same group for detail view
+    const groupMembers = this.getGroupMembers(tenant.tenantGroup);
+    this.editingTenants = groupMembers;
+    this.editingSingleTenant = null;
+    this.editMode = 'group';
+    this.currentView = 'detail';
+  }
+
+  onEditTenant(tenant: ITenant): void {
+    // Single tenant edit from expanded row
+    this.editingSingleTenant = tenant;
+    this.editingTenants = this.getGroupMembers(tenant.tenantGroup);
+    this.editMode = 'single';
+    this.currentView = 'edit';
+  }
+
+  // Edit all tenants in group (from table row action)
+  onEditTenantGroup(primaryTenant: ITenant): void {
+    const groupMembers = this.getGroupMembers(primaryTenant.tenantGroup);
+    this.editingTenants = groupMembers;
+    this.editingSingleTenant = null;
+    this.editMode = 'group';
+    this.currentView = 'edit';
+  }
+  private performSendAllOnboardingEmails() {
     this.showInfo('Sending onboarding emails to all eligible tenants...');
 
     // Get all unique property IDs from current tenants
@@ -393,63 +471,94 @@ export class TenantDashboard implements OnInit {
     });
   }
 
-  onDeleteTenant(tenant: ITenant) {
-    if (confirm(`Are you sure you want to delete tenant ${tenant.name}?`)) {
-      this.tenantService.deleteTenant(tenant.id!).subscribe({
-        next: (response) => {
-          if (response.status === ResultStatusType.Success) {
-            this.showSuccess(
-              Array.isArray(response.message)
-                ? response.message.join(', ')
-                : response.message,
-            );
-            this.loadTenants(); // Reload the tenant list
-            if (
-              this.currentView === 'detail' &&
-              this.selectedTenant?.id === tenant.id
-            ) {
-              this.showTable();
-            }
-          } else {
-            this.showError(
-              Array.isArray(response.message)
-                ? response.message.join(', ')
-                : response.message,
-            );
+  private performDelete(tenant: ITenant) {
+    this.tenantService.deleteTenant(tenant.id!).subscribe({
+      next: (response) => {
+        if (response.status === ResultStatusType.Success) {
+          this.showSuccess(
+            Array.isArray(response.message)
+              ? response.message.join(', ')
+              : response.message || 'Tenant deleted successfully',
+          );
+          this.loadTenants(); // Reload the tenant list
+          if (
+            this.currentView === 'detail' &&
+            this.selectedTenant?.id === tenant.id
+          ) {
+            this.showTable();
           }
-        },
-        error: (error: unknown) => {
-          this.showError('Failed to delete tenant');
-          console.error('Error deleting tenant:', error);
-        },
+        } else {
+          // Check if this is a hard delete required scenario
+          const errorMessage = Array.isArray(response.message)
+            ? response.message.join(', ')
+            : response.message || 'Failed to delete tenant';
+
+          if (errorMessage.includes('HARD_DELETE_REQUIRED')) {
+            this.handleHardDeleteRequired(tenant, errorMessage);
+          } else {
+            this.showError(errorMessage);
+          }
+        }
+      },
+      error: (error: unknown) => {
+        this.showError('Failed to delete tenant');
+        console.error('Error deleting tenant:', error);
+      },
+    });
+  }
+
+  private handleHardDeleteRequired(tenant: ITenant, originalMessage: string) {
+    // Extract the user-friendly message after the pipe
+    const userMessage =
+      originalMessage.split('|')[1] ||
+      'Tenancy already started. Hard delete required to remove this tenant.';
+
+    this.dialogService
+      .confirm({
+        title: 'Hard Delete Required',
+        message: `${userMessage}\n\nDo you want to proceed with hard delete?\n\n⚠️ Warning: This action cannot be undone and will permanently remove the tenant.`,
+        icon: 'warning',
+        type: 'error',
+        confirmText: 'Hard Delete',
+        cancelText: 'Cancel',
+        width: '500px',
+        panelClass: ['hard-delete-modal', 'danger-modal'],
+      })
+      .subscribe((result) => {
+        if (result.action === 'confirm') {
+          this.performHardDelete(tenant);
+        }
       });
-    }
   }
 
-  onViewTenant(tenant: ITenant) {
-    // Get all tenants in the same group for detail view
-    const groupMembers = this.getGroupMembers(tenant.tenantGroup);
-    this.editingTenants = groupMembers;
-    this.editingSingleTenant = null;
-    this.editMode = 'group';
-    this.currentView = 'detail';
-  }
+  private performHardDelete(tenant: ITenant) {
+    this.showInfo(`Performing hard delete for ${tenant.name}...`);
 
-  onEditTenant(tenant: ITenant): void {
-    // Single tenant edit from expanded row
-    this.editingSingleTenant = tenant;
-    this.editingTenants = this.getGroupMembers(tenant.tenantGroup);
-    this.editMode = 'single';
-    this.currentView = 'edit';
-  }
-
-  // Edit all tenants in group (from table row action)
-  onEditTenantGroup(primaryTenant: ITenant): void {
-    const groupMembers = this.getGroupMembers(primaryTenant.tenantGroup);
-    this.editingTenants = groupMembers;
-    this.editingSingleTenant = null;
-    this.editMode = 'group';
-    this.currentView = 'edit';
+    this.tenantService.hardDeleteTenant(tenant.id!).subscribe({
+      next: (response) => {
+        if (response.status === ResultStatusType.Success) {
+          this.showSuccess(
+            `${tenant.name} has been permanently deleted (hard delete)`,
+          );
+          this.loadTenants(); // Reload the tenant list
+          if (
+            this.currentView === 'detail' &&
+            this.selectedTenant?.id === tenant.id
+          ) {
+            this.showTable();
+          }
+        } else {
+          const errorMessage = Array.isArray(response.message)
+            ? response.message.join(', ')
+            : response.message || 'Failed to hard delete tenant';
+          this.showError(errorMessage);
+        }
+      },
+      error: (error: unknown) => {
+        this.showError('Failed to hard delete tenant');
+        console.error('Error hard deleting tenant:', error);
+      },
+    });
   }
 
   private initializeTable() {

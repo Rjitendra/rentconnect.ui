@@ -241,6 +241,34 @@
                     placeholder="Software Engineer"
                     suffixIcon="work"
                   />
+                  <ng-select
+                    class="half-width"
+                    formControlName="relationship"
+                    label="Relationship"
+                    placeholder="Select relationship"
+                    suffixIcon="family_restroom"
+                    [options]="relationshipOptions"
+                    [disabled]="!isTenantEditable(i)"
+                  />
+                </div>
+                <div class="form-row">
+                  <div class="checkbox-container half-width">
+                    <label class="checkbox-label">
+                      <input
+                        type="checkbox"
+                        formControlName="includeInEmail"
+                        [disabled]="!isTenantEditable(i)"
+                      />
+                      <span class="checkmark"></span>
+                      <span class="checkbox-text">
+                        <ng-icon name="email" class="checkbox-icon" />
+                        Include in email communications
+                        <small class="checkbox-description">
+                          Uncheck for children/kids who shouldn't receive emails
+                        </small>
+                      </span>
+                    </label>
+                  </div>
                 </div>
               </ng-card>
               <!-- Government IDs -->

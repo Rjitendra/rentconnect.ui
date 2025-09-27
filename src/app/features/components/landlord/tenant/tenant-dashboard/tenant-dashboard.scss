@@ -932,7 +932,66 @@
 
 .icon-clickable {
   cursor: pointer;
+
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  &.icon-error:hover {
+    color: #d32f2f !important;
+    background-color: rgba(211, 47, 47, 0.1);
+    border-radius: 4px;
+    padding: 2px;
+  }
 }
+
+// Enhanced delete button styles for better UX
+.delete-action {
+  position: relative;
+
+  &.primary-tenant-delete {
+    &::after {
+      content: "⚠️";
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      font-size: 10px;
+      background: #ff9800;
+      color: white;
+      border-radius: 50%;
+      width: 14px;
+      height: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+    }
+  }
+
+  &.agreement-started-delete {
+    &::before {
+      content: "🔒";
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      font-size: 8px;
+      background: #f44336;
+      color: white;
+      border-radius: 50%;
+      width: 12px;
+      height: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}
+
+// Enhanced Modal Styles for Delete Operations
+// Note: Modal styles are now defined in global styles.scss using panelClass
+// This avoids the need for ::ng-deep and provides better encapsulation
 
 // Responsive Design
 @media (max-width: 768px) {

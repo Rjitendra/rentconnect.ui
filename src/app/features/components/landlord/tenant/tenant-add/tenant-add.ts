@@ -89,6 +89,17 @@ export class TenantAddComponent implements OnInit {
   propertyOptions: SelectOption[] = [];
   isLoadingProperties = false;
 
+  // Relationship options for dropdown
+  relationshipOptions: SelectOption[] = [
+    { value: 'Adult', label: 'Adult' },
+    { value: 'Spouse', label: 'Spouse' },
+    { value: 'Parent', label: 'Parent' },
+    { value: 'Sibling', label: 'Sibling' },
+    { value: 'Child', label: 'Child' },
+    { value: 'Kid', label: 'Kid' },
+    { value: 'Other', label: 'Other' },
+  ];
+
   // Enums for template
   InputType = InputType;
 
@@ -743,7 +754,6 @@ export class TenantAddComponent implements OnInit {
     // Trigger change detection to update the UI immediately
     this.cdr.detectChanges();
   }
-
   onDocumentCategoryRemoved(
     file: UploadedFile,
     tenantIndex: number,
@@ -1133,6 +1143,12 @@ export class TenantAddComponent implements OnInit {
         tenant.needsOnboarding !== undefined ? tenant.needsOnboarding : true,
       ],
 
+      // Relationship and Email preferences
+      relationship: [tenant.relationship || 'Adult'],
+      includeInEmail: [
+        tenant.includeInEmail !== undefined ? tenant.includeInEmail : true,
+      ],
+
       // Documents
       documents: [tenant.documents || []],
     });
@@ -1177,6 +1193,10 @@ export class TenantAddComponent implements OnInit {
       isNewTenant: [true],
       isActive: [true],
       needsOnboarding: [true],
+
+      // Relationship and Email preferences
+      relationship: ['Adult'], // Default to Adult
+      includeInEmail: [true], // Default to true
 
       // Documents for this tenant (will be populated from categorized uploads)
       documents: [[]],

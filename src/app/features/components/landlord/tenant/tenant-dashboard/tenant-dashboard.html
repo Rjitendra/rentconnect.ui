@@ -288,8 +288,12 @@
                   />
                   <ng-icon
                     name="delete"
-                    tooltip="Delete Tenant"
-                    class="icon-error icon-clickable"
+                    [tooltip]="
+                      member.isPrimary
+                        ? 'Delete Primary Tenant (Restricted)'
+                        : 'Delete Tenant'
+                    "
+                    [class]="getDeleteIconClass(member)"
                     (click)="onDeleteTenant(member)"
                   />
                 </div>
@@ -361,8 +365,12 @@
     }
     <ng-icon
       name="delete"
-      tooltip="Delete Tenant Group"
-      class="icon-error icon-clickable"
+      [tooltip]="
+        member.isPrimary
+          ? 'Delete Primary Tenant Group (Restricted)'
+          : 'Delete Tenant Group'
+      "
+      [class]="getDeleteIconClass(member)"
       (click)="onDeleteTenant(member)"
     />
   </div>

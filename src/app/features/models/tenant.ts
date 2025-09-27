@@ -82,6 +82,17 @@ export interface ITenant {
   isActive: boolean;
   needsOnboarding?: boolean;
 
+  // Relationship and Email preferences
+  relationship?:
+    | 'Adult'
+    | 'Child'
+    | 'Kid'
+    | 'Spouse'
+    | 'Parent'
+    | 'Sibling'
+    | 'Other';
+  includeInEmail?: boolean;
+
   // Audit
   ipAddress?: string;
   dateCreated?: Date | string;
@@ -96,7 +107,6 @@ export interface ITenant {
   // Navigation collections
   tickets?: ITicket[];
   documents?: IDocument[];
-  children?: ITenantChildren[];
 }
 
 export interface ITenantSaveResponse {
@@ -109,15 +119,4 @@ export interface ITenantSaveResponse {
 export interface ITenantValidationError {
   field: string;
   message: string;
-}
-
-export interface ITenantChildren {
-  id?: number;
-  tenantGroupId?: string;
-  name?: string;
-  email?: string;
-  dob?: Date | string;
-  age?: number; // Age in years
-  occupation?: string;
-  relation?: string; // Relationship to main tenant (e.g., Son, Daughter, etc.)
 }
