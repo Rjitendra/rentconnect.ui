@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 
 import { authGuard } from './core/guards/auth-guard';
-import { userGuard } from './core/guards/user-guard';
+import { landlordGuard, tenantGuard } from './core/guards/user-guard';
 import { SigninCallback } from './oauth/components/signin-callback/signin-callback';
 import { SignoutCallback } from './oauth/components/signout-callback/signout-callback';
 
@@ -55,7 +55,7 @@ export const routes: Routes = [
           ).then((m) => m.IssueTrackerHistory),
       },
     ],
-    canActivate: [userGuard],
+    canActivate: [landlordGuard],
   },
   {
     path: 'tenant',
@@ -105,7 +105,7 @@ export const routes: Routes = [
           ).then((m) => m.IssueDetailComponent),
       },
     ],
-    canActivate: [userGuard],
+    canActivate: [tenantGuard],
   },
   { path: 'signin-callback', component: SigninCallback },
   { path: 'signout-callback', component: SignoutCallback },

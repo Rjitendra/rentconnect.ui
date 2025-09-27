@@ -39,7 +39,7 @@ export class LayoutComponent implements OnInit {
       const user = await this.authService.getUser();
       if (user && user.access_token) {
         const res = user.profile['roleName'];
-        if (res === 'Landlord') {
+        if (res === 'Landlord' || res === 'Tenant') {
           this.authService.setUserInfo(user.profile);
           this.isLogIn = true;
           return true;
