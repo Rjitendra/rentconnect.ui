@@ -3,9 +3,8 @@ import { CanActivateFn, Router } from '@angular/router';
 
 import { OauthService } from '../../oauth/service/oauth.service';
 
-export const userGuard: CanActivateFn = async (route, state) => {
+export const userGuard: CanActivateFn = async () => {
   const authService = inject(OauthService);
-  const router = inject(Router);
 
   try {
     const user = await authService.getUser();
@@ -25,7 +24,7 @@ export const userGuard: CanActivateFn = async (route, state) => {
   }
 };
 
-export const landlordGuard: CanActivateFn = async (route, state) => {
+export const landlordGuard: CanActivateFn = async () => {
   const authService = inject(OauthService);
   const router = inject(Router);
 
@@ -55,7 +54,7 @@ export const landlordGuard: CanActivateFn = async (route, state) => {
   }
 };
 
-export const tenantGuard: CanActivateFn = async (route, state) => {
+export const tenantGuard: CanActivateFn = async () => {
   const authService = inject(OauthService);
   const router = inject(Router);
 
