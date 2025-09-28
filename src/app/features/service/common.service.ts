@@ -10,6 +10,9 @@ import { acceptedTypes } from '../constants/document.constants';
 import { OwnerType } from '../constants/owner-type.constants';
 import { DocumentCategory } from '../enums/view.enum';
 import { IDocument } from '../models/document';
+import { ILandlord } from '../models/landlord';
+
+import { LandlordService } from './landlord.service';
 
 @Injectable({
   providedIn: 'root',
@@ -21,11 +24,27 @@ export class CommonService {
     type.startsWith('image/'),
   );
 
+  private landLordDetails!: ILandlord;
+
   private readonly alertService = inject(AlertService);
 
   private _http = inject(HttpClient);
+  private landlordService = inject(LandlordService);
 
   constructor() {}
+  setLandlordDetails(userId: number): Promise<ILandlord> {
+    return this.landlordService
+      .getLandlord(userId)
+      .toPromise()
+      .then((landlord) => {
+        this.landLordDetails = landlord;
+        return landlord;
+      });
+  }
+
+  getLandlordDetails(): ILandlord {
+    return this.landLordDetails;
+  }
 
   /**
    * Validate uploaded files (size, type, count)

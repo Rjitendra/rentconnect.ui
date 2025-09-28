@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 
 import {
   LibLayoutComponent,
   NgAlertComponent,
 } from '../../../projects/shared/src/public-api';
 import { NAVITEMS } from '../app.nav';
+import { CommonService } from '../features/service/common.service';
 import { OauthService } from '../oauth/service/oauth.service';
 
 @Component({
@@ -17,10 +18,16 @@ export class LayoutComponent implements OnInit {
   navItes = NAVITEMS;
   isLogIn = false;
 
-  constructor(private authService: OauthService) {}
+  private authService = inject(OauthService);
+  private commonService = inject(CommonService);
 
   ngOnInit() {
-    this.getAsyncGetUserData();
+    const response = this.getAsyncGetUserData();
+    if (response && this.authService.getUserInfo().roleName === 'Landlord') {
+      this.commonService.setLandlordDetails(
+        this.authService.getUserInfo().userId,
+      );
+    }
   }
 
   onLogIn(): void {
@@ -29,7 +36,7 @@ export class LayoutComponent implements OnInit {
 
   async onLogout(): Promise<void> {
     try {
-      this.authService.logout();
+      await this.authService.logout();
     } catch (err) {}
   }
   loginStatus(): void {}
