@@ -1,11 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { map, Observable } from 'rxjs';
 
 import {
   AlertService,
   UploadedFile,
 } from '../../../../projects/shared/src/public-api';
 import { environment } from '../../../environments/environment';
+import { Result } from '../../common/models/common';
 import { acceptedTypes } from '../constants/document.constants';
 import { OwnerType } from '../constants/owner-type.constants';
 import { DocumentCategory } from '../enums/view.enum';
@@ -31,11 +33,13 @@ export class CommonService {
   private _http = inject(HttpClient);
   private landlordService = inject(LandlordService);
 
-  constructor() {}
-  setLandlordDetails(userId: number) {
-    this.landlordService.getLandlord(userId).subscribe((landlord) => {
-      this.landLordDetails = landlord;
-    });
+  setLandlordDetails(userId: number): Observable<Result<ILandlord>> {
+    return this.landlordService.getLandlord(userId).pipe(
+      map((landlord) => {
+        this.landLordDetails = landlord.entity;
+        return landlord;
+      }),
+    );
   }
 
   getLandlordDetails(): ILandlord {

@@ -40,6 +40,7 @@ import {
 } from '../../../../constants/document.constants';
 import { DocumentCategory, PropertyStatus } from '../../../../enums/view.enum';
 import { IDocument } from '../../../../models/document';
+import { ILandlord } from '../../../../models/landlord';
 import { IProperty, TransformedProperty } from '../../../../models/property';
 import { ITenant } from '../../../../models/tenant';
 import { CommonService } from '../../../../service/common.service';
@@ -128,6 +129,7 @@ export class PropertyDashboard implements OnInit {
   isUploading = false;
   downloadCategories: SelectOption[] = [];
   userdetail: Partial<IUserDetail> = {};
+  landlordDetails!: ILandlord;
 
   private dialogService = inject(NgDialogService);
   private userService = inject(OauthService);
@@ -135,14 +137,17 @@ export class PropertyDashboard implements OnInit {
   private alertService = inject(AlertService);
   private cdr = inject(ChangeDetectorRef);
   private commonService = inject(CommonService);
-  private dashboardService = inject(PropertyDashboardService); // NEW: Inject the new service
+  private dashboardService = inject(PropertyDashboardService);
 
   constructor() {
     this.userdetail = this.userService.getUserInfo();
+    this.landlordDetails = this.commonService.getLandlordDetails();
   }
+
   get categoryInfo() {
     return this.dashboardService.getCategoryInfo(this.selectedDocumentCategory);
   }
+
   ngOnInit() {
     this.downloadCategories =
       this.dashboardService.getDownloadCategoryOptions();
@@ -165,8 +170,6 @@ export class PropertyDashboard implements OnInit {
   getHint(): string {
     return this.dashboardService.getCategoryHint(this.selectedDocumentCategory);
   }
-
-  // ... (Other component methods remain the same) ...
 
   // CRUD Operations
   onCreateProperty(): void {
@@ -237,7 +240,7 @@ export class PropertyDashboard implements OnInit {
 
   // Statistics Methods - These are simple enough to stay here
   getAvailablePropertiesCount(): number {
-    return this.properties.filter((p) => p.status === PropertyStatus.Rented)
+    return this.properties.filter((p) => p.status === PropertyStatus.Listed)
       .length;
   }
 
@@ -320,6 +323,7 @@ export class PropertyDashboard implements OnInit {
       this.selectedPropertyForUpload,
       this.selectedDocumentCategory,
       this.userdetail,
+      this.landlordDetails.id!,
     );
 
     this.propertyService
@@ -463,7 +467,7 @@ export class PropertyDashboard implements OnInit {
   }
 
   private loadApiData() {
-    const landlordId = Number(this.userdetail.userId);
+    const landlordId = Number(this.landlordDetails.id);
     this.propertyService.getProperties(landlordId).subscribe({
       next: (response: Result<IProperty[]>) => {
         if (response.success) {

@@ -44,6 +44,7 @@ import {
   PropertyType,
 } from '../../../../enums/view.enum';
 import { IDocument } from '../../../../models/document';
+import { ILandlord } from '../../../../models/landlord';
 import {
   IProperty,
   PropertySaveResponse,
@@ -110,6 +111,7 @@ export class PropertyAdd implements OnInit {
   isShowingValidationErrors = false;
 
   userdetail: Partial<IUserDetail> = {};
+  landlordDetails!: ILandlord;
   propertiesImages: IDocument[] = [];
 
   // Dependencies
@@ -122,6 +124,7 @@ export class PropertyAdd implements OnInit {
 
   constructor() {
     this.userdetail = this.userService.getUserInfo();
+    this.landlordDetails = this.commonService.getLandlordDetails();
   }
 
   ngOnInit() {
@@ -513,7 +516,7 @@ export class PropertyAdd implements OnInit {
   ): IProperty {
     const property: IProperty = {
       ...this.propertyForm.value,
-      landlordId: this.userdetail.userId,
+      landlordId: this.landlordDetails.id,
       documents: this.commonService.convertImagesToDocuments(
         this.uploadedImages,
         this.userdetail.userId!,

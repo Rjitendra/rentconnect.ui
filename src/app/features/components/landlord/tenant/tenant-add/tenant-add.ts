@@ -38,12 +38,14 @@ import {
 import { OwnerType } from '../../../../constants/owner-type.constants';
 import { DocumentCategory, PropertyStatus } from '../../../../enums/view.enum';
 import { IDocument } from '../../../../models/document';
+import { ILandlord } from '../../../../models/landlord';
 import { IProperty } from '../../../../models/property';
 import {
   ITenant,
   ITenantSaveResponse,
   ITenantValidationError,
 } from '../../../../models/tenant';
+import { CommonService } from '../../../../service/common.service';
 import { PropertyService } from '../../../../service/property.service';
 import { TenantService } from '../../../../service/tenant.service';
 
@@ -140,17 +142,21 @@ export class TenantAddComponent implements OnInit {
   // Track documents to be deleted (for edit mode)
   documentsToDelete: number[] = [];
 
+  landlordDetails!: ILandlord;
+
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private alertService = inject(AlertService);
   private tenantService = inject(TenantService);
   private propertyService = inject(PropertyService);
   private userService = inject(OauthService);
+  private commonService = inject(CommonService);
 
   private dialogService = inject(NgDialogService);
   private cdr = inject(ChangeDetectorRef);
   constructor() {
     this.userdetail = this.userService.getUserInfo();
+    this.landlordDetails = this.commonService.getLandlordDetails();
   }
   // Form Array Helper Methods
   get tenantsFormArray(): FormArray {
@@ -519,9 +525,7 @@ export class TenantAddComponent implements OnInit {
         leaseDuration: number;
         noticePeriod: number;
       };
-      const landlordId = this.userdetail?.userId
-        ? Number(this.userdetail.userId)
-        : 0;
+      const landlordId = this.landlordDetails?.id || 0;
 
       // Prepare tenant data with documents
       let tenantsWithDocuments = formData.tenants.map((tenant, index) => ({
@@ -1343,9 +1347,7 @@ export class TenantAddComponent implements OnInit {
 
   // Load properties for the current landlord
   private loadProperties() {
-    const landlordId = this.userdetail?.userId
-      ? Number(this.userdetail.userId)
-      : 0;
+    const landlordId = this.landlordDetails?.id || 0;
     if (landlordId > 0) {
       this.isLoadingProperties = true;
       this.propertyService.getProperties(landlordId).subscribe({

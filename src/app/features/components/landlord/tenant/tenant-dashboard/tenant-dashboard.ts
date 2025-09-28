@@ -25,8 +25,10 @@ import {
   IUserDetail,
   OauthService,
 } from '../../../../../oauth/service/oauth.service';
+import { ILandlord } from '../../../../models/landlord';
 import { IProperty } from '../../../../models/property';
 import { ITenant } from '../../../../models/tenant';
+import { CommonService } from '../../../../service/common.service';
 import { PropertyService } from '../../../../service/property.service';
 import { TenantService } from '../../../../service/tenant.service';
 import { TenantAddComponent } from '../tenant-add/tenant-add';
@@ -65,7 +67,7 @@ export class TenantDashboard implements OnInit {
   tenantGroups: Map<string, ITenant[]> = new Map(); // Grouped tenants by tenantGroup
   properties: IProperty[] = [];
   userdetail: Partial<IUserDetail> = {};
-
+  landlordDetails!: ILandlord;
   // NgMatTable configuration
   tableColumns: TableColumn[] = [];
 
@@ -82,11 +84,13 @@ export class TenantDashboard implements OnInit {
   private dialogService = inject(NgDialogService);
   private tenantService = inject(TenantService);
   private propertyService = inject(PropertyService);
+  private commonService = inject(CommonService);
   private userService = inject(OauthService);
   private $cdr = inject(ChangeDetectorRef);
 
   constructor() {
     this.userdetail = this.userService.getUserInfo();
+    this.landlordDetails = this.commonService.getLandlordDetails();
   }
 
   ngOnInit() {
@@ -262,6 +266,7 @@ export class TenantDashboard implements OnInit {
     const primaryTenant = groupMembers.find((member) => member.isPrimary);
     return primaryTenant?.agreementAccepted || false;
   }
+
   onSendOnboardingEmail(tenant: ITenant) {
     const isResend = tenant.onboardingEmailSent;
     const action = isResend ? 'Resending' : 'Sending';
@@ -298,9 +303,7 @@ export class TenantDashboard implements OnInit {
   onSendBulkOnboardingEmails(propertyId: number) {
     this.showInfo('Sending onboarding emails to all eligible tenants...');
 
-    const landlordId = this.userdetail?.userId
-      ? Number(this.userdetail.userId)
-      : 0;
+    const landlordId = this.landlordDetails?.id || 0;
 
     if (landlordId <= 0) {
       this.showError('Invalid landlord information');
@@ -411,9 +414,7 @@ export class TenantDashboard implements OnInit {
       return;
     }
 
-    const landlordId = this.userdetail?.userId
-      ? Number(this.userdetail.userId)
-      : 0;
+    const landlordId = this.landlordDetails?.id || 0;
 
     if (landlordId <= 0) {
       this.showError('Invalid landlord information');
@@ -677,9 +678,7 @@ export class TenantDashboard implements OnInit {
     this.initDashBoard$ = of(true);
   }
   private loadTenants() {
-    const landlordId = this.userdetail?.userId
-      ? Number(this.userdetail.userId)
-      : 0;
+    const landlordId = this.landlordDetails?.id || 0;
     if (landlordId > 0) {
       this.tenantService.getTenantsByLandlord(landlordId).subscribe({
         next: (response: Result<ITenant[]>) => {
@@ -702,9 +701,7 @@ export class TenantDashboard implements OnInit {
 
   // Load properties for the current landlord
   private loadProperties() {
-    const landlordId = this.userdetail?.userId
-      ? Number(this.userdetail.userId)
-      : 0;
+    const landlordId = this.landlordDetails?.id || 0;
     if (landlordId > 0) {
       this.propertyService.getProperties(landlordId).subscribe({
         next: (response: Result<IProperty[]>) => {

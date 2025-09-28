@@ -30,7 +30,9 @@ import {
   PropertyType,
 } from '../../../../enums/view.enum';
 import { IDocument } from '../../../../models/document';
+import { ILandlord } from '../../../../models/landlord';
 import { IProperty } from '../../../../models/property';
+import { CommonService } from '../../../../service/common.service';
 import { PropertyService } from '../../../../service/property.service';
 
 @Component({
@@ -60,6 +62,7 @@ export class PropertyDetail implements OnInit {
   selectedImage!: IDocument;
   defaultImage: string =
     'https://via.placeholder.com/800x400/667eea/ffffff?text=Property+Image';
+  landlordDetails!: ILandlord;
 
   private propertyTypeOptions = propertyTypeOptions;
   private furnishingTypeOptions = furnishingTypeOptions;
@@ -69,14 +72,16 @@ export class PropertyDetail implements OnInit {
   private propertyService = inject(PropertyService);
   private alertService = inject(AlertService);
   private userService = inject(OauthService);
+  private commonService = inject(CommonService);
 
   constructor() {
     this.userdetail = this.userService.getUserInfo();
+    this.landlordDetails = this.commonService.getLandlordDetails();
   }
 
   ngOnInit() {
     this.loadProperty();
-    this.getPropertyImages(Number(this.userdetail.userId), this.property.id!);
+    this.getPropertyImages(this.landlordDetails.id!, this.property.id!);
   }
 
   selectImage(image: IDocument) {

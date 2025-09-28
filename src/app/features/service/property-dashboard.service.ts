@@ -213,8 +213,13 @@ export class PropertyDashboardService {
         label: `All Documents (${documents.length})`,
       },
     ];
-
-    documentCategories.forEach((cat) => {
+    const updatedDocumentCategories = documentCategories.filter(
+      (x) =>
+        x.value === DocumentCategory.PropertyImages ||
+        x.value === DocumentCategory.AddressProof ||
+        x.value === DocumentCategory.OwnershipProof,
+    );
+    updatedDocumentCategories.forEach((cat) => {
       const count = documents.filter((d) => d.category === cat.value).length;
       categories.push({
         value: cat.value,
@@ -226,7 +231,16 @@ export class PropertyDashboardService {
   }
 
   getDocumentCategoryOptions(): SelectOption[] {
-    return [{ value: 'all', label: 'All Documents' }, ...documentCategories];
+    const updatedDocumentCategories = documentCategories.filter(
+      (x) =>
+        x.value === DocumentCategory.PropertyImages ||
+        x.value === DocumentCategory.AddressProof ||
+        x.value === DocumentCategory.OwnershipProof,
+    );
+    return [
+      // { value: 'all', label: 'All Documents' },
+      ...updatedDocumentCategories,
+    ];
   }
 
   initializeTableColumns(
@@ -304,19 +318,20 @@ export class PropertyDashboardService {
     property: IProperty,
     category: DocumentCategory,
     user: Partial<IUserDetail>,
+    landlordId: number,
   ): FormData {
     const formData = new FormData();
     files.forEach((uploadedFile, index) => {
       formData.append(`Documents[${index}].File`, uploadedFile.file);
       formData.append(
         `Documents[${index}].OwnerId`,
-        (property.landlordId || Number(user.userId) || 1).toString(),
+        (property.landlordId || landlordId).toString(),
       );
       formData.append(`Documents[${index}].OwnerType`, 'Landlord');
       formData.append(`Documents[${index}].Category`, category.toString());
       formData.append(
         `Documents[${index}].LandlordId`,
-        (property.landlordId || Number(user.userId) || 1).toString(),
+        (property.landlordId || landlordId).toString(),
       );
       formData.append(
         `Documents[${index}].PropertyId`,
