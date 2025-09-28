@@ -5,7 +5,6 @@ import {
   NgAlertComponent,
 } from '../../../projects/shared/src/public-api';
 import { NAVITEMS } from '../app.nav';
-import { CommonService } from '../features/service/common.service';
 import { OauthService } from '../oauth/service/oauth.service';
 
 @Component({
@@ -19,15 +18,9 @@ export class LayoutComponent implements OnInit {
   isLogIn = false;
 
   private authService = inject(OauthService);
-  private commonService = inject(CommonService);
 
   ngOnInit() {
-    const response = this.getAsyncGetUserData();
-    if (response && this.authService.getUserInfo().roleName === 'Landlord') {
-      this.commonService.setLandlordDetails(
-        this.authService.getUserInfo().userId,
-      );
-    }
+    this.getAsyncGetUserData();
   }
 
   onLogIn(): void {

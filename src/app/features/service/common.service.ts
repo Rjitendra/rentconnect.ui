@@ -32,14 +32,10 @@ export class CommonService {
   private landlordService = inject(LandlordService);
 
   constructor() {}
-  setLandlordDetails(userId: number): Promise<ILandlord> {
-    return this.landlordService
-      .getLandlord(userId)
-      .toPromise()
-      .then((landlord) => {
-        this.landLordDetails = landlord;
-        return landlord;
-      });
+  setLandlordDetails(userId: number) {
+    this.landlordService.getLandlord(userId).subscribe((landlord) => {
+      this.landLordDetails = landlord;
+    });
   }
 
   getLandlordDetails(): ILandlord {
