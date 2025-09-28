@@ -40,6 +40,7 @@ export enum DocumentCategory {
   EmploymentProof = 11,
   PersonPhoto = 12,
   PropertyCondition = 13,
+  Other = 14,
 }
 
 export enum TenantStatus {

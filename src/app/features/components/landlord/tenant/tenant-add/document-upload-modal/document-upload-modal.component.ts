@@ -129,6 +129,7 @@ export class DocumentUploadModalComponent implements OnInit {
       [DocumentCategory.PropertyImages]: 'Property Images',
       [DocumentCategory.PersonPhoto]: 'Person Photo',
       [DocumentCategory.PropertyCondition]: 'Property Condition',
+      [DocumentCategory.Other]: 'Other',
     };
     return categories[category] || 'Unknown Category';
   }

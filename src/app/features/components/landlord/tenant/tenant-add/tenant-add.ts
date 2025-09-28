@@ -131,6 +131,10 @@ export class TenantAddComponent implements OnInit {
       value: DocumentCategory.RentalAgreement,
       label: 'Previous Rental Agreement',
     },
+    {
+      value: DocumentCategory.Other,
+      label: 'Other',
+    },
   ];
   // Categorized documents for each tenant
   tenantDocuments: Map<number, Map<DocumentCategory, UploadedFile[]>> =
