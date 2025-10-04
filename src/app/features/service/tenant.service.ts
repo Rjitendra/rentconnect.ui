@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { Result } from '../../common/models/common';
+import { DocumentUploadContext } from '../enums/view.enum';
 import { IDocument } from '../models/document';
 import { ITenant } from '../models/tenant';
 
@@ -248,6 +249,16 @@ export class TenantService {
               `tenants[${tenantIndex}].documents[${docIndex}].ownerType`,
               doc.ownerType,
             );
+          if (doc.id)
+            formData.append(
+              `tenants[${tenantIndex}].documents[${docIndex}].id`,
+              doc.id.toString(),
+            );
+
+          formData.append(
+            `tenants[${tenantIndex}].documents[${docIndex}].uploadContext`,
+            DocumentUploadContext.TenantCreation.toString(),
+          );
         });
       }
 

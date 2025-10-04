@@ -1,4 +1,4 @@
-import { DocumentCategory } from '../enums/view.enum'; // Assuming this enum is defined in the same directory
+import { DocumentCategory, DocumentUploadContext } from '../enums/view.enum'; // Assuming this enum is defined in the same directory
 export interface IDocument {
   id?: number; // Primary key
   ownerId: number; // Landlord/Tenant ID
@@ -21,4 +21,5 @@ export interface IDocument {
   verifiedBy?: string; // Optional, default empty
   description?: string; // Optional, default empty
   downloadUrl?: string;
+  uploadContext?: DocumentUploadContext;
 }

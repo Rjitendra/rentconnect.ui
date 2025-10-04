@@ -1307,9 +1307,9 @@ export class TenantAddComponent implements OnInit {
         documents.push({
           id: file?.id ?? undefined, // Include ID for existing documents
           landlordId: this.landlordDetails?.id || 0,
-          propertyId: this.tenantForm.get('propertyId')?.value,
+          propertyId: +this.tenantForm.get('propertyId')?.value,
           ownerId: ownerId,
-          ownerType: OwnerType.TENANT,
+          ownerType: 'Landlord',
           category: category,
           file: file.file,
           name: file.name,
