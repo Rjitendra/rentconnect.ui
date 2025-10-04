@@ -585,18 +585,17 @@ export class TenantAddComponent implements OnInit {
           this.isSaving = false;
           if (response.success) {
             // Handle document operations for edit mode
-            if (this.mode === 'edit') {
-              this.handleDocumentOperations()
-                .then(() => {
-                  this.showSuccessAndNavigate(response);
-                })
-                .catch((error) => {
-                  console.error('Document operations failed:', error);
-                  this.showSuccessAndNavigate(response); // Still show success for tenant update
-                });
-            } else {
-              this.showSuccessAndNavigate(response);
-            }
+            // if (this.mode === 'edit') {
+            //   this.handleDocumentOperations()
+            //     .then(() => {
+            //       this.showSuccessAndNavigate(response);
+            //     })
+            //     .catch((error) => {
+            //       console.error('Document operations failed:', error);
+            //       this.showSuccessAndNavigate(response); // Still show success for tenant update
+            //     });
+            // } else {
+            this.showSuccessAndNavigate(response);
           } else {
             this.handleErrorResponse(response);
           }
@@ -728,9 +727,10 @@ export class TenantAddComponent implements OnInit {
           (file) =>
             ({
               // id: 0,
-              // ownerId: this.editingTenants[tenantIndex]?.id || 0,
-              // ownerType: 'tenant',
+              ownerId: this.landlordDetails.id || 0,
+              ownerType: 'Landlord',
               category: category,
+              propertyId: +this.tenantForm.get('propertyId')?.value,
               file: file.file,
               name: file.name,
               size: file.size,
@@ -739,7 +739,7 @@ export class TenantAddComponent implements OnInit {
               uploadedOn: new Date().toISOString(),
               description: `${this.getCategoryLabel(category)} - ${file.name}`,
               tenantId: this.editingTenants[tenantIndex]?.id,
-              landlordId: this.userdetail.userId,
+              landlordId: this.landlordDetails.id || 0,
             }) as IDocument,
         );
 
@@ -1305,6 +1305,9 @@ export class TenantAddComponent implements OnInit {
     tenantDocs.forEach((files, category) => {
       files.forEach((file, fileIndex) => {
         documents.push({
+          id: file?.id ?? undefined, // Include ID for existing documents
+          landlordId: this.landlordDetails?.id || 0,
+          propertyId: this.tenantForm.get('propertyId')?.value,
           ownerId: ownerId,
           ownerType: OwnerType.TENANT,
           category: category,
