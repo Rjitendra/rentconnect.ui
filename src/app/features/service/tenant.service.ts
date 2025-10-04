@@ -229,7 +229,8 @@ export class TenantService {
               `tenants[${tenantIndex}].documents[${docIndex}].size`,
               doc.size.toString(),
             );
-          if (doc.category)
+          if (doc.category || doc.category.toString() === '0')
+            // Handle enum value 0
             formData.append(
               `tenants[${tenantIndex}].documents[${docIndex}].category`,
               doc.category.toString(),
