@@ -93,106 +93,300 @@
     <ng-card title="Upload Documents" icon="cloud_upload" class="upload-card">
       <div class="upload-section">
         <div class="upload-info">
-          <p>Upload important documents related to your tenancy such as:</p>
-          <ul>
-            <li>Identity documents (Aadhaar, PAN, Driving License)</li>
-            <li>Income proof documents</li>
-            <li>Previous rental agreements</li>
-            <li>Bank statements</li>
-            <li>Other relevant documents</li>
-          </ul>
-        </div>
+          <p>Select a category and upload your documents:</p>
 
-        <div class="upload-area">
-          <ng-file-upload
-            [config]="fileUploadConfig"
-            (filesSelected)="onFilesSelected($event)"
-            (fileRemoved)="onFileRemoved($event)"
-          />
+          <!-- Category Selection -->
+          <div class="category-selection">
+            <ng-select
+              class="full-width"
+              label="Document Category"
+              placeholder="Select document type"
+              [options]="documentCategories"
+              [(ngModel)]="selectedCategory"
+              (ngModelChange)="onCategoryChange($event)"
+            />
+          </div>
 
-          @if (selectedFiles.length > 0) {
-            <div class="upload-actions">
-              <ng-button
-                [type]="'filled'"
-                [label]="uploading ? 'Uploading...' : 'Upload Documents'"
-                [disabled]="uploading"
-                (buttonClick)="uploadDocuments()"
-              />
+          @if (!selectedCategory) {
+            <div class="category-hint">
+              <p><strong>Available categories:</strong></p>
+              <ul>
+                <li>Aadhaar Card - Government ID proof</li>
+                <li>PAN Card - Tax identification document</li>
+                <li>Address Proof - Utility bills, license</li>
+                <li>Employment Proof - Salary slips, offer letter</li>
+                <li>Bank Statement - Recent bank statements</li>
+                <li>Profile Photo - Your photograph</li>
+                <li>ID Proof - Any government ID</li>
+                <li>Other Documents - Miscellaneous documents</li>
+              </ul>
             </div>
           }
         </div>
+
+        @if (selectedCategory) {
+          <div class="upload-area">
+            <div class="selected-category-info">
+              <ng-icon name="folder" class="category-icon" />
+              <span
+                >Uploading to:
+                <strong>{{ getCategoryLabel(selectedCategory) }}</strong></span
+              >
+            </div>
+
+            <ng-file-upload
+              [config]="fileUploadConfig"
+              (filesSelected)="onFilesSelected($event)"
+              (fileRemoved)="onFileRemoved($event)"
+            />
+
+            @if (selectedFiles.length > 0) {
+              <div class="upload-actions">
+                <ng-button
+                  [type]="'filled'"
+                  [label]="uploading ? 'Uploading...' : 'Upload Documents'"
+                  [disabled]="uploading"
+                  (buttonClick)="uploadDocuments()"
+                />
+              </div>
+            }
+          </div>
+        }
       </div>
     </ng-card>
 
     <!-- Uploaded Documents Section -->
-    <ng-card title="Your Documents" icon="folder" class="documents-list-card">
+    <ng-card title="All Documents" icon="folder" class="documents-list-card">
       @if (documents.length > 0) {
-        <div class="documents-list">
-          @for (document of documents; track document.id || document.url) {
-            <div class="document-item">
-              <div class="document-icon">
-                <i class="material-icons">{{
-                  getDocumentIcon(document.type)
-                }}</i>
-              </div>
+        <!-- Documents Uploaded by Landlord -->
+        @if (landlordDocuments.length > 0) {
+          <div class="documents-section">
+            <h3 class="section-title">
+              <ng-icon name="business" class="section-icon" />
+              Uploaded by Landlord
+            </h3>
+            <div class="documents-list">
+              @for (document of landlordDocuments; track document.id) {
+                <div class="document-item landlord-doc">
+                  <div class="document-icon">
+                    <i class="material-icons">{{
+                      getDocumentIcon(document.type || "")
+                    }}</i>
+                  </div>
 
-              <div class="document-info">
-                <h4>{{ document.name }}</h4>
-                <div class="document-meta">
-                  <span class="category">{{ document.category }}</span>
-                  <span class="size">{{ formatFileSize(document.size) }}</span>
-                  <span class="date">{{
-                    document.uploadedOn | date: "MMM dd, yyyy"
-                  }}</span>
+                  <div class="document-info">
+                    <h4>{{ document.name }}</h4>
+                    <div class="document-meta">
+                      <span class="category">{{
+                        getCategoryLabel(document.category)
+                      }}</span>
+                      <span class="size">{{
+                        formatFileSize(document.size || 0)
+                      }}</span>
+                      <span class="date">{{
+                        document.uploadedOn | date: "MMM dd, yyyy"
+                      }}</span>
+                      <span class="uploaded-by"
+                        >By: {{ document.uploadedByName }}</span
+                      >
+                    </div>
+                    @if (document.description) {
+                      <p class="description">{{ document.description }}</p>
+                    }
+                  </div>
+
+                  <div class="document-status">
+                    @if (document.isVerified) {
+                      <div class="status-badge verified">
+                        <i class="material-icons">verified</i>
+                        Verified
+                      </div>
+                    } @else {
+                      <div class="status-badge pending">
+                        <i class="material-icons">hourglass_empty</i>
+                        Pending
+                      </div>
+                    }
+                  </div>
+
+                  <div class="document-actions">
+                    <ng-button
+                      [type]="'icon'"
+                      [icon]="'download'"
+                      [buttonType]="'button'"
+                      [tooltip]="'Download'"
+                      [cssClass]="'action-btn'"
+                      (buttonClick)="downloadDocument(document)"
+                    />
+                    <ng-button
+                      [type]="'icon'"
+                      [icon]="'visibility'"
+                      [buttonType]="'button'"
+                      [tooltip]="'View'"
+                      [cssClass]="'action-btn'"
+                      (buttonClick)="viewDocument(document)"
+                    />
+                  </div>
                 </div>
-                @if (document.description) {
-                  <p class="description">{{ document.description }}</p>
-                }
-              </div>
-
-              <div class="document-status">
-                @if (document.isVerified) {
-                  <div class="status-badge verified">
-                    <i class="material-icons">verified</i>
-                    Verified
-                  </div>
-                } @else {
-                  <div class="status-badge pending">
-                    <i class="material-icons">hourglass_empty</i>
-                    Pending
-                  </div>
-                }
-              </div>
-
-              <div class="document-actions">
-                <ng-button
-                  [type]="'icon'"
-                  [icon]="'download'"
-                  [buttonType]="'button'"
-                  [tooltip]="'Download'"
-                  [cssClass]="'action-btn'"
-                  (buttonClick)="downloadDocument(document)"
-                />
-                <ng-button
-                  [type]="'icon'"
-                  [icon]="'visibility'"
-                  [buttonType]="'button'"
-                  [tooltip]="'View'"
-                  [cssClass]="'action-btn'"
-                  (buttonClick)="viewDocument(document)"
-                />
-                <ng-button
-                  [type]="'icon'"
-                  [icon]="'delete'"
-                  [buttonType]="'button'"
-                  [tooltip]="'Delete'"
-                  [cssClass]="'action-btn delete'"
-                  (buttonClick)="deleteDocument(document)"
-                />
-              </div>
+              }
             </div>
-          }
-        </div>
+          </div>
+        }
+
+        <!-- Documents Uploaded by Current Tenant -->
+        @if (currentTenantDocuments.length > 0) {
+          <div class="documents-section">
+            <h3 class="section-title">
+              <ng-icon name="person" class="section-icon" />
+              Uploaded by You
+            </h3>
+            <div class="documents-list">
+              @for (document of currentTenantDocuments; track document.id) {
+                <div class="document-item current-tenant-doc">
+                  <div class="document-icon">
+                    <i class="material-icons">{{
+                      getDocumentIcon(document.type || "")
+                    }}</i>
+                  </div>
+
+                  <div class="document-info">
+                    <h4>{{ document.name }}</h4>
+                    <div class="document-meta">
+                      <span class="category">{{
+                        getCategoryLabel(document.category)
+                      }}</span>
+                      <span class="size">{{
+                        formatFileSize(document.size || 0)
+                      }}</span>
+                      <span class="date">{{
+                        document.uploadedOn | date: "MMM dd, yyyy"
+                      }}</span>
+                    </div>
+                    @if (document.description) {
+                      <p class="description">{{ document.description }}</p>
+                    }
+                  </div>
+
+                  <div class="document-status">
+                    @if (document.isVerified) {
+                      <div class="status-badge verified">
+                        <i class="material-icons">verified</i>
+                        Verified
+                      </div>
+                    } @else {
+                      <div class="status-badge pending">
+                        <i class="material-icons">hourglass_empty</i>
+                        Pending
+                      </div>
+                    }
+                  </div>
+
+                  <div class="document-actions">
+                    <ng-button
+                      [type]="'icon'"
+                      [icon]="'download'"
+                      [buttonType]="'button'"
+                      [tooltip]="'Download'"
+                      [cssClass]="'action-btn'"
+                      (buttonClick)="downloadDocument(document)"
+                    />
+                    <ng-button
+                      [type]="'icon'"
+                      [icon]="'visibility'"
+                      [buttonType]="'button'"
+                      [tooltip]="'View'"
+                      [cssClass]="'action-btn'"
+                      (buttonClick)="viewDocument(document)"
+                    />
+                    <ng-button
+                      [type]="'icon'"
+                      [icon]="'delete'"
+                      [buttonType]="'button'"
+                      [tooltip]="'Delete'"
+                      [cssClass]="'action-btn delete'"
+                      (buttonClick)="deleteDocument(document)"
+                    />
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Documents Uploaded by Other Tenants -->
+        @if (otherTenantDocuments.length > 0) {
+          <div class="documents-section">
+            <h3 class="section-title">
+              <ng-icon name="group" class="section-icon" />
+              Uploaded by Co-tenants
+            </h3>
+            <div class="documents-list">
+              @for (document of otherTenantDocuments; track document.id) {
+                <div class="document-item other-tenant-doc">
+                  <div class="document-icon">
+                    <i class="material-icons">{{
+                      getDocumentIcon(document.type || "")
+                    }}</i>
+                  </div>
+
+                  <div class="document-info">
+                    <h4>{{ document.name }}</h4>
+                    <div class="document-meta">
+                      <span class="category">{{
+                        getCategoryLabel(document.category)
+                      }}</span>
+                      <span class="size">{{
+                        formatFileSize(document.size || 0)
+                      }}</span>
+                      <span class="date">{{
+                        document.uploadedOn | date: "MMM dd, yyyy"
+                      }}</span>
+                      <span class="uploaded-by"
+                        >By: {{ document.uploadedByName }}</span
+                      >
+                    </div>
+                    @if (document.description) {
+                      <p class="description">{{ document.description }}</p>
+                    }
+                  </div>
+
+                  <div class="document-status">
+                    @if (document.isVerified) {
+                      <div class="status-badge verified">
+                        <i class="material-icons">verified</i>
+                        Verified
+                      </div>
+                    } @else {
+                      <div class="status-badge pending">
+                        <i class="material-icons">hourglass_empty</i>
+                        Pending
+                      </div>
+                    }
+                  </div>
+
+                  <div class="document-actions">
+                    <ng-button
+                      [type]="'icon'"
+                      [icon]="'download'"
+                      [buttonType]="'button'"
+                      [tooltip]="'Download'"
+                      [cssClass]="'action-btn'"
+                      (buttonClick)="downloadDocument(document)"
+                    />
+                    <ng-button
+                      [type]="'icon'"
+                      [icon]="'visibility'"
+                      [buttonType]="'button'"
+                      [tooltip]="'View'"
+                      [cssClass]="'action-btn'"
+                      (buttonClick)="viewDocument(document)"
+                    />
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
       } @else {
         <div class="empty-state">
           <i class="material-icons">folder_open</i>

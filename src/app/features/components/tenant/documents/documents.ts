@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { of, switchMap } from 'rxjs';
 
 import {
   FileUploadConfig,
@@ -9,6 +11,8 @@ import {
   NgFileUploadComponent,
   NgIconComponent,
   NgLabelComponent,
+  NgSelectComponent,
+  SelectOption,
   UploadedFile,
 } from '../../../../../../projects/shared/src/public-api';
 import { ResultStatusType } from '../../../../common/enums/common.enums';
@@ -16,21 +20,15 @@ import {
   IUserDetail,
   OauthService,
 } from '../../../../oauth/service/oauth.service';
+import { DocumentCategory } from '../../../enums/view.enum';
 import { IDocument } from '../../../models/document';
 import { ITenant } from '../../../models/tenant';
 import { PropertyService } from '../../../service/document.service';
 import { TenantService } from '../../../service/tenant.service';
 
-interface DocumentItem {
-  id?: number;
-  name: string;
-  type: string;
-  size: number;
-  url: string;
-  category: string;
-  uploadedOn: Date | string;
-  isVerified?: boolean;
-  description?: string;
+interface DocumentItem extends IDocument {
+  uploadedByName?: string;
+  uploadedByType?: 'Landlord' | 'Tenant' | 'CurrentTenant';
 }
 
 @Component({
@@ -38,11 +36,13 @@ interface DocumentItem {
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     NgCardComponent,
     NgButton,
     NgLabelComponent,
     NgFileUploadComponent,
     NgIconComponent,
+    NgSelectComponent,
   ],
   templateUrl: './documents.html',
   styleUrl: './documents.scss',
@@ -51,7 +51,11 @@ export class DocumentsComponent implements OnInit {
   // Data
   tenant: ITenant | null = null;
   documents: DocumentItem[] = [];
+  landlordDocuments: DocumentItem[] = [];
+  currentTenantDocuments: DocumentItem[] = [];
+  otherTenantDocuments: DocumentItem[] = [];
   selectedFiles: UploadedFile[] = [];
+  selectedCategory: DocumentCategory | null = null;
 
   // UI State
   loading = true;
@@ -60,6 +64,19 @@ export class DocumentsComponent implements OnInit {
 
   // User info
   userDetail: Partial<IUserDetail> = {};
+
+  // Document categories (excluding PropertyImages)
+  documentCategories: SelectOption[] = [
+    { value: DocumentCategory.Aadhaar, label: 'Aadhaar Card' },
+    { value: DocumentCategory.PAN, label: 'PAN Card' },
+    { value: DocumentCategory.AddressProof, label: 'Address Proof' },
+    { value: DocumentCategory.EmploymentProof, label: 'Employment Proof' },
+    { value: DocumentCategory.BankProof, label: 'Bank Statement' },
+    { value: DocumentCategory.ProfilePhoto, label: 'Profile Photo' },
+    { value: DocumentCategory.IdProof, label: 'ID Proof' },
+    { value: DocumentCategory.RentalAgreement, label: 'Rental Agreement' },
+    { value: DocumentCategory.Other, label: 'Other Documents' },
+  ];
 
   // File upload config
   fileUploadConfig: FileUploadConfig = {
@@ -90,6 +107,11 @@ export class DocumentsComponent implements OnInit {
     this.loadTenantData();
   }
 
+  onCategoryChange(category: DocumentCategory) {
+    this.selectedCategory = category;
+    this.selectedFiles = []; // Clear files when category changes
+  }
+
   onFilesSelected(files: UploadedFile[]) {
     this.selectedFiles = files;
   }
@@ -99,37 +121,73 @@ export class DocumentsComponent implements OnInit {
     this.selectedFiles = this.selectedFiles.filter((f) => f.url !== file.url);
   }
 
-  async uploadDocuments() {
-    if (this.selectedFiles.length === 0 || !this.tenant) return;
+  getCategoryLabel(category: any): string {
+    if (!category) return 'Unknown';
+    const cat = this.documentCategories.find((c) => c.value === category);
+    return cat?.label || 'Unknown';
+  }
+
+  getFilteredDocuments(): DocumentItem[] {
+    if (!this.selectedCategory) return this.documents;
+    return this.documents.filter(
+      (doc) => doc.category === this.selectedCategory,
+    );
+  }
+
+  uploadDocuments() {
+    if (
+      this.selectedFiles.length === 0 ||
+      !this.tenant?.id ||
+      !this.selectedCategory
+    ) {
+      console.error('Missing required data for upload');
+      return;
+    }
 
     this.uploading = true;
 
-    try {
-      // Here you would upload to your backend
-      // For now, simulate the upload
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+    const documents = this.selectedFiles.map((file) => ({
+      file: file.file,
+      category: this.selectedCategory!.toString(),
+      description: `${this.getCategoryLabel(this.selectedCategory!)} - uploaded by tenant`,
+      ownerId: this.tenant?.id || 0,
+      ownerType: 'Tenant',
+      tenantId: this.tenant?.id,
+      propertyId: this.tenant?.propertyId,
+      landlordId: this.tenant?.landlordId,
+      name: file.file.name,
+      size: file.file.size,
+      type: file.file.type,
+    }));
 
-      // Add uploaded files to documents list
-      this.selectedFiles.forEach((file) => {
-        this.documents.push({
-          id: Date.now() + Math.random(),
-          name: file.file.name,
-          type: file.file.type,
-          size: file.file.size,
-          url: file.url || '',
-          category: 'Other',
-          uploadedOn: new Date(),
-          isVerified: false,
-          description: 'Document uploaded by tenant',
-        });
+    this.tenantService
+      .uploadTenantDocuments(this.tenant.id, documents)
+      .subscribe({
+        next: (result) => {
+          if (result.status === ResultStatusType.Success && result.entity) {
+            // Add newly uploaded documents
+            const newDocs = result.entity.map((doc) =>
+              this.mapDocumentItem(doc),
+            );
+            this.currentTenantDocuments = [
+              ...this.currentTenantDocuments,
+              ...newDocs,
+            ];
+            this.documents = [...this.documents, ...newDocs];
+
+            this.selectedFiles = [];
+            this.selectedCategory = null;
+            console.log('Documents uploaded successfully');
+          } else {
+            console.error('Failed to upload documents');
+          }
+          this.uploading = false;
+        },
+        error: (error) => {
+          console.error('Error uploading documents:', error);
+          this.uploading = false;
+        },
       });
-
-      this.selectedFiles = [];
-    } catch (error) {
-      console.error('Error uploading documents:', error);
-    } finally {
-      this.uploading = false;
-    }
   }
 
   async downloadAgreement() {
@@ -158,13 +216,13 @@ export class DocumentsComponent implements OnInit {
 
   downloadDocument(doc: DocumentItem) {
     const link = document.createElement('a');
-    link.href = doc.url;
-    link.download = doc.name;
+    link.href = doc.url || '';
+    link.download = doc.name || 'document';
     link.click();
   }
 
   viewDocument(doc: DocumentItem) {
-    window.open(doc.url, '_blank');
+    window.open(doc.url || '', '_blank');
   }
 
   deleteDocument(doc: DocumentItem) {
@@ -198,59 +256,93 @@ export class DocumentsComponent implements OnInit {
     this.router.navigate(['/tenant']);
   }
 
-  private async loadTenantData() {
-    try {
-      this.loading = true;
+  private loadTenantData() {
+    this.loading = true;
 
-      // Get current tenant
-      const userEmail = this.userDetail.email;
-      if (!userEmail) {
-        console.error('User email not found');
-        return;
-      }
-
-      const tenantResult = await this.tenantService
-        .getTenantByEmail(userEmail)
-        .toPromise();
-      if (
-        tenantResult?.status === ResultStatusType.Success &&
-        tenantResult.entity
-      ) {
-        this.tenant = tenantResult.entity;
-        await this.loadDocuments();
-      }
-    } catch (error) {
-      console.error('Error loading tenant data:', error);
-    } finally {
+    const userEmail = this.userDetail.email;
+    if (!userEmail) {
+      console.error('User email not found');
       this.loading = false;
+      return;
     }
+
+    this.tenantService
+      .getTenantByEmail(userEmail)
+      .pipe(
+        switchMap((tenantResult) => {
+          if (
+            tenantResult?.status === ResultStatusType.Success &&
+            tenantResult.entity
+          ) {
+            this.tenant = tenantResult.entity;
+            return this.loadDocuments();
+          }
+          return of(null);
+        }),
+      )
+      .subscribe({
+        next: () => {
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error loading tenant data:', error);
+          this.loading = false;
+        },
+      });
   }
 
-  private async loadDocuments() {
-    if (!this.tenant?.id) return;
-
-    try {
-      // Load tenant documents from backend
-      const result = await this.documentService
-        .getPropertyDocuments(this.tenant.propertyId)
-        .toPromise();
-
-      if (result?.success && result.entity) {
-        this.documents = result.entity.map((doc: IDocument) => ({
-          id: doc.id,
-          name: doc.name || 'Untitled',
-          type: doc.type || 'application/octet-stream',
-          size: doc.size || 0,
-          url: doc.url || '',
-          category: doc.category?.toString() || 'Other',
-          uploadedOn: doc.uploadedOn || new Date(),
-          isVerified: doc.isVerified || false,
-          description: doc.description,
-        }));
-      }
-    } catch (error) {
-      console.error('Error loading documents:', error);
-      this.documents = [];
+  private loadDocuments() {
+    if (!this.tenant?.id || !this.tenant?.propertyId) {
+      return of(null);
     }
+
+    return this.documentService
+      .getPropertyDocuments(this.tenant.propertyId)
+      .pipe(
+        switchMap((result) => {
+          if (result?.success && result.entity) {
+            const allDocs = result.entity
+              .filter(
+                (doc: IDocument) =>
+                  doc.category !== DocumentCategory.PropertyImages,
+              )
+              .map((doc: IDocument) => this.mapDocumentItem(doc));
+
+            // Categorize documents
+            this.landlordDocuments = allDocs.filter(
+              (doc) => doc.ownerType === 'Landlord',
+            );
+            this.currentTenantDocuments = allDocs.filter(
+              (doc) =>
+                doc.ownerType === 'Tenant' && doc.ownerId === this.tenant?.id,
+            );
+            this.otherTenantDocuments = allDocs.filter(
+              (doc) =>
+                doc.ownerType === 'Tenant' && doc.ownerId !== this.tenant?.id,
+            );
+
+            this.documents = allDocs;
+          }
+          return of(null);
+        }),
+      );
+  }
+
+  private mapDocumentItem(doc: IDocument): DocumentItem {
+    return {
+      ...doc,
+      uploadedByType:
+        doc.ownerType === 'Landlord'
+          ? 'Landlord'
+          : doc.ownerId === this.tenant?.id
+            ? 'CurrentTenant'
+            : 'Tenant',
+      uploadedByName:
+        doc.ownerType === 'Landlord'
+          ? 'Landlord'
+          : doc.ownerId === this.tenant?.id
+            ? 'You'
+            : 'Co-tenant',
+    };
   }
 }
