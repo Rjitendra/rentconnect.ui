@@ -18,7 +18,10 @@ import {
   IUserDetail,
   OauthService,
 } from '../../../../oauth/service/oauth.service';
-import { DocumentCategory } from '../../../enums/view.enum';
+import {
+  DocumentCategory,
+  DocumentUploadContext,
+} from '../../../enums/view.enum';
 import { IDocument } from '../../../models/document';
 import { IProperty } from '../../../models/property';
 import { ITenant } from '../../../models/tenant';
@@ -26,15 +29,15 @@ import { PropertyService as DocumentService } from '../../../service/document.se
 import { PropertyService } from '../../../service/property.service';
 import { TenantService } from '../../../service/tenant.service';
 
-interface PropertyImage {
-  id?: number;
-  url: string;
-  name: string;
-  type: 'landlord' | 'tenant';
-  uploadedBy: string;
-  uploadedOn: Date | string;
-  description?: string;
-}
+// interface PropertyImage {
+//   id?: number;
+//   url: string;
+//   name: string;
+//   type: 'landlord' | 'tenant';
+//   uploadedBy: string;
+//   uploadedOn: Date | string;
+//   description?: string;
+// }
 
 @Component({
   selector: 'app-property-info',
@@ -54,14 +57,14 @@ export class PropertyInfoComponent implements OnInit {
   // Data
   tenant: ITenant | null = null;
   property: IProperty | null = null;
-  landlordImages: PropertyImage[] = [];
-  tenantImages: PropertyImage[] = [];
+  landlordImages: IDocument[] = [];
+  tenantImages: IDocument[] = [];
 
   // UI State
   loading = true;
   showUploadModal = false;
   uploading = false;
-  selectedImage: PropertyImage | null = null;
+  selectedImage: IDocument | null = null;
   selectedFiles: UploadedFile[] = [];
 
   // User info
@@ -113,47 +116,89 @@ export class PropertyInfoComponent implements OnInit {
     this.selectedFiles = this.selectedFiles.filter((f) => f.url !== file.url);
   }
 
-  async uploadFiles() {
-    if (this.selectedFiles.length === 0 || !this.tenant) return;
+  uploadFiles() {
+    if (this.selectedFiles.length === 0 || !this.tenant?.id) return;
 
     this.uploading = true;
 
-    try {
-      // Here you would upload files to your backend
-      // For now, we'll simulate the upload
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+    // Prepare documents for upload
+    const documents = this.selectedFiles.map((file) => ({
+      file: file.file,
+      category: DocumentCategory.PropertyCondition.toString(),
+      description: 'Property condition photo',
+      ownerId: this.tenant?.id || 0,
+      ownerType: 'Tenant',
+      tenantId: this.tenant?.id,
+      propertyId: this.tenant?.propertyId,
+      landlordId: this.property?.landlordId,
+      name: file.file.name,
+      size: file.file.size,
+      type: file.file.type,
+      uploadContext: DocumentUploadContext.None,
+    }));
 
-      // Add uploaded files to tenant images
-      this.selectedFiles.forEach((file) => {
-        this.tenantImages.push({
-          url: file.url || '',
-          name: file.file.name,
-          type: 'tenant',
-          uploadedBy: this.tenant!.name,
-          uploadedOn: new Date(),
-          description: 'Property photo uploaded by tenant',
-        });
+    this.tenantService
+      .uploadTenantDocuments(this.tenant.id, documents)
+      .subscribe({
+        next: (result) => {
+          if (result.status === ResultStatusType.Success && result.entity) {
+            // Add newly uploaded images to tenant images array
+            const newImages = result.entity.map((doc) => ({
+              id: doc.id || 0,
+              url: doc.url || '',
+              name: doc.name || 'Tenant Image',
+              ownerType: 'Tenant',
+              uploadedBy: 'By You',
+              uploadedOn: new Date(doc.uploadedOn || Date.now()).toISOString(),
+              description: doc.description || '',
+              ownerId: doc.ownerId,
+              category: doc.category,
+              uploadContext: DocumentUploadContext.None,
+            }));
+
+            this.tenantImages = [...this.tenantImages, ...newImages];
+            this.selectedFiles = [];
+            this.closeUploadModal();
+            console.log('Images uploaded successfully');
+          } else {
+            console.error('Failed to upload images');
+          }
+          this.uploading = false;
+        },
+        error: (error) => {
+          console.error('Error uploading files:', error);
+          this.uploading = false;
+        },
       });
-
-      this.selectedFiles = [];
-      this.closeUploadModal();
-    } catch (error) {
-      console.error('Error uploading files:', error);
-    } finally {
-      this.uploading = false;
-    }
   }
 
-  deleteImage(image: PropertyImage) {
-    if (image.type === 'tenant') {
-      const index = this.tenantImages.findIndex((img) => img.url === image.url);
-      if (index > -1) {
-        this.tenantImages.splice(index, 1);
+  deleteImage(image: IDocument) {
+    if (image.type === 'tenant' && image.id) {
+      // Show confirmation before delete
+      if (!confirm('Are you sure you want to delete this image?')) {
+        return;
       }
+
+      this.tenantService.deleteTenantDocument(image.id).subscribe({
+        next: (result) => {
+          if (result.status === ResultStatusType.Success) {
+            // Remove from local array
+            this.tenantImages = this.tenantImages.filter(
+              (img) => img.id !== image.id,
+            );
+            console.log('Image deleted successfully');
+          } else {
+            console.error('Failed to delete image');
+          }
+        },
+        error: (error) => {
+          console.error('Error deleting image:', error);
+        },
+      });
     }
   }
 
-  openImageModal(image: PropertyImage) {
+  openImageModal(image: IDocument) {
     this.selectedImage = image;
   }
 
@@ -198,7 +243,8 @@ export class PropertyInfoComponent implements OnInit {
         switchMap(() => {
           // Load property images after property details
           if (this.tenant) {
-            return this.loadPropertyImages();
+            this.loadPropertyImages();
+            return of(null);
           }
           return of(null);
         }),
@@ -230,55 +276,44 @@ export class PropertyInfoComponent implements OnInit {
   }
 
   private loadPropertyImages() {
-    if (!this.tenant?.propertyId || !this.tenant?.landlordId) {
-      return of(null);
-    }
+    this.landlordImages =
+      this.property?.documents
+        ?.filter(
+          (x) =>
+            x.category === DocumentCategory.PropertyImages &&
+            x.ownerType === 'Landlord',
+        )
+        .map((img: IDocument) => ({
+          id: img.id || 0,
+          url: img.url || '',
+          name: img.name || 'Property Image',
+          type: 'landlord' as const,
+          uploadedBy: 'By Landlord',
+          uploadedOn: new Date(img.uploadedOn || Date.now()).toISOString(),
+          description: img.description || '',
+          ownerId: img.ownerId,
+          ownerType: img.ownerType,
+          category: img.category,
+        })) ?? [];
 
-    // Load property images from backend
-    return this.propertyService
-      .getPropertyImagesUrl(this.tenant.landlordId, this.tenant.propertyId)
-      .pipe(
-        switchMap((result) => {
-          if (result?.success && result.entity) {
-            this.landlordImages = result.entity.map((img: IDocument) => ({
-              id: img.id || 0,
-              url: img.url || '',
-              name: img.name || 'Property Image',
-              type: 'landlord',
-              uploadedBy: 'Landlord',
-              uploadedOn: new Date(img.uploadedOn || Date.now()),
-              description: img.description || '',
-            }));
-          } else {
-            this.landlordImages = [];
-          }
-
-          // Load tenant uploaded images (from documents)
-          return this.tenantService.getTenantDocuments(this.tenant!.id!);
-        }),
-        switchMap((tenantDocsResult) => {
-          if (
-            tenantDocsResult?.status === ResultStatusType.Success &&
-            tenantDocsResult.entity
-          ) {
-            this.tenantImages = tenantDocsResult.entity
-              .filter(
-                (doc) => doc.category === DocumentCategory.PropertyCondition,
-              )
-              .map((doc) => ({
-                id: doc.id || 0,
-                url: doc.url || '',
-                name: doc.name || 'Tenant Image',
-                type: 'tenant',
-                uploadedBy: 'Tenant',
-                uploadedOn: new Date(doc.uploadedOn || ''),
-                description: doc.description || '',
-              }));
-          } else {
-            this.tenantImages = [];
-          }
-          return of(null);
-        }),
-      );
+    this.tenantImages =
+      this.property?.documents
+        ?.filter(
+          (x) =>
+            x.category === DocumentCategory.PropertyImages &&
+            x.ownerType === 'Tenant',
+        )
+        .map((img: IDocument) => ({
+          id: img.id || 0,
+          url: img.url || '',
+          name: img.name || 'Property Image',
+          type: 'landlord' as const,
+          uploadedBy: 'By Landlord',
+          uploadedOn: new Date(img.uploadedOn || Date.now()).toISOString(),
+          description: img.description || '',
+          ownerId: img.ownerId,
+          ownerType: img.ownerType,
+          category: img.category,
+        })) ?? [];
   }
 }

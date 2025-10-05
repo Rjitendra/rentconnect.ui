@@ -163,7 +163,7 @@
         <div class="images-section">
           <h3>
             <i class="material-icons">business</i>
-            Property Photos by Landlord
+            Property Photos By Landlord
           </h3>
           <div class="images-grid">
             @for (image of landlordImages; track image.url) {
@@ -190,7 +190,7 @@
         <div class="section-header">
           <h3>
             <i class="material-icons">person</i>
-            Your Property Photos
+            Property Photos By Me
           </h3>
           <ng-button
             variant="primary"
@@ -198,7 +198,7 @@
             (click)="showUploadModal = true"
           >
             <i class="material-icons">add_photo_alternate</i>
-            Upload Photos
+            Add Property Images (Max 10)
           </ng-button>
         </div>
 
@@ -266,12 +266,11 @@
       <div class="modal-container" (click)="$event.stopPropagation()">
         <div class="modal-header">
           <h3>Upload Property Photos</h3>
-          <ng-button
-            [type]="'icon'"
-            [icon]="'close'"
-            [buttonType]="'button'"
-            [cssClass]="'close-btn'"
-            (buttonClick)="closeUploadModal()"
+          <ng-icon
+            name="close"
+            class="close-btn"
+            matTooltip="Close"
+            (click)="closeUploadModal()"
           />
         </div>
 
@@ -303,18 +302,17 @@
   @if (selectedImage) {
     <div class="image-modal-overlay" (click)="closeImageModal()">
       <div class="image-modal-container" (click)="$event.stopPropagation()">
-        <ng-button
-          [type]="'icon'"
-          [icon]="'close'"
-          [buttonType]="'button'"
-          [cssClass]="'close-btn'"
-          (buttonClick)="closeImageModal()"
+        <ng-icon
+          name="close"
+          class="close-btn"
+          matTooltip="Close"
+          (click)="closeImageModal()"
         />
         <img [src]="selectedImage.url" [alt]="selectedImage.name" />
         <div class="image-modal-info">
           <h4>{{ selectedImage.name }}</h4>
           <p>
-            Uploaded by {{ selectedImage.uploadedBy }} on
+            <!-- {{ selectedImage.uplo }} on -->
             {{ selectedImage.uploadedOn | date: "MMM dd, yyyy" }}
           </p>
           @if (selectedImage.description) {
