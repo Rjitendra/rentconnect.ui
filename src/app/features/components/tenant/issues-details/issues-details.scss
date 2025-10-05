@@ -390,10 +390,15 @@
             color: #3b82f6;
             text-decoration: none;
             font-size: 0.9rem;
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
             transition: color 0.3s ease;
 
             &:hover {
               color: #1d4ed8;
+              text-decoration: underline;
             }
 
             i {

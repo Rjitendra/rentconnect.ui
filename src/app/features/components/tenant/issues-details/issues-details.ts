@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, inject } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
+  FormsModule,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
@@ -20,6 +22,7 @@ import {
   NgTextareaComponent,
   UploadedFile,
 } from '../../../../../../projects/shared/src/public-api';
+import { environment } from '../../../../../environments/environment';
 import { ResultStatusType } from '../../../../common/enums/common.enums';
 import {
   IUserDetail,
@@ -29,6 +32,7 @@ import { ITenant } from '../../../models/tenant';
 import {
   CreatedByType,
   ITicket,
+  ITicketAttachment,
   ITicketComment,
   TicketCategory,
   TicketPriority,
@@ -42,6 +46,7 @@ import { TicketService } from '../../../service/ticket.service';
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     ReactiveFormsModule,
     NgCardComponent,
     NgButton,
@@ -93,6 +98,7 @@ export class IssueDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private fb = inject(FormBuilder);
+  private http = inject(HttpClient);
   private oauthService = inject(OauthService);
   private tenantService = inject(TenantService);
   private ticketService = inject(TicketService);
@@ -223,6 +229,67 @@ export class IssueDetailComponent implements OnInit {
       default:
         return 'radio_button_unchecked';
     }
+  }
+
+  downloadAttachment(attachment: ITicketAttachment) {
+    if (!attachment.id) {
+      this.alertService.error({
+        errors: [
+          {
+            message: 'Attachment ID not available',
+            errorType: 'error',
+          },
+        ],
+      });
+      return;
+    }
+
+    const url = `${environment.apiBaseUrl}ticket/attachment/${attachment.id}/download`;
+
+    this.http.get(url, { responseType: 'blob' }).subscribe({
+      next: (blob: Blob) => {
+        if (!blob || blob.size === 0) {
+          this.alertService.error({
+            errors: [
+              {
+                message: 'Downloaded file is empty',
+                errorType: 'error',
+              },
+            ],
+          });
+          return;
+        }
+
+        // Create blob URL and trigger download
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = attachment.fileName || 'attachment';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(downloadUrl);
+
+        this.alertService.success({
+          errors: [
+            {
+              message: `Attachment "${attachment.fileName}" downloaded successfully`,
+              errorType: 'success',
+            },
+          ],
+        });
+      },
+      error: (error) => {
+        this.alertService.error({
+          errors: [
+            {
+              message: `Failed to download attachment "${attachment.fileName}". Please try again.`,
+              errorType: 'error',
+            },
+          ],
+        });
+      },
+    });
   }
 
   goBack() {

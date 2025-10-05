@@ -125,14 +125,14 @@
                       attachment of comment.attachments;
                       track attachment.id
                     ) {
-                      <a
+                      <button
+                        type="button"
                         class="attachment-link"
-                        target="_blank"
-                        [href]="attachment.fileUrl"
+                        (click)="downloadAttachment(attachment)"
                       >
                         <i class="material-icons">attach_file</i>
                         {{ attachment.fileName }}
-                      </a>
+                      </button>
                     }
                   </div>
                 }
@@ -177,6 +177,7 @@
               <ng-file-upload
                 id="file-upload"
                 [config]="fileUploadConfig"
+                [(ngModel)]="selectedFiles"
                 (filesSelected)="onFilesSelected($event)"
                 (fileRemoved)="onFileRemoved($event.file)"
               />

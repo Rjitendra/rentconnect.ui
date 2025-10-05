@@ -136,6 +136,7 @@
 
             <ng-file-upload
               [config]="fileUploadConfig"
+              [(ngModel)]="selectedFiles"
               (filesSelected)="onFilesSelected($event)"
               (fileRemoved)="onFileRemoved($event)"
             />
