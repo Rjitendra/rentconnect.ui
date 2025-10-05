@@ -5,11 +5,12 @@ import {
   NgAlertComponent,
 } from '../../../projects/shared/src/public-api';
 import { NAVITEMS } from '../app.nav';
+import { ChatbotComponent } from '../features/components/chatbot/chatbot/chatbot';
 import { OauthService } from '../oauth/service/oauth.service';
 
 @Component({
   selector: 'app-layout',
-  imports: [LibLayoutComponent, NgAlertComponent],
+  imports: [LibLayoutComponent, NgAlertComponent, ChatbotComponent],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.scss',
 })

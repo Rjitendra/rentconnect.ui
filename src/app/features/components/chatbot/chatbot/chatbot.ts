@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/require-await */
-/* eslint-disable quotes */
 import { CommonModule } from '@angular/common';
 import {
   Component,
@@ -15,6 +12,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import {
+  AlertService,
   NgButton,
   NgCardComponent,
   NgInputComponent,
@@ -30,7 +28,9 @@ import {
   IssueCreationData,
   QuickReply,
 } from '../../../models/chatbot';
+import { ITenant } from '../../../models/tenant';
 import { ChatbotService } from '../../../service/chatbot.service';
+import { TenantService } from '../../../service/tenant.service';
 
 @Component({
   selector: 'app-chatbot',
@@ -42,219 +42,7 @@ import { ChatbotService } from '../../../service/chatbot.service';
     NgInputComponent,
     NgCardComponent,
   ],
-  template: `
-    <div class="chatbot-container" [class.expanded]="isExpanded">
-      <!-- Chatbot Toggle Button -->
-      @if (!isExpanded) {
-        <ng-button
-          [type]="'fab'"
-          [icon]="'chat'"
-          [cssClass]="'chatbot-toggle'"
-          [tooltip]="'Open AI Assistant'"
-          (buttonClick)="toggleChatbot()"
-        />
-      }
-      <!-- Chatbot Interface -->
-      @if (isExpanded) {
-        <div class="chatbot-interface">
-          <!-- Header -->
-          <div class="chatbot-header">
-            <div class="header-content">
-              <div class="bot-avatar">
-                <i class="material-icons">smart_toy</i>
-              </div>
-              <div class="bot-info">
-                <h3>AI Assistant</h3>
-                <span class="bot-status" [class.online]="isOnline">
-                  {{ isOnline ? 'Online' : 'Offline' }}
-                </span>
-              </div>
-            </div>
-            <div class="header-actions">
-              <ng-button
-                [type]="'icon'"
-                [icon]="'clear_all'"
-                [tooltip]="'Clear Chat'"
-                (buttonClick)="clearChat()"
-              />
-              <ng-button
-                [type]="'icon'"
-                [icon]="'minimize'"
-                [tooltip]="'Minimize'"
-                (buttonClick)="toggleChatbot()"
-              />
-            </div>
-          </div>
-
-          <!-- Messages Container -->
-          <div #messagesContainer class="messages-container">
-            <div class="messages-list">
-              @for (message of messages; track message.id) {
-                <div
-                  class="message-wrapper"
-                  [class.user]="message.sender === 'user'"
-                  [class.bot]="message.sender === 'bot'"
-                >
-                  <div
-                    class="message-bubble"
-                    [class.user]="message.sender === 'user'"
-                    [class.bot]="message.sender === 'bot'"
-                  >
-                    <div class="message-content">
-                      {{ message.content }}
-                    </div>
-                    <div class="message-time">
-                      {{ message.timestamp | date: 'HH:mm' }}
-                    </div>
-                  </div>
-
-                  <!-- Quick Replies -->
-                  @if (
-                    message.metadata?.quickReplies && message.sender === 'bot'
-                  ) {
-                    <div class="quick-replies">
-                      @for (
-                        reply of message.metadata?.quickReplies || [];
-                        track reply.id
-                      ) {
-                        <ng-button
-                          [type]="'outlined'"
-                          [label]="reply.text"
-                          [cssClass]="'quick-reply-btn'"
-                          (buttonClick)="handleQuickReply(reply)"
-                        />
-                      }
-                    </div>
-                  }
-
-                  <!-- Action Buttons -->
-                  @if (message.metadata?.actions && message.sender === 'bot') {
-                    <div class="action-buttons">
-                      @for (
-                        action of message.metadata?.actions || [];
-                        track action.id
-                      ) {
-                        <ng-button
-                          [type]="'filled'"
-                          [label]="action.text"
-                          [cssClass]="'action-btn'"
-                          (buttonClick)="handleAction(action)"
-                        />
-                      }
-                    </div>
-                  }
-
-                  <!-- Issue Creation Interface -->
-                  @if (
-                    message.metadata?.issueData && message.sender === 'bot'
-                  ) {
-                    <div class="issue-creation-card">
-                      <ng-card>
-                        <div class="issue-preview">
-                          <h4>🔧 Create Issue</h4>
-                          <div class="issue-details">
-                            <p>
-                              <strong>Title:</strong>
-                              {{ message.metadata?.issueData?.suggestedTitle }}
-                            </p>
-                            <p>
-                              <strong>Description:</strong>
-                              {{
-                                message.metadata?.issueData
-                                  ?.suggestedDescription
-                              }}
-                            </p>
-                            <p>
-                              <strong>Category:</strong>
-                              {{
-                                message.metadata?.issueData?.suggestedCategory
-                              }}
-                            </p>
-                            <p>
-                              <strong>Priority:</strong>
-                              {{
-                                message.metadata?.issueData?.suggestedPriority
-                              }}
-                            </p>
-                          </div>
-                          <div class="issue-actions">
-                            <ng-button
-                              [type]="'filled'"
-                              [label]="'Create Issue'"
-                              [icon]="'add'"
-                              (buttonClick)="
-                                createIssue(message.metadata!.issueData!)
-                              "
-                            />
-                            <ng-button
-                              [type]="'outlined'"
-                              [label]="'Modify'"
-                              (buttonClick)="
-                                modifyIssue(message.metadata!.issueData!)
-                              "
-                            />
-                          </div>
-                        </div>
-                      </ng-card>
-                    </div>
-                  }
-                </div>
-              }
-
-              <!-- Typing Indicator -->
-              @if (isTyping) {
-                <div class="message-wrapper bot">
-                  <div class="message-bubble bot typing">
-                    <div class="typing-indicator">
-                      <span></span>
-                      <span></span>
-                      <span></span>
-                    </div>
-                  </div>
-                </div>
-              }
-            </div>
-          </div>
-
-          <!-- Input Area -->
-          <div class="input-area">
-            <div class="input-container">
-              <ng-input
-                [placeholder]="'Type your message...'"
-                [disabled]="isTyping"
-                [(ngModel)]="currentMessage"
-                (keyup.enter)="sendMessage()"
-              />
-              <ng-button
-                [type]="'icon'"
-                [icon]="'send'"
-                [disabled]="!currentMessage.trim() || isTyping"
-                [tooltip]="'Send Message'"
-                (buttonClick)="sendMessage()"
-              />
-            </div>
-          </div>
-
-          <!-- Suggested Questions (shown when chat is empty) -->
-          @if (messages.length <= 1) {
-            <div class="suggested-questions">
-              <h4>💡 Try asking:</h4>
-              <div class="suggestions">
-                @for (suggestion of getSuggestedQuestions(); track suggestion) {
-                  <ng-button
-                    [type]="'outlined'"
-                    [label]="suggestion"
-                    [cssClass]="'suggestion-btn'"
-                    (buttonClick)="sendSuggestedMessage(suggestion)"
-                  />
-                }
-              </div>
-            </div>
-          }
-        </div>
-      }
-    </div>
-  `,
+  templateUrl: './chatbot.html',
   styleUrl: './chatbot.scss',
 })
 export class ChatbotComponent implements OnInit, OnDestroy {
@@ -265,13 +53,17 @@ export class ChatbotComponent implements OnInit, OnDestroy {
   isOnline = true;
   isTyping = false;
   currentMessage = '';
+  showChatbot = false; // Control chatbot visibility
 
   // Chat Data
   messages: ChatMessage[] = [];
   userDetail: Partial<IUserDetail> = {};
   userType: 'tenant' | 'landlord' = 'tenant';
+  tenantData: ITenant | null = null;
   private readonly chatbotService = inject(ChatbotService);
   private readonly oauthService = inject(OauthService);
+  private readonly tenantService = inject(TenantService);
+  private readonly alertService = inject(AlertService);
   private readonly destroy$ = new Subject<void>();
 
   ngOnInit(): void {
@@ -304,8 +96,10 @@ export class ChatbotComponent implements OnInit, OnDestroy {
         next: () => {
           this.isTyping = false;
         },
-        error: (error) => {
-          console.error('Error sending message:', error);
+        error: () => {
+          this.alertService.error({
+            errors: [{ message: 'Failed to send message. Please try again.' }],
+          });
           this.isTyping = false;
         },
       });
@@ -326,8 +120,12 @@ export class ChatbotComponent implements OnInit, OnDestroy {
         next: () => {
           this.isTyping = false;
         },
-        error: (error) => {
-          console.error('Error handling quick reply:', error);
+        error: () => {
+          this.alertService.error({
+            errors: [
+              { message: 'Failed to process quick reply. Please try again.' },
+            ],
+          });
           this.isTyping = false;
         },
       });
@@ -339,23 +137,27 @@ export class ChatbotComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (result) => {
-          console.log('Action executed:', result);
-          // Handle action result (e.g., show success message)
+          if (result.success) {
+            this.alertService.success({
+              errors: [{ message: result.message }],
+            });
+          } else {
+            this.alertService.error({
+              errors: [{ message: result.message }],
+            });
+          }
         },
-        error: (error) => {
-          console.error('Error executing action:', error);
+        error: () => {
+          this.alertService.error({
+            errors: [
+              { message: 'Failed to execute action. Please try again.' },
+            ],
+          });
         },
       });
   }
 
   createIssue(issueData: IssueCreationData): void {
-    // Navigate to issue creation or handle inline
-    console.log('Creating issue:', issueData);
-
-    // You can either:
-    // 1. Navigate to the issues page with pre-filled data
-    // 2. Create the issue directly through the chatbot service
-
     const action: ChatAction = {
       id: 'create_issue_action',
       text: 'Create Issue',
@@ -386,14 +188,14 @@ export class ChatbotComponent implements OnInit, OnDestroy {
         'When is my rent due?',
         'Show me my property details',
         'I need to report a maintenance issue',
-        'How do I download my tenancy agreement?',
+        'How do I contact my landlord?',
       ];
     } else {
       return [
         'Show me my property portfolio',
         'Which tenants have pending rent?',
         'What maintenance requests are open?',
-        'Generate a rent collection report',
+        'How can I add a new property?',
         'Show me tenant contact information',
       ];
     }
@@ -402,25 +204,90 @@ export class ChatbotComponent implements OnInit, OnDestroy {
     try {
       this.userDetail = this.oauthService.getUserInfo();
 
-      // Determine user type based on role or other criteria
+      // Determine user type based on role
       this.userType = this.determineUserType(this.userDetail);
 
-      // Initialize chatbot with user context
-      this.initializeChatbot();
+      // Check if chatbot should be shown
+      const shouldShow = await this.shouldShowChatbot();
+
+      if (shouldShow) {
+        this.showChatbot = true;
+        // Initialize chatbot with user context
+        this.initializeChatbot();
+      }
     } catch (error) {
-      console.error('Error initializing user for chatbot:', error);
+      this.alertService.error({
+        errors: [
+          { message: 'Failed to initialize chatbot. Please refresh the page.' },
+        ],
+      });
     }
   }
 
   private determineUserType(
     userDetail: Partial<IUserDetail>,
   ): 'tenant' | 'landlord' {
-    // Logic to determine if user is tenant or landlord
-    // This could be based on roles, user type, or other criteria
+    // Determine based on role from user profile
+    const roleName = userDetail.roleName?.toLowerCase();
+
+    if (roleName === 'tenant') {
+      return 'tenant';
+    } else if (roleName === 'landlord') {
+      return 'landlord';
+    }
+
+    // Fallback: check email (legacy)
     if (userDetail.email?.toLowerCase().includes('tenant')) {
       return 'tenant';
     }
-    return 'landlord'; // Default to landlord for now
+
+    return 'landlord';
+  }
+
+  private async shouldShowChatbot(): Promise<boolean> {
+    // Always show for landlords
+    if (this.userType === 'landlord') {
+      return true;
+    }
+
+    // For tenants, check if they have started tenancy
+    if (this.userType === 'tenant') {
+      try {
+        const email = this.userDetail.email;
+        if (!email) {
+          return false;
+        }
+
+        // Get tenant data
+        const result = await this.tenantService
+          .getTenantByEmail(email)
+          .pipe(takeUntil(this.destroy$))
+          .toPromise();
+
+        if (result?.status === 0 && result.entity) {
+          this.tenantData = result.entity;
+
+          // Check if tenant has started tenancy
+          const today = new Date();
+          const tenancyStartDate = new Date(result.entity.tenancyStartDate);
+
+          // Show chatbot only if:
+          // 1. Tenancy has started (start date is today or in the past)
+          // 2. Agreement is accepted
+          // 3. Tenant is active
+          const hasStarted = tenancyStartDate <= today;
+          const isAgreementAccepted = result.entity.agreementAccepted === true;
+          const isActive = result.entity.isActive !== false;
+
+          return hasStarted && isAgreementAccepted && isActive;
+        }
+      } catch (error) {
+        // Silently fail - don't show chatbot if we can't verify tenant status
+        return false;
+      }
+    }
+
+    return false;
   }
 
   private initializeChatbot(): void {

@@ -1,1 +1,206 @@
-<p>chatbot works!</p>
+@if (showChatbot) {
+  <div class="chatbot-container" [class.expanded]="isExpanded">
+    <!-- Chatbot Toggle Button -->
+    @if (!isExpanded) {
+      <ng-button
+        [type]="'fab'"
+        [icon]="'chat'"
+        [cssClass]="'chatbot-toggle'"
+        [tooltip]="'Open AI Assistant'"
+        (buttonClick)="toggleChatbot()"
+      />
+    }
+    <!-- Chatbot Interface -->
+    @if (isExpanded) {
+      <div class="chatbot-interface">
+        <!-- Header -->
+        <div class="chatbot-header">
+          <div class="header-content">
+            <div class="bot-avatar">
+              <i class="material-icons">smart_toy</i>
+            </div>
+            <div class="bot-info">
+              <h3>AI Assistant</h3>
+              <span class="bot-status" [class.online]="isOnline">
+                {{ isOnline ? "Online" : "Offline" }}
+              </span>
+            </div>
+          </div>
+          <div class="header-actions">
+            <ng-button
+              [type]="'icon'"
+              [icon]="'clear_all'"
+              [tooltip]="'Clear Chat'"
+              (buttonClick)="clearChat()"
+            />
+            <ng-button
+              [type]="'icon'"
+              [icon]="'minimize'"
+              [tooltip]="'Minimize'"
+              (buttonClick)="toggleChatbot()"
+            />
+          </div>
+        </div>
+
+        <!-- Messages Container -->
+        <div #messagesContainer class="messages-container">
+          <div class="messages-list">
+            @for (message of messages; track message.id) {
+              <div
+                class="message-wrapper"
+                [class.user]="message.sender === 'user'"
+                [class.bot]="message.sender === 'bot'"
+              >
+                <div
+                  class="message-bubble"
+                  [class.user]="message.sender === 'user'"
+                  [class.bot]="message.sender === 'bot'"
+                >
+                  <div class="message-content">
+                    {{ message.content }}
+                  </div>
+                  <div class="message-time">
+                    {{ message.timestamp | date: "HH:mm" }}
+                  </div>
+                </div>
+
+                <!-- Quick Replies -->
+                @if (
+                  message.metadata?.quickReplies && message.sender === "bot"
+                ) {
+                  <div class="quick-replies">
+                    @for (
+                      reply of message.metadata?.quickReplies || [];
+                      track reply.id
+                    ) {
+                      <ng-button
+                        [type]="'outlined'"
+                        [label]="reply.text"
+                        [cssClass]="'quick-reply-btn'"
+                        (buttonClick)="handleQuickReply(reply)"
+                      />
+                    }
+                  </div>
+                }
+
+                <!-- Action Buttons -->
+                @if (message.metadata?.actions && message.sender === "bot") {
+                  <div class="action-buttons">
+                    @for (
+                      action of message.metadata?.actions || [];
+                      track action.id
+                    ) {
+                      <ng-button
+                        [type]="'filled'"
+                        [label]="action.text"
+                        [cssClass]="'action-btn'"
+                        (buttonClick)="handleAction(action)"
+                      />
+                    }
+                  </div>
+                }
+
+                <!-- Issue Creation Interface -->
+                @if (message.metadata?.issueData && message.sender === "bot") {
+                  <div class="issue-creation-card">
+                    <ng-card>
+                      <div class="issue-preview">
+                        <h4>🔧 Create Issue</h4>
+                        <div class="issue-details">
+                          <p>
+                            <strong>Title:</strong>
+                            {{ message.metadata?.issueData?.suggestedTitle }}
+                          </p>
+                          <p>
+                            <strong>Description:</strong>
+                            {{
+                              message.metadata?.issueData?.suggestedDescription
+                            }}
+                          </p>
+                          <p>
+                            <strong>Category:</strong>
+                            {{ message.metadata?.issueData?.suggestedCategory }}
+                          </p>
+                          <p>
+                            <strong>Priority:</strong>
+                            {{ message.metadata?.issueData?.suggestedPriority }}
+                          </p>
+                        </div>
+                        <div class="issue-actions">
+                          <ng-button
+                            [type]="'filled'"
+                            [label]="'Create Issue'"
+                            [icon]="'add'"
+                            (buttonClick)="
+                              createIssue(message.metadata!.issueData!)
+                            "
+                          />
+                          <ng-button
+                            [type]="'outlined'"
+                            [label]="'Modify'"
+                            (buttonClick)="
+                              modifyIssue(message.metadata!.issueData!)
+                            "
+                          />
+                        </div>
+                      </div>
+                    </ng-card>
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Typing Indicator -->
+            @if (isTyping) {
+              <div class="message-wrapper bot">
+                <div class="message-bubble bot typing">
+                  <div class="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="input-area">
+          <div class="input-container">
+            <ng-input
+              [placeholder]="'Type your message...'"
+              [disabled]="isTyping"
+              [(ngModel)]="currentMessage"
+              (keyup.enter)="sendMessage()"
+            />
+            <ng-button
+              [type]="'icon'"
+              [icon]="'send'"
+              [disabled]="!currentMessage.trim() || isTyping"
+              [tooltip]="'Send Message'"
+              (buttonClick)="sendMessage()"
+            />
+          </div>
+        </div>
+
+        <!-- Suggested Questions (shown when chat is empty) -->
+        @if (messages.length <= 1) {
+          <div class="suggested-questions">
+            <h4>💡 Try asking:</h4>
+            <div class="suggestions">
+              @for (suggestion of getSuggestedQuestions(); track suggestion) {
+                <ng-button
+                  [type]="'outlined'"
+                  [label]="suggestion"
+                  [cssClass]="'suggestion-btn'"
+                  (buttonClick)="sendSuggestedMessage(suggestion)"
+                />
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+}
