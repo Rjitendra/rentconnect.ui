@@ -7,6 +7,7 @@ import {
   NgButton,
   NgCardComponent,
   NgFileUploadComponent,
+  NgIconComponent,
   NgLabelComponent,
   UploadedFile,
 } from '../../../../../../projects/shared/src/public-api';
@@ -41,6 +42,7 @@ interface DocumentItem {
     NgButton,
     NgLabelComponent,
     NgFileUploadComponent,
+    NgIconComponent,
   ],
   templateUrl: './documents.html',
   styleUrl: './documents.scss',

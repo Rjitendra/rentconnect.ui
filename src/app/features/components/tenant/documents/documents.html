@@ -1,14 +1,17 @@
 <div class="documents">
-  <div class="page-header">
-    <ng-button
-      [type]="'text'"
-      [label]="'Back to Portal'"
-      [icon]="'arrow_back'"
-      [buttonType]="'button'"
-      [cssClass]="'back-btn'"
-      (buttonClick)="goBack()"
-    />
-    <h1>Documents & Agreement</h1>
+  <div class="header-section">
+    <div class="header-content">
+      <ng-icon
+        name="arrow_back"
+        matTooltip="Go back to tenant portal"
+        class="arrow_back"
+        (click)="goBack()"
+      />
+      <div class="header-text">
+        <h1>Documents & Agreement</h1>
+        <p>Manage your rental documents and tenancy agreement</p>
+      </div>
+    </div>
   </div>
 
   @if (loading) {
@@ -20,12 +23,11 @@
 
   @if (!loading) {
     <!-- Tenancy Agreement Section -->
-    <ng-card class="agreement-card">
-      <div class="card-header">
-        <i class="material-icons">description</i>
-        <h2>Tenancy Agreement</h2>
-      </div>
-
+    <ng-card
+      title="Tenancy Agreement"
+      icon="description"
+      class="agreement-card"
+    >
       @if (tenant?.agreementUrl) {
         <div class="agreement-section">
           <div class="agreement-info">
@@ -88,12 +90,7 @@
     </ng-card>
 
     <!-- Document Upload Section -->
-    <ng-card class="upload-card">
-      <div class="card-header">
-        <i class="material-icons">cloud_upload</i>
-        <h2>Upload Documents</h2>
-      </div>
-
+    <ng-card title="Upload Documents" icon="cloud_upload" class="upload-card">
       <div class="upload-section">
         <div class="upload-info">
           <p>Upload important documents related to your tenancy such as:</p>
@@ -116,12 +113,11 @@
           @if (selectedFiles.length > 0) {
             <div class="upload-actions">
               <ng-button
-                variant="primary"
+                [type]="'filled'"
+                [label]="uploading ? 'Uploading...' : 'Upload Documents'"
                 [disabled]="uploading"
-                (click)="uploadDocuments()"
-              >
-                {{ uploading ? "Uploading..." : "Upload Documents" }}
-              </ng-button>
+                (buttonClick)="uploadDocuments()"
+              />
             </div>
           }
         </div>
@@ -129,12 +125,7 @@
     </ng-card>
 
     <!-- Uploaded Documents Section -->
-    <ng-card class="documents-list-card">
-      <div class="card-header">
-        <i class="material-icons">folder</i>
-        <h2>Your Documents</h2>
-      </div>
-
+    <ng-card title="Your Documents" icon="folder" class="documents-list-card">
       @if (documents.length > 0) {
         <div class="documents-list">
           @for (document of documents; track document.id || document.url) {
