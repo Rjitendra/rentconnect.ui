@@ -138,29 +138,42 @@
                   <span class="issue-number"
                     >#{{ issue.ticketNumber || issue.id }}</span
                   >
-                  <span
-                    class="category-badge"
-                    [attr.data-category]="getCategoryClass(issue.category)"
-                  >
-                    <i class="material-icons">{{
-                      getCategoryIcon(issue.category)
-                    }}</i>
-                    {{ getCategoryLabel(issue.category) }}
-                  </span>
-                  <span
-                    class="priority-badge"
-                    [attr.data-priority]="getPriorityClass(issue.priority)"
-                  >
-                    {{ getPriorityLabel(issue.priority) }}
-                  </span>
+                  @if (
+                    issue.category !== null && issue.category !== undefined
+                  ) {
+                    <span
+                      class="category-badge"
+                      [attr.data-category]="getCategoryClass(issue.category)"
+                    >
+                      <i class="material-icons">{{
+                        getCategoryIcon(issue.category)
+                      }}</i>
+                      {{ getCategoryLabel(issue.category) }}
+                    </span>
+                  }
+                  @if (
+                    issue.priority !== null && issue.priority !== undefined
+                  ) {
+                    <span
+                      class="priority-badge"
+                      [attr.data-priority]="getPriorityClass(issue.priority)"
+                    >
+                      {{ getPriorityLabel(issue.priority) }}
+                    </span>
+                  }
                 </div>
                 <div class="issue-status">
-                  <span
-                    class="status-badge"
-                    [attr.data-status]="getStatusClass(issue.currentStatus)"
-                  >
-                    {{ getStatusLabel(issue.currentStatus) }}
-                  </span>
+                  @if (
+                    issue.currentStatus !== null &&
+                    issue.currentStatus !== undefined
+                  ) {
+                    <span
+                      class="status-badge"
+                      [attr.data-status]="getStatusClass(issue.currentStatus)"
+                    >
+                      {{ getStatusLabel(issue.currentStatus) }}
+                    </span>
+                  }
                 </div>
               </div>
 

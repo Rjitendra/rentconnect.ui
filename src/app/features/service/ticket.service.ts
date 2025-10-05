@@ -147,27 +147,40 @@ export class TicketService {
   ): FormData {
     const formData = new FormData();
 
-    // Add ticket properties
-    if (ticket.landlordId)
+    // Add ticket properties with proper null checks
+    if (ticket.landlordId !== null && ticket.landlordId !== undefined) {
       formData.append('landlordId', ticket.landlordId.toString());
-    if (ticket.propertyId)
+    }
+    if (ticket.propertyId !== null && ticket.propertyId !== undefined) {
       formData.append('propertyId', ticket.propertyId.toString());
-    if (ticket.tenantId)
+    }
+    if (ticket.tenantId !== null && ticket.tenantId !== undefined) {
       formData.append('tenantId', ticket.tenantId.toString());
-    if (ticket.tenantGroupId)
+    }
+    if (ticket.tenantGroupId) {
       formData.append('tenantGroupId', ticket.tenantGroupId);
-    if (ticket.category)
+    }
+    if (ticket.category !== null && ticket.category !== undefined) {
       formData.append('category', ticket.category.toString());
-    if (ticket.title) formData.append('title', ticket.title);
-    if (ticket.description) formData.append('description', ticket.description);
-    if (ticket.priority)
+    }
+    if (ticket.title) {
+      formData.append('title', ticket.title);
+    }
+    if (ticket.description) {
+      formData.append('description', ticket.description);
+    }
+    if (ticket.priority !== null && ticket.priority !== undefined) {
       formData.append('priority', ticket.priority.toString());
-    if (ticket.createdBy)
+    }
+    if (ticket.createdBy !== null && ticket.createdBy !== undefined) {
       formData.append('createdBy', ticket.createdBy.toString());
-    if (ticket.createdByType)
+    }
+    if (ticket.createdByType !== null && ticket.createdByType !== undefined) {
       formData.append('createdByType', ticket.createdByType.toString());
-    if (ticket.assignedTo)
+    }
+    if (ticket.assignedTo !== null && ticket.assignedTo !== undefined) {
       formData.append('assignedTo', ticket.assignedTo.toString());
+    }
 
     // Add attachments if any
     if (attachments && attachments.length > 0) {

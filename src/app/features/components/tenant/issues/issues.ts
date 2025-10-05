@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import {
@@ -198,46 +197,61 @@ export class IssuesComponent implements OnInit {
 
     this.ticketService.createTicket(formData).subscribe({
       next: (result) => {
-        if (result?.success) {
+        this.isSubmitting = false;
+
+        if (result && result.success) {
           this.cancelCreate();
 
           this.alertService.success({
             errors: [
               {
-                message: 'Issue reported successfully!',
+                message: result.message || 'Issue reported successfully!',
                 errorType: 'success',
               },
             ],
           });
 
-          // Reload issues from server to get complete ticket data
-          if (this.tenant?.id) {
-            this.ticketService.getTenantTickets(this.tenant.id).subscribe({
-              next: (ticketsResult) => {
-                if (ticketsResult?.success && ticketsResult.entity) {
-                  this.issues = ticketsResult.entity;
-                  this.filteredIssues = [...this.issues];
-                }
-              },
-              error: (error) => {
-                // Silent fail - user already sees success message
-                // The issue was created successfully, just couldn't refresh the list
-              },
-            });
+          // Add the newly created ticket to the list
+          if (result.entity) {
+            this.issues = [result.entity, ...this.issues];
+            this.filterIssues();
+          } else {
+            // Fallback: reload all tickets if entity not returned
+            if (this.tenant?.id) {
+              this.ticketService.getTenantTickets(this.tenant.id).subscribe({
+                next: (ticketsResult) => {
+                  if (
+                    ticketsResult &&
+                    ticketsResult.success &&
+                    ticketsResult.entity
+                  ) {
+                    this.issues = ticketsResult.entity;
+                    this.filterIssues();
+                  }
+                },
+              });
+            }
           }
         } else {
+          const errorMessage =
+            result?.message ||
+            (result?.errors && result.errors.length > 0
+              ? result.errors.join(', ')
+              : 'Failed to create issue');
+
           this.alertService.error({
             errors: [
               {
-                message: result?.message || 'Failed to create issue',
+                message: errorMessage,
                 errorType: 'error',
               },
             ],
           });
         }
-        this.isSubmitting = false;
       },
       error: (error) => {
+        this.isSubmitting = false;
+
         this.alertService.error({
           errors: [
             {
@@ -246,7 +260,6 @@ export class IssuesComponent implements OnInit {
             },
           ],
         });
-        this.isSubmitting = false;
       },
     });
   }
@@ -312,15 +325,21 @@ export class IssuesComponent implements OnInit {
   }
 
   getCategoryClass(category: TicketCategory): string {
-    return category.toString().toLowerCase();
+    return category !== null && category !== undefined
+      ? category.toString().toLowerCase()
+      : '';
   }
 
   getPriorityClass(priority: TicketPriority): string {
-    return this.ticketService.getPriorityClass(priority);
+    return priority !== null && priority !== undefined
+      ? this.ticketService.getPriorityClass(priority)
+      : '';
   }
 
   getStatusClass(status: TicketStatusType): string {
-    return this.ticketService.getStatusClass(status);
+    return status !== null && status !== undefined
+      ? this.ticketService.getStatusClass(status)
+      : '';
   }
 
   goBack() {

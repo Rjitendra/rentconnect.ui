@@ -128,8 +128,8 @@ export class DocumentsComponent implements OnInit {
     this.selectedFiles = this.selectedFiles.filter((f) => f.url !== file.url);
   }
 
-  getCategoryLabel(category: any): string {
-    if (!category) return 'Unknown';
+  getCategoryLabel(category: DocumentCategory | null | undefined): string {
+    if (category === null || category === undefined) return 'Unknown';
     const cat = this.documentCategories.find((c) => c.value === category);
     return cat?.label || 'Unknown';
   }
@@ -163,7 +163,7 @@ export class DocumentsComponent implements OnInit {
     const documents = this.selectedFiles.map((file) => ({
       file: file.file,
       category: this.selectedCategory!.toString(),
-      description: `${this.getCategoryLabel(this.selectedCategory!)} - uploaded by tenant`,
+      description: `${this.getCategoryLabel(this.selectedCategory)} - uploaded by tenant`,
       ownerId: this.tenant?.id || 0,
       ownerType: 'Tenant',
       tenantId: this.tenant?.id,
