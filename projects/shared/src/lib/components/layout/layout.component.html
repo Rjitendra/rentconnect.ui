@@ -4,14 +4,16 @@
     <div class="logo-container">
       <!-- <img src="icons/ng-learning.svg" class="logo-img" alt="NG Logo" height="100" width="100" /> -->
       <span class="brand-name">RentConnect</span>
-      <span class="menu-button" mat-icon-button (click)="toggleSidenav()">
-        <mat-icon [class.rotate]="isRotated">menu</mat-icon>
-      </span>
+      @if (navItems().length) {
+        <span class="menu-button" mat-icon-button (click)="toggleSidenav()">
+          <mat-icon [class.rotate]="isRotated">menu</mat-icon>
+        </span>
+      }
     </div>
 
     <!-- Center: Welcome Text -->
     <div class="center-content">
-      <span>Welcome to NG Learn</span>
+      <span>Welcome to RentConnect</span>
     </div>
 
     <!-- Right Side: Additional Content -->
@@ -41,47 +43,53 @@
     </div>
   </div>
 </mat-toolbar>
-
-<mat-sidenav-container class="container">
-  <mat-sidenav
-    #sidenav
-    mode="side"
-    class="sidenav"
-    [opened]="true"
-    [class.collapsed]="!isExpanded"
-  >
-    <div class="mat-nav-list">
-      <mat-nav-list>
-        @for (item of navItems(); track item) {
-          <ng-container
-            *ngTemplateOutlet="itemTemplate; context: { $implicit: item }"
-          />
-        }
-      </mat-nav-list>
-    </div>
-    <div
-      #toggleButton
-      class="toggle-button-container"
-      [class.expanded]="isExpanded"
+@if (navItems().length) {
+  <mat-sidenav-container class="container">
+    <mat-sidenav
+      #sidenav
+      mode="side"
+      class="sidenav"
+      [opened]="true"
       [class.collapsed]="!isExpanded"
-      (click)="toggleSidenav()"
     >
-      <span></span>
-    </div>
-  </mat-sidenav>
-  <mat-sidenav-content
-    class="content"
-    [ngClass]="{
-      'content-expanded': isExpanded,
-      'content-collapsed': !isExpanded,
-    }"
-  >
+      <div class="mat-nav-list">
+        <mat-nav-list>
+          @for (item of navItems(); track item) {
+            <ng-container
+              *ngTemplateOutlet="itemTemplate; context: { $implicit: item }"
+            />
+          }
+        </mat-nav-list>
+      </div>
+      <div
+        #toggleButton
+        class="toggle-button-container"
+        [class.expanded]="isExpanded"
+        [class.collapsed]="!isExpanded"
+        (click)="toggleSidenav()"
+      >
+        <span></span>
+      </div>
+    </mat-sidenav>
+    <mat-sidenav-content
+      class="content"
+      [ngClass]="{
+        'content-expanded': isExpanded,
+        'content-collapsed': !isExpanded,
+      }"
+    >
+      <ng-content select="ng-alert" />
+      <div class="content-body"><router-outlet /></div>
+      <ng-spinner />
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+} @else {
+  <div class="container">
     <ng-content select="ng-alert" />
     <div class="content-body"><router-outlet /></div>
     <ng-spinner />
-  </mat-sidenav-content>
-</mat-sidenav-container>
-
+  </div>
+}
 <mat-toolbar color="primary" class="footer">
   <p>&copy; {{ currentYear }} Jitendra. All rights reserved..</p>
 </mat-toolbar>

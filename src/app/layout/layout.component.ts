@@ -14,7 +14,7 @@ import { OauthService } from '../oauth/service/oauth.service';
   styleUrl: './layout.component.scss',
 })
 export class LayoutComponent implements OnInit {
-  navItes = NAVITEMS;
+  navItems = NAVITEMS;
   isLogIn = false;
 
   private authService = inject(OauthService);
@@ -40,6 +40,7 @@ export class LayoutComponent implements OnInit {
       if (user && user.access_token) {
         const res = user.profile['roleName'];
         if (res === 'Landlord' || res === 'Tenant') {
+          this.navItems = res === 'Tenant' ? [] : NAVITEMS;
           this.authService.setUserInfo(user.profile);
           this.isLogIn = true;
           return true;
