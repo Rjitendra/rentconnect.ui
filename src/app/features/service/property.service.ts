@@ -194,6 +194,7 @@ export class PropertyService {
       `${environment.apiBaseUrl}Property/${propertyId}/documents`,
     );
   }
+
   getFieldDisplayName(fieldName: string): string {
     const fieldNames: { [key: string]: string } = {
       // Basic Info

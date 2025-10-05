@@ -21,6 +21,10 @@ import {
 import {
   DocumentCategory,
   DocumentUploadContext,
+  FurnishingType,
+  LeaseType,
+  PropertyStatus,
+  PropertyType,
 } from '../../../enums/view.enum';
 import { IDocument } from '../../../models/document';
 import { IProperty } from '../../../models/property';
@@ -105,6 +109,58 @@ export class PropertyInfoComponent implements OnInit {
     ].filter(Boolean);
 
     return parts.join(', ') || 'N/A';
+  }
+
+  getPropertyType(): string {
+    if (
+      this.property?.propertyType === undefined ||
+      this.property?.propertyType === null
+    ) {
+      return 'N/A';
+    }
+    return PropertyType[this.property.propertyType] || 'N/A';
+  }
+
+  getFurnishingType(): string {
+    if (
+      this.property?.furnishingType === undefined ||
+      this.property?.furnishingType === null
+    ) {
+      return 'N/A';
+    }
+    return this.formatEnumName(FurnishingType[this.property.furnishingType]);
+  }
+
+  getLeaseType(): string {
+    if (
+      this.property?.leaseType === undefined ||
+      this.property?.leaseType === null
+    ) {
+      return 'N/A';
+    }
+    return this.formatEnumName(LeaseType[this.property.leaseType]);
+  }
+
+  getPropertyStatus(): string {
+    if (this.property?.status === undefined || this.property?.status === null) {
+      return 'N/A';
+    }
+    return PropertyStatus[this.property.status] || 'N/A';
+  }
+  getPropertyAmenities(): string[] {
+    if (!this.property) return [];
+
+    const amenities: string[] = [];
+
+    if (this.property.hasLift) amenities.push('Lift');
+    if (this.property.hasParking) amenities.push('Parking');
+    if (this.property.hasPowerBackup) amenities.push('Power Backup');
+    if (this.property.hasWaterSupply) amenities.push('Water Supply');
+    if (this.property.hasGasPipeline) amenities.push('Gas Pipeline');
+    if (this.property.hasSecurity) amenities.push('Security');
+    if (this.property.hasInternet) amenities.push('Internet');
+
+    return amenities;
   }
 
   onFilesSelected(files: UploadedFile[]) {
@@ -213,6 +269,12 @@ export class PropertyInfoComponent implements OnInit {
 
   goBack() {
     this.router.navigate(['/tenant']);
+  }
+  // Format enum names from PascalCase to human-readable
+  private formatEnumName(value: string): string {
+    if (!value) return 'N/A';
+    // Add space before capital letters and capitalize first letter
+    return value.replace(/([A-Z])/g, ' $1').trim();
   }
 
   private loadPropertyInfo() {

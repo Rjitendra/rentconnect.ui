@@ -42,7 +42,7 @@
             [label]="'Property Type'"
             [toolTip]="'Type of property (apartment, house, etc.)'"
           />
-          <span>{{ property.propertyType || "N/A" }}</span>
+          <span>{{ getPropertyType() }}</span>
         </div>
         <div class="detail-item">
           <ng-label [label]="'Address'" [toolTip]="'Full property address'" />
@@ -67,22 +67,96 @@
             [label]="'PIN Code'"
             [toolTip]="'Postal code of the property'"
           />
-          <span>{{ property["pincode"] || "N/A" }}</span>
-        </div>
-        <div class="detail-item">
-          <ng-label [label]="'Bedrooms'" [toolTip]="'Number of bedrooms'" />
-          <span>{{ property["bedrooms"] || "N/A" }}</span>
-        </div>
-        <div class="detail-item">
-          <ng-label [label]="'Bathrooms'" [toolTip]="'Number of bathrooms'" />
-          <span>{{ property["bathrooms"] || "N/A" }}</span>
+          <span>{{ property.pinCode || "N/A" }}</span>
         </div>
         <div class="detail-item">
           <ng-label
-            [label]="'Area (sq ft)'"
-            [toolTip]="'Property area in square feet'"
+            [label]="'BHK Configuration'"
+            [toolTip]="'Bedroom configuration (e.g., 2BHK, 3BHK)'"
           />
-          <span>{{ (property["area"] | number) || "N/A" }}</span>
+          <span>{{ property.bhkConfiguration || "N/A" }}</span>
+        </div>
+        <div class="detail-item">
+          <ng-label [label]="'Bathrooms'" [toolTip]="'Number of bathrooms'" />
+          <span>{{
+            property.numberOfBathrooms !== undefined &&
+            property.numberOfBathrooms !== null
+              ? property.numberOfBathrooms
+              : "N/A"
+          }}</span>
+        </div>
+        <div class="detail-item">
+          <ng-label [label]="'Balconies'" [toolTip]="'Number of balconies'" />
+          <span>{{
+            property.numberOfBalconies !== undefined &&
+            property.numberOfBalconies !== null
+              ? property.numberOfBalconies
+              : "N/A"
+          }}</span>
+        </div>
+        <div class="detail-item">
+          <ng-label
+            [label]="'Carpet Area (sq ft)'"
+            [toolTip]="'Carpet area in square feet'"
+          />
+          <span>{{
+            property.carpetAreaSqFt !== undefined &&
+            property.carpetAreaSqFt !== null
+              ? (property.carpetAreaSqFt | number)
+              : "N/A"
+          }}</span>
+        </div>
+        <div class="detail-item">
+          <ng-label
+            [label]="'Built-up Area (sq ft)'"
+            [toolTip]="'Built-up area in square feet'"
+          />
+          <span>{{
+            property.builtUpAreaSqFt !== undefined &&
+            property.builtUpAreaSqFt !== null
+              ? (property.builtUpAreaSqFt | number)
+              : "N/A"
+          }}</span>
+        </div>
+        <div class="detail-item">
+          <ng-label
+            [label]="'Furnishing Type'"
+            [toolTip]="'Furnishing status of the property'"
+          />
+          <span>{{ getFurnishingType() }}</span>
+        </div>
+        <div class="detail-item">
+          <ng-label
+            [label]="'Floor Number'"
+            [toolTip]="'Floor number of the property'"
+          />
+          <span>{{
+            property.floorNumber !== undefined && property.floorNumber !== null
+              ? property.floorNumber
+              : "N/A"
+          }}</span>
+        </div>
+        <div class="detail-item">
+          <ng-label
+            [label]="'Total Floors'"
+            [toolTip]="'Total floors in the building'"
+          />
+          <span>{{
+            property.totalFloors !== undefined && property.totalFloors !== null
+              ? property.totalFloors
+              : "N/A"
+          }}</span>
+        </div>
+        <div class="detail-item">
+          <ng-label [label]="'Locality'" [toolTip]="'Locality/Area name'" />
+          <span>{{ property.locality || "N/A" }}</span>
+        </div>
+        <div class="detail-item">
+          <ng-label
+            [label]="'Property Status'"
+            [toolTip]="'Current status of the property'"
+          />
+          <span>{{ getPropertyStatus() }}</span>
         </div>
       </div>
     </ng-card>
@@ -117,7 +191,12 @@
             [toolTip]="'Monthly maintenance charges'"
           />
           <span class="amount"
-            >â‚¹{{ (tenant.maintenanceCharges | number) || 0 }}</span
+            >â‚¹{{
+              tenant.maintenanceCharges !== undefined &&
+              tenant.maintenanceCharges !== null
+                ? (tenant.maintenanceCharges | number)
+                : 0
+            }}</span
           >
         </div>
         <div class="detail-item">
@@ -147,6 +226,55 @@
             >{{ (tenant.rentDueDate | date: "dd") || "N/A" }} of every
             month</span
           >
+        </div>
+        <div class="detail-item">
+          <ng-label [label]="'Lease Type'" [toolTip]="'Type of lease'" />
+          <span>{{ getLeaseType() }}</span>
+        </div>
+        <div class="detail-item">
+          <ng-label
+            [label]="'Lease Duration'"
+            [toolTip]="'Duration of lease in months'"
+          />
+          <span>{{
+            tenant.leaseDuration !== undefined && tenant.leaseDuration !== null
+              ? tenant.leaseDuration + " months"
+              : "N/A"
+          }}</span>
+        </div>
+        <div class="detail-item">
+          <ng-label
+            [label]="'Notice Period'"
+            [toolTip]="'Notice period in days'"
+          />
+          <span>{{
+            tenant.noticePeriod !== undefined && tenant.noticePeriod !== null
+              ? tenant.noticePeriod + " days"
+              : "N/A"
+          }}</span>
+        </div>
+        <div class="detail-item">
+          <ng-label
+            [label]="'Available From'"
+            [toolTip]="'Date from which property is available'"
+          />
+          <span>{{
+            (property.availableFrom | date: "MMM dd, yyyy") || "N/A"
+          }}</span>
+        </div>
+        <div class="detail-item">
+          <ng-label
+            [label]="'Negotiable'"
+            [toolTip]="'Whether rent is negotiable'"
+          />
+          <span>{{
+            property.isNegotiable !== undefined &&
+            property.isNegotiable !== null
+              ? property.isNegotiable
+                ? "Yes"
+                : "No"
+              : "N/A"
+          }}</span>
         </div>
       </div>
     </ng-card>
@@ -193,13 +321,11 @@
             Property Photos By Me
           </h3>
           <ng-button
-            variant="primary"
-            size="small"
-            (click)="showUploadModal = true"
-          >
-            <i class="material-icons">add_photo_alternate</i>
-            Add Property Images (Max 10)
-          </ng-button>
+            [type]="'filled'"
+            [icon]="'add_photo_alternate'"
+            [label]="'Add Property Images (Max 10)'"
+            (buttonClick)="showUploadModal = true"
+          />
         </div>
 
         @if (tenantImages.length > 0) {
@@ -241,7 +367,7 @@
     </ng-card>
 
     <!-- Amenities -->
-    @if (property["amenities"] && property["amenities"].length > 0) {
+    @if (getPropertyAmenities().length > 0) {
       <ng-card class="amenities-card">
         <div class="card-header">
           <i class="material-icons">apartment</i>
@@ -249,7 +375,7 @@
         </div>
 
         <div class="amenities-grid">
-          @for (amenity of property["amenities"]; track amenity) {
+          @for (amenity of getPropertyAmenities(); track amenity) {
             <div class="amenity-item">
               <i class="material-icons">check_circle</i>
               <span>{{ amenity }}</span>
@@ -283,16 +409,17 @@
         </div>
 
         <div class="modal-footer">
-          <ng-button variant="secondary" (click)="closeUploadModal()">
-            Cancel
-          </ng-button>
           <ng-button
-            variant="primary"
+            [type]="'outlined'"
+            [label]="'Cancel'"
+            (buttonClick)="closeUploadModal()"
+          />
+          <ng-button
+            [type]="'filled'"
+            [label]="uploading ? 'Saving...' : 'Save'"
             [disabled]="selectedFiles.length === 0 || uploading"
-            (click)="uploadFiles()"
-          >
-            {{ uploading ? "Saving..." : "Save" }}
-          </ng-button>
+            (buttonClick)="uploadFiles()"
+          />
         </div>
       </div>
     </div>
