@@ -1,14 +1,12 @@
 <div class="issue-detail">
-  <div class="page-header">
-    <ng-button
-      [type]="'text'"
-      [label]="'Back to Issues'"
-      [icon]="'arrow_back'"
-      [buttonType]="'button'"
-      [cssClass]="'back-btn'"
-      (buttonClick)="goBack()"
-    />
-    <h1>Issue Details</h1>
+  <div class="header-section">
+    <button type="button" class="back-button" (click)="goBack()">
+      <ng-icon [name]="'arrow_back'" />
+    </button>
+    <div class="header-content">
+      <h1>Issue Details</h1>
+      <p>View and manage issue status and comments</p>
+    </div>
   </div>
 
   @if (loading) {
@@ -186,12 +184,14 @@
 
             <div class="form-actions">
               <ng-button
-                type="submit"
-                variant="primary"
+                buttonType="submit"
+                [type]="'filled'"
+                [label]="
+                  isSubmittingComment ? 'Adding Comment...' : 'Add Comment'
+                "
+                [icon]="isSubmittingComment ? 'hourglass_empty' : 'send'"
                 [disabled]="commentForm.invalid || isSubmittingComment"
-              >
-                {{ isSubmittingComment ? "Adding Comment..." : "Add Comment" }}
-              </ng-button>
+              />
             </div>
           </form>
         </div>
@@ -262,9 +262,12 @@
         The requested issue could not be found or you don't have permission to
         view it.
       </p>
-      <ng-button variant="primary" (click)="goBack()">
-        Go Back to Issues
-      </ng-button>
+      <ng-button
+        [type]="'filled'"
+        [label]="'Go Back to Issues'"
+        [icon]="'arrow_back'"
+        (buttonClick)="goBack()"
+      />
     </div>
   }
 </div>

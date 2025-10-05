@@ -9,12 +9,15 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
+import { of, switchMap } from 'rxjs';
 
 import {
+  AlertService,
   FileUploadConfig,
   NgButton,
   NgCardComponent,
   NgFileUploadComponent,
+  NgIconComponent,
   NgInputComponent,
   NgLabelComponent,
   NgSelectComponent,
@@ -47,6 +50,7 @@ import { TicketService } from '../../../service/ticket.service';
     FormsModule,
     NgCardComponent,
     NgButton,
+    NgIconComponent,
     NgInputComponent,
     NgLabelComponent,
     NgSelectComponent,
@@ -148,6 +152,7 @@ export class IssuesComponent implements OnInit {
   private oauthService = inject(OauthService);
   private tenantService = inject(TenantService);
   private ticketService = inject(TicketService);
+  private alertService = inject(AlertService);
 
   constructor() {
     this.userDetail = this.oauthService.getUserInfo();
@@ -167,59 +172,83 @@ export class IssuesComponent implements OnInit {
     this.selectedFiles = this.selectedFiles.filter((f) => f.url !== file.url);
   }
 
-  async onSubmit() {
+  onSubmit() {
     if (this.issueForm.invalid || !this.tenant) return;
 
     this.isSubmitting = true;
 
-    try {
-      const formValue = this.issueForm.value;
-      const ticket: Partial<ITicket> = {
-        landlordId: this.tenant.landlordId,
-        propertyId: this.tenant.propertyId,
-        tenantId: this.tenant.id,
-        category: formValue.category,
-        title: formValue.title,
-        description: formValue.description,
-        priority: formValue.priority,
-        createdBy: this.tenant.id!,
-        createdByType: CreatedByType.Tenant,
-      };
+    const formValue = this.issueForm.value;
+    const ticket: Partial<ITicket> = {
+      landlordId: this.tenant.landlordId,
+      propertyId: this.tenant.propertyId,
+      tenantId: this.tenant.id,
+      category: formValue.category,
+      title: formValue.title,
+      description: formValue.description,
+      priority: formValue.priority,
+      createdBy: this.tenant.id!,
+      createdByType: CreatedByType.Tenant,
+    };
 
-      const attachmentFiles = this.selectedFiles.map((file) => file.file);
-      const formData = this.ticketService.convertTicketToFormData(
-        ticket,
-        attachmentFiles,
-      );
+    const attachmentFiles = this.selectedFiles.map((file) => file.file);
+    const formData = this.ticketService.convertTicketToFormData(
+      ticket,
+      attachmentFiles,
+    );
 
-      const result = await this.ticketService
-        .createTicket(formData)
-        .toPromise();
+    this.ticketService.createTicket(formData).subscribe({
+      next: (result) => {
+        if (result?.success) {
+          this.cancelCreate();
 
-      if (result?.success) {
-        // Add to local list for immediate feedback
-        const newIssue: ITicket = {
-          ...ticket,
-          id: Date.now(),
-          ticketNumber: `TKT-${Date.now()}`,
-          currentStatus: TicketStatusType.Open,
-          dateCreated: new Date(),
-        } as ITicket;
+          this.alertService.success({
+            errors: [
+              {
+                message: 'Issue reported successfully!',
+                errorType: 'success',
+              },
+            ],
+          });
 
-        this.issues.unshift(newIssue);
-        this.filterIssues();
-
-        this.cancelCreate();
-        alert('Issue reported successfully!');
-      } else {
-        throw new Error(result?.message || 'Failed to create issue');
-      }
-    } catch (error) {
-      console.error('Error creating issue:', error);
-      alert('Failed to report issue. Please try again.');
-    } finally {
-      this.isSubmitting = false;
-    }
+          // Reload issues from server to get complete ticket data
+          if (this.tenant?.id) {
+            this.ticketService.getTenantTickets(this.tenant.id).subscribe({
+              next: (ticketsResult) => {
+                if (ticketsResult?.success && ticketsResult.entity) {
+                  this.issues = ticketsResult.entity;
+                  this.filteredIssues = [...this.issues];
+                }
+              },
+              error: (error) => {
+                // Silent fail - user already sees success message
+                // The issue was created successfully, just couldn't refresh the list
+              },
+            });
+          }
+        } else {
+          this.alertService.error({
+            errors: [
+              {
+                message: result?.message || 'Failed to create issue',
+                errorType: 'error',
+              },
+            ],
+          });
+        }
+        this.isSubmitting = false;
+      },
+      error: (error) => {
+        this.alertService.error({
+          errors: [
+            {
+              message: 'Failed to report issue. Please try again.',
+              errorType: 'error',
+            },
+          ],
+        });
+        this.isSubmitting = false;
+      },
+    });
   }
 
   createQuickIssue(quickIssue: {
@@ -321,50 +350,56 @@ export class IssuesComponent implements OnInit {
     ];
   }
 
-  private async loadTenantData() {
-    try {
-      this.loading = true;
+  private loadTenantData() {
+    this.loading = true;
 
-      // Get current tenant
-      const userEmail = this.userDetail.email;
-      if (!userEmail) {
-        console.error('User email not found');
-        return;
-      }
-
-      const tenantResult = await this.tenantService
-        .getTenantByEmail(userEmail)
-        .toPromise();
-      if (
-        tenantResult?.status === ResultStatusType.Success &&
-        tenantResult.entity
-      ) {
-        this.tenant = tenantResult.entity;
-        await this.loadIssues();
-      }
-    } catch (error) {
-      console.error('Error loading tenant data:', error);
-    } finally {
+    const userEmail = this.userDetail.email;
+    if (!userEmail) {
+      this.alertService.error({
+        errors: [
+          {
+            message: 'User email not found. Please log in again.',
+            errorType: 'error',
+          },
+        ],
+      });
       this.loading = false;
+      return;
     }
-  }
 
-  private async loadIssues() {
-    if (!this.tenant?.id) return;
-
-    try {
-      const result = await this.ticketService
-        .getTenantTickets(this.tenant.id)
-        .toPromise();
-
-      if (result?.success && result.entity) {
-        this.issues = result.entity;
-        this.filteredIssues = [...this.issues];
-      }
-    } catch (error) {
-      console.error('Error loading issues:', error);
-      this.issues = [];
-      this.filteredIssues = [];
-    }
+    this.tenantService
+      .getTenantByEmail(userEmail)
+      .pipe(
+        switchMap((tenantResult) => {
+          if (
+            tenantResult?.status === ResultStatusType.Success &&
+            tenantResult.entity
+          ) {
+            this.tenant = tenantResult.entity;
+            return this.ticketService.getTenantTickets(this.tenant.id!);
+          }
+          return of(null);
+        }),
+      )
+      .subscribe({
+        next: (result) => {
+          if (result?.success && result.entity) {
+            this.issues = result.entity;
+            this.filteredIssues = [...this.issues];
+          }
+          this.loading = false;
+        },
+        error: (error) => {
+          this.alertService.error({
+            errors: [
+              {
+                message: 'Error loading issues. Please refresh the page.',
+                errorType: 'error',
+              },
+            ],
+          });
+          this.loading = false;
+        },
+      });
   }
 }

@@ -1,21 +1,20 @@
 <div class="issues">
-  <div class="page-header">
-    <ng-button
-      [type]="'text'"
-      [label]="'Back to Portal'"
-      [icon]="'arrow_back'"
-      [buttonType]="'button'"
-      [cssClass]="'back-btn'"
-      (buttonClick)="goBack()"
-    />
-    <h1>Issue Tracker</h1>
-    <ng-button
-      [type]="'filled'"
-      [label]="showCreateForm ? 'Cancel' : 'Report New Issue'"
-      [icon]="'add'"
-      [buttonType]="'button'"
-      (buttonClick)="showCreateForm = !showCreateForm"
-    />
+  <div class="header-section">
+    <button type="button" class="back-button" (click)="goBack()">
+      <ng-icon [name]="'arrow_back'" />
+    </button>
+    <div class="header-content">
+      <h1>Issue Tracker</h1>
+      <p>Manage and track your property maintenance issues</p>
+    </div>
+    <div class="header-actions">
+      <ng-button
+        [type]="'filled'"
+        [label]="showCreateForm ? 'Cancel' : 'Report New Issue'"
+        [icon]="showCreateForm ? 'close' : 'report_problem'"
+        (buttonClick)="showCreateForm = !showCreateForm"
+      />
+    </div>
   </div>
 
   @if (loading) {
@@ -90,19 +89,18 @@
 
           <div class="form-actions">
             <ng-button
-              type="button"
-              variant="secondary"
-              (click)="cancelCreate()"
-            >
-              Cancel
-            </ng-button>
+              [type]="'outlined'"
+              [label]="'Cancel'"
+              [disabled]="isSubmitting"
+              (buttonClick)="cancelCreate()"
+            />
             <ng-button
-              type="submit"
-              variant="primary"
+              buttonType="submit"
+              [type]="'filled'"
+              [label]="isSubmitting ? 'Submitting...' : 'Submit Issue'"
+              [icon]="isSubmitting ? 'hourglass_empty' : 'send'"
               [disabled]="issueForm.invalid || isSubmitting"
-            >
-              {{ isSubmitting ? "Submitting..." : "Submit Issue" }}
-            </ng-button>
+            />
           </div>
         </form>
       </ng-card>

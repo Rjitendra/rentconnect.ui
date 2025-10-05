@@ -3,52 +3,83 @@
   background-color: #f8f9fa;
   min-height: 100vh;
 
-  /* Header Section - Matching property-add style */
+  /* Header Section - Matching property-info and documents style */
   .header-section {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 16px;
-    padding: 32px;
+    position: relative;
     margin-bottom: 32px;
-    color: white;
-    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.15);
+    padding: 40px 48px;
+    padding-left: 96px; // Space for back button
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+    overflow: hidden;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
-    .header-content {
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.1) 0%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      pointer-events: none;
+    }
+
+    .back-button {
+      position: absolute;
+      left: 24px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      width: 48px;
+      height: 48px;
       display: flex;
       align-items: center;
-      gap: 20px;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      z-index: 2;
 
-      .arrow_back {
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        border-radius: 20px;
-        padding: 5px;
-        cursor: pointer;
-        transition: all 0.3s ease;
+      ng-icon {
+        color: white;
         font-size: 24px;
-
-        &:hover {
-          background: rgba(255, 255, 255, 0.3);
-          transform: translateX(-4px);
-        }
       }
 
-      .header-text {
+      &:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-50%) translateX(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+    }
+
+    .header-content {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+
+      h1 {
+        margin: 0 0 8px 0;
+        font-size: 36px;
+        font-weight: 700;
         color: white;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
 
-        h1 {
-          margin: 0;
-          font-size: 2.5rem;
-          font-weight: 700;
-          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        p {
-          margin: 8px 0 0 0;
-          font-size: 1.1rem;
-          opacity: 0.9;
-          font-weight: 400;
-        }
+      p {
+        margin: 0;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 16px;
+        font-weight: 400;
       }
     }
   }

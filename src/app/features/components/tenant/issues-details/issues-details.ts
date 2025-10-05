@@ -7,12 +7,15 @@ import {
   Validators,
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { of, switchMap } from 'rxjs';
 
 import {
+  AlertService,
   FileUploadConfig,
   NgButton,
   NgCardComponent,
   NgFileUploadComponent,
+  NgIconComponent,
   NgLabelComponent,
   NgTextareaComponent,
   UploadedFile,
@@ -42,6 +45,7 @@ import { TicketService } from '../../../service/ticket.service';
     ReactiveFormsModule,
     NgCardComponent,
     NgButton,
+    NgIconComponent,
     NgLabelComponent,
     NgTextareaComponent,
     NgFileUploadComponent,
@@ -92,6 +96,7 @@ export class IssueDetailComponent implements OnInit {
   private oauthService = inject(OauthService);
   private tenantService = inject(TenantService);
   private ticketService = inject(TicketService);
+  private alertService = inject(AlertService);
 
   constructor() {
     this.userDetail = this.oauthService.getUserInfo();
@@ -115,44 +120,65 @@ export class IssueDetailComponent implements OnInit {
     this.selectedFiles = this.selectedFiles.filter((f) => f.url !== file.url);
   }
 
-  async onSubmitComment() {
+  onSubmitComment() {
     if (this.commentForm.invalid || !this.issue || !this.tenant) return;
 
     this.isSubmittingComment = true;
 
-    try {
-      const formValue = this.commentForm.value;
-      const attachmentFiles = this.selectedFiles.map((file) => file.file);
+    const formValue = this.commentForm.value;
+    const attachmentFiles = this.selectedFiles.map((file) => file.file);
 
-      const result = await this.ticketService
-        .addComment(
-          this.issue.id!,
-          formValue.comment,
-          this.tenant.id!,
-          this.tenant.name,
-          CreatedByType.Tenant,
-          attachmentFiles,
-        )
-        .toPromise();
+    this.ticketService
+      .addComment(
+        this.issue.id!,
+        formValue.comment,
+        this.tenant.id!,
+        this.tenant.name,
+        CreatedByType.Tenant,
+        attachmentFiles,
+      )
+      .subscribe({
+        next: (result) => {
+          if (result && result.success && result.entity) {
+            // Add comment to local list
+            this.comments.push(result.entity);
 
-      if (result && result.success && result.entity) {
-        // Add comment to local list
-        this.comments.push(result.entity);
+            // Reset form
+            this.commentForm.reset();
+            this.selectedFiles = [];
 
-        // Reset form
-        this.commentForm.reset();
-        this.selectedFiles = [];
-
-        alert('Comment added successfully!');
-      } else {
-        alert('Failed to add comment. Please try again.');
-      }
-    } catch (error) {
-      console.error('Error adding comment:', error);
-      alert('Failed to add comment. Please try again.');
-    } finally {
-      this.isSubmittingComment = false;
-    }
+            this.alertService.success({
+              errors: [
+                {
+                  message: 'Comment added successfully!',
+                  errorType: 'success',
+                },
+              ],
+            });
+          } else {
+            this.alertService.error({
+              errors: [
+                {
+                  message: 'Failed to add comment. Please try again.',
+                  errorType: 'error',
+                },
+              ],
+            });
+          }
+          this.isSubmittingComment = false;
+        },
+        error: (error) => {
+          this.alertService.error({
+            errors: [
+              {
+                message: 'Failed to add comment. Please try again.',
+                errorType: 'error',
+              },
+            ],
+          });
+          this.isSubmittingComment = false;
+        },
+      });
   }
 
   // Utility methods
@@ -209,61 +235,66 @@ export class IssueDetailComponent implements OnInit {
     });
   }
 
-  private async loadIssueDetails() {
-    try {
-      this.loading = true;
+  private loadIssueDetails() {
+    this.loading = true;
 
-      // Get current tenant first
-      const userEmail = this.userDetail.email;
-      if (userEmail) {
-        const tenantResult = await this.tenantService
-          .getTenantByEmail(userEmail)
-          .toPromise();
-        if (
-          tenantResult &&
-          tenantResult.status === ResultStatusType.Success &&
-          tenantResult.entity
-        ) {
-          this.tenant = tenantResult.entity;
-        }
-      }
-
-      // Load issue details
-      const result = await this.ticketService
-        .getTicketById(this.issueId)
-        .toPromise();
-
-      if (result && result.success && result.entity) {
-        this.issue = result.entity;
-        await this.loadComments();
-      } else {
-        // Issue not found
-        console.error('Issue not found or could not be loaded');
-        this.issue = null;
-      }
-    } catch (error) {
-      console.error('Error loading issue details:', error);
-    } finally {
+    const userEmail = this.userDetail.email;
+    if (!userEmail) {
+      this.alertService.error({
+        errors: [
+          {
+            message: 'User email not found. Please log in again.',
+            errorType: 'error',
+          },
+        ],
+      });
       this.loading = false;
+      return;
     }
-  }
 
-  private async loadComments() {
-    if (!this.issue?.id) return;
-
-    try {
-      const result = await this.ticketService
-        .getTicketComments(this.issue.id)
-        .toPromise();
-
-      if (result && result.success && result.entity) {
-        this.comments = result.entity;
-      } else {
-        // No comments found or error loading
-        this.comments = [];
-      }
-    } catch (error) {
-      console.error('Error loading comments:', error);
-    }
+    this.tenantService
+      .getTenantByEmail(userEmail)
+      .pipe(
+        switchMap((tenantResult) => {
+          if (
+            tenantResult &&
+            tenantResult.status === ResultStatusType.Success &&
+            tenantResult.entity
+          ) {
+            this.tenant = tenantResult.entity;
+          }
+          return this.ticketService.getTicketById(this.issueId);
+        }),
+        switchMap((issueResult) => {
+          if (issueResult && issueResult.success && issueResult.entity) {
+            this.issue = issueResult.entity;
+            return this.ticketService.getTicketComments(this.issue.id!);
+          }
+          return of(null);
+        }),
+      )
+      .subscribe({
+        next: (commentsResult) => {
+          if (
+            commentsResult &&
+            commentsResult.success &&
+            commentsResult.entity
+          ) {
+            this.comments = commentsResult.entity;
+          }
+          this.loading = false;
+        },
+        error: (error) => {
+          this.alertService.error({
+            errors: [
+              {
+                message: 'Error loading issue details. Please try again.',
+                errorType: 'error',
+              },
+            ],
+          });
+          this.loading = false;
+        },
+      });
   }
 }
