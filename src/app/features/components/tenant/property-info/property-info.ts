@@ -33,16 +33,6 @@ import { PropertyService as DocumentService } from '../../../service/document.se
 import { PropertyService } from '../../../service/property.service';
 import { TenantService } from '../../../service/tenant.service';
 
-// interface PropertyImage {
-//   id?: number;
-//   url: string;
-//   name: string;
-//   type: 'landlord' | 'tenant';
-//   uploadedBy: string;
-//   uploadedOn: Date | string;
-//   description?: string;
-// }
-
 @Component({
   selector: 'app-property-info',
   standalone: true,
@@ -283,7 +273,6 @@ export class PropertyInfoComponent implements OnInit {
     // Get current tenant
     const userEmail = this.userDetail.email;
     if (!userEmail) {
-      console.error('User email not found');
       this.loading = false;
       return;
     }

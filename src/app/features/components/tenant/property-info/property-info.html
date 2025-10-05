@@ -174,7 +174,7 @@
             [label]="'Monthly Rent'"
             [toolTip]="'Monthly rental amount'"
           />
-          <span class="amount">â‚¹{{ (tenant.rentAmount | number) || 0 }}</span>
+          <span class="amount">Rs {{ (tenant.rentAmount | number) || 0 }}</span>
         </div>
         <div class="detail-item">
           <ng-label
@@ -182,7 +182,7 @@
             [toolTip]="'Security deposit amount'"
           />
           <span class="amount"
-            >â‚¹{{ (tenant.securityDeposit | number) || 0 }}</span
+            >Rs {{ (tenant.securityDeposit | number) || 0 }}</span
           >
         </div>
         <div class="detail-item">
@@ -191,7 +191,8 @@
             [toolTip]="'Monthly maintenance charges'"
           />
           <span class="amount"
-            >â‚¹{{
+            >Rs
+            {{
               tenant.maintenanceCharges !== undefined &&
               tenant.maintenanceCharges !== null
                 ? (tenant.maintenanceCharges | number)
@@ -343,14 +344,6 @@
                     image.uploadedOn | date: "MMM dd, yyyy"
                   }}</span>
                 </div>
-                <ng-button
-                  [type]="'icon'"
-                  [icon]="'delete'"
-                  [buttonType]="'button'"
-                  [tooltip]="'Delete image'"
-                  [cssClass]="'delete-btn'"
-                  (buttonClick)="deleteImage(image)"
-                />
               </div>
             }
           </div>
