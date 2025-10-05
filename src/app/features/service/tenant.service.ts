@@ -367,19 +367,100 @@ export class TenantService {
    */
   uploadTenantDocuments(
     tenantId: number,
-    documents: Array<{ file: File; category: string; description?: string }>,
+    documents: Array<{
+      file: File;
+      category: string;
+      description?: string;
+      ownerId?: number;
+      ownerType?: string;
+      tenantId?: number;
+      propertyId?: number;
+      landlordId?: number;
+      name?: string;
+      size?: number;
+      type?: string;
+      uploadContext?: number;
+      documentIdentifier?: string;
+      isVerified?: boolean;
+      verifiedBy?: string;
+    }>,
   ): Observable<Result<IDocument[]>> {
     const formData = new FormData();
 
     documents.forEach((doc, index) => {
       // Add file
       formData.append(`Documents[${index}].File`, doc.file);
-      // Add metadata
+
+      // Add required metadata
       formData.append(`Documents[${index}].Category`, doc.category);
       formData.append(`Documents[${index}].Description`, doc.description || '');
-      formData.append(`Documents[${index}].OwnerId`, tenantId.toString());
-      formData.append(`Documents[${index}].OwnerType`, 'Tenant');
-      formData.append(`Documents[${index}].TenantId`, tenantId.toString());
+      formData.append(
+        `Documents[${index}].OwnerId`,
+        (doc.ownerId || tenantId).toString(),
+      );
+      formData.append(
+        `Documents[${index}].OwnerType`,
+        doc.ownerType || 'Tenant',
+      );
+      formData.append(
+        `Documents[${index}].TenantId`,
+        (doc.tenantId || tenantId).toString(),
+      );
+
+      // Add optional ID properties if provided
+      if (doc.propertyId !== undefined && doc.propertyId !== null) {
+        formData.append(
+          `Documents[${index}].PropertyId`,
+          doc.propertyId.toString(),
+        );
+      }
+
+      if (doc.landlordId !== undefined && doc.landlordId !== null) {
+        formData.append(
+          `Documents[${index}].LandlordId`,
+          doc.landlordId.toString(),
+        );
+      }
+
+      // Add file metadata if provided
+      if (doc.name) {
+        formData.append(`Documents[${index}].Name`, doc.name);
+      }
+
+      if (doc.size !== undefined && doc.size !== null) {
+        formData.append(`Documents[${index}].Size`, doc.size.toString());
+      }
+
+      if (doc.type) {
+        formData.append(`Documents[${index}].Type`, doc.type);
+      }
+
+      // Add upload context if provided
+      if (doc.uploadContext !== undefined && doc.uploadContext !== null) {
+        formData.append(
+          `Documents[${index}].UploadContext`,
+          doc.uploadContext.toString(),
+        );
+      }
+
+      // Add verification properties if provided
+      if (doc.documentIdentifier) {
+        formData.append(
+          `Documents[${index}].DocumentIdentifier`,
+          doc.documentIdentifier,
+        );
+      }
+
+      if (doc.isVerified !== undefined && doc.isVerified !== null) {
+        formData.append(
+          `Documents[${index}].IsVerified`,
+          doc.isVerified.toString(),
+        );
+      }
+
+      if (doc.verifiedBy) {
+        formData.append(`Documents[${index}].VerifiedBy`, doc.verifiedBy);
+      }
     });
 
     return this._http.post<Result<IDocument[]>>(

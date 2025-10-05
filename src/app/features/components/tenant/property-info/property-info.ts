@@ -180,7 +180,7 @@ export class PropertyInfoComponent implements OnInit {
     // Prepare documents for upload
     const documents = this.selectedFiles.map((file) => ({
       file: file.file,
-      category: DocumentCategory.PropertyCondition.toString(),
+      category: DocumentCategory.PropertyImages.toString(),
       description: 'Property condition photo',
       ownerId: this.tenant?.id || 0,
       ownerType: 'Tenant',
