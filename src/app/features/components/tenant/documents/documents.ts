@@ -302,7 +302,7 @@ export class DocumentsComponent implements OnInit {
         switchMap((result) => {
           if (result?.success && result.entity) {
             const allDocs = result.entity
-              .filter(
+              ?.documents!.filter(
                 (doc: IDocument) =>
                   doc.category !== DocumentCategory.PropertyImages,
               )

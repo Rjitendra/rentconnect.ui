@@ -189,9 +189,9 @@ export class PropertyService {
   /**
    * Get documents for a property
    */
-  getPropertyDocuments(propertyId: number): Observable<Result<IDocument[]>> {
-    return this._http.get<Result<IDocument[]>>(
-      `${environment.apiBaseUrl}Property/${propertyId}/documents`,
+  getPropertyDocuments(propertyId: number): Observable<Result<IProperty>> {
+    return this._http.get<Result<IProperty>>(
+      `${environment.apiBaseUrl}Property/${propertyId}`,
     );
   }
   getFieldDisplayName(fieldName: string): string {
