@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { of } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
 import { NgButton } from '../../../../../../projects/shared/src/public-api';
 import { ResultStatusType } from '../../../../common/enums/common.enums';
@@ -78,73 +80,79 @@ export class TenantPortalComponent implements OnInit {
     }
   }
 
-  private async loadTenantData() {
-    try {
-      this.loading = true;
+  private loadTenantData() {
+    this.loading = true;
 
-      // Get current tenant data based on logged-in user
-      const userEmail = this.userDetail.email;
-      if (!userEmail) {
-        this.showError('User email not found');
-        return;
-      }
-
-      // Find tenant by email
-      const result = await this.tenantService
-        .getTenantByEmail(userEmail)
-        .toPromise();
-
-      if (
-        result &&
-        result.status === ResultStatusType.Success &&
-        result.entity
-      ) {
-        this.currentTenant = result.entity;
-        this.isPrimaryTenant = this.currentTenant.isPrimary || false;
-
-        // Check agreement status
-        await this.checkAgreementStatus();
-      } else {
-        this.showError('Tenant data not found');
-      }
-    } catch (error) {
-      console.error('Error loading tenant data:', error);
-      this.showError('Failed to load tenant information');
-    } finally {
+    // Get current tenant data based on logged-in user
+    const userEmail = this.userDetail.email;
+    if (!userEmail) {
+      this.showError('User email not found');
       this.loading = false;
+      return;
     }
+
+    // Find tenant by email and check agreement status
+    this.tenantService
+      .getTenantByEmail(userEmail)
+      .pipe(
+        switchMap((result) => {
+          if (
+            result &&
+            result.status === ResultStatusType.Success &&
+            result.entity
+          ) {
+            this.currentTenant = result.entity;
+            this.isPrimaryTenant = this.currentTenant.isPrimary || false;
+
+            // Check agreement status
+            return this.checkAgreementStatus();
+          } else {
+            this.showError('Tenant data not found');
+            return of(null);
+          }
+        }),
+      )
+      .subscribe({
+        next: () => {
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error loading tenant data:', error);
+          this.showError('Failed to load tenant information');
+          this.loading = false;
+        },
+      });
   }
 
-  private async checkAgreementStatus() {
-    if (!this.currentTenant) return;
-
-    try {
-      const statusResult = await this.tenantService
-        .getAgreementStatus(this.currentTenant.id!)
-        .toPromise();
-
-      if (
-        statusResult &&
-        statusResult.status === ResultStatusType.Success &&
-        statusResult.entity
-      ) {
-        const status = statusResult.entity;
-        this.agreementStatus = status;
-        this.isAgreementAccepted = status.agreementAccepted || false;
-        this.primaryTenantName = status.tenantName || '';
-
-        // Show agreement modal if needed
-        if (
-          !this.isAgreementAccepted &&
-          this.isPrimaryTenant &&
-          status.agreementCreated
-        ) {
-          this.showAgreementModal = true;
-        }
-      }
-    } catch (error) {
-      console.error('Error checking agreement status:', error);
+  private checkAgreementStatus() {
+    if (!this.currentTenant) {
+      return of(null);
     }
+
+    return this.tenantService.getAgreementStatus(this.currentTenant.id!).pipe(
+      switchMap((statusResult) => {
+        if (
+          statusResult &&
+          statusResult.status === ResultStatusType.Success &&
+          statusResult.entity
+        ) {
+          const status = statusResult.entity;
+          this.agreementStatus = status;
+          this.isAgreementAccepted = status.agreementAccepted || false;
+          this.primaryTenantName = status.tenantName || '';
+
+          // Show agreement modal if needed
+          if (
+            !this.isAgreementAccepted &&
+            this.isPrimaryTenant &&
+            status.agreementCreated
+          ) {
+            this.showAgreementModal = true;
+          }
+        }
+        return of(null);
+      }),
+    );
   }
   // Alert helper methods
   private showSuccess(message: string) {
