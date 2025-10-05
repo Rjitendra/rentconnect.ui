@@ -17,6 +17,7 @@ import {
   NgCardComponent,
   NgInputComponent,
 } from '../../../../../../projects/shared/src/public-api';
+import { ResultStatusType } from '../../../../common/enums/common.enums';
 import {
   IUserDetail,
   OauthService,
@@ -264,7 +265,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
           .pipe(takeUntil(this.destroy$))
           .toPromise();
 
-        if (result?.status === 0 && result.entity) {
+        if (result?.status === ResultStatusType.None && result.entity) {
           this.tenantData = result.entity;
 
           // Check if tenant has started tenancy
@@ -323,7 +324,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
 
   private scrollToBottom(): void {
     if (this.messagesContainer) {
-      const container = this.messagesContainer.nativeElement;
+      const container = this.messagesContainer.nativeElement as HTMLElement;
       container.scrollTop = container.scrollHeight;
     }
   }
