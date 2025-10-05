@@ -1,1 +1,216 @@
-<p>documents works!</p>
+<div class="documents">
+  <div class="page-header">
+    <ng-button
+      [type]="'text'"
+      [label]="'Back to Portal'"
+      [icon]="'arrow_back'"
+      [buttonType]="'button'"
+      [cssClass]="'back-btn'"
+      (buttonClick)="goBack()"
+    />
+    <h1>Documents & Agreement</h1>
+  </div>
+
+  @if (loading) {
+    <div class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Loading documents...</p>
+    </div>
+  }
+
+  @if (!loading) {
+    <!-- Tenancy Agreement Section -->
+    <ng-card class="agreement-card">
+      <div class="card-header">
+        <i class="material-icons">description</i>
+        <h2>Tenancy Agreement</h2>
+      </div>
+
+      @if (tenant?.agreementUrl) {
+        <div class="agreement-section">
+          <div class="agreement-info">
+            <div class="agreement-details">
+              <h3>Your Rental Agreement</h3>
+              <div class="agreement-meta">
+                <div class="meta-item">
+                  <ng-label
+                    [label]="'Agreement Date:'"
+                    [toolTip]="'Date when the agreement was created'"
+                  />
+                  <span>{{
+                    (tenant?.agreementDate | date: "MMM dd, yyyy") || "N/A"
+                  }}</span>
+                </div>
+                <div class="meta-item">
+                  <ng-label
+                    [label]="'Status:'"
+                    [toolTip]="'Current agreement status'"
+                  />
+                  <span
+                    class="status"
+                    [class.accepted]="tenant?.agreementAccepted"
+                  >
+                    {{ tenant?.agreementAccepted ? "Accepted" : "Pending" }}
+                  </span>
+                </div>
+                @if (tenant?.agreementAccepted) {
+                  <div class="meta-item">
+                    <ng-label
+                      [label]="'Accepted On:'"
+                      [toolTip]="'Date when the agreement was accepted'"
+                    />
+                    <span>{{
+                      (tenant?.agreementAcceptedDate | date: "MMM dd, yyyy") ||
+                        "N/A"
+                    }}</span>
+                  </div>
+                  <div class="meta-item">
+                    <ng-label
+                      [label]="'Accepted By:'"
+                      [toolTip]="'Person who accepted the agreement'"
+                    />
+                    <span>{{ tenant?.agreementAcceptedBy || "N/A" }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      } @else {
+        <div class="empty-state">
+          <i class="material-icons">description</i>
+          <p>Agreement not yet available</p>
+          <p class="sub-text">
+            Your landlord will provide the agreement document once ready
+          </p>
+        </div>
+      }
+    </ng-card>
+
+    <!-- Document Upload Section -->
+    <ng-card class="upload-card">
+      <div class="card-header">
+        <i class="material-icons">cloud_upload</i>
+        <h2>Upload Documents</h2>
+      </div>
+
+      <div class="upload-section">
+        <div class="upload-info">
+          <p>Upload important documents related to your tenancy such as:</p>
+          <ul>
+            <li>Identity documents (Aadhaar, PAN, Driving License)</li>
+            <li>Income proof documents</li>
+            <li>Previous rental agreements</li>
+            <li>Bank statements</li>
+            <li>Other relevant documents</li>
+          </ul>
+        </div>
+
+        <div class="upload-area">
+          <ng-file-upload
+            [config]="fileUploadConfig"
+            (filesSelected)="onFilesSelected($event)"
+            (fileRemoved)="onFileRemoved($event)"
+          />
+
+          @if (selectedFiles.length > 0) {
+            <div class="upload-actions">
+              <ng-button
+                variant="primary"
+                [disabled]="uploading"
+                (click)="uploadDocuments()"
+              >
+                {{ uploading ? "Uploading..." : "Upload Documents" }}
+              </ng-button>
+            </div>
+          }
+        </div>
+      </div>
+    </ng-card>
+
+    <!-- Uploaded Documents Section -->
+    <ng-card class="documents-list-card">
+      <div class="card-header">
+        <i class="material-icons">folder</i>
+        <h2>Your Documents</h2>
+      </div>
+
+      @if (documents.length > 0) {
+        <div class="documents-list">
+          @for (document of documents; track document.id || document.url) {
+            <div class="document-item">
+              <div class="document-icon">
+                <i class="material-icons">{{
+                  getDocumentIcon(document.type)
+                }}</i>
+              </div>
+
+              <div class="document-info">
+                <h4>{{ document.name }}</h4>
+                <div class="document-meta">
+                  <span class="category">{{ document.category }}</span>
+                  <span class="size">{{ formatFileSize(document.size) }}</span>
+                  <span class="date">{{
+                    document.uploadedOn | date: "MMM dd, yyyy"
+                  }}</span>
+                </div>
+                @if (document.description) {
+                  <p class="description">{{ document.description }}</p>
+                }
+              </div>
+
+              <div class="document-status">
+                @if (document.isVerified) {
+                  <div class="status-badge verified">
+                    <i class="material-icons">verified</i>
+                    Verified
+                  </div>
+                } @else {
+                  <div class="status-badge pending">
+                    <i class="material-icons">hourglass_empty</i>
+                    Pending
+                  </div>
+                }
+              </div>
+
+              <div class="document-actions">
+                <ng-button
+                  [type]="'icon'"
+                  [icon]="'download'"
+                  [buttonType]="'button'"
+                  [tooltip]="'Download'"
+                  [cssClass]="'action-btn'"
+                  (buttonClick)="downloadDocument(document)"
+                />
+                <ng-button
+                  [type]="'icon'"
+                  [icon]="'visibility'"
+                  [buttonType]="'button'"
+                  [tooltip]="'View'"
+                  [cssClass]="'action-btn'"
+                  (buttonClick)="viewDocument(document)"
+                />
+                <ng-button
+                  [type]="'icon'"
+                  [icon]="'delete'"
+                  [buttonType]="'button'"
+                  [tooltip]="'Delete'"
+                  [cssClass]="'action-btn delete'"
+                  (buttonClick)="deleteDocument(document)"
+                />
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="empty-state">
+          <i class="material-icons">folder_open</i>
+          <p>No documents uploaded yet</p>
+          <p class="sub-text">
+            Upload your documents to keep them organized and accessible
+          </p>
+        </div>
+      }
+    </ng-card>
+  }
+</div>
