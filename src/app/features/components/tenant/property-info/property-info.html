@@ -1,14 +1,17 @@
 <div class="property-info">
-  <div class="page-header">
-    <ng-button
-      [type]="'text'"
-      [label]="'Back to Portal'"
-      [icon]="'arrow_back'"
-      [buttonType]="'button'"
-      [cssClass]="'back-btn'"
-      (buttonClick)="goBack()"
-    />
-    <h1>Property Information</h1>
+  <div class="header-section">
+    <div class="header-content">
+      <ng-icon
+        name="arrow_back"
+        matTooltip="Go back to tenant portal"
+        class="arrow_back"
+        (click)="goBack()"
+      />
+      <div class="header-text">
+        <h1>Property Information</h1>
+        <p>View your rental property details and documentation</p>
+      </div>
+    </div>
   </div>
 
   @if (loading) {
@@ -289,7 +292,7 @@
             [disabled]="selectedFiles.length === 0 || uploading"
             (click)="uploadFiles()"
           >
-            {{ uploading ? "Uploading..." : "Upload Photos" }}
+            {{ uploading ? "Saving..." : "Save" }}
           </ng-button>
         </div>
       </div>
