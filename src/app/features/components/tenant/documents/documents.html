@@ -210,22 +210,22 @@
                   </div>
 
                   <div class="document-actions">
-                    <ng-button
-                      [type]="'icon'"
-                      [icon]="'download'"
-                      [buttonType]="'button'"
-                      [tooltip]="'Download'"
-                      [cssClass]="'action-btn'"
-                      (buttonClick)="downloadDocument(document)"
-                    />
-                    <ng-button
-                      [type]="'icon'"
-                      [icon]="'visibility'"
-                      [buttonType]="'button'"
-                      [tooltip]="'View'"
-                      [cssClass]="'action-btn'"
-                      (buttonClick)="viewDocument(document)"
-                    />
+                    <button
+                      type="button"
+                      class="action-icon-btn"
+                      title="View document"
+                      (click)="viewDocument(document)"
+                    >
+                      <i class="material-icons">visibility</i>
+                    </button>
+                    <button
+                      type="button"
+                      class="action-icon-btn"
+                      title="Download document"
+                      (click)="downloadDocument(document)"
+                    >
+                      <i class="material-icons">download</i>
+                    </button>
                   </div>
                 </div>
               }
@@ -282,30 +282,30 @@
                   </div>
 
                   <div class="document-actions">
-                    <ng-button
-                      [type]="'icon'"
-                      [icon]="'download'"
-                      [buttonType]="'button'"
-                      [tooltip]="'Download'"
-                      [cssClass]="'action-btn'"
-                      (buttonClick)="downloadDocument(document)"
-                    />
-                    <ng-button
-                      [type]="'icon'"
-                      [icon]="'visibility'"
-                      [buttonType]="'button'"
-                      [tooltip]="'View'"
-                      [cssClass]="'action-btn'"
-                      (buttonClick)="viewDocument(document)"
-                    />
-                    <ng-button
-                      [type]="'icon'"
-                      [icon]="'delete'"
-                      [buttonType]="'button'"
-                      [tooltip]="'Delete'"
-                      [cssClass]="'action-btn delete'"
-                      (buttonClick)="deleteDocument(document)"
-                    />
+                    <button
+                      type="button"
+                      class="action-icon-btn"
+                      title="View document"
+                      (click)="viewDocument(document)"
+                    >
+                      <i class="material-icons">visibility</i>
+                    </button>
+                    <button
+                      type="button"
+                      class="action-icon-btn"
+                      title="Download document"
+                      (click)="downloadDocument(document)"
+                    >
+                      <i class="material-icons">download</i>
+                    </button>
+                    <button
+                      type="button"
+                      class="action-icon-btn delete-btn"
+                      title="Delete document"
+                      (click)="deleteDocument(document)"
+                    >
+                      <i class="material-icons">delete</i>
+                    </button>
                   </div>
                 </div>
               }
@@ -365,22 +365,22 @@
                   </div>
 
                   <div class="document-actions">
-                    <ng-button
-                      [type]="'icon'"
-                      [icon]="'download'"
-                      [buttonType]="'button'"
-                      [tooltip]="'Download'"
-                      [cssClass]="'action-btn'"
-                      (buttonClick)="downloadDocument(document)"
-                    />
-                    <ng-button
-                      [type]="'icon'"
-                      [icon]="'visibility'"
-                      [buttonType]="'button'"
-                      [tooltip]="'View'"
-                      [cssClass]="'action-btn'"
-                      (buttonClick)="viewDocument(document)"
-                    />
+                    <button
+                      type="button"
+                      class="action-icon-btn"
+                      title="View document"
+                      (click)="viewDocument(document)"
+                    >
+                      <i class="material-icons">visibility</i>
+                    </button>
+                    <button
+                      type="button"
+                      class="action-icon-btn"
+                      title="Download document"
+                      (click)="downloadDocument(document)"
+                    >
+                      <i class="material-icons">download</i>
+                    </button>
                   </div>
                 </div>
               }

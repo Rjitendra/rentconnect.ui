@@ -1,13 +1,16 @@
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { of, switchMap } from 'rxjs';
 
 import {
+  AlertService,
   FileUploadConfig,
   NgButton,
   NgCardComponent,
+  NgDialogService,
   NgFileUploadComponent,
   NgIconComponent,
   NgLabelComponent,
@@ -15,6 +18,7 @@ import {
   SelectOption,
   UploadedFile,
 } from '../../../../../../projects/shared/src/public-api';
+import { environment } from '../../../../../environments/environment';
 import { ResultStatusType } from '../../../../common/enums/common.enums';
 import {
   IUserDetail,
@@ -95,9 +99,12 @@ export class DocumentsComponent implements OnInit {
 
   // Services
   private router = inject(Router);
+  private http = inject(HttpClient);
   private oauthService = inject(OauthService);
   private tenantService = inject(TenantService);
   private documentService = inject(PropertyService);
+  private alertService = inject(AlertService);
+  private dialogService = inject(NgDialogService);
 
   constructor() {
     this.userDetail = this.oauthService.getUserInfo();
@@ -140,7 +147,14 @@ export class DocumentsComponent implements OnInit {
       !this.tenant?.id ||
       !this.selectedCategory
     ) {
-      console.error('Missing required data for upload');
+      this.alertService.error({
+        errors: [
+          {
+            message: 'Please select files and category before uploading',
+            errorType: 'error',
+          },
+        ],
+      });
       return;
     }
 
@@ -177,35 +191,104 @@ export class DocumentsComponent implements OnInit {
 
             this.selectedFiles = [];
             this.selectedCategory = null;
-            console.log('Documents uploaded successfully');
+            this.alertService.success({
+              errors: [
+                {
+                  message: 'Documents uploaded successfully',
+                  errorType: 'success',
+                },
+              ],
+            });
           } else {
-            console.error('Failed to upload documents');
+            this.alertService.error({
+              errors: [
+                {
+                  message: 'Failed to upload documents',
+                  errorType: 'error',
+                },
+              ],
+            });
           }
           this.uploading = false;
         },
         error: (error) => {
-          console.error('Error uploading documents:', error);
+          this.alertService.error({
+            errors: [
+              {
+                message: 'Error uploading documents. Please try again.',
+                errorType: 'error',
+              },
+            ],
+          });
           this.uploading = false;
         },
       });
   }
 
-  async downloadAgreement() {
-    if (!this.tenant?.agreementUrl) return;
+  downloadAgreement() {
+    if (!this.tenant?.agreementUrl) {
+      this.alertService.error({
+        errors: [
+          {
+            message: 'Agreement URL not available',
+            errorType: 'error',
+          },
+        ],
+      });
+      return;
+    }
 
     this.downloadingAgreement = true;
 
-    try {
-      // Create a temporary link to download the file
-      const link = document.createElement('a');
-      link.href = this.tenant.agreementUrl;
-      link.download = `Tenancy_Agreement_${this.tenant.name}.pdf`;
-      link.click();
-    } catch (error) {
-      console.error('Error downloading agreement:', error);
-    } finally {
-      this.downloadingAgreement = false;
-    }
+    // Download agreement as blob
+    this.http
+      .get(this.tenant.agreementUrl, { responseType: 'blob' })
+      .subscribe({
+        next: (blob: Blob) => {
+          if (!blob || blob.size === 0) {
+            this.alertService.error({
+              errors: [
+                {
+                  message: 'Downloaded agreement is empty',
+                  errorType: 'error',
+                },
+              ],
+            });
+            this.downloadingAgreement = false;
+            return;
+          }
+
+          const downloadUrl = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = downloadUrl;
+          link.download = `Tenancy_Agreement_${this.tenant?.name || 'Tenant'}.pdf`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(downloadUrl);
+
+          this.downloadingAgreement = false;
+          this.alertService.success({
+            errors: [
+              {
+                message: 'Agreement downloaded successfully',
+                errorType: 'success',
+              },
+            ],
+          });
+        },
+        error: (error) => {
+          this.alertService.error({
+            errors: [
+              {
+                message: 'Failed to download agreement. Please try again.',
+                errorType: 'error',
+              },
+            ],
+          });
+          this.downloadingAgreement = false;
+        },
+      });
   }
 
   viewAgreement() {
@@ -215,23 +298,140 @@ export class DocumentsComponent implements OnInit {
   }
 
   downloadDocument(doc: DocumentItem) {
-    const link = document.createElement('a');
-    link.href = doc.url || '';
-    link.download = doc.name || 'document';
-    link.click();
+    if (!doc.id) {
+      this.alertService.error({
+        errors: [
+          {
+            message: 'Document ID not available',
+            errorType: 'error',
+          },
+        ],
+      });
+      return;
+    }
+
+    // Use API endpoint to download document as blob
+    const url = `${environment.apiBaseUrl}Property/image/${doc.id}/download`;
+
+    this.http.get(url, { responseType: 'blob' }).subscribe({
+      next: (blob: Blob) => {
+        if (!blob || blob.size === 0) {
+          this.alertService.error({
+            errors: [
+              {
+                message: 'Downloaded file is empty',
+                errorType: 'error',
+              },
+            ],
+          });
+          return;
+        }
+
+        // Create blob URL and trigger download
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = doc.name || 'document';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(downloadUrl);
+
+        this.alertService.success({
+          errors: [
+            {
+              message: `Document "${doc.name}" downloaded successfully`,
+              errorType: 'success',
+            },
+          ],
+        });
+      },
+      error: (error) => {
+        this.alertService.error({
+          errors: [
+            {
+              message: `Failed to download "${doc.name}". Please try again.`,
+              errorType: 'error',
+            },
+          ],
+        });
+      },
+    });
   }
 
   viewDocument(doc: DocumentItem) {
-    window.open(doc.url || '', '_blank');
+    if (doc.url) {
+      window.open(doc.url, '_blank');
+    }
   }
 
   deleteDocument(doc: DocumentItem) {
-    if (confirm(`Are you sure you want to delete "${doc.name}"?`)) {
-      const index = this.documents.findIndex((d) => d.id === doc.id);
-      if (index > -1) {
-        this.documents.splice(index, 1);
-      }
+    if (!doc.id || !this.tenant?.id) {
+      this.alertService.error({
+        errors: [
+          {
+            message: 'Unable to delete document. Missing required information.',
+            errorType: 'error',
+          },
+        ],
+      });
+      return;
     }
+
+    // Show confirmation modal
+    this.dialogService
+      .confirm({
+        title: 'Delete Document',
+        message: `Are you sure you want to delete "${doc.name}"?\n\nThis action cannot be undone.`,
+        icon: 'delete',
+        type: 'warning',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        width: '450px',
+        panelClass: ['delete-confirmation-modal', 'document-delete-modal'],
+      })
+      .subscribe((result) => {
+        if (result.action === 'confirm') {
+          // Call backend to delete document
+          this.tenantService.deleteTenantDocument(doc.id!).subscribe({
+            next: (result) => {
+              if (result.status === ResultStatusType.Success) {
+                // Remove from local arrays
+                this.documents = this.documents.filter((d) => d.id !== doc.id);
+                this.currentTenantDocuments =
+                  this.currentTenantDocuments.filter((d) => d.id !== doc.id);
+                this.alertService.success({
+                  errors: [
+                    {
+                      message: 'Document deleted successfully',
+                      errorType: 'success',
+                    },
+                  ],
+                });
+              } else {
+                this.alertService.error({
+                  errors: [
+                    {
+                      message: 'Failed to delete document. Please try again.',
+                      errorType: 'error',
+                    },
+                  ],
+                });
+              }
+            },
+            error: (error) => {
+              this.alertService.error({
+                errors: [
+                  {
+                    message: 'Error deleting document. Please try again.',
+                    errorType: 'error',
+                  },
+                ],
+              });
+            },
+          });
+        }
+      });
   }
 
   getDocumentIcon(type: string): string {
@@ -261,7 +461,14 @@ export class DocumentsComponent implements OnInit {
 
     const userEmail = this.userDetail.email;
     if (!userEmail) {
-      console.error('User email not found');
+      this.alertService.error({
+        errors: [
+          {
+            message: 'User email not found. Please log in again.',
+            errorType: 'error',
+          },
+        ],
+      });
       this.loading = false;
       return;
     }
@@ -285,7 +492,14 @@ export class DocumentsComponent implements OnInit {
           this.loading = false;
         },
         error: (error) => {
-          console.error('Error loading tenant data:', error);
+          this.alertService.error({
+            errors: [
+              {
+                message: 'Error loading tenant data. Please refresh the page.',
+                errorType: 'error',
+              },
+            ],
+          });
           this.loading = false;
         },
       });
