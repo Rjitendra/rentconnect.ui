@@ -1,1 +1,236 @@
-<p>issues works!</p>
+<div class="issues">
+  <div class="page-header">
+    <ng-button
+      [type]="'text'"
+      [label]="'Back to Portal'"
+      [icon]="'arrow_back'"
+      [buttonType]="'button'"
+      [cssClass]="'back-btn'"
+      (buttonClick)="goBack()"
+    />
+    <h1>Issue Tracker</h1>
+    <ng-button
+      [type]="'filled'"
+      [label]="showCreateForm ? 'Cancel' : 'Report New Issue'"
+      [icon]="'add'"
+      [buttonType]="'button'"
+      (buttonClick)="showCreateForm = !showCreateForm"
+    />
+  </div>
+
+  @if (loading) {
+    <div class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Loading issues...</p>
+    </div>
+  }
+
+  @if (!loading) {
+    <!-- Create Issue Form -->
+    @if (showCreateForm) {
+      <ng-card class="create-issue-card">
+        <div class="card-header">
+          <i class="material-icons">bug_report</i>
+          <h2>Report New Issue</h2>
+        </div>
+
+        <form [formGroup]="issueForm" (ngSubmit)="onSubmit()">
+          <div class="form-grid">
+            <div class="form-group">
+              <ng-select
+                label="Issue Category"
+                placeholder="Select category"
+                formControlName="category"
+                [options]="categoryOptions"
+                [required]="true"
+              />
+            </div>
+
+            <div class="form-group">
+              <ng-select
+                label="Priority"
+                formControlName="priority"
+                [options]="priorityOptions"
+                [required]="true"
+              />
+            </div>
+
+            <div class="form-group full-width">
+              <ng-input
+                label="Issue Title"
+                placeholder="Brief description of the issue"
+                formControlName="title"
+                [required]="true"
+              />
+            </div>
+
+            <div class="form-group full-width">
+              <ng-textarea
+                label="Detailed Description"
+                placeholder="Provide detailed information about the issue"
+                formControlName="description"
+                [required]="true"
+                [rows]="4"
+              />
+            </div>
+
+            <div class="form-group full-width">
+              <ng-label
+                [label]="'Attach Photos/Documents (Optional)'"
+                [toolTip]="'Upload photos or documents related to the issue'"
+                [required]="false"
+              />
+              <ng-file-upload
+                [config]="fileUploadConfig"
+                (filesSelected)="onFilesSelected($event)"
+                (fileRemoved)="onFileRemoved($event)"
+              />
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <ng-button
+              type="button"
+              variant="secondary"
+              (click)="cancelCreate()"
+            >
+              Cancel
+            </ng-button>
+            <ng-button
+              type="submit"
+              variant="primary"
+              [disabled]="issueForm.invalid || isSubmitting"
+            >
+              {{ isSubmitting ? "Submitting..." : "Submit Issue" }}
+            </ng-button>
+          </div>
+        </form>
+      </ng-card>
+    }
+
+    <!-- Issues List -->
+    <ng-card class="issues-list-card">
+      <div class="card-header">
+        <i class="material-icons">list</i>
+        <h2>Your Issues</h2>
+        <div class="filters">
+          <ng-select
+            label="Filter by Status"
+            placeholder="All Statuses"
+            [options]="statusFilterOptions"
+            [(ngModel)]="selectedStatusFilter"
+            (ngModelChange)="filterIssues()"
+          />
+          <ng-select
+            label="Filter by Category"
+            placeholder="All Categories"
+            [options]="categoryFilterOptions"
+            [(ngModel)]="selectedCategoryFilter"
+            (ngModelChange)="filterIssues()"
+          />
+        </div>
+      </div>
+
+      @if (filteredIssues.length > 0) {
+        <div class="issues-list">
+          @for (issue of filteredIssues; track issue.id) {
+            <div class="issue-item" (click)="viewIssue(issue)">
+              <div class="issue-header">
+                <div class="issue-meta">
+                  <span class="issue-number"
+                    >#{{ issue.ticketNumber || issue.id }}</span
+                  >
+                  <span
+                    class="category-badge"
+                    [attr.data-category]="getCategoryClass(issue.category)"
+                  >
+                    <i class="material-icons">{{
+                      getCategoryIcon(issue.category)
+                    }}</i>
+                    {{ getCategoryLabel(issue.category) }}
+                  </span>
+                  <span
+                    class="priority-badge"
+                    [attr.data-priority]="getPriorityClass(issue.priority)"
+                  >
+                    {{ getPriorityLabel(issue.priority) }}
+                  </span>
+                </div>
+                <div class="issue-status">
+                  <span
+                    class="status-badge"
+                    [attr.data-status]="getStatusClass(issue.currentStatus)"
+                  >
+                    {{ getStatusLabel(issue.currentStatus) }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="issue-content">
+                <h3>{{ issue.title }}</h3>
+                <p class="description">{{ issue.description }}</p>
+                <div class="issue-footer">
+                  <span class="date"
+                    >Created:
+                    {{ issue.dateCreated | date: "MMM dd, yyyy" }}</span
+                  >
+                  @if (
+                    issue.dateModified &&
+                    issue.dateModified !== issue.dateCreated
+                  ) {
+                    <span class="date"
+                      >Updated:
+                      {{ issue.dateModified | date: "MMM dd, yyyy" }}</span
+                    >
+                  }
+                </div>
+              </div>
+
+              <div class="issue-actions">
+                <i class="material-icons">arrow_forward</i>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="empty-state">
+          @if (issues.length === 0) {
+            <i class="material-icons">sentiment_satisfied</i>
+            <p>No issues reported yet</p>
+            <p class="sub-text">
+              When you have maintenance issues, you can report them here
+            </p>
+          } @else {
+            <i class="material-icons">filter_list</i>
+            <p>No issues match your filters</p>
+            <p class="sub-text">Try adjusting your filter criteria</p>
+          }
+        </div>
+      }
+    </ng-card>
+
+    <!-- Quick Issue Types -->
+    @if (!showCreateForm) {
+      <ng-card class="quick-issues-card">
+        <div class="card-header">
+          <i class="material-icons">flash_on</i>
+          <h2>Quick Report</h2>
+        </div>
+
+        <p class="quick-info">Need to report a common issue quickly?</p>
+
+        <div class="quick-issues-grid">
+          @for (quickIssue of quickIssueTypes; track quickIssue.category) {
+            <div
+              class="quick-issue-item"
+              (click)="createQuickIssue(quickIssue)"
+            >
+              <i class="material-icons">{{ quickIssue.icon }}</i>
+              <span>{{ quickIssue.label }}</span>
+            </div>
+          }
+        </div>
+      </ng-card>
+    }
+  }
+</div>
