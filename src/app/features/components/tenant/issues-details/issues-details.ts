@@ -131,13 +131,14 @@ export class IssueDetailComponent implements OnInit {
 
     this.isSubmittingComment = true;
 
-    const formValue = this.commentForm.value;
+    const formValue = this.commentForm.value as { comment: string };
+    const commentText = (formValue.comment ?? '').trim();
     const attachmentFiles = this.selectedFiles.map((file) => file.file);
 
     this.ticketService
       .addComment(
         this.issue.id!,
-        formValue.comment,
+        commentText,
         this.tenant.id!,
         this.tenant.name,
         CreatedByType.Tenant,
@@ -173,7 +174,7 @@ export class IssueDetailComponent implements OnInit {
           }
           this.isSubmittingComment = false;
         },
-        error: (error) => {
+        error: () => {
           this.alertService.error({
             errors: [
               {
@@ -279,7 +280,7 @@ export class IssueDetailComponent implements OnInit {
           ],
         });
       },
-      error: (error) => {
+      error: () => {
         this.alertService.error({
           errors: [
             {
@@ -351,7 +352,7 @@ export class IssueDetailComponent implements OnInit {
           }
           this.loading = false;
         },
-        error: (error) => {
+        error: () => {
           this.alertService.error({
             errors: [
               {
