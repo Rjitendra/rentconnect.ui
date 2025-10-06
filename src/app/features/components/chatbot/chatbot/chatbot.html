@@ -152,6 +152,58 @@
                     </ng-card>
                   </div>
                 }
+
+                <!-- Document List -->
+                @if (message.metadata?.documents && message.sender === "bot") {
+                  <div class="documents-list">
+                    @for (
+                      doc of message.metadata?.documents || [];
+                      track doc.id
+                    ) {
+                      <div class="document-card" (click)="openDocument(doc)">
+                        <div class="document-icon">
+                          <i class="material-icons">{{
+                            getDocumentIcon(doc.fileType)
+                          }}</i>
+                        </div>
+                        <div class="document-info">
+                          <div class="document-name">{{ doc.name }}</div>
+                          <div class="document-meta">
+                            <span class="document-type">{{ doc.type }}</span>
+                            <span class="document-size">{{
+                              formatFileSize(doc.fileSize)
+                            }}</span>
+                          </div>
+                          <div class="document-uploader">
+                            Uploaded by {{ doc.uploadedBy }} on
+                            {{ doc.uploadedAt | date: "MMM dd, yyyy" }}
+                          </div>
+                        </div>
+                        <div class="document-action">
+                          <i class="material-icons">download</i>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+
+                <!-- Image Gallery -->
+                @if (message.metadata?.images && message.sender === "bot") {
+                  <div class="image-gallery">
+                    @for (img of message.metadata?.images || []; track img.id) {
+                      <div class="image-card" (click)="openImageViewer(img)">
+                        <img
+                          loading="lazy"
+                          [src]="img.thumbnailUrl || img.url"
+                          [alt]="img.title"
+                        />
+                        <div class="image-overlay">
+                          <i class="material-icons">zoom_in</i>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
               </div>
             }
 

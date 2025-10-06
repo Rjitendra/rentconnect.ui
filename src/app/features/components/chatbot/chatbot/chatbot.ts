@@ -27,6 +27,8 @@ import {
   ChatAction,
   ChatMessage,
   ChatbotContext,
+  DocumentItem,
+  ImageItem,
   IssueCreationData,
   QuickReply,
 } from '../../../models/chatbot';
@@ -79,8 +81,10 @@ export class ChatbotComponent implements OnInit, OnDestroy {
   }
   toggleChatbot(): void {
     this.isExpanded = !this.isExpanded;
+    this.cd$.detectChanges();
     if (this.isExpanded) {
       setTimeout(() => this.scrollToBottom(), 100);
+      setTimeout(() => this.scrollToBottom(), 300);
     }
   }
 
@@ -90,6 +94,8 @@ export class ChatbotComponent implements OnInit, OnDestroy {
     const message = this.currentMessage.trim();
     this.currentMessage = '';
     this.isTyping = true;
+    this.cd$.detectChanges();
+    setTimeout(() => this.scrollToBottom(), 0);
 
     this.chatbotService
       .sendMessage(message)
@@ -97,12 +103,15 @@ export class ChatbotComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.isTyping = false;
+          this.cd$.detectChanges();
+          setTimeout(() => this.scrollToBottom(), 100);
         },
         error: () => {
           this.alertService.error({
             errors: [{ message: 'Failed to send message. Please try again.' }],
           });
           this.isTyping = false;
+          this.cd$.detectChanges();
         },
       });
   }
@@ -114,6 +123,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
 
   handleQuickReply(reply: QuickReply): void {
     this.isTyping = true;
+    this.cd$.detectChanges();
 
     this.chatbotService
       .handleQuickReply(reply.payload)
@@ -121,6 +131,8 @@ export class ChatbotComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.isTyping = false;
+          this.cd$.detectChanges();
+          setTimeout(() => this.scrollToBottom(), 100);
         },
         error: () => {
           this.alertService.error({
@@ -129,6 +141,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
             ],
           });
           this.isTyping = false;
+          this.cd$.detectChanges();
         },
       });
   }
@@ -148,6 +161,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
               errors: [{ message: result.message }],
             });
           }
+          this.cd$.detectChanges();
         },
         error: () => {
           this.alertService.error({
@@ -155,6 +169,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
               { message: 'Failed to execute action. Please try again.' },
             ],
           });
+          this.cd$.detectChanges();
         },
       });
   }
@@ -181,6 +196,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
     this.chatbotService.clearChat();
     // Re-add welcome message
     this.initializeChatbot();
+    this.cd$.detectChanges();
   }
 
   getSuggestedQuestions(): string[] {
@@ -188,9 +204,9 @@ export class ChatbotComponent implements OnInit, OnDestroy {
       return [
         "What's my monthly rent amount?",
         'When is my rent due?',
-        'Show me my property details',
+        'Show me my issues',
         'I need to report a maintenance issue',
-        'How do I contact my landlord?',
+        'Show me my property details',
       ];
     } else {
       return [
@@ -201,6 +217,42 @@ export class ChatbotComponent implements OnInit, OnDestroy {
         'Show me tenant contact information',
       ];
     }
+  }
+
+  // Document and Image handling methods
+  openDocument(doc: DocumentItem): void {
+    // Open document in new tab
+    window.open(doc.url, '_blank');
+  }
+
+  openImageViewer(image: ImageItem): void {
+    // Open image in new tab
+    window.open(image.url, '_blank');
+  }
+
+  getDocumentIcon(fileType: string): string {
+    const iconMap: { [key: string]: string } = {
+      pdf: 'picture_as_pdf',
+      doc: 'description',
+      docx: 'description',
+      xls: 'table_chart',
+      xlsx: 'table_chart',
+      txt: 'text_snippet',
+      jpg: 'image',
+      jpeg: 'image',
+      png: 'image',
+      gif: 'image',
+      webp: 'image',
+    };
+    return iconMap[fileType.toLowerCase()] || 'insert_drive_file';
+  }
+
+  formatFileSize(bytes: number | undefined): string {
+    if (!bytes) return 'Unknown size';
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    if (bytes === 0) return '0 Bytes';
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + ' ' + sizes[i];
   }
   private initializeUser(): void {
     this.userDetail = this.oauthService.getUserInfo();
@@ -317,9 +369,10 @@ export class ChatbotComponent implements OnInit, OnDestroy {
     const additionalContext: Partial<ChatbotContext> = {};
 
     if (this.userType === 'tenant' && this.tenantData) {
-      // Add tenant-specific context with actual tenant ID and property ID
+      // Add tenant-specific context with actual tenant ID, property ID, and landlord ID
       additionalContext.tenantId = this.tenantData.id;
       additionalContext.propertyId = this.tenantData.propertyId;
+      additionalContext.landlordId = this.tenantData.landlordId; // ✅ Added landlordId for tenant
     } else if (this.userType === 'landlord') {
       // Add landlord-specific context
       additionalContext.landlordId = userId;
@@ -337,14 +390,27 @@ export class ChatbotComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((messages) => {
         this.messages = messages;
+        this.cd$.detectChanges();
+        // Multiple attempts to ensure scroll happens after render
+        setTimeout(() => this.scrollToBottom(), 0);
         setTimeout(() => this.scrollToBottom(), 100);
+        setTimeout(() => this.scrollToBottom(), 300);
       });
   }
 
   private scrollToBottom(): void {
-    if (this.messagesContainer) {
-      const container = this.messagesContainer.nativeElement as HTMLElement;
-      container.scrollTop = container.scrollHeight;
+    try {
+      if (this.messagesContainer) {
+        const container = this.messagesContainer.nativeElement as HTMLElement;
+        container.scrollTop = container.scrollHeight;
+        // Also try smooth scroll behavior
+        container.scroll({
+          top: container.scrollHeight,
+          behavior: 'smooth',
+        });
+      }
+    } catch (err) {
+      // Silently fail if scroll fails
     }
   }
 }

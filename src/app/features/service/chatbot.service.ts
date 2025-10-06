@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
@@ -9,6 +10,8 @@ import { environment } from '../../../environments/environment';
 import { ResultStatusType } from '../../common/enums/common.enums';
 import { Result } from '../../common/models/common';
 import {
+  AiChatRequest,
+  AiChatResponse,
   ChatAction,
   ChatMessage,
   ChatbotContext,
@@ -17,6 +20,7 @@ import {
   QuickReply,
 } from '../models/chatbot';
 
+import { AiConfigService } from './ai-config.service';
 import { PropertyService } from './property.service';
 import { TenantService } from './tenant.service';
 import { TicketService } from './ticket.service';
@@ -26,9 +30,11 @@ import { TicketService } from './ticket.service';
 })
 export class ChatbotService {
   private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
   private readonly tenantService = inject(TenantService);
   private readonly propertyService = inject(PropertyService);
   private readonly ticketService = inject(TicketService);
+  private readonly aiConfigService = inject(AiConfigService);
 
   private messagesSubject = new BehaviorSubject<ChatMessage[]>([]);
   // eslint-disable-next-line @typescript-eslint/member-ordering
@@ -37,6 +43,9 @@ export class ChatbotService {
   private contextSubject = new BehaviorSubject<ChatbotContext | null>(null);
   // eslint-disable-next-line @typescript-eslint/member-ordering
   public context$ = this.contextSubject.asObservable();
+
+  // Flag to enable/disable AI-powered responses
+  private useAiResponses = true;
 
   // Initialize chatbot with user context
   initializeChatbot(
@@ -143,12 +152,22 @@ export class ChatbotService {
     switch (action.action) {
       case 'create_issue':
         return this.createIssueFromChat(action.data as IssueCreationData);
+      case 'view_issues':
+        return this.viewIssuesList();
+      case 'navigate_issues':
+        return this.navigateToIssues();
       case 'view_property':
         return this.getPropertyInfo();
       case 'view_payments':
         return this.getPaymentInfo();
       case 'download_agreement':
         return this.downloadAgreement();
+      case 'view_documents':
+        return this.viewDocuments();
+      case 'view_property_images':
+        return this.viewPropertyImages();
+      case 'download_document':
+        return this.downloadDocument(action.data);
       default:
         return of({ success: false, message: 'Unknown action' });
     }
@@ -165,38 +184,183 @@ export class ChatbotService {
       return of(localResponse);
     }
 
-    // For complex queries, use AI service
-    const request = {
+    // For complex queries, use AI service if enabled
+    if (this.useAiResponses) {
+      return this.getAiResponse(message, context);
+    }
+
+    // Fallback to simple response
+    return of({
+      message:
+        "I'm here to help! You can ask me about your property, rent, payments, or report maintenance issues.",
+      quickReplies: this.getContextualQuickReplies(context),
+    });
+  }
+
+  // Get AI-powered response from backend
+  private getAiResponse(
+    message: string,
+    context: ChatbotContext,
+  ): Observable<ChatbotResponse> {
+    // Prepare conversation history for AI
+    const conversationHistory = this.getRecentHistory(10).map((msg) => ({
+      role: msg.sender === 'user' ? ('user' as const) : ('assistant' as const),
+      content: msg.content,
+    }));
+
+    // Create system prompt based on user type
+    const systemPrompt = this.generateSystemPrompt(context);
+
+    // Prepare AI chat request
+    const aiRequest: AiChatRequest = {
       message,
+      conversationHistory,
       context: {
         userType: context.userType,
         userId: context.userId,
         propertyId: context.propertyId,
         tenantId: context.tenantId,
         landlordId: context.landlordId,
-        currentTopic: context.currentTopic,
-        conversationHistory: this.getRecentHistory(5).map((msg) => ({
-          id: msg.id,
-          content: msg.content,
-          sender: msg.sender,
-          timestamp: msg.timestamp,
-          type: msg.type,
-        })),
       },
+      systemPrompt,
     };
 
+    // Call backend AI endpoint
     return this.http
       .post<
-        Result<ChatbotResponse>
-      >(`${environment.apiBaseUrl}Chatbot/process`, request)
+        Result<AiChatResponse>
+      >(`${environment.apiBaseUrl}Chatbot/ai-chat`, aiRequest)
       .pipe(
         map((result) => {
           if (result.status === ResultStatusType.Success && result.entity) {
-            return result.entity;
+            // Convert AI response to ChatbotResponse
+            return this.parseAiResponse(result.entity, context);
           }
-          throw new Error('Failed to get chatbot response');
+          throw new Error('Failed to get AI response');
+        }),
+        catchError((error) => {
+          console.error('AI response error:', error);
+          // Fallback to basic response
+          return of({
+            message:
+              "I'm having trouble processing your request right now. Please try again or use the quick options below.",
+            quickReplies: this.getContextualQuickReplies(context),
+          });
         }),
       );
+  }
+
+  // Generate system prompt based on user context
+  private generateSystemPrompt(context: ChatbotContext): string {
+    const basePrompt = `You are an AI assistant for a property rental management system called RentConnect. 
+Your role is to help users with their rental-related queries in a friendly, professional manner.`;
+
+    if (context.userType === 'tenant') {
+      return `${basePrompt}
+
+Current User Type: Tenant
+User ID: ${context.userId}
+${context.propertyId ? `Property ID: ${context.propertyId}` : ''}
+${context.tenantId ? `Tenant ID: ${context.tenantId}` : ''}
+
+You can help tenants with:
+- Viewing their property details and rent information
+- Checking payment history and upcoming payments
+- Reporting maintenance issues and tracking them
+- Downloading their tenancy agreement
+- Contacting their landlord
+- General questions about their tenancy
+
+When suggesting actions:
+- If they want to view issues, mention they can use the "View My Issues" option
+- If they want to report problems, guide them to create a maintenance issue
+- Always be empathetic and helpful
+- Keep responses concise and actionable
+
+IMPORTANT: 
+- Do NOT make up or fabricate specific data (rent amounts, dates, etc.)
+- If specific data is needed, suggest they check the relevant section or ask them to use quick actions
+- Focus on guidance and support rather than providing specific numbers unless you have them from the context`;
+    } else {
+      return `${basePrompt}
+
+Current User Type: Landlord
+User ID: ${context.userId}
+${context.landlordId ? `Landlord ID: ${context.landlordId}` : ''}
+
+You can help landlords with:
+- Managing their property portfolio
+- Viewing tenant information and status
+- Tracking rent collection and payments
+- Managing maintenance requests
+- Generating reports and insights
+- Property performance metrics
+
+When suggesting actions:
+- Guide them to relevant sections of the platform
+- Provide insights on property management best practices
+- Keep responses professional and data-focused
+
+IMPORTANT:
+- Do NOT make up or fabricate specific data
+- If specific data is needed, suggest they check the relevant reports or dashboard
+- Focus on guidance and actionable insights`;
+    }
+  }
+
+  // Parse AI response and add appropriate quick replies/actions
+  private parseAiResponse(
+    aiResponse: AiChatResponse,
+    context: ChatbotContext,
+  ): ChatbotResponse {
+    const response: ChatbotResponse = {
+      message: aiResponse.message,
+    };
+
+    // Check if the AI response suggests certain actions
+    const messageLower = aiResponse.message.toLowerCase();
+
+    // Add contextual quick replies based on the response content
+    if (
+      messageLower.includes('issue') ||
+      messageLower.includes('maintenance') ||
+      messageLower.includes('repair')
+    ) {
+      response.quickReplies = [
+        {
+          id: 'create_issue',
+          text: 'Report an Issue',
+          payload: 'create_issue',
+        },
+        {
+          id: 'view_issues',
+          text: 'View My Issues',
+          payload: 'view_issues',
+        },
+      ];
+    } else if (
+      messageLower.includes('property') ||
+      messageLower.includes('rent') ||
+      messageLower.includes('payment')
+    ) {
+      response.quickReplies = [
+        {
+          id: 'property_info',
+          text: 'Property Details',
+          payload: 'property_info',
+        },
+        {
+          id: 'payment_info',
+          text: 'Payment Info',
+          payload: 'payment_info',
+        },
+      ];
+    } else {
+      // Default quick replies
+      response.quickReplies = this.getContextualQuickReplies(context);
+    }
+
+    return response;
   }
 
   // Handle common queries locally for faster response
@@ -244,6 +408,22 @@ export class ChatbotService {
       return this.createQuickPropertyResponse(context);
     }
 
+    // View issues
+    if (
+      context.userType === 'tenant' &&
+      this.matchesIntent(lowerMessage, [
+        'view issues',
+        'my issues',
+        'show issues',
+        'list issues',
+        'see issues',
+      ])
+    ) {
+      // Trigger the view issues action
+      this.viewIssuesList().subscribe();
+      return null; // Return null to let the action handle the response
+    }
+
     // Quick issue creation
     if (
       this.matchesIntent(lowerMessage, [
@@ -254,6 +434,40 @@ export class ChatbotService {
       ])
     ) {
       return this.createIssueCreationResponse(context);
+    }
+
+    // View documents
+    if (
+      this.matchesIntent(lowerMessage, [
+        'view documents',
+        'show documents',
+        'my documents',
+        'see documents',
+        'documents',
+        'files',
+        'agreement',
+      ])
+    ) {
+      // Trigger the view documents action
+      this.viewDocuments().subscribe();
+      return null; // Return null to let the action handle the response
+    }
+
+    // View property images
+    if (
+      this.matchesIntent(lowerMessage, [
+        'view images',
+        'show images',
+        'property images',
+        'property photos',
+        'see images',
+        'photos',
+        'pictures',
+      ])
+    ) {
+      // Trigger the view property images action
+      this.viewPropertyImages().subscribe();
+      return null; // Return null to let the action handle the response
     }
 
     return null; // Let AI handle complex queries
@@ -280,7 +494,8 @@ export class ChatbotService {
             '🏠 Property details and address information',
             '💳 Payment history and upcoming payments',
             '🔧 Create and track maintenance issues',
-            '📄 Download tenancy agreement',
+            '📄 View and download documents (agreements, receipts, etc.)',
+            '🖼️ View property images and photos',
             '📞 Contact landlord information',
           ]
         : [
@@ -288,6 +503,8 @@ export class ChatbotService {
             '👥 Tenant information and status',
             '💰 Rent collection and payment tracking',
             '🔧 Maintenance requests and status',
+            '📄 View property documents',
+            '🖼️ View property images',
             '📊 Property performance insights',
             '📋 Generate reports',
           ];
@@ -380,12 +597,21 @@ export class ChatbotService {
           payload: 'property_info',
         },
         {
-          id: 'payment_info',
-          text: 'Payment Details',
-          payload: 'payment_info',
+          id: 'view_documents',
+          text: 'View Documents',
+          payload: 'view documents',
+        },
+        {
+          id: 'view_images',
+          text: 'Property Images',
+          payload: 'view images',
+        },
+        {
+          id: 'view_issues',
+          text: 'My Issues',
+          payload: 'view_issues',
         },
         { id: 'create_issue', text: 'Report Issue', payload: 'create_issue' },
-        { id: 'agreement', text: 'Agreement Info', payload: 'agreement' },
       ];
     } else {
       return [
@@ -395,19 +621,19 @@ export class ChatbotService {
           payload: 'tenant_overview',
         },
         {
-          id: 'property_performance',
-          text: 'Property Performance',
-          payload: 'property_performance',
+          id: 'view_documents',
+          text: 'Documents',
+          payload: 'view documents',
+        },
+        {
+          id: 'view_images',
+          text: 'Property Images',
+          payload: 'view images',
         },
         {
           id: 'maintenance_requests',
-          text: 'Maintenance Requests',
+          text: 'Maintenance',
           payload: 'maintenance_requests',
-        },
-        {
-          id: 'rent_collection',
-          text: 'Rent Collection',
-          payload: 'rent_collection',
         },
       ];
     }
@@ -432,14 +658,150 @@ export class ChatbotService {
     };
 
     return this.ticketService.createTicketFromChatbot(ticketData).pipe(
-      map((result) => ({
-        success: result.status === ResultStatusType.Success,
-        message: Array.isArray(result.message)
-          ? result.message.join(', ')
-          : result.message,
-        data: result.entity,
-      })),
+      map((result) => {
+        if (result.status === ResultStatusType.Success) {
+          // Add a bot message confirming the issue creation
+          const successMessage: ChatMessage = {
+            id: this.generateMessageId(),
+            content: `✅ Issue created successfully! Ticket #${result.entity?.ticketId || 'N/A'}. Redirecting you to the issues page...`,
+            sender: 'bot',
+            timestamp: new Date(),
+            type: 'text',
+          };
+          this.addMessage(successMessage);
+
+          // Automatically navigate to issues page after a brief delay
+          setTimeout(() => {
+            this.router.navigate(['/tenant/issues']);
+          }, 1500);
+        }
+
+        return {
+          success: result.status === ResultStatusType.Success,
+          message: Array.isArray(result.message)
+            ? result.message.join(', ')
+            : result.message,
+          data: result.entity,
+        };
+      }),
     );
+  }
+
+  private viewIssuesList(): Observable<{
+    success: boolean;
+    message: string;
+    data?: unknown;
+  }> {
+    const context = this.contextSubject.value;
+    if (!context || context.userType !== 'tenant' || !context.tenantId) {
+      return of({
+        success: false,
+        message: 'Unable to fetch issues. Please ensure you are logged in.',
+      });
+    }
+
+    return this.ticketService.getTenantTickets(context.tenantId).pipe(
+      map((result) => {
+        if (
+          result.status === ResultStatusType.Success &&
+          result.entity &&
+          result.entity.length > 0
+        ) {
+          const issuesList = result.entity
+            .slice(0, 5)
+            .map(
+              (ticket, index) =>
+                `${index + 1}. **${ticket.title}** - ${ticket.currentStatus} (Priority: ${ticket.priority})`,
+            )
+            .join('\n');
+
+          const message = `📋 **Your Recent Issues:**\n\n${issuesList}\n\n${result.entity.length > 5 ? `...and ${result.entity.length - 5} more issues.\n\n` : ''}Click "Go to Issues Page" to see all details.`;
+
+          // Add bot message with the list
+          const listMessage: ChatMessage = {
+            id: this.generateMessageId(),
+            content: message,
+            sender: 'bot',
+            timestamp: new Date(),
+            type: 'text',
+            metadata: {
+              actions: [
+                {
+                  id: 'navigate_issues',
+                  text: 'Go to Issues Page',
+                  action: 'navigate_issues',
+                },
+                {
+                  id: 'create_new_issue',
+                  text: 'Create New Issue',
+                  action: 'create_issue',
+                },
+              ],
+            },
+          };
+          this.addMessage(listMessage);
+
+          return {
+            success: true,
+            message: 'Issues loaded successfully',
+            data: result.entity,
+          };
+        } else {
+          const noIssuesMessage: ChatMessage = {
+            id: this.generateMessageId(),
+            content:
+              "✅ You don't have any reported issues. Everything looks good! Would you like to create a new issue?",
+            sender: 'bot',
+            timestamp: new Date(),
+            type: 'text',
+            metadata: {
+              quickReplies: [
+                {
+                  id: 'create_issue',
+                  text: 'Create New Issue',
+                  payload: 'create_issue',
+                },
+              ],
+            },
+          };
+          this.addMessage(noIssuesMessage);
+
+          return {
+            success: true,
+            message: 'No issues found',
+          };
+        }
+      }),
+      catchError(() => {
+        return of({
+          success: false,
+          message: 'Failed to load issues. Please try again later.',
+        });
+      }),
+    );
+  }
+
+  private navigateToIssues(): Observable<{
+    success: boolean;
+    message: string;
+  }> {
+    // Navigate to issues page using Angular Router
+    this.router.navigate(['/tenant/issues']).then(() => {
+      // Add a message to indicate navigation
+      const navMessage: ChatMessage = {
+        id: this.generateMessageId(),
+        content: '✅ Navigating to the Issues page...',
+        sender: 'bot',
+        timestamp: new Date(),
+        type: 'text',
+      };
+      this.addMessage(navMessage);
+    });
+
+    return of({
+      success: true,
+      message: 'Navigating to issues page...',
+    });
   }
 
   // Utility methods
@@ -504,6 +866,7 @@ export class ChatbotService {
     const payloadMap: { [key: string]: string } = {
       property_info: 'Tell me about my property',
       payment_info: 'Show me my payment information',
+      view_issues: 'Show me my issues',
       create_issue: 'I want to create a maintenance issue',
       agreement: 'Tell me about my tenancy agreement',
       rent_amount: 'What is my monthly rent amount?',
@@ -581,5 +944,353 @@ export class ChatbotService {
   }> {
     // Implementation for agreement download
     return of({ success: true, message: 'Agreement download initiated' });
+  }
+
+  // View tenant/property documents
+  private viewDocuments(): Observable<{
+    success: boolean;
+    message: string;
+    data?: unknown;
+  }> {
+    const context = this.contextSubject.value;
+    if (!context) {
+      return of({
+        success: false,
+        message: 'Unable to fetch documents. Please ensure you are logged in.',
+      });
+    }
+
+    // For tenants, get tenant documents
+    if (context.userType === 'tenant' && context.tenantId) {
+      return this.tenantService.getTenantDocuments(context.tenantId).pipe(
+        map((result) => {
+          if (
+            result.status === ResultStatusType.Success &&
+            result.entity &&
+            result.entity.length > 0
+          ) {
+            // Convert IDocument[] to DocumentItem[]
+            const documents = result.entity.map((doc) => ({
+              id: doc.id || 0,
+              name: doc.name || 'Unknown Document',
+              type: this.mapDocumentType(doc.category),
+              url: doc.url || '',
+              fileType: this.getFileExtension(doc.name || ''),
+              fileSize: doc.size,
+              uploadedBy: this.getDocumentUploader(
+                doc.ownerType,
+                doc.ownerId,
+                context,
+              ),
+              uploadedAt: doc.uploadedOn
+                ? new Date(doc.uploadedOn)
+                : new Date(),
+              description: doc.description,
+            }));
+
+            const message = `📄 **Your Documents:**\n\nI found ${documents.length} document(s) for you. Click on any document below to view or download it.`;
+
+            // Add bot message with documents
+            const docMessage: ChatMessage = {
+              id: this.generateMessageId(),
+              content: message,
+              sender: 'bot',
+              timestamp: new Date(),
+              type: 'document_list',
+              metadata: {
+                documents,
+              },
+            };
+            this.addMessage(docMessage);
+
+            return {
+              success: true,
+              message: 'Documents loaded successfully',
+              data: documents,
+            };
+          } else {
+            const noDocsMessage: ChatMessage = {
+              id: this.generateMessageId(),
+              content:
+                "📄 You don't have any documents uploaded yet. Your landlord can upload documents like agreements, receipts, and inspection reports.",
+              sender: 'bot',
+              timestamp: new Date(),
+              type: 'text',
+            };
+            this.addMessage(noDocsMessage);
+
+            return {
+              success: true,
+              message: 'No documents found',
+            };
+          }
+        }),
+        catchError(() => {
+          return of({
+            success: false,
+            message: 'Failed to load documents. Please try again later.',
+          });
+        }),
+      );
+    }
+
+    // For landlords, get property documents
+    if (context.userType === 'landlord' && context.propertyId) {
+      return this.propertyService.getPropertyDocuments(context.propertyId).pipe(
+        map((result) => {
+          if (
+            result.status === ResultStatusType.Success &&
+            result.entity &&
+            result.entity.length > 0
+          ) {
+            const documents = result.entity.map((doc) => ({
+              id: doc.id || 0,
+              name: doc.name || 'Unknown Document',
+              type: this.mapDocumentType(doc.category),
+              url: doc.url || '',
+              fileType: this.getFileExtension(doc.name || ''),
+              fileSize: doc.size,
+              uploadedBy: this.getDocumentUploader(
+                doc.ownerType,
+                doc.ownerId,
+                context,
+              ),
+              uploadedAt: doc.uploadedOn
+                ? new Date(doc.uploadedOn)
+                : new Date(),
+              description: doc.description,
+            }));
+
+            const message = `📄 **Property Documents:**\n\nFound ${documents.length} document(s) for this property.`;
+
+            const docMessage: ChatMessage = {
+              id: this.generateMessageId(),
+              content: message,
+              sender: 'bot',
+              timestamp: new Date(),
+              type: 'document_list',
+              metadata: {
+                documents,
+              },
+            };
+            this.addMessage(docMessage);
+
+            return {
+              success: true,
+              message: 'Documents loaded successfully',
+              data: documents,
+            };
+          } else {
+            const noDocsMessage: ChatMessage = {
+              id: this.generateMessageId(),
+              content:
+                '📄 No documents found for this property. You can upload documents through the property management section.',
+              sender: 'bot',
+              timestamp: new Date(),
+              type: 'text',
+            };
+            this.addMessage(noDocsMessage);
+
+            return {
+              success: true,
+              message: 'No documents found',
+            };
+          }
+        }),
+        catchError(() => {
+          return of({
+            success: false,
+            message: 'Failed to load documents. Please try again later.',
+          });
+        }),
+      );
+    }
+
+    return of({
+      success: false,
+      message:
+        'Unable to load documents. Missing tenant or property information.',
+    });
+  }
+
+  // View property images
+  private viewPropertyImages(): Observable<{
+    success: boolean;
+    message: string;
+    data?: unknown;
+  }> {
+    const context = this.contextSubject.value;
+    if (!context) {
+      return of({
+        success: false,
+        message: 'Unable to fetch images. Please ensure you are logged in.',
+      });
+    }
+
+    if (!context.propertyId) {
+      return of({
+        success: false,
+        message: 'No property information available.',
+      });
+    }
+
+    // Get landlordId from context - should be set for both tenants and landlords
+    if (!context.landlordId) {
+      return of({
+        success: false,
+        message:
+          'Unable to fetch property images. Landlord information not available.',
+      });
+    }
+
+    return this.propertyService
+      .getPropertyImagesUrl(context.landlordId, context.propertyId)
+      .pipe(
+        map((result) => {
+          if (
+            result.status === ResultStatusType.Success &&
+            result.entity &&
+            result.entity.length > 0
+          ) {
+            // Convert IDocument[] to ImageItem[]
+            const images = result.entity.map((doc) => ({
+              id: doc.id || 0,
+              title: doc.name || 'Property Image',
+              url: doc.url || '',
+              thumbnailUrl: doc.url, // Use same URL for thumbnail
+              description: doc.description,
+              category: 'property' as const,
+              uploadedAt: doc.uploadedOn
+                ? new Date(doc.uploadedOn)
+                : new Date(),
+            }));
+
+            const message = `🏠 **Property Images:**\n\nFound ${images.length} image(s) of your property. Click on any image to view it in full size.`;
+
+            // Add bot message with images
+            const imageMessage: ChatMessage = {
+              id: this.generateMessageId(),
+              content: message,
+              sender: 'bot',
+              timestamp: new Date(),
+              type: 'image_gallery',
+              metadata: {
+                images,
+              },
+            };
+            this.addMessage(imageMessage);
+
+            return {
+              success: true,
+              message: 'Images loaded successfully',
+              data: images,
+            };
+          } else {
+            const noImagesMessage: ChatMessage = {
+              id: this.generateMessageId(),
+              content:
+                '🏠 No property images available yet. Images help showcase the property better!',
+              sender: 'bot',
+              timestamp: new Date(),
+              type: 'text',
+            };
+            this.addMessage(noImagesMessage);
+
+            return {
+              success: true,
+              message: 'No images found',
+            };
+          }
+        }),
+        catchError(() => {
+          return of({
+            success: false,
+            message: 'Failed to load images. Please try again later.',
+          });
+        }),
+      );
+  }
+
+  // Download specific document
+  private downloadDocument(data: unknown): Observable<{
+    success: boolean;
+    message: string;
+  }> {
+    if (typeof data === 'object' && data !== null && 'url' in data) {
+      const url = (data as { url: string }).url;
+      // Open document in new tab for download
+      window.open(url, '_blank');
+      return of({
+        success: true,
+        message: 'Document download started',
+      });
+    }
+    return of({
+      success: false,
+      message: 'Invalid document data',
+    });
+  }
+
+  // Helper methods for documents/images
+  private mapDocumentType(
+    category: number | undefined,
+  ): 'agreement' | 'receipt' | 'inspection' | 'other' {
+    // Map document categories to types based on actual enum values
+    // DocumentCategory enum: Aadhaar=0, PAN=1, OwnershipProof=2, UtilityBill=3,
+    // NoObjectionCertificate=4, BankProof=5, PropertyImages=6, RentalAgreement=7, etc.
+    switch (category) {
+      case 7: // RentalAgreement
+        return 'agreement';
+      case 3: // UtilityBill
+      case 5: // BankProof
+        return 'receipt';
+      case 13: // PropertyCondition
+        return 'inspection';
+      case 0: // Aadhaar
+      case 1: // PAN
+      case 2: // OwnershipProof
+      case 4: // NoObjectionCertificate
+      case 6: // PropertyImages
+      case 8: // AddressProof
+      case 9: // IdProof
+      case 10: // ProfilePhoto
+      case 11: // EmploymentProof
+      case 12: // PersonPhoto
+      case 14: // Other
+      default:
+        return 'other';
+    }
+  }
+
+  private getDocumentUploader(
+    ownerType: string | undefined,
+    ownerId: number | undefined,
+    context: ChatbotContext,
+  ): string {
+    if (!ownerType) return 'Unknown';
+
+    // Determine who uploaded based on ownerType
+    const ownerTypeLower = ownerType.toLowerCase();
+
+    if (ownerTypeLower.includes('landlord')) {
+      // Check if it's the current user
+      if (context.userType === 'landlord' && ownerId === context.userId) {
+        return 'You';
+      }
+      return 'Landlord';
+    } else if (ownerTypeLower.includes('tenant')) {
+      // Check if it's the current user
+      if (context.userType === 'tenant' && ownerId === context.userId) {
+        return 'You';
+      }
+      return 'Tenant';
+    }
+
+    return 'System';
+  }
+
+  private getFileExtension(filename: string): string {
+    const parts = filename.split('.');
+    return parts.length > 1 ? parts[parts.length - 1].toLowerCase() : 'unknown';
   }
 }
