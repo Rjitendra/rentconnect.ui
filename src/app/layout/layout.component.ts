@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 
 import {
   LibLayoutComponent,
@@ -17,11 +17,15 @@ import { OauthService } from '../oauth/service/oauth.service';
 export class LayoutComponent implements OnInit {
   navItems = NAVITEMS;
   isLogIn = false;
+  userDataLoaded = false;
 
   private authService = inject(OauthService);
+  private cdr$ = inject(ChangeDetectorRef);
 
   ngOnInit() {
     this.getAsyncGetUserData();
+    this.userDataLoaded = true;
+    this.cdr$.detectChanges();
   }
 
   onLogIn(): void {
