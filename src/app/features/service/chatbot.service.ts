@@ -461,145 +461,61 @@ IMPORTANT:
     return response;
   }
 
+  
   // Handle common queries locally for faster response
+  // ONLY handle EXACT matches that don't need AI processing
   private handleLocalQueries(
     message: string,
     context: ChatbotContext,
   ): ChatbotResponse | null {
-    const lowerMessage = message.toLowerCase();
+    const lowerMessage = message.toLowerCase().trim();
 
-    // Greeting
+    // ONLY handle exact simple greetings (don't block AI for complex ones)
     if (
-      this.matchesIntent(lowerMessage, [
-        'hello',
-        'hi',
-        'hey',
-        'good morning',
-        'good evening',
-      ])
+      lowerMessage === 'hello' ||
+      lowerMessage === 'hi' ||
+      lowerMessage === 'hey'
     ) {
       return this.createGreetingResponse(context);
     }
 
-    // Help request
+    // ONLY handle exact help request
     if (
-      this.matchesIntent(lowerMessage, [
-        'help',
-        'what can you do',
-        'commands',
-        'options',
-      ])
+      lowerMessage === 'help' ||
+      lowerMessage === 'what can you do'
     ) {
       return this.createHelpResponse(context);
     }
 
-    // Quick property info for tenants
-    if (
-      context.userType === 'tenant' &&
-      this.matchesIntent(lowerMessage, [
-        'property',
-        'address',
-        'rent amount',
-        'due date',
-      ])
-    ) {
-      return this.createQuickPropertyResponse(context);
-    }
-
-    // Identity queries
-    if (
-      this.matchesIntent(lowerMessage, [
-        'what is my name',
-        "what's my name",
-        'who am i',
-        'my name',
-      ])
-    ) {
-      const displayName = context.userName || 'I do not have your name yet.';
-      return {
-        message: `Your name is ${displayName}.`,
-        quickReplies: this.getContextualQuickReplies(context),
-      };
-    }
-
-    if (
-      this.matchesIntent(lowerMessage, [
-        'what is my email',
-        "what's my email",
-        'my email',
-        'email address',
-      ])
-    ) {
-      const email = context.userEmail || 'not available';
-      return {
-        message: `Your email is ${email}.`,
-        quickReplies: this.getContextualQuickReplies(context),
-      };
-    }
-
-    // View issues
-    if (
-      context.userType === 'tenant' &&
-      this.matchesIntent(lowerMessage, [
-        'view issues',
-        'my issues',
-        'show issues',
-        'list issues',
-        'see issues',
-      ])
-    ) {
-      // Trigger the view issues action
-      this.viewIssuesList().subscribe();
-      return null; // Return null to let the action handle the response
-    }
-
-    // Quick issue creation
-    if (
-      this.matchesIntent(lowerMessage, [
-        'create issue',
-        'report problem',
-        'maintenance',
-        'repair',
-      ])
-    ) {
-      return this.createIssueCreationResponse(context);
-    }
-
-    // View documents
-    if (
-      this.matchesIntent(lowerMessage, [
-        'view documents',
-        'show documents',
-        'my documents',
-        'see documents',
-        'documents',
-        'files',
-        'agreement',
-      ])
-    ) {
-      // Trigger the view documents action
+    // ONLY keep exact action triggers for specific UI actions
+    // Everything else goes to AI for natural language processing
+    
+    // View documents (EXACT match only)
+    if (lowerMessage === 'view documents' || lowerMessage === 'show documents') {
       this.viewDocuments().subscribe();
-      return null; // Return null to let the action handle the response
+      return null;
     }
 
-    // View property images
-    if (
-      this.matchesIntent(lowerMessage, [
-        'view images',
-        'show images',
-        'property images',
-        'property photos',
-        'see images',
-        'photos',
-        'pictures',
-      ])
-    ) {
-      // Trigger the view property images action
+    // View property images (EXACT match only)
+    if (lowerMessage === 'view images' || lowerMessage === 'show images') {
       this.viewPropertyImages().subscribe();
-      return null; // Return null to let the action handle the response
+      return null;
     }
 
-    return null; // Let AI handle complex queries
+    // View issues (EXACT match only)
+    if (lowerMessage === 'view issues' || lowerMessage === 'my issues') {
+      this.viewIssuesList().subscribe();
+      return null;
+    }
+
+    // Let AI handle ALL other queries including:
+    // - "What's my rent?" 
+    // - "How much do I pay?"
+    // - "Tell me about my property"
+    // - "When is rent due?"
+    // - "I have a maintenance issue"
+    // - etc.
+    return null; // Send to AI
   }
 
   // Create contextual responses
