@@ -2,13 +2,14 @@
   <div class="chatbot-container" [class.expanded]="isExpanded">
     <!-- Chatbot Toggle Button -->
     @if (!isExpanded) {
-      <ng-button
-        [type]="'extended'"
-        [label]="'Ask AI'"
-        [cssClass]="'chatbot-toggle'"
-        [tooltip]="'Open AI Assistant'"
-        (buttonClick)="toggleChatbot()"
-      />
+      <button
+        type="button"
+        class="chatbot-toggle"
+        title="Ask AI"
+        (click)="toggleChatbot()"
+      >
+        <i class="material-icons">smart_toy</i>
+      </button>
     }
     <!-- Chatbot Interface -->
     @if (isExpanded) {
@@ -27,18 +28,22 @@
             </div>
           </div>
           <div class="header-actions">
-            <ng-button
-              [type]="'icon'"
-              [icon]="'clear_all'"
-              [tooltip]="'Clear Chat'"
-              (buttonClick)="clearChat()"
-            />
-            <ng-button
-              [type]="'icon'"
-              [icon]="'minimize'"
-              [tooltip]="'Minimize'"
-              (buttonClick)="toggleChatbot()"
-            />
+            <button
+              type="button"
+              class="icon-btn"
+              title="Clear Chat"
+              (click)="clearChat()"
+            >
+              <i class="material-icons">delete_outline</i>
+            </button>
+            <button
+              type="button"
+              class="icon-btn"
+              title="Minimize"
+              (click)="toggleChatbot()"
+            >
+              <i class="material-icons">close</i>
+            </button>
           </div>
         </div>
 
