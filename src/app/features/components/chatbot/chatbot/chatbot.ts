@@ -8,8 +8,8 @@ import {
   inject,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Subject, of } from 'rxjs';
+import { catchError, switchMap, takeUntil, tap } from 'rxjs/operators';
 
 import {
   AlertService,
@@ -69,7 +69,6 @@ export class ChatbotComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initializeUser();
-    this.subscribeToChatMessages();
   }
 
   ngOnDestroy(): void {
@@ -201,28 +200,36 @@ export class ChatbotComponent implements OnInit, OnDestroy {
       ];
     }
   }
-  private async initializeUser(): Promise<void> {
-    try {
-      this.userDetail = this.oauthService.getUserInfo();
+  private initializeUser(): void {
+    this.userDetail = this.oauthService.getUserInfo();
 
-      // Determine user type based on role
-      this.userType = this.determineUserType(this.userDetail);
+    // Determine user type based on role
+    this.userType = this.determineUserType(this.userDetail);
 
-      // Check if chatbot should be shown
-      const shouldShow = await this.shouldShowChatbot();
-
-      if (shouldShow) {
-        this.showChatbot = true;
-        // Initialize chatbot with user context
-        this.initializeChatbot();
-      }
-    } catch (error) {
-      this.alertService.error({
-        errors: [
-          { message: 'Failed to initialize chatbot. Please refresh the page.' },
-        ],
+    // Check if chatbot should be shown
+    this.shouldShowChatbot()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (shouldShow) => {
+          if (shouldShow) {
+            this.showChatbot = true;
+            // Initialize chatbot with user context
+            this.initializeChatbot();
+            // Subscribe to chat messages after initialization
+            this.subscribeToChatMessages();
+          }
+        },
+        error: () => {
+          this.alertService.error({
+            errors: [
+              {
+                message:
+                  'Failed to initialize chatbot. Please refresh the page.',
+              },
+            ],
+          });
+        },
       });
-    }
   }
 
   private determineUserType(
@@ -245,50 +252,78 @@ export class ChatbotComponent implements OnInit, OnDestroy {
     return 'landlord';
   }
 
-  private async shouldShowChatbot(): Promise<boolean> {
+  private shouldShowChatbot() {
     // Always show for landlords
     if (this.userType === 'landlord') {
-      return true;
+      console.log('✅ Chatbot: Showing for landlord');
+      return of(true);
     }
 
     // For tenants, check if they have started tenancy
     if (this.userType === 'tenant') {
-      try {
-        const email = this.userDetail.email;
-        if (!email) {
-          return false;
-        }
+      const email = this.userDetail.email;
+      console.log('🔍 Chatbot: Checking tenant email:', email);
 
-        // Get tenant data
-        const result = await this.tenantService
-          .getTenantByEmail(email)
-          .pipe(takeUntil(this.destroy$))
-          .toPromise();
-
-        if (result?.status === ResultStatusType.None && result.entity) {
-          this.tenantData = result.entity;
-
-          // Check if tenant has started tenancy
-          const today = new Date();
-          const tenancyStartDate = new Date(result.entity.tenancyStartDate);
-
-          // Show chatbot only if:
-          // 1. Tenancy has started (start date is today or in the past)
-          // 2. Agreement is accepted
-          // 3. Tenant is active
-          const hasStarted = tenancyStartDate <= today;
-          const isAgreementAccepted = result.entity.agreementAccepted === true;
-          const isActive = result.entity.isActive !== false;
-
-          return hasStarted && isAgreementAccepted && isActive;
-        }
-      } catch (error) {
-        // Silently fail - don't show chatbot if we can't verify tenant status
-        return false;
+      if (!email) {
+        console.log('❌ Chatbot: No email found');
+        return of(false);
       }
+
+      // Get tenant data using RxJS
+      return this.tenantService.getTenantByEmail(email).pipe(
+        tap((result) => console.log('🔍 Chatbot: Tenant API result:', result)),
+        switchMap((result) => {
+          if (result?.status === ResultStatusType.Success && result.entity) {
+            this.tenantData = result.entity;
+
+            // Check if tenant has started tenancy
+            const today = new Date();
+            const tenancyStartDate = new Date(result.entity.tenancyStartDate);
+
+            console.log('📅 Chatbot: Today:', today);
+            console.log('📅 Chatbot: Tenancy Start Date:', tenancyStartDate);
+            console.log(
+              '✅ Chatbot: Agreement Accepted:',
+              result.entity.agreementAccepted,
+            );
+            console.log('✅ Chatbot: Is Active:', result.entity.isActive);
+
+            // Show chatbot only if:
+            // 1. Tenancy has started (start date is today or in the past)
+            // 2. Agreement is accepted
+            // 3. Tenant is active
+            const hasStarted = tenancyStartDate <= today;
+            const isAgreementAccepted =
+              result.entity.agreementAccepted === true;
+            const isActive = result.entity.isActive !== false;
+
+            console.log('🔍 Chatbot: Has Started:', hasStarted);
+            console.log('🔍 Chatbot: Agreement Accepted:', isAgreementAccepted);
+            console.log('🔍 Chatbot: Is Active:', isActive);
+
+            const shouldShow = hasStarted && isAgreementAccepted && isActive;
+            console.log(
+              shouldShow
+                ? '✅ Chatbot: Showing for tenant'
+                : '❌ Chatbot: Hiding for tenant',
+            );
+
+            return of(shouldShow);
+          } else {
+            console.log('❌ Chatbot: Invalid API result or no tenant entity');
+            return of(false);
+          }
+        }),
+        catchError((error) => {
+          console.error('❌ Chatbot: Error checking tenant status:', error);
+          // Silently fail - don't show chatbot if we can't verify tenant status
+          return of(false);
+        }),
+      );
     }
 
-    return false;
+    console.log('❌ Chatbot: Default - not showing');
+    return of(false);
   }
 
   private initializeChatbot(): void {
