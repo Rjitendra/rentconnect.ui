@@ -316,11 +316,11 @@ export class ChatbotComponent implements OnInit, OnDestroy {
     // Additional context based on user type
     const additionalContext: Partial<ChatbotContext> = {};
 
-    if (this.userType === 'tenant') {
-      // Add tenant-specific context
-      additionalContext.tenantId = userId;
-      // You can add propertyId if available
-    } else {
+    if (this.userType === 'tenant' && this.tenantData) {
+      // Add tenant-specific context with actual tenant ID and property ID
+      additionalContext.tenantId = this.tenantData.id;
+      additionalContext.propertyId = this.tenantData.propertyId;
+    } else if (this.userType === 'landlord') {
       // Add landlord-specific context
       additionalContext.landlordId = userId;
     }
