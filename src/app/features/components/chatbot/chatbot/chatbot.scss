@@ -466,10 +466,11 @@
 
     h4 {
       margin: 0 0 12px 0;
-      color: #2196f3;
+      color: #667eea !important; // Force purple color
       display: flex;
       align-items: center;
       gap: 8px;
+      font-weight: 700;
     }
 
     .issue-details {
@@ -481,9 +482,10 @@
       p {
         margin: 8px 0;
         font-size: 14px;
+        color: #2c3e50 !important; // Force dark text
 
         strong {
-          color: #333;
+          color: #1a1a1a !important; // Force darker text for labels
         }
       }
     }
@@ -552,10 +554,11 @@
   h4 {
     margin: 0 0 12px 0;
     font-size: 14px;
-    color: #666;
+    color: #495057 !important; // Force dark gray text
     display: flex;
     align-items: center;
     gap: 8px;
+    font-weight: 600;
   }
 
   .suggestions {
@@ -570,11 +573,15 @@
       padding: 8px 12px;
       border-radius: 8px;
       transition: all 0.2s ease;
+      background: white !important;
+      color: #2c3e50 !important; // Force dark text
+      border: 2px solid #e8e8e8 !important;
 
       &:hover {
-        background: #f0f8ff;
-        border-color: #2196f3;
+        background: #f0f8ff !important;
+        border-color: #667eea !important;
         transform: translateX(4px);
+        color: #667eea !important;
       }
     }
   }
@@ -627,32 +634,86 @@
   }
 }
 
-// Dark Mode Support
-@media (prefers-color-scheme: dark) {
-  .chatbot-interface {
-    background: #1e1e1e;
-    color: #ffffff;
+// Error Messages & Alerts Styling
+.error-message,
+.alert-message {
+  padding: 12px 16px;
+  margin: 8px 0;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 500;
+
+  &.error {
+    background: #fee;
+    border: 2px solid #fcc;
+    color: #c33 !important; // Force red text
   }
 
-  .messages-container {
-    background: #2d2d2d;
+  &.warning {
+    background: #fff3cd;
+    border: 2px solid #ffc107;
+    color: #856404 !important; // Force dark text
   }
 
-  .message-wrapper.bot .message-bubble {
-    background: #3d3d3d;
-    border-color: #555;
-    color: #ffffff;
+  &.info {
+    background: #e3f2fd;
+    border: 2px solid #90caf9;
+    color: #0d47a1 !important; // Force dark blue text
   }
 
-  .input-area {
-    background: #1e1e1e;
-    border-top-color: #555;
+  &.success {
+    background: #e8f5e9;
+    border: 2px solid #a5d6a7;
+    color: #2e7d32 !important; // Force green text
   }
+}
 
-  .suggested-questions {
-    background: #1e1e1e;
-    border-top-color: #555;
+// Ensure bot messages with errors are visible
+.message-wrapper.bot .message-bubble {
+  &.error-bubble {
+    background: #fee !important;
+    border: 2px solid #fcc !important;
+    color: #c33 !important;
+
+    .message-content {
+      color: #c33 !important;
+    }
   }
+}
+
+// Dark Mode Support - Removed to prevent visibility issues
+// Force light mode for better readability
+.chatbot-interface {
+  background: white !important;
+  color: #2c3e50 !important;
+}
+
+.messages-container {
+  background: #f8f9fa !important;
+}
+
+.message-wrapper.bot .message-bubble {
+  background: white !important;
+  color: #2c3e50 !important;
+
+  .message-content {
+    color: #2c3e50 !important;
+  }
+}
+
+.input-area {
+  background: linear-gradient(to top, #f8f9fa, #ffffff) !important;
+
+  ::ng-deep input {
+    background: white !important;
+    color: #2c3e50 !important;
+  }
+}
+
+.suggested-questions {
+  background: white !important;
+  color: #2c3e50 !important;
 }
 
 // Accessibility
