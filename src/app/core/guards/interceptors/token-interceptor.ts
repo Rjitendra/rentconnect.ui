@@ -19,7 +19,13 @@ export const tokenInterceptor: HttpInterceptorFn = (
   const oauthService = inject(OauthService);
   const spinnerService = inject(SpinnerService);
 
-  spinnerService.show(); // 🔥 show spinner on request start
+  // Skip global spinner for chatbot requests (chatbot has its own loading indicator)
+  const isChatbotRequest =
+    req.url.includes('/Chatbot/') || req.headers.has('X-Skip-Spinner');
+
+  if (!isChatbotRequest) {
+    spinnerService.show(); // 🔥 show spinner on request start
+  }
 
   return from(getCurrentUserValue()).pipe(
     switchMap((token: User) => {
@@ -34,7 +40,12 @@ export const tokenInterceptor: HttpInterceptorFn = (
 
       const requestClone = req.clone({ headers });
       return next(requestClone).pipe(
-        finalize(() => spinnerService.hide()), // 🔥 always hide when request finishes
+        finalize(() => {
+          // Only hide spinner if it was shown for this request
+          if (!isChatbotRequest) {
+            spinnerService.hide(); // 🔥 always hide when request finishes
+          }
+        }),
       );
     }),
   );

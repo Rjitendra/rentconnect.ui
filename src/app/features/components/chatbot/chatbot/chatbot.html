@@ -206,20 +206,20 @@
                 }
               </div>
             }
+          </div>
 
-            <!-- Typing Indicator -->
-            @if (isTyping) {
-              <div class="message-wrapper bot">
-                <div class="message-bubble bot typing">
-                  <div class="typing-indicator">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </div>
+          <!-- Typing Indicator (shown when loading) -->
+          @if (isLoading) {
+            <div class="message-wrapper bot">
+              <div class="message-bubble bot typing-indicator">
+                <div class="typing-dots">
+                  <span></span>
+                  <span></span>
+                  <span></span>
                 </div>
               </div>
-            }
-          </div>
+            </div>
+          }
         </div>
 
         <!-- Input Area -->
@@ -227,14 +227,14 @@
           <div class="input-container">
             <ng-input
               [placeholder]="'Type your message...'"
-              [disabled]="isTyping"
+              [disabled]="isLoading"
               [(ngModel)]="currentMessage"
               (keyup.enter)="sendMessage()"
             />
             <ng-button
               [type]="'icon'"
               [icon]="'send'"
-              [disabled]="!currentMessage.trim() || isTyping"
+              [disabled]="!currentMessage.trim() || isLoading"
               [tooltip]="'Send Message'"
               (buttonClick)="sendMessage()"
             />

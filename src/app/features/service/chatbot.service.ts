@@ -46,6 +46,11 @@ export class ChatbotService {
   // eslint-disable-next-line @typescript-eslint/member-ordering
   public context$ = this.contextSubject.asObservable();
 
+  // Chatbot-specific loading state (separate from global spinner)
+  private loadingSubject = new BehaviorSubject<boolean>(false);
+  // eslint-disable-next-line @typescript-eslint/member-ordering
+  public loading$ = this.loadingSubject.asObservable();
+
   // Flag to enable/disable AI-powered responses
   private useAiResponses = true;
   private aiOnlineSubject!: BehaviorSubject<boolean>;
@@ -84,6 +89,9 @@ export class ChatbotService {
       throw new Error('Chatbot not initialized');
     }
 
+    // Set loading state
+    this.loadingSubject.next(true);
+
     // Add user message
     const userMessage: ChatMessage = {
       id: this.generateMessageId(),
@@ -112,9 +120,12 @@ export class ChatbotService {
         };
 
         this.addMessage(botMessage);
+        this.loadingSubject.next(false); // ✅ Stop loading on success
         return botMessage;
       }),
-      catchError(() => {
+      catchError((error) => {
+        console.error('[Chatbot] Error in sendMessage:', error);
+
         const errorMessage: ChatMessage = {
           id: this.generateMessageId(),
           content:
@@ -124,6 +135,7 @@ export class ChatbotService {
           type: 'text',
         };
         this.addMessage(errorMessage);
+        this.loadingSubject.next(false); // ✅ Stop loading on error
         return of(errorMessage);
       }),
     );
@@ -184,19 +196,19 @@ export class ChatbotService {
   }
 
   /**
-   * Check AI availability based on active configuration
+   * Check AI availability based on environment configuration
+   * Backend will handle fallback if AI is disabled or fails
    */
   private checkAiAvailability(): void {
-    this.aiConfigService
-      .getActiveConfig()
-      .pipe(
-        map((cfg) => !!cfg && cfg.isActive === true),
-        catchError(() => of(false)),
-      )
-      .subscribe((isActive) => {
-        this.aiOnlineSubject.next(isActive);
-        this.useAiResponses = isActive;
-      });
+    // Check if AI mode is configured in environment
+    // If configured to use backend, backend will handle AI/knowledge base logic
+    const aiMode = environment.ai?.mode || 'backend';
+    const isAiEnabled = aiMode === 'backend' || aiMode === 'openai';
+
+    this.aiOnlineSubject.next(isAiEnabled);
+    this.useAiResponses = isAiEnabled;
+
+    console.log(`[Chatbot] AI Mode: ${aiMode}, Enabled: ${isAiEnabled}`);
   }
 
   // Process user message and generate AI response
@@ -251,7 +263,17 @@ export class ChatbotService {
       systemPrompt,
     };
 
-    // Call backend AI endpoint
+    // Call backend AI endpoint (backend handles AI + Knowledge Base)
+    console.log('[Chatbot] Sending to backend:', {
+      message,
+      contextIds: {
+        userId: context.userId,
+        tenantId: context.tenantId,
+        propertyId: context.propertyId,
+        landlordId: context.landlordId,
+      },
+    });
+
     return this.http
       .post<
         Result<AiChatResponse>
@@ -259,17 +281,27 @@ export class ChatbotService {
       .pipe(
         map((result) => {
           if (result.status === ResultStatusType.Success && result.entity) {
+            console.log('[Chatbot] AI Response:', {
+              model: result.entity.model,
+              tokensUsed: result.entity.tokensUsed,
+              messageLength: result.entity.message.length,
+            });
             // Convert AI response to ChatbotResponse
             return this.parseAiResponse(result.entity, context);
           }
           throw new Error('Failed to get AI response');
         }),
         catchError((error) => {
-          console.error('AI response error:', error);
+          console.error('[Chatbot] AI response error:', error);
+          console.log('[Chatbot] Fallback: Using basic response');
+
           // Fallback to basic response
           return of({
             message:
-              "I'm having trouble processing your request right now. Please try again or use the quick options below.",
+              "I'm having trouble processing your request right now. This might be because:\n\n" +
+              '• AI service is temporarily unavailable\n' +
+              '• Network connection issue\n\n' +
+              'You can still use the quick options below, or try asking again in a moment.',
             quickReplies: this.getContextualQuickReplies(context),
           });
         }),
@@ -277,60 +309,52 @@ export class ChatbotService {
   }
 
   // Generate system prompt based on user context
+  // Note: Backend will enhance this with knowledge base data
   private generateSystemPrompt(context: ChatbotContext): string {
-    const basePrompt = `You are an AI assistant for a property rental management system called RentConnect. 
-Your role is to help users with their rental-related queries in a friendly, professional manner.`;
+    const basePrompt = `You are an AI assistant for RentConnect, a property rental management system.
+Be friendly, concise, and helpful. The backend will provide you with a KNOWLEDGE BASE containing real user data.`;
 
     if (context.userType === 'tenant') {
       return `${basePrompt}
 
-Current User Type: Tenant
-User ID: ${context.userId}
+Role: Tenant Assistant
+User Context: ${context.userName || 'Tenant'} (ID: ${context.userId})
 ${context.propertyId ? `Property ID: ${context.propertyId}` : ''}
 ${context.tenantId ? `Tenant ID: ${context.tenantId}` : ''}
 
-You can help tenants with:
-- Viewing their property details and rent information
-- Checking payment history and upcoming payments
-- Reporting maintenance issues and tracking them
-- Downloading their tenancy agreement
-- Contacting their landlord
-- General questions about their tenancy
+You help tenants with:
+- Property & rent information
+- Payment tracking
+- Maintenance issues
+- Documents & agreements
+- Landlord contact
 
-When suggesting actions:
-- If they want to view issues, mention they can use the "View My Issues" option
-- If they want to report problems, guide them to create a maintenance issue
-- Always be empathetic and helpful
-- Keep responses concise and actionable
-
-IMPORTANT: 
-- Do NOT make up or fabricate specific data (rent amounts, dates, etc.)
-- If specific data is needed, suggest they check the relevant section or ask them to use quick actions
-- Focus on guidance and support rather than providing specific numbers unless you have them from the context`;
+IMPORTANT:
+- Use EXACT data from the KNOWLEDGE BASE (the backend provides real DB data)
+- Don't fabricate numbers - only use what's in the knowledge base
+- Suggest actions: view documents, create issue, check payments
+- Keep responses under 150 words
+- Be empathetic and supportive`;
     } else {
       return `${basePrompt}
 
-Current User Type: Landlord
-User ID: ${context.userId}
+Role: Landlord Assistant
+User Context: Landlord (ID: ${context.userId})
 ${context.landlordId ? `Landlord ID: ${context.landlordId}` : ''}
 
-You can help landlords with:
-- Managing their property portfolio
-- Viewing tenant information and status
-- Tracking rent collection and payments
-- Managing maintenance requests
-- Generating reports and insights
-- Property performance metrics
-
-When suggesting actions:
-- Guide them to relevant sections of the platform
-- Provide insights on property management best practices
-- Keep responses professional and data-focused
+You help landlords with:
+- Property portfolio management
+- Tenant information
+- Rent collection
+- Maintenance requests
+- Performance insights
 
 IMPORTANT:
-- Do NOT make up or fabricate specific data
-- If specific data is needed, suggest they check the relevant reports or dashboard
-- Focus on guidance and actionable insights`;
+- Use EXACT data from the KNOWLEDGE BASE (the backend provides real DB data)
+- Don't fabricate numbers - only use what's in the knowledge base
+- Provide actionable insights
+- Keep responses under 150 words
+- Be professional and data-focused`;
     }
   }
 
@@ -346,43 +370,91 @@ IMPORTANT:
     // Check if the AI response suggests certain actions
     const messageLower = aiResponse.message.toLowerCase();
 
-    // Add contextual quick replies based on the response content
+    // Smart contextual quick replies based on response content and keywords
+    const quickReplies: QuickReply[] = [];
+
+    // Issue/Maintenance related
     if (
       messageLower.includes('issue') ||
       messageLower.includes('maintenance') ||
-      messageLower.includes('repair')
+      messageLower.includes('repair') ||
+      messageLower.includes('problem') ||
+      messageLower.includes('broken')
     ) {
-      response.quickReplies = [
+      quickReplies.push(
         {
           id: 'create_issue',
-          text: 'Report an Issue',
+          text: '🔧 Report Issue',
           payload: 'create_issue',
         },
         {
           id: 'view_issues',
-          text: 'View My Issues',
+          text: '📋 My Issues',
           payload: 'view_issues',
         },
-      ];
-    } else if (
-      messageLower.includes('property') ||
+      );
+    }
+
+    // Payment/Rent related
+    if (
       messageLower.includes('rent') ||
-      messageLower.includes('payment')
+      messageLower.includes('payment') ||
+      messageLower.includes('pay') ||
+      messageLower.includes('due') ||
+      messageLower.includes('₹')
     ) {
-      response.quickReplies = [
-        {
-          id: 'property_info',
-          text: 'Property Details',
-          payload: 'property_info',
-        },
+      quickReplies.push(
         {
           id: 'payment_info',
-          text: 'Payment Info',
+          text: '💳 Payment Info',
           payload: 'payment_info',
         },
-      ];
+        {
+          id: 'property_info',
+          text: '🏠 Property Info',
+          payload: 'property_info',
+        },
+      );
+    }
+
+    // Document related
+    if (
+      messageLower.includes('document') ||
+      messageLower.includes('agreement') ||
+      messageLower.includes('file') ||
+      messageLower.includes('upload')
+    ) {
+      quickReplies.push({
+        id: 'view_documents',
+        text: '📄 View Documents',
+        payload: 'view documents',
+      });
+    }
+
+    // Image related
+    if (
+      messageLower.includes('image') ||
+      messageLower.includes('photo') ||
+      messageLower.includes('picture')
+    ) {
+      quickReplies.push({
+        id: 'view_images',
+        text: '🖼️ View Images',
+        payload: 'view images',
+      });
+    }
+
+    // If we found specific quick replies, use them; otherwise use defaults
+    if (quickReplies.length > 0) {
+      // Add a help option
+      quickReplies.push({
+        id: 'help',
+        text: '❓ Help',
+        payload: 'help',
+      });
+      response.quickReplies = quickReplies.slice(0, 4); // Limit to 4 quick replies
     } else {
-      // Default quick replies
+      // Default contextual quick replies
       response.quickReplies = this.getContextualQuickReplies(context);
     }
 

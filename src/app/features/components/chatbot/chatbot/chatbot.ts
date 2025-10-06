@@ -55,7 +55,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
   // UI State
   isExpanded = false;
   isOnline = true;
-  isTyping = false;
+  isLoading = false; // Chatbot-specific loading state
   currentMessage = '';
   showChatbot = false; // Control chatbot visibility
 
@@ -73,6 +73,14 @@ export class ChatbotComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initializeUser();
+
+    // Subscribe to chatbot loading state
+    this.chatbotService.loading$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((loading) => {
+        this.isLoading = loading;
+        this.cd$.detectChanges();
+      });
   }
 
   ngOnDestroy(): void {
@@ -89,29 +97,25 @@ export class ChatbotComponent implements OnInit, OnDestroy {
   }
 
   sendMessage(): void {
-    if (!this.currentMessage.trim() || this.isTyping) return;
+    if (!this.currentMessage.trim() || this.isLoading) return;
 
     const message = this.currentMessage.trim();
     this.currentMessage = '';
-    this.isTyping = true;
-    this.cd$.detectChanges();
     setTimeout(() => this.scrollToBottom(), 0);
 
+    // Loading state is now managed by chatbotService.loading$
     this.chatbotService
       .sendMessage(message)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.isTyping = false;
-          this.cd$.detectChanges();
           setTimeout(() => this.scrollToBottom(), 100);
         },
-        error: () => {
-          this.alertService.error({
-            errors: [{ message: 'Failed to send message. Please try again.' }],
-          });
-          this.isTyping = false;
-          this.cd$.detectChanges();
+        error: (error) => {
+          console.error('[Chatbot Component] Send message error:', error);
+          // Error message is already added by the service
+          // Just scroll to show it
+          setTimeout(() => this.scrollToBottom(), 100);
         },
       });
   }
@@ -122,26 +126,17 @@ export class ChatbotComponent implements OnInit, OnDestroy {
   }
 
   handleQuickReply(reply: QuickReply): void {
-    this.isTyping = true;
-    this.cd$.detectChanges();
-
+    // Loading state is managed by chatbotService.loading$
     this.chatbotService
       .handleQuickReply(reply.payload)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.isTyping = false;
-          this.cd$.detectChanges();
           setTimeout(() => this.scrollToBottom(), 100);
         },
-        error: () => {
-          this.alertService.error({
-            errors: [
-              { message: 'Failed to process quick reply. Please try again.' },
-            ],
-          });
-          this.isTyping = false;
-          this.cd$.detectChanges();
+        error: (error) => {
+          console.error('[Chatbot Component] Quick reply error:', error);
+          setTimeout(() => this.scrollToBottom(), 100);
         },
       });
   }
