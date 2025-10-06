@@ -1,10 +1,10 @@
-@if (true) {
+@if (showChatbot) {
   <div class="chatbot-container" [class.expanded]="isExpanded">
     <!-- Chatbot Toggle Button -->
     @if (!isExpanded) {
       <ng-button
-        [type]="'fab'"
-        [icon]="'chat'"
+        [type]="'extended'"
+        [label]="'Ask AI'"
         [cssClass]="'chatbot-toggle'"
         [tooltip]="'Open AI Assistant'"
         (buttonClick)="toggleChatbot()"

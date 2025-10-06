@@ -3,7 +3,7 @@
   position: fixed;
   bottom: 20px;
   right: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 1000px;
   z-index: 1000;
   transition: all 0.3s ease;
 
@@ -29,13 +29,13 @@
 }
 
 // Toggle Button - Attractive & Eye-catching
-.chatbot-toggle {
+::ng-deep .chatbot-toggle {
   position: fixed !important;
   bottom: 24px !important;
   right: 24px !important;
-  width: 70px !important;
-  height: 70px !important;
-  border-radius: 50% !important;
+  min-width: 140px !important;
+  height: 56px !important;
+  border-radius: 28px !important;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
   box-shadow:
     0 8px 24px rgba(102, 126, 234, 0.4),
@@ -47,15 +47,21 @@
   border: 3px solid rgba(255, 255, 255, 0.3) !important;
   transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
   z-index: 9999 !important;
+  padding: 0 24px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: white !important;
+  letter-spacing: 0.5px !important;
+  text-transform: uppercase !important;
 
   // Make icon inside more visible
-  ::ng-deep {
-    .material-icons,
-    i {
-      color: white !important;
-      font-size: 32px !important;
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
-    }
+  .mat-icon,
+  mat-icon,
+  .material-icons {
+    color: white !important;
+    font-size: 24px !important;
+    margin-right: 8px !important;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
   }
 
   // Add notification badge
