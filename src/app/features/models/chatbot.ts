@@ -77,6 +77,8 @@ export interface ChatbotContext {
   propertyId?: number;
   tenantId?: number;
   landlordId?: number;
+  userName?: string;
+  userEmail?: string;
   currentTopic?: string;
   conversationHistory: ChatMessage[];
 }

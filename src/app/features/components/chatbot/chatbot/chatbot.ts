@@ -368,6 +368,14 @@ export class ChatbotComponent implements OnInit, OnDestroy {
     // Additional context based on user type
     const additionalContext: Partial<ChatbotContext> = {};
 
+    // Add basic identity info
+    additionalContext.userName =
+      this.userDetail.fullName ||
+      [this.userDetail.firstName, this.userDetail.lastName]
+        .filter(Boolean)
+        .join(' ');
+    additionalContext.userEmail = this.userDetail.email;
+
     if (this.userType === 'tenant' && this.tenantData) {
       // Add tenant-specific context with actual tenant ID, property ID, and landlord ID
       additionalContext.tenantId = this.tenantData.id;
@@ -386,6 +394,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
   }
 
   private subscribeToChatMessages(): void {
+    // Messages stream
     this.chatbotService.messages$
       .pipe(takeUntil(this.destroy$))
       .subscribe((messages) => {
@@ -395,6 +404,14 @@ export class ChatbotComponent implements OnInit, OnDestroy {
         setTimeout(() => this.scrollToBottom(), 0);
         setTimeout(() => this.scrollToBottom(), 100);
         setTimeout(() => this.scrollToBottom(), 300);
+      });
+
+    // Online/offline state
+    this.chatbotService.aiOnline$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((isOnline) => {
+        this.isOnline = isOnline;
+        this.cd$.detectChanges();
       });
   }
 

@@ -29,6 +29,8 @@ import { TicketService } from './ticket.service';
   providedIn: 'root',
 })
 export class ChatbotService {
+  // AI availability (online/offline) observable
+  public aiOnline$!: Observable<boolean>;
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
   private readonly tenantService = inject(TenantService);
@@ -46,6 +48,13 @@ export class ChatbotService {
 
   // Flag to enable/disable AI-powered responses
   private useAiResponses = true;
+  private aiOnlineSubject!: BehaviorSubject<boolean>;
+
+  constructor() {
+    // Initialize AI availability subjects
+    this.aiOnlineSubject = new BehaviorSubject<boolean>(true);
+    this.aiOnline$ = this.aiOnlineSubject.asObservable();
+  }
 
   // Initialize chatbot with user context
   initializeChatbot(
@@ -53,6 +62,8 @@ export class ChatbotService {
     userId: number,
     additionalContext?: Partial<ChatbotContext>,
   ): void {
+    // Determine AI availability before initialization
+    this.checkAiAvailability();
     const context: ChatbotContext = {
       userType,
       userId,
@@ -66,7 +77,6 @@ export class ChatbotService {
     // Add welcome message
     this.addWelcomeMessage(userType);
   }
-
   // Send message to chatbot
   sendMessage(message: string): Observable<ChatMessage> {
     const context = this.contextSubject.value;
@@ -171,6 +181,22 @@ export class ChatbotService {
       default:
         return of({ success: false, message: 'Unknown action' });
     }
+  }
+
+  /**
+   * Check AI availability based on active configuration
+   */
+  private checkAiAvailability(): void {
+    this.aiConfigService
+      .getActiveConfig()
+      .pipe(
+        map((cfg) => !!cfg && cfg.isActive === true),
+        catchError(() => of(false)),
+      )
+      .subscribe((isActive) => {
+        this.aiOnlineSubject.next(isActive);
+        this.useAiResponses = isActive;
+      });
   }
 
   // Process user message and generate AI response
@@ -408,6 +434,37 @@ IMPORTANT:
       return this.createQuickPropertyResponse(context);
     }
 
+    // Identity queries
+    if (
+      this.matchesIntent(lowerMessage, [
+        'what is my name',
+        "what's my name",
+        'who am i',
+        'my name',
+      ])
+    ) {
+      const displayName = context.userName || 'I do not have your name yet.';
+      return {
+        message: `Your name is ${displayName}.`,
+        quickReplies: this.getContextualQuickReplies(context),
+      };
+    }
+
+    if (
+      this.matchesIntent(lowerMessage, [
+        'what is my email',
+        "what's my email",
+        'my email',
+        'email address',
+      ])
+    ) {
+      const email = context.userEmail || 'not available';
+      return {
+        message: `Your email is ${email}.`,
+        quickReplies: this.getContextualQuickReplies(context),
+      };
+    }
+
     // View issues
     if (
       context.userType === 'tenant' &&
@@ -518,6 +575,11 @@ IMPORTANT:
   private createQuickPropertyResponse(
     context: ChatbotContext,
   ): ChatbotResponse {
+    // Trigger auto-fetch of property details if available
+    if (context.propertyId) {
+      this.getPropertyInfo().subscribe();
+    }
+
     return {
       message:
         // eslint-disable-next-line prettier/prettier
@@ -842,7 +904,7 @@ IMPORTANT:
   }
 
   private generateMessageId(): string {
-    return `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return `msg_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
   }
 
   private getBotMessageType(response: ChatbotResponse): ChatMessage['type'] {
@@ -916,13 +978,72 @@ IMPORTANT:
 
     if (context.propertyId) {
       return this.propertyService.getPropertyById(context.propertyId).pipe(
-        map((result) => ({
-          success: result.status === ResultStatusType.Success,
-          message: Array.isArray(result.message)
-            ? result.message.join(', ')
-            : result.message,
-          data: result.entity,
-        })),
+        map((result) => {
+          const success = result.status === ResultStatusType.Success;
+          if (success && result.entity) {
+            const prop = result.entity as {
+              title?: string;
+              addressLine1?: string;
+              addressLine2?: string;
+              city?: string;
+              state?: string;
+              pinCode?: string;
+              monthlyRent?: number;
+              securityDeposit?: number;
+              carpetAreaSqFt?: number;
+            };
+
+            const lines: string[] = [];
+            if (prop.title) lines.push(`🏠 ${prop.title}`);
+            const addr = [
+              prop.addressLine1,
+              prop.addressLine2,
+              [prop.city, prop.state].filter(Boolean).join(', '),
+              prop.pinCode,
+            ]
+              .filter((x) => !!x && String(x).trim() !== '')
+              .join('\n');
+            if (addr) lines.push(addr);
+            if (prop.carpetAreaSqFt)
+              lines.push(`Area: ${prop.carpetAreaSqFt} sq.ft`);
+            if (typeof prop.monthlyRent === 'number')
+              lines.push(`Rent: ₹${prop.monthlyRent}`);
+            if (typeof prop.securityDeposit === 'number')
+              lines.push(`Deposit: ₹${prop.securityDeposit}`);
+
+            const content = lines.join('\n');
+            const detailMessage: ChatMessage = {
+              id: this.generateMessageId(),
+              content: content || 'Property details loaded.',
+              sender: 'bot',
+              timestamp: new Date(),
+              type: 'text',
+              metadata: {
+                actions: [
+                  {
+                    id: 'view_property',
+                    text: 'View Property Details',
+                    action: 'view_property',
+                  },
+                  {
+                    id: 'view_documents',
+                    text: 'View Documents',
+                    action: 'view_documents',
+                  },
+                ],
+              },
+            };
+            this.addMessage(detailMessage);
+          }
+
+          return {
+            success,
+            message: Array.isArray(result.message)
+              ? result.message.join(', ')
+              : result.message,
+            data: result.entity,
+          };
+        }),
       );
     }
     return of({ success: false, message: 'No property ID available' });
