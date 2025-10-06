@@ -12,7 +12,6 @@ import {
   ChatAction,
   ChatMessage,
   ChatbotContext,
-  ChatbotRequest,
   ChatbotResponse,
   IssueCreationData,
   QuickReply,
@@ -167,8 +166,7 @@ export class ChatbotService {
     }
 
     // For complex queries, use AI service
-    // Map frontend context to backend DTO format
-    const request: ChatbotRequest = {
+    const request = {
       message,
       context: {
         userType: context.userType,
@@ -183,15 +181,9 @@ export class ChatbotService {
           sender: msg.sender,
           timestamp: msg.timestamp,
           type: msg.type,
-          metadata: msg.metadata,
         })),
       },
     };
-
-    console.log(
-      '📤 Sending chatbot request:',
-      JSON.stringify(request, null, 2),
-    );
 
     return this.http
       .post<
@@ -199,7 +191,6 @@ export class ChatbotService {
       >(`${environment.apiBaseUrl}Chatbot/process`, request)
       .pipe(
         map((result) => {
-          console.log('📥 Received chatbot response:', result);
           if (result.status === ResultStatusType.Success && result.entity) {
             return result.entity;
           }
