@@ -207,10 +207,17 @@ export class PropertyDashboardService {
   }
 
   getDownloadCategoryOptions(documents: IDocument[] = []): SelectOption[] {
+    const documentCount = documents.filter(
+      (d) =>
+        (d.category === DocumentCategory.PropertyImages ||
+          d.category === DocumentCategory.AddressProof ||
+          d.category === DocumentCategory.OwnershipProof) &&
+        d.ownerType === 'Landlord',
+    ).length;
     const categories = [
       {
         value: 'all',
-        label: `All Documents (${documents.length})`,
+        label: `All Documents (${documentCount})`,
       },
     ];
     const updatedDocumentCategories = documentCategories.filter(
@@ -220,7 +227,9 @@ export class PropertyDashboardService {
         x.value === DocumentCategory.OwnershipProof,
     );
     updatedDocumentCategories.forEach((cat) => {
-      const count = documents.filter((d) => d.category === cat.value).length;
+      const count = documents.filter(
+        (d) => d.category === cat.value && d.ownerType === 'Landlord',
+      ).length;
       categories.push({
         value: cat.value,
         label: `${cat.label} (${count})`,

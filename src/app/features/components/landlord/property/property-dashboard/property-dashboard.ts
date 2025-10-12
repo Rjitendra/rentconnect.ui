@@ -374,7 +374,16 @@ export class PropertyDashboard implements OnInit {
   }
 
   getAllDocumentsCount(): number {
-    return this.selectedPropertyForDownload?.documents?.length || 0;
+    const document = this.selectedPropertyForDownload?.documents
+      ? this.selectedPropertyForDownload?.documents.filter(
+          (d) =>
+            (d.category === DocumentCategory.PropertyImages ||
+              d.category === DocumentCategory.AddressProof ||
+              d.category === DocumentCategory.OwnershipProof) &&
+            d.ownerType === 'Landlord',
+        )
+      : [];
+    return document.length || 0;
   }
 
   getSelectedCategoryCount(): number {
@@ -437,7 +446,16 @@ export class PropertyDashboard implements OnInit {
   }
 
   getPropertyDocuments(property: IProperty): IDocument[] {
-    return property.documents || [];
+    const document = property.documents
+      ? property.documents.filter(
+          (d) =>
+            (d.category === DocumentCategory.PropertyImages ||
+              d.category === DocumentCategory.AddressProof ||
+              d.category === DocumentCategory.OwnershipProof) &&
+            d.ownerType === 'Landlord',
+        )
+      : [];
+    return document;
   }
 
   private refreshData(): void {
