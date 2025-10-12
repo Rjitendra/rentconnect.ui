@@ -1,11 +1,11 @@
-<lib-layout [navItems]="navItems" (logIn)="onLogIn()" (logOut)="onLogout()">
+<ng-layout [navItems]="navItems" (logIn)="onLogIn()" (logOut)="onLogout()">
   <ng-alert />
 
   <div header></div>
   <div footer>
     <p></p>
   </div>
-</lib-layout>
+</ng-layout>
 @if (userDataLoaded) {
   <app-chatbot />
 }

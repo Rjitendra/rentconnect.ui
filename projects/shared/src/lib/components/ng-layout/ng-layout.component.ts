@@ -21,7 +21,7 @@ import { IUserDetail } from '../../models/user';
 import { NgSpinner } from '../ng-spinner/ng-spinner';
 
 @Component({
-  selector: 'lib-layout',
+  selector: 'ng-layout',
   imports: [
     CommonModule,
     RouterModule,
@@ -34,8 +34,8 @@ import { NgSpinner } from '../ng-spinner/ng-spinner';
     MatMenuModule,
     NgSpinner,
   ],
-  templateUrl: './layout.component.html',
-  styleUrl: './layout.component.scss',
+  templateUrl: './ng-layout.component.html',
+  styleUrl: './ng-layout.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LibLayoutComponent implements AfterViewInit {

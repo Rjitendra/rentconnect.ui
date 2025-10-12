@@ -1,30 +1,27 @@
 import {
-  ChangeDetectionStrategy,
   Component,
-  inject,
   forwardRef,
-  output,
-  input,
+  inject,
   Injector,
+  input,
   OnInit,
+  output,
 } from '@angular/core';
 import {
-  FormBuilder,
+  ControlValueAccessor,
   FormControl,
   FormGroup,
   FormsModule,
-  ReactiveFormsModule,
-  ControlValueAccessor,
   NG_VALUE_ACCESSOR,
   NgControl,
+  ReactiveFormsModule,
 } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatIconModule } from '@angular/material/icon';
-import { NgLabelComponent } from '../ng-label/ng-label.component';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+
 import { NgClarifyTextComponent } from '../ng-clarify-text/ng-clarify-text.component';
-import { ClLabelComponent } from '../cl-label/cl-label.component';
-import { ClClarifyTextComponent } from '../cl-clarify-text/cl-clarify-text.component';
+import { NgLabelComponent } from '../ng-label/ng-label.component';
 
 @Component({
   selector: 'ng-checkbox',
@@ -36,8 +33,8 @@ import { ClClarifyTextComponent } from '../cl-clarify-text/cl-clarify-text.compo
     MatIconModule,
     NgLabelComponent,
     NgClarifyTextComponent,
-    ClLabelComponent,
-    ClClarifyTextComponent,
+    NgLabelComponent,
+    NgClarifyTextComponent,
   ],
   templateUrl: './ng-checkbox.html',
   styleUrl: './ng-checkbox.scss',

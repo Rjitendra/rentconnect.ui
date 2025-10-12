@@ -2,15 +2,13 @@
  * Public API Surface of libs
  */
 
-export * from './lib/components/cl-clarify-text/cl-clarify-text.component';
-export * from './lib/components/cl-label/cl-label.component';
-export * from './lib/components/layout/layout.component';
 export * from './lib/components/ng-alert-message/ng-alert-message.component';
 export * from './lib/components/ng-alert/ng-alert.component';
 export * from './lib/components/ng-checkbox/ng-checkbox';
 export * from './lib/components/ng-clarify-text/ng-clarify-text.component';
 export * from './lib/components/ng-input/ng-input.component';
 export * from './lib/components/ng-label/ng-label.component';
+export * from './lib/components/ng-layout/ng-layout.component';
 export * from './lib/components/ng-mat-table/ng-mat-table';
 export * from './lib/components/ng-tree/ng-tree.component';
 export type { TableColumn } from './lib/models/mat-table';

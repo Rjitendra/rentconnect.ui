@@ -69,14 +69,14 @@
         <mat-icon>{{ icon() }}</mat-icon>
       }
       @if (!hideLabel()) {
-        <cl-label
+        <ng-label
           [label]="label()"
           [required]="isRequired()"
           [toolTip]="toolTip() || ''"
         />
       }
       @if (clarifyText()) {
-        <cl-clarify-text
+        <ng-clarify-text
           matSuffix
           [clarifyText]="clarifyText() || ''"
           [isIconDisabled]="disabled()"
