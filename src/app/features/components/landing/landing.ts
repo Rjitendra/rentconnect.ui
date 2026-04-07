@@ -7,14 +7,14 @@ import {
   Inject,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { environment } from '../../../../environments/environment';
 import { OauthService } from '../../../oauth/service/oauth.service';
 
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './landing.html',
   styleUrls: ['./landing.scss'],
 })

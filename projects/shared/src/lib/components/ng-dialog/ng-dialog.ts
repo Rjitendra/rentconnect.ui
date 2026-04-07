@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject } from '@angular/core';
 
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
@@ -9,7 +9,7 @@ import { NgIconComponent } from '../ng-icon/ng-icon';
 @Component({
   selector: 'ng-dialog',
   standalone: true,
-  imports: [CommonModule, NgButton, NgIconComponent],
+  imports: [NgButton, NgIconComponent],
   templateUrl: './ng-dialog.html',
   styleUrl: './ng-dialog.scss',
 })

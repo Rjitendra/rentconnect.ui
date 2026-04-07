@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnInit, inject } from '@angular/core';
 import {
   FormBuilder,
@@ -75,7 +75,6 @@ interface ITransformedTicket {
   selector: 'app-issue-tracker',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     FormsModule,
     NgCardComponent,
@@ -85,8 +84,8 @@ interface ITransformedTicket {
     NgSelectComponent,
     NgTextareaComponent,
     NgMatTable,
-    NgFileUploadComponent,
-  ],
+    NgFileUploadComponent
+],
   templateUrl: './issue-tracker.html',
   styleUrl: './issue-tracker.scss',
 })

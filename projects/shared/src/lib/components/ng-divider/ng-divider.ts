@@ -1,11 +1,11 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, Input } from '@angular/core';
 import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
   selector: 'ng-divider',
   standalone: true,
-  imports: [CommonModule, MatDividerModule],
+  imports: [MatDividerModule],
   template: `
     <mat-divider [vertical]="vertical" [inset]="inset" [class]="cssClass">
     </mat-divider>

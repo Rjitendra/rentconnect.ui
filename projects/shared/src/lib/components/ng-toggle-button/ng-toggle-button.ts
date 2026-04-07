@@ -60,7 +60,9 @@ export class NgToggleButton implements ControlValueAccessor {
     this.onTouched = fn;
   }
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+    if (isDisabled) {
+      this.value = this.multiple() ? [] : null;
+    }
   }
 
   /** Handle change */

@@ -1,11 +1,11 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, Input } from '@angular/core';
 import { MatBadgeModule } from '@angular/material/badge';
 
 @Component({
   selector: 'ng-badge',
   standalone: true,
-  imports: [CommonModule, MatBadgeModule],
+  imports: [MatBadgeModule],
   template: `
     <ng-content
       [matBadge]="content"

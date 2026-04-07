@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject, input, OnInit, output } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
@@ -39,15 +39,14 @@ import { PropertyService } from '../../../../service/property.service';
   selector: 'app-property-detail',
   standalone: true,
   imports: [
-    CommonModule,
     NgCardComponent,
     NgButton,
     NgIconComponent,
     NgMenuComponent,
     NgDivider,
     NgMenuTriggerDirective,
-    NgMenuItemDirective,
-  ],
+    NgMenuItemDirective
+],
   templateUrl: './property-detail.html',
   styleUrl: './property-detail.scss',
 })
