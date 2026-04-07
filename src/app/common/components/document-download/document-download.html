@@ -1,1 +1,26 @@
-<p>document-download works!</p>
+<section class="document-download-card">
+  <div class="document-download-card__icon">
+    <ng-icon name="download" />
+  </div>
+
+  <div class="document-download-card__content">
+    <p class="document-download-card__eyebrow">{{ fileType() }}</p>
+    <h3>{{ title() }}</h3>
+    <p class="document-download-card__description">{{ description() }}</p>
+
+    <div class="document-download-card__meta">
+      <span>{{ fileName() }}</span>
+      <span>{{ fileSize() }}</span>
+    </div>
+  </div>
+
+  <div class="document-download-card__actions">
+    <ng-button
+      buttonType="button"
+      type="filled"
+      label="Download"
+      [disabled]="disabled()"
+      (buttonClick)="onDownload()"
+    />
+  </div>
+</section>
